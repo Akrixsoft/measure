@@ -497,7 +497,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v54';
+const ZVER = 'v55';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -1275,7 +1275,7 @@ function mkChips() {
 }
 /* ─── [SUB] пресеты инструментов (v8, по образцу DrawNote) ─── */
 /* Ряд: кольцо — цвет инструмента; удержание 0,3 с — тянуть по ряду (свой порядок), увести вверх / вниз — убрать; «+» — весь набор (★ — в пресеты); 🎨 — цвет текущего инструмента. Хранится в localStorage. */
-const TOOLX = { sel: { n: 'выбор', c: '#1f6fd1' }, rsel: { n: 'рамка выделения', c: '#1f6fd1' }, vyn: { n: 'выноска', c: '#c2410c' }, dim: { n: 'размер', c: '#1f6fd1' }, ln: { n: 'линия', c: '#d93025' }, rect: { n: 'прямоугольник', c: '#e07a00' }, wrt: { n: 'трасса', c: '#e07a00' }, poly: { n: 'фасон: короб / ниша', c: '#6b7785' },
+const TOOLX = { pts: { n: '4 угла — точки стен: вкл / выкл', c: '#F28C00' }, sel: { n: 'выбор', c: '#1f6fd1' }, rsel: { n: 'рамка выделения', c: '#1f6fd1' }, vyn: { n: 'выноска', c: '#c2410c' }, dim: { n: 'размер', c: '#1f6fd1' }, ln: { n: 'линия', c: '#d93025' }, rect: { n: 'прямоугольник', c: '#e07a00' }, wrt: { n: 'трасса', c: '#e07a00' }, poly: { n: 'фасон: короб / ниша', c: '#6b7785' },
   pen: { n: 'перо', c: '#d93025' }, arr: { n: 'стрелка', c: '#e07a00' }, pl: { n: 'ломаная', c: '#1a2027' }, circ: { n: 'круг', c: '#1a2027' }, arc: { n: 'дуга 3 точки', c: '#7b3fc4' }, er: { n: 'ластик', c: '#6b7785' }, txt: { n: 'текст', c: '#1a2027' }, pin: { n: 'пин №', c: '#e07a00' } };   /* v26 */   /* v25 */   /* v24: размер, пометки */   /* v10: выноска */
 const PRE0 = ['sel', 'rsel', 'dim', 'arr', 'pen'], PRE_N = 10;   /* v49: ряд прокручивается */   /* v43: рамка — вторая */   /* v39: как DrawNote — 5 пресетов + «+» */
 const QCOL = ['#1a2027', '#d93025', '#e07a00', '#d4a300', '#2e9e4f', '#1f6fd1', '#7b3fc4', '#8d6e63'];
@@ -1283,6 +1283,7 @@ const PREF = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem('zam
 const zColL = () => PREF.cl || QCOL;   /* v39: флаги — из памяти */
 function prefSave() { try { localStorage.setItem('zamer.pre', JSON.stringify(PREF)) } catch (e) { } }
 if (!PREF.v39) { PREF.order = PRE0.slice(); PREF.v39 = 1; PREF.v24 = 1; prefSave() }   /* v39: ряд из 5 */
+if (!PREF.v55) { if (!PREF.order.includes('pts')) PREF.order.splice(2, 0, 'pts'); PREF.v55 = 1; prefSave() }   /* v55: «4 угла» в пресетах */
 if (!PREF.v43) { if (!PREF.order.slice(0, PRE_N).includes('rsel')) PREF.order = ['sel', 'rsel', ...PREF.order.filter(k => k !== 'sel' && k !== 'rsel')]; PREF.v43 = 1; prefSave() }   /* v43: рамка — в ряд */
 if (!PREF.v24) { if (!PREF.order.includes('dim')) PREF.order.splice(Math.min(2, PREF.order.length), 0, 'dim'); PREF.v24 = 1 }   /* v24: размер — в пресеты */
 for (const [k, c] of Object.entries(PREF.cols)) if (KD[k]) KD[k].c = c; else if (TOOLX[k]) TOOLX[k].c = c;
@@ -1290,6 +1291,7 @@ const kN = k => (TOOLX[k] || KD[k] || {}).n || k, kC = k => (TOOLX[k] || KD[k] |
 function kIco(k, cc) {   /* полноцветная иконка 28×28; cc — цвет взамен (v39: тёмные — светлым на тёмной полосе) */
   const c = cc || kC(k), o = '#1a2027', S2 = b => `<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">${b}</svg>`;
   switch (k) {
+    case 'pts': return S2(`<g transform="scale(.875)"><path d="M8 8l16 2v14l-16 2z" fill="rgba(242,140,0,.16)" stroke="#F28C00" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="3.3" fill="#F28C00"/><circle cx="24" cy="10" r="3.3" fill="#F28C00"/><circle cx="24" cy="24" r="3.3" fill="#F28C00"/><circle cx="8" cy="26" r="3.3" fill="#F28C00"/></g>`);   /* v55 */
     case 'sel': return S2(`<path d="M8 4l14 10-6 1.5 3.5 6-2.6 1.5-3.5-6L9 22z" fill="#fff" stroke="${o}" stroke-width="1.6" stroke-linejoin="round"/>`);
     case 'rsel': return S2(`<rect x="3" y="4" width="18" height="15" fill="${c}" fill-opacity=".14" stroke="${c}" stroke-width="2" stroke-dasharray="3 2"/><path d="M14 12l10 4.5-4 1 2.5 4.5-2 1.2-2.5-4.5-3 3z" fill="#fff" stroke="${o}" stroke-width="1.4" stroke-linejoin="round"/>`);
     case 'floor': return S2(`<path d="M3 20h22" stroke="${c}" stroke-width="3"/><path d="M5 24l3-4M10 24l3-4M15 24l3-4M20 24l3-4" stroke="${o}" stroke-width="1.2"/><rect x="6" y="6" width="16" height="12" fill="#f4f6f8" stroke="#9aa5b1"/>`);
@@ -1336,12 +1338,14 @@ function kIco(k, cc) {   /* полноцветная иконка 28×28; cc —
   return S2(`<circle cx="14" cy="14" r="9" fill="${c}"/>`);
 }
 const q4Lk = k => ['floor', 'ceil', 'left', 'right'].includes(k) && !!(S.q4 && S.q4.ok && !S.sol);   /* v41: стена по 4 углам — линии по углам */
-function pickTool(k) { $('dmIn').classList.remove('on'); S.mk = k; S.pend = null; S.zpl = []; S.zdp = []; S.nsel = null; S.dsel = null; if (k !== 'rsel' && k !== 'sel') S.msel = []; mkChips(); mkPanel(); draw() }
+function pickTool(k) { if (k === 'pts') { window.__w3pts = window.__w3pts === false; try { const o = JSON.parse(localStorage.getItem('measure.w3') || '{}'); o.pts = window.__w3pts; localStorage.setItem('measure.w3', JSON.stringify(o)) } catch (e) { } mkChips(); draw(); try { w3Win() } catch (e) { } return toast(window.__w3pts ? '4 угла: точки включены' : '4 угла: точки выключены') }   /* v55 */
+  return pickTool0(k) }
+function pickTool0(k) { $('dmIn').classList.remove('on'); S.mk = k; S.pend = null; S.zpl = []; S.zdp = []; S.nsel = null; S.dsel = null; if (k !== 'rsel' && k !== 'sel') S.msel = []; mkChips(); mkPanel(); draw() }
 let preDr = null;
 function preBar(el) {
   el.classList.add('pre');
   for (const k of PREF.order.filter(k => (TOOLX[k] || (KD[k] && !KD[k].hide)) && !q4Lk(k)).slice(0, PRE_N)) {   /* v39: 5; v41: по 4 углам — без линий стены */
-    const b = document.createElement('button'); b.className = 'pb' + (S.mk === k ? ' on' : ''); b.dataset.k = k; b.style.setProperty('--c', kC(k) === '#1a2027' ? '#C9CED6' : kC(k));   /* v44 */
+    const b = document.createElement('button'); b.className = 'pb' + ((k === 'pts' ? window.__w3pts !== false : S.mk === k) ? ' on' : '');   /* v55: «4 угла» — режим */ b.dataset.k = k; b.style.setProperty('--c', kC(k) === '#1a2027' ? '#C9CED6' : kC(k));   /* v44 */
     const K = KD[k]; b.title = kN(k) + (K && K.line ? ': два касания по линии' : K && K.pt ? ': касание в центр' : K ? ': два касания — углы' : '');
     b.innerHTML = kIcoD(k) + (K && K.line && S.lines[k] ? '<i>✓</i>' : '');   /* v44: на графите */
     b.onpointerdown = ev => { preDr = { k, x: ev.clientX, y: ev.clientY, on: false, t: setTimeout(() => { preDr.on = true; b.classList.add('dr') }, 300), b } };
@@ -1386,11 +1390,11 @@ addEventListener('pointerup', () => {
   prefSave(); mkChips(); const nb = $('ch').querySelector(`[data-k="${g.k}"]`); if (nb) nb.dataset.drag = 1; setTimeout(() => { const x = $('ch').querySelector(`[data-k="${g.k}"]`); if (x) delete x.dataset.drag }, 400);
 });
 function tbOpen(toCol) { if (document.body.classList.contains('kb') && document.activeElement && document.activeElement.blur) document.activeElement.blur();   /* v54: футляр — клавиатура закрывается */
-  const t = $('tb'), G = [['Правка', ['sel', 'rsel']], ...(q4Lk('floor') ? [] : [['Линии стены', ['floor', 'ceil', 'left', 'right']]]),   /* v41 */
+  const t = $('tb'), G = [['Правка', ['sel', 'rsel', 'pts']], ...(q4Lk('floor') ? [] : [['Линии стены', ['floor', 'ceil', 'left', 'right']]]),   /* v41 */
     ['Рисование и пометки', ['pen', 'ln', 'arr', 'pl', 'dim', 'rect', 'circ', 'arc', 'er', 'txt', 'pin', 'vyn']], ['Коммуникации', [...KINDS.filter(k => k.pt).map(k => k.k), 'znd', 'wrt']],
     ['Проёмы и элементы', KINDS.filter(k => k.rc && !k.hide && !ZN_K.includes(k.k)).map(k => k.k)], ['Зоны и геометрия', ['zon', 'znt', 'znf', 'poly']]];   /* v53: по смыслу, группа — с новой строки */   /* v26 */   /* v24 */   /* v10 */
   t.innerHTML = `<div class="hd"><button id="tbX" title="Закрыть">✕</button><b>Футляр</b><span class="mu" style="font-size:12px">★ — в пресеты · касание — взять</span></div>` +
-    '<div class="gg7">' + G.map(([n, ks]) => `<h4>${n}</h4><div class="g">${ks.map(k => `<div class="tl${PREF.order.slice(0, PRE_N).includes(k) ? ' st' : ''}${S.mk === k ? ' on' : ''}" data-k="${k}" style="--c:${kC(k)}" title="${esc(kN(k))}">${kIcoD(k)}<span>${esc(kN(k))}</span><b data-star="${k}">★</b></div>`).join('')}</div>`).join('') + '</div>' +
+    '<div class="gg7">' + G.map(([n, ks]) => `<h4>${n}</h4><div class="g">${ks.map(k => `<div class="tl${PREF.order.slice(0, PRE_N).includes(k) ? ' st' : ''}${(k === 'pts' ? window.__w3pts !== false : S.mk === k) ? ' on' : ''}" data-k="${k}" style="--c:${kC(k)}" title="${esc(kN(k))}">${kIcoD(k)}<span>${esc(kN(k))}</span><b data-star="${k}">★</b></div>`).join('')}</div>`).join('') + '</div>' +
     `<h4 id="tbCh">цвета · тянуть — порядок</h4><div class="cols" id="tbCols">${zColL().map(q => `<button data-tc="${q}" class="${kC(S.mk) === q ? 'on' : ''}" style="background:${q}" title="${q}"></button>`).join('')}<label class="addc" title="Добавить цвет">+<input type="color" id="tbAddC"></label></div>`;   /* v44 */   /* v39: подписи — в title; цвета */
   t.classList.add('on');
   $('tbX').onclick = () => t.classList.remove('on');
@@ -3665,8 +3669,8 @@ const zOS05 = openSess; openSess = async function (id) { const r = await zOS05(i
 /* ═══ [BLOCK] СТЕНА В ПЛОСКОСТИ 3D (v47, макет B): прилегающие с плана, пол, угол взгляда, скрытые грани пунктиром, углы X / Y / Z ═══ */
 /* Координаты стены, мм: x — вдоль (0 — левый край, вид из помещения), y — вверх, z — к зрителю (в помещение). Проекция: (x + z·0,7·k, y − z·0,7), k = (90 − ∠°)/45, ±1. */
 const W3 = { a: 135, f: 1, sel: null, pl: 'M' };
-try { const o = JSON.parse(localStorage.getItem('measure.w3') || '{}'); if (o.a >= 0) W3.a = o.a; if (o.f > 0) W3.f = o.f } catch (e) { }
-const w3Sv = () => { try { localStorage.setItem('measure.w3', JSON.stringify({ a: W3.a, f: W3.f })) } catch (e) { } };
+try { const o = JSON.parse(localStorage.getItem('measure.w3') || '{}'); if (o.a >= 0) W3.a = o.a; if (o.f > 0) W3.f = o.f; if (o.pts === false) window.__w3pts = false } catch (e) { }
+const w3Sv = () => { try { localStorage.setItem('measure.w3', JSON.stringify({ a: W3.a, f: W3.f, pts: window.__w3pts !== false })) } catch (e) { } };
 const w3K = () => (90 - W3.a) / 60;   /* v50: 0…180 — весь диапазон (±1,5) */
 const W3G = { A: '0.0', B: '0.2', C: '2.2', D: '2.0' };   /* углы стены → точки сетки 3×3 */
 function w3On() { return S.mode !== 'plan' && S.show < 0 && !!S.mosaic && !!(S.room0 && S.room0.ms && S.sess && S.sess.seg != null && plN(S.room0.ms) > 0) }
@@ -3780,16 +3784,17 @@ function w3Draw(top) {
     cx.fillStyle = mv && mv.src === 'рулетка' ? '#1F6FD1' : '#3E4954'; cx.textAlign = 'center'; cx.fillText(t, 0, 0); cx.restore(); cx.textAlign = 'start'; S.w3L.push({ a, b, c, man });
   }
   cx.textBaseline = 'alphabetic';
+  const PTS = window.__w3pts !== false;   /* v55: режим «4 угла» выключен — точек нет; отклонения у углов — видны всегда */
   /* углы — только видимых граней; выбранный — пунктирное кольцо; у выбранной плоскости — 4 угла в кольцах */
   const selF = fv[W3.pl], ring = selF && W3.pl !== 'M' ? selF.ks : [];
-  for (const [i, v] of VV.entries()) for (const k of ['KLT', 'KRT', 'KRB', 'KLB', 'WLT', 'WRT', 'WLB', 'WRB']) {   /* v54: и внутренние; v48: углы объёма — передняя грань */
+  for (const [i, v] of (PTS ? VV : []).entries()) for (const k of ['KLT', 'KRT', 'KRB', 'KLB', 'WLT', 'WRT', 'WLB', 'WRB']) {   /* v54: и внутренние; v48: углы объёма — передняя грань */
     const q = w3S(v.P[k]), sel = W3.pl === 'obj' && W3.vi === i, id = v.id + ':' + k;
     if (sel) { cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.5 * d; cx.beginPath(); cx.arc(q[0], q[1], 10 * d, 0, 7); cx.stroke() }
     cx.fillStyle = '#F28C00'; cx.strokeStyle = '#fff'; cx.lineWidth = 1.5 * d; cx.beginPath(); cx.arc(q[0], q[1], 4.5 * d, 0, 7); cx.fill(); cx.stroke();
     if (W3.sel === id) { cx.setLineDash([3 * d, 3 * d]); cx.strokeStyle = '#E0442B'; cx.lineWidth = 2 * d; cx.beginPath(); cx.arc(q[0], q[1], 13 * d, 0, 7); cx.stroke(); cx.setLineDash([]) }
   }
   for (const k of Object.keys(P)) {
-    if (!vk(k)) continue; const q = w3S(P[k]), r = (/^[LR]/.test(k) ? 4.5 : 6.5) * d;
+    if (!vk(k) || !PTS) continue; const q = w3S(P[k]), r = (/^[LR]/.test(k) ? 4.5 : 6.5) * d;
     if (ring.includes(k)) { cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.5 * d; cx.beginPath(); cx.arc(q[0], q[1], 10 * d, 0, 7); cx.stroke() }
     cx.fillStyle = '#F28C00'; cx.strokeStyle = '#fff'; cx.lineWidth = 2 * d; cx.beginPath(); cx.arc(q[0], q[1], r, 0, 7); cx.fill(); cx.stroke();
     if (W3.sel === k) { cx.setLineDash([3 * d, 3 * d]); cx.strokeStyle = '#E0442B'; cx.lineWidth = 2 * d; cx.beginPath(); cx.arc(q[0], q[1], 13 * d, 0, 7); cx.stroke(); cx.setLineDash([]) }
@@ -3804,7 +3809,7 @@ function w3Draw(top) {
     for (const v of VV) for (const k of ['KLT', 'KRT', 'KRB', 'KLB', 'WLT', 'WRT', 'WLB', 'WRB']) { const o = ev[v.id] && ev[v.id][k]; if (o) lab(w3S(v.P[k]), o) } }
 }
 function w3Hit(p) {
-  const Md = w3Model(); if (!Md) return null; const d = devicePixelRatio || 1, F = w3Faces(Md), vk = k => F.some(x => x.vis && x.ks.includes(k)); let best = null, bd = 16 * d;
+  if (window.__w3pts === false) return null; const Md = w3Model(); if (!Md) return null; const d = devicePixelRatio || 1, F = w3Faces(Md), vk = k => F.some(x => x.vis && x.ks.includes(k)); let best = null, bd = 16 * d;
   for (const k of Object.keys(Md.P)) { if (!vk(k)) continue; const q = w3S(Md.P[k]), r = Math.hypot(q[0] - p[0], q[1] - p[1]); if (r < bd) { bd = r; best = k } }
   for (const v of w3Vols(Md)) for (const k of ['KLT', 'KRT', 'KRB', 'KLB', 'WLT', 'WRT', 'WLB', 'WRB']) { const q = w3S(v.P[k]), r = Math.hypot(q[0] - p[0], q[1] - p[1]); if (r < bd) { bd = r; best = v.id + ':' + k } }   /* v48 */
   return best;
@@ -3910,7 +3915,7 @@ function plBar() {   /* полоса действий плана: колонна
 const W3VN = { KLT: 'верх-лево', KRT: 'верх-право', KRB: 'низ-право', KLB: 'низ-лево', WLT: 'внутренний · верх-лево', WRT: 'внутренний · верх-право', WRB: 'внутренний · низ-право', WLB: 'внутренний · низ-лево' };
 function w3Pt(Md, key) { if (!key) return null; if (Md.P[key]) return Md.P[key]; const [id, k] = key.split(':'), v = w3Vols(Md).find(x => x.id === id); return v ? v.P[k] : null }
 function w3Win() {
-  const x = $('w3x'), Md = w3Model(), p = Md && w3Pt(Md, W3.sel); if (!p) { x.classList.remove('on'); return }
+  const x = $('w3x'), Md = w3Model(), p = window.__w3pts !== false && Md && w3Pt(Md, W3.sel); if (!p) { x.classList.remove('on'); return }
   let nm; if (Md.P[W3.sel]) nm = w3Name(Md, W3.sel); else { const [id, k] = W3.sel.split(':'), v = w3Vols(Md).find(q => q.id === id); nm = [W3VK[v.k][1], W3VN[k], ...(v.y0 < 1 && /B$/.test(k) ? ['пол'] : []), ...(v.y1 > Md.H - 1 && /T$/.test(k) ? ['потолок'] : [])].join(' · ') }
   x.querySelector('.h').textContent = 'Угол · ' + nm; x.classList.add('on');
   x.querySelectorAll('[data-w3]').forEach(i => { if (document.activeElement !== i) i.value = String(Math.round(p[+i.dataset.w3])) });
