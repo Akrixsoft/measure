@@ -310,7 +310,7 @@ button.fa.on{background:color-mix(in srgb,var(--ac) 18%,transparent)!important;b
 #mdT [data-w3s]{display:none;font:700 12px system-ui} body.w3 #mdT [data-w3s]{display:grid} #mdT [data-w3s].on{background:#2E3A4D;color:#4DA3FF}
 #w3sl{position:fixed;left:8px;right:8px;top:116px;z-index:7;display:none;background:rgba(27,30,35,.97);border-radius:12px;padding:10px 14px 8px;color:#E8EBEF;font:600 12px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.5)} #w3sl.on{display:block}
 #w3sl .v{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px} #w3sl input{width:100%;accent-color:#4DA3FF} #w3sl .t{display:flex;justify-content:space-between;color:#8B93A1;font-size:11px;font-weight:500}
-#w3x{position:fixed;left:50%;transform:translateX(-50%);top:118px;width:178px;z-index:7;display:none;background:rgba(27,30,35,.96);border-radius:10px;padding:7px 9px 9px;color:#fff;font:500 12px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.5)} #w3x.on{display:block}
+#w3x{position:fixed;left:50%;transform:translateX(-50%);top:118px;width:auto;min-width:178px;z-index:7;display:none;background:rgba(27,30,35,.96);border-radius:10px;padding:7px 9px 9px;color:#fff;font:500 12px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.5)} #w3x.on{display:block}
 #w3x .h{font-size:11px;color:#8B93A1;margin-bottom:4px} #w3x .r{display:flex;align-items:center;gap:5px;margin-top:5px} #w3x b{width:11px;font-size:14px}
 #w3x input{width:62px;height:26px;border-radius:6px;background:#2B2F35;border:1.5px solid #3A4150;color:#fff;font:700 14px system-ui;padding:0 6px} #w3x input:focus{border-color:#4DA3FF;outline:none}
 #w3x .m{font-size:10px;color:#8B93A1;line-height:1.15}
@@ -504,7 +504,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v70';
+const ZVER = 'v71';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -858,9 +858,20 @@ const cv = $('cv'), cx = cv.getContext('2d');
 function resize() { const d = devicePixelRatio || 1; cv.width = cv.clientWidth * d; cv.height = cv.clientHeight * d; draw() }
 function toD(p) { return S.dispC ? toWc(p, S.dispW, S.dispC) : p }   /* v5b: плоскость → вид (с подгонкой — исправленная стена) */
 function toP(q) { return S.dispC ? fromWc(q, S.dispW, S.dispC) : q }
-function toScr(X, Y) { [X, Y] = toD([X, Y]); const v = S.view, r = v.rot || 0, c = Math.cos(r), sn = Math.sin(r); return [v.ox + (c * X + sn * Y) * v.s, v.oy - (-sn * X + c * Y) * v.s] }
-function toPl(x, y) { const v = S.view, r = v.rot || 0, c = Math.cos(r), sn = Math.sin(r), a = (x - v.ox) / v.s, b = (v.oy - y) / v.s; return toP([c * a - sn * b, sn * a + c * b]) }
-function mosM() {                               /* матрица холста для развёртки (с поворотом вида) */
+function toScr0(X, Y) { [X, Y] = toD([X, Y]); const v = S.view, r = v.rot || 0, c = Math.cos(r), sn = Math.sin(r); return [v.ox + (c * X + sn * Y) * v.s, v.oy - (-sn * X + c * Y) * v.s] }
+function toPl0(x, y) { const v = S.view, r = v.rot || 0, c = Math.cos(r), sn = Math.sin(r), a = (x - v.ox) / v.s, b = (v.oy - y) / v.s; return toP([c * a - sn * b, sn * a + c * b]) }
+function w3FS() {   /* v71: поворот передней грани на экране — {S0, Sx, Sy, iv, c, s, k} или null (прямо / не вид стены) */
+  try { if (!(S.mode !== 'plan' && S.show < 0 && S.mosaic && w3On()) || Math.abs(W3.a - 90) < 0.01) return null } catch (e) { return null }   /* до объявления W3 — нет */
+  const v = S.view, key = [v.s, v.ox, v.oy, v.rot || 0, W3.a, S.sess && S.sess.id, S.dispC ? 1 : 0].join('|'); if (S.w3FC && S.w3FC.key === key) return S.w3FC.f;
+  let f = null; try { const W = wf(), S0 = toScr0(...fromW([0, 0], W)), X1 = toScr0(...fromW([1000, 0], W)), Y1 = toScr0(...fromW([0, 1000], W)), Sx = [(X1[0] - S0[0]) / 1000, (X1[1] - S0[1]) / 1000], Sy = [(Y1[0] - S0[0]) / 1000, (Y1[1] - S0[1]) / 1000], det = Sx[0] * Sy[1] - Sx[1] * Sy[0];
+    const a = (W3.a - 90) * Math.PI / 180, c0 = Math.cos(a), c = Math.sign(c0 || 1) * Math.max(Math.abs(c0), 0.02); if (Math.abs(det) > 1e-12) f = { S0, Sx, Sy, iv: [Sy[1] / det, -Sy[0] / det, -Sx[1] / det, Sx[0] / det], c, s: Math.sin(a), k: W3KP } } catch (e) { }
+  S.w3FC = { key, f }; return f;
+}
+function toScr(X, Y) { const P = toScr0(X, Y), f = w3FS(); if (!f) return P; const dx = P[0] - f.S0[0], dy = P[1] - f.S0[1], x = f.iv[0] * dx + f.iv[1] * dy, y = f.iv[2] * dx + f.iv[3] * dy, x2 = x * f.c, y2 = y - f.k * x * f.s; return [f.S0[0] + f.Sx[0] * x2 + f.Sy[0] * y2, f.S0[1] + f.Sx[1] * x2 + f.Sy[1] * y2] }   /* v71 */
+function toPl(x, y) { const f = w3FS(); if (!f) return toPl0(x, y); const dx = x - f.S0[0], dy = y - f.S0[1], x2 = f.iv[0] * dx + f.iv[1] * dy, y2 = f.iv[2] * dx + f.iv[3] * dy, xm = x2 / f.c, ym = y2 + f.k * xm * f.s; return toPl0(f.S0[0] + f.Sx[0] * xm + f.Sy[0] * ym, f.S0[1] + f.Sx[1] * xm + f.Sy[1] * ym) }   /* v71 */
+function mosM() { const m = mosM0(), f = w3FS(); if (!f) return m;   /* v71: фото — вместе с поворотом грани (аффинно через toScr) */
+  const M = S.mosaic, P0 = toScr(M.x0, M.y1), Px = toScr(M.x0 + M.r, M.y1), Py = toScr(M.x0, M.y1 - M.r); return [Px[0] - P0[0], Px[1] - P0[1], Py[0] - P0[0], Py[1] - P0[1], P0[0], P0[1]] }
+function mosM0() {                               /* матрица холста для развёртки (с поворотом вида) */
   const v = S.view, M = S.mosaic, r = v.rot || 0, c = Math.cos(r), sn = Math.sin(r), k = v.s * M.r;
   return [k * c, k * sn, -k * sn, k * c, v.ox + v.s * (c * M.x0 + sn * M.y1), v.oy + v.s * (sn * M.x0 - c * M.y1)];
 }
@@ -889,7 +900,7 @@ function draw() {
     cx.strokeStyle = m.id === S.sol.ref ? '#f0a020' : '#4caf6a'; cx.beginPath(); P.forEach((p, i) => i ? cx.lineTo(...p) : cx.moveTo(...p)); cx.closePath(); cx.stroke();
     cx.fillStyle = cx.strokeStyle; cx.fillText('№' + m.id, P[0][0], P[0][1] - 4 * d);
   }
-  if (w3On() && LAY.geo) w3Draw(0); drawMarkup(); drawRulers(); if (w3On() && LAY.geo) w3Draw(1);   /* слой «геометрия» */
+  if (w3On() && LAY.geo) w3Draw(0); { const f = w3FS(); if (!(f && Math.abs(f.c) < 0.15)) drawMarkup() } drawRulers();   /* v71: стена ребром — разметка передней грани не рисуется */ if (w3On() && LAY.geo) w3Draw(1);   /* слой «геометрия» */
 }
 function drawFrame(f) {
   const v = S.view, d = devicePixelRatio || 1;
@@ -1460,7 +1471,7 @@ function mkTap(p) {
   if (ZT[S.mk]) return dmTap(q, p);   /* v24: размер, линия, прямоугольник */
   if (S.mk === 'rsel') { const h = mkHit(p); if (h) S.msel = S.msel.includes(h.id) ? S.msel.filter(x => x !== h.id) : [...S.msel, h.id]; else S.msel = []; S.sel = null; mkPanel(); draw(); return }   /* v8 */
   if (S.mk === 'vyn') return nTap(q);   /* v10: выноска */
-  if (S.mk === 'sel') { { const wh = w3Hit(p); if (wh) { W3.sel = wh; w3Win(); draw(); return } }   /* v47: угол → окно X / Y / Z */ const nh = LAY.vyn ? nHit(p) : null; if (nh) { S.nsel = nh.id; S.sel = null; mkPanel(); draw(); return } const gh = LAY.geo ? gHit(p) : null; if (gh) { S.gsel = gh; S.gOpen = true; S.sel = null; S.nsel = null; mkPanel(); draw(); return } S.nsel = null;   /* v10 */
+  if (S.mk === 'sel') { { const wh = w3Hit(p); if (wh) { W3.sel = wh; w3Win(); draw(); return } }   /* v47: угол → окно X / Y / Z */ const nh = LAY.vyn ? nHit(p) : null; if (nh) { S.nsel = nh.id; S.sel = null; mkPanel(); draw(); return } const gh = LAY.geo && !w3On() ? gHit(p) : null;   /* v71: в виде стены — без старой сетки 3×3 */ if (gh) { S.gsel = gh; S.gOpen = true; S.sel = null; S.nsel = null; mkPanel(); draw(); return } S.nsel = null;   /* v10 */
     if (S.msel.length) S.msel = []; { const zh = dmHit(p); S.dsel = zh; if (zh) { S.sel = null; mkPanel(); draw(); return } }   /* v24: размер / пометка */ const dh = S.adim ? dimHit(p) : null; if (dh) { S.sel = dh.id; S.dfoc = dh.ax; mkPanel(); draw(); return } const hit = mkHit(p); S.sel = hit ? hit.id : null; S.dfoc = null; mkPanel(); draw(); return }   /* v4; v7: подпись размера */
   const K = KD[S.mk];
   if (K.line && S.q4 && S.q4.ok && !S.sol) { toast('Фото по 4 углам: пол, потолок и края — по углам · ⌗4 — заново'); return }   /* v40: оси не сбиваются касанием */
@@ -3653,7 +3664,10 @@ function lqDraw() {   /* цель — оранжевая подсветка ст
   cx.restore();
 }
 function zTapSel(p) {   /* касание пальцем при стилусе: только выбор, инструмент прежний */
-  if (S.mode === 'plan') { if (PL.tool === 'rm') return plTap(p);   /* v32: ⌂ — касанием пальца */ const t = PL.tool, h = plHit(p); if (!h && !zpHit(p)) return; PL.tool = 'sel'; plTap(p); PL.tool = t; mkChips(); mkPanel(); return draw() }
+  if (S.mode !== 'plan' && S.show < 0 && S.mosaic) { const fh = w3FHit(p); if (fh) return w3FOpen(fh) }   /* v71: поле размера стены — пальцем */
+  if (S.mode === 'plan') { if (PL.tool === 'rm') return plTap(p);   /* v32: ⌂ — касанием пальца */ const t = PL.tool, h = plHit(p), d0 = devicePixelRatio || 1, f0 = S.plFld, onF = !!(f0 && S.psel && S.psel.t === 's' && S.psel.i === f0.i && Math.abs(p[0] - f0.c[0]) < (f0.w || 40 * d0) && Math.abs(p[1] - f0.c[1]) < 14 * d0), onN = typeof nchFHit === 'function' && !!nchFHit(p);   /* v71: поля длины и ниши — пальцем */
+    if (onF || onN) { PL.tool = 'sel'; plTap(p); PL.tool = t; mkChips(); return }
+    if (!h && !zpHit(p)) return; PL.tool = 'sel'; plTap(p); PL.tool = t; mkChips(); mkPanel(); return draw() }
   if (S.tool === 'mk' && S.mosaic && S.show < 0) { const k = S.mk, pd = S.pend; S.mk = 'sel'; mkTap(p); S.mk = k; S.pend = pd; mkChips(); mkPanel(); draw() }
 }
 $('bLq').onclick = () => S.lq ? (S.lq = null, mkPanel(), draw(), zLay()) : lqStart();
@@ -3906,7 +3920,7 @@ document.body.insertAdjacentHTML('beforeend', '<input id="plUl" type="file" acce
 $('ptx').onkeydown = e => { if (e.key === 'Enter') $('ptx').blur() };
 $('ptx').onblur = () => { const i = $('ptx'), t = i.value.trim(); i.classList.remove('on'); if (t && i._q && S.mode === 'plan') pdAdd('txt', [i._q], t); i._q = null };   /* v52: текст на плане */
 $('plUl').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f && S.mode === 'plan') ulAdd(f) };   /* v51: «фото» плана */
-document.body.insertAdjacentHTML('beforeend', '<div id="wrow"><div id="wrowC"></div></div><div id="mdT"></div><div id="w3p"></div><div id="w3sl"><div class="v"></div><input type="range"><div class="t"><span></span><span></span><span></span></div></div><div id="w3x"><div class="h"></div><div class="r"><b style="color:#E0442B">X</b><input data-w3="0" inputmode="decimal"><b style="color:#2BB673">Y</b><input data-w3="1" inputmode="decimal"></div><div class="r"><b style="color:#4DA3FF">Z</b><input data-w3="2" inputmode="decimal"><span class="m">смещение от плоскости</span></div></div>');
+document.body.insertAdjacentHTML('beforeend', '<div id="wrow"><div id="wrowC"></div></div><div id="mdT"></div><div id="w3p"></div><div id="w3sl"><div class="v"></div><input type="range"><div class="t"><span></span><span></span><span></span></div></div><div id="w3x"><div class="h"></div><div class="r"><b style="color:#E0442B">X</b><input data-w3="0" inputmode="decimal"><b style="color:#2BB673">Y</b><input data-w3="1" inputmode="decimal"></div><div class="r"><b style="color:#4DA3FF">Z</b><input data-w3="2" inputmode="decimal"><span class="m">смещение от плоскости</span></div><div class="r" id="w3an"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none"><path d="M4 3v17h17" fill="none" stroke="#7B3FC4" stroke-width="2.6" stroke-linejoin="round"/><path d="M4 9h5v11" fill="none" stroke="#B48CF0" stroke-width="1.6"/><path d="M8 3l4 1" stroke="#F2C200" stroke-width="2" stroke-linecap="round"/></svg><span class="lv" style="font-size:10px;color:#8B93A1;width:34px">низ</span><input data-w3a="at" inputmode="decimal" title="от стыка, мм" style="width:44px"><input data-w3a="mm" inputmode="decimal" title="зазор угольника, мм (+ — угол больше 90°)" style="width:40px"><b class="an" style="width:auto;font-size:12px;color:#B48CF0;white-space:nowrap"></b></div></div>');
 $('mdT').innerHTML = MD + '<button data-w3s="a" title="Угол вида">∠°</button><button data-w3s="f" title="Размер полей">Aa</button>';
 async function mdGo(m) {
   if (m === 'plan') { const j = S.mode !== 'plan' && S.sess ? S.sess.seg : null; if (S.mode !== 'plan') await zmSet('plan'); if (j != null && S.mode === 'plan') { S.psel = { t: 's', i: j }; mkPanel(); draw() } return lay05() }   /* v50: стена выделена */
@@ -3949,7 +3963,7 @@ const zOS05 = openSess; openSess = async function (id) { const r = await zOS05(i
 
 /* ═══ [BLOCK] СТЕНА В ПЛОСКОСТИ 3D (v47, макет B): прилегающие с плана, пол, угол взгляда, скрытые грани пунктиром, углы X / Y / Z ═══ */
 /* Координаты стены, мм: x — вдоль (0 — левый край, вид из помещения), y — вверх, z — к зрителю (в помещение). Проекция: (x + z·0,7·k, y − z·0,7), k = (90 − ∠°)/45, ±1. */
-const W3 = { a: 135, f: 1, sel: null, pl: 'M' };
+const W3 = { a: 115, f: 1, sel: null, pl: 'M' };   /* v71: по умолчанию — чуть справа (поворот) */
 try { const o = JSON.parse(localStorage.getItem('measure.w3') || '{}'); if (o.a >= 0) W3.a = o.a; if (o.f > 0) W3.f = o.f; if (o.pts === false) window.__w3pts = false } catch (e) { }
 const w3Sv = () => { try { localStorage.setItem('measure.w3', JSON.stringify({ a: W3.a, f: W3.f, pts: window.__w3pts !== false })) } catch (e) { } };
 const w3K = () => (90 - W3.a) / 60;   /* v50: 0…180 — весь диапазон (±1,5) */
@@ -3975,9 +3989,11 @@ function w3Model() {
   for (const [s1, T, B2, key] of [[-1, 'A', 'D', 'L'], [1, 'B', 'C', 'R']]) {
     const j = w3Nb(m, k, s1); if (j == null) continue; const [p, q] = plSeg(m, j), Cn = s1 < 0 ? ax.Lp : ax.Rp, o = Math.hypot(p[0] - Cn[0], p[1] - Cn[1]) < Math.hypot(q[0] - Cn[0], q[1] - Cn[1]) ? q : p;
     const dv = [o[0] - Cn[0], o[1] - Cn[1]], l = Math.hypot(...dv) || 1, D = Math.min(1000, l), sx = (dv[0] * ax.u[0] + dv[1] * ax.u[1]) / l, sz = (dv[0] * ax.n[0] + dv[1] * ax.n[1]) / l;
-    const add3 = (Pt, e) => [Pt[0] + sx * D + ((e && e[0]) || 0), Pt[1] + ((e && e[1]) || 0), Pt[2] + sz * D + ((e && e[2]) || 0)];
-    P[key + 'T'] = add3(P[T], ex[key + 'T']); P[key + 'B'] = add3(P[B2], ex[key + 'B']);
-    sd[key] = { j, n: s1 < 0 ? [sz, 0, -sx] : [-sz, 0, sx] }; nm[key] = 'С' + wN(S.room0, j);
+    const node = m.pts.findIndex(p0 => p0[0] === Cn[0] && p0[1] === Cn[1]), aq = node >= 0 ? (m.angs || {})[node] || {} : {}, dirA = q0 => { const a = w3AnDeg(q0); if (a == null) return null; const dl = (a - 90) * Math.PI / 180; return [s1 < 0 ? -Math.sin(dl) : Math.sin(dl), Math.cos(dl)] };   /* v71: разворот угла — по угольнику */
+    const dT = dirA(aq.u) || dirA(aq.d), dB = dirA(aq.d) || dirA(aq.u);
+    const add3 = (Pt, e, dd) => [Pt[0] + (dd ? dd[0] : sx) * D + ((e && e[0]) || 0), Pt[1] + ((e && e[1]) || 0), Pt[2] + (dd ? dd[1] : sz) * D + ((e && e[2]) || 0)];
+    P[key + 'T'] = add3(P[T], ex[key + 'T'], dT); P[key + 'B'] = add3(P[B2], ex[key + 'B'], dB);
+    { const dd = dB || [sx, sz]; sd[key] = { j, n: s1 < 0 ? [dd[1], 0, -dd[0]] : [-dd[1], 0, dd[0]] } } nm[key] = 'С' + wN(S.room0, j);   /* v71: нормаль — по развороту */
   }
   return { L, H, P, sd, nm, k, ax };
 }
@@ -4002,15 +4018,22 @@ function w3VFaces(v, H) {   /* грани объёма: передняя, бок
   if (v.y1 < H - 1) f.push({ k: 'T', ks: ['WLT', 'WRT', 'KRT', 'KLT'], n: [0, s, 0] }); if (v.y0 > 1) f.push({ k: 'B', ks: ['WLB', 'WRB', 'KRB', 'KLB'], n: [0, -s, 0] });
   for (const x of f) x.vis = w3Vis(x.n); return f;
 }
-const w3Pl = p => { const K = w3K(); return fromW([p[0] + p[2] * 0.7 * K, p[1] - p[2] * 0.7]) };
+const W3KP = 0.6;   /* v71: взгляд сверху — глубина к зрителю вниз */
+const w3Al = () => (W3.a - 90) * Math.PI / 180;   /* v71: поворот вокруг вертикали: 0 — прямо, + — зритель справа */
+const w3PlD = p => { const a = w3Al(), c = Math.cos(a), sn = Math.sin(a); return fromW([p[0] * c - p[2] * sn, p[1] - W3KP * (p[0] * sn + p[2] * c)]) };   /* v71: как видно (для «всё») */
+const w3Pl = p => { const a = w3Al(), c = Math.cos(a), sn = Math.sin(a), X = p[0] * c - p[2] * sn, Y = p[1] - W3KP * (p[0] * sn + p[2] * c); if (Math.abs(W3.a - 90) < 0.01) return fromW([X, Y]); const cc = Math.sign(c || 1) * Math.max(Math.abs(c), 0.02), xm = X / cc; return fromW([xm, Y + W3KP * xm * sn]) };   /* v71: поворот; toScr добавляет поворот передней грани */
 const w3S = p => toScr(...w3Pl(p));
-function w3Vis(n) { const K = w3K(); return n[0] * (-0.7 * K) + n[1] * 0.7 + n[2] > 0.02 }   /* грань к зрителю */
+function w3Vis(n) { const a = w3Al(); return n[0] * Math.sin(a) + n[1] * W3KP + n[2] * Math.cos(a) > 0.02 }   /* грань к зрителю; v71: по повороту */
 function w3Faces(Md) {
   const P = Md.P, f = [{ k: 'floor', ks: ['LB', 'D', 'C', 'RB'].filter(x => P[x]), vis: true }];
   if (Md.sd.L) f.push({ k: 'L', ks: ['A', 'LT', 'LB', 'D'], vis: w3Vis(Md.sd.L.n) }); if (Md.sd.R) f.push({ k: 'R', ks: ['B', 'RT', 'RB', 'C'], vis: w3Vis(Md.sd.R.n) });
   f.push({ k: 'M', ks: ['A', 'B', 'C', 'D'], vis: true }); return f;
 }
 const W3E = [['A', 'B'], ['D', 'C'], ['A', 'D'], ['B', 'C'], ['A', 'LT'], ['D', 'LB'], ['LT', 'LB'], ['B', 'RT'], ['C', 'RB'], ['RT', 'RB']];
+document.addEventListener('change', async e => { const i = e.target; if (!i || !i.dataset || !i.dataset.w3a) return; const g = w3AnSel(); if (!g) return; const r0 = S.room0, m = r0.ms, n = evalN(i.value.trim().replace('+', ''));
+  m.angs = m.angs || {}; const q = m.angs[g.node] = m.angs[g.node] || {}, L = q[g.lv] = q[g.lv] || {};
+  if (i.dataset.w3a === 'at') { if (n > 0) { L.at = r1(n); PL.at = L.at } } else { if (n == null) delete L.mm; else L.mm = r1(n) } if (L.mm == null) delete q[g.lv]; else if (!(L.at > 0)) L.at = PL.at || 600; if (!Object.keys(q).length) delete m.angs[g.node];
+  await dbPut('sess', JSON.parse(JSON.stringify(r0))).catch(() => { }); draw(); w3Win(); toast('Разворот угла: ' + ($('w3an').querySelector('.an').textContent || '')) });   /* v71: угольник в виде стены */
 const W3MAN = { 'A,B': 'Lt', 'D,C': 'Lb', 'A,D': 'Hl', 'B,C': 'Hr' };
 function w3Draw(top) {
   const Md = w3Model(); if (!Md) return; const d = devicePixelRatio || 1, P = Md.P, F = w3Faces(Md), path = ks => { cx.beginPath(); ks.forEach((k, i) => { const q = w3S(P[k]); i ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath() };
@@ -4044,7 +4067,7 @@ function w3Draw(top) {
   const lab = (A3, B3, mm, col, rec, meas) => { if (!LAY.dim) return; const A2 = w3S(A3), B2 = w3S(B3), c = [(A2[0] + B2[0]) / 2, (A2[1] + B2[1]) / 2]; let an = Math.atan2(B2[1] - A2[1], B2[0] - A2[0]); if (an > Math.PI / 2) an -= Math.PI; if (an <= -Math.PI / 2) an += Math.PI;
     const t = String(Math.round(mm)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '), w = cx.measureText(t).width + 8 * d * W3.f, h = fs + 5 * d;
     cx.save(); cx.translate(...c); cx.rotate(an); cx.fillStyle = '#fff'; cx.lineWidth = 1.2 * d; fst(meas); cx.beginPath(); cx.roundRect ? cx.roundRect(-w / 2, -h / 2, w, h, 3 * d) : cx.rect(-w / 2, -h / 2, w, h); cx.fill(); cx.stroke(); cx.setLineDash([]);
-    cx.fillStyle = meas ? '#1A2027' : '#E0442B'; cx.textAlign = 'center'; cx.fillText(t, 0, 0); cx.restore(); cx.textAlign = 'start'; if (rec) S.w3L.push({ ...rec, c }) };
+    cx.fillStyle = meas ? '#1A2027' : '#E0442B'; cx.textAlign = 'center'; cx.fillText(t, 0, 0); cx.restore(); cx.textAlign = 'start'; if (rec) S.w3L.push({ ...rec, c, an, w, h }) };   /* v71: рамка — для касания */
   const ln3 = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
   for (const [top, a, b, key] of [[1, 'A', 'B', 'Lt'], [0, 'D', 'C', 'Lb']]) {   /* v48: ребро стены, разделённое объёмами у потолка / пола */
     const cut = VV.filter(v => v.D > 0 && (top ? v.y1 > Md.H - 1 : v.y0 < 1)); if (!cut.length) continue; let x = P[a][0];
@@ -4064,7 +4087,7 @@ function w3Draw(top) {
     const t = String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '), w = cx.measureText(t).width + 8 * d * W3.f, h = fs + 5 * d;
     const meas = (mv && (mv.src === 'рулетка' || mv.src === 'план')) || (S.q4 && S.q4.blank && ((man === 'Lb' && !S.q4.aL) || (/^H[lr]$/.test(man || '') && !S.q4.aH)));
     cx.save(); cx.translate(...c); cx.rotate(an); cx.fillStyle = '#fff'; cx.lineWidth = 1.2 * d; fst(meas); cx.beginPath(); cx.roundRect ? cx.roundRect(-w / 2, -h / 2, w, h, 3 * d) : cx.rect(-w / 2, -h / 2, w, h); cx.fill(); cx.stroke(); cx.setLineDash([]);
-    cx.fillStyle = meas ? '#1A2027' : '#E0442B'; cx.textAlign = 'center'; cx.fillText(t, 0, 0); cx.restore(); cx.textAlign = 'start'; S.w3L.push({ a, b, c, man });
+    cx.fillStyle = meas ? '#1A2027' : '#E0442B'; cx.textAlign = 'center'; cx.fillText(t, 0, 0); cx.restore(); cx.textAlign = 'start'; S.w3L.push({ a, b, c, man, an, w, h });   /* v71: рамка */
   }
   cx.textBaseline = 'alphabetic';
   const PTS = window.__w3pts !== false;   /* v55: режим «4 угла» выключен — точек нет; отклонения у углов — видны всегда */
@@ -4101,7 +4124,9 @@ const W3N = { A: 'верх-лево', B: 'верх-право', C: 'низ-пр�
 function w3Name(Md, k) { const nm = Md.nm, side = /^L/.test(k) ? 'L' : /^R/.test(k) ? 'R' : null, lo = /^(C|D|LB|RB)$/.test(k);   /* v50: B — верх-право, не пол */
   const ws = side ? [nm[side]] : [nm.M, ...(k === 'A' || k === 'D' ? (nm.L ? [nm.L] : []) : (nm.R ? [nm.R] : []))]; return [W3N[k], ...ws, ...(lo ? ['пол'] : [])].join(' · ') }
 /* v49 (макет F): поле ребра — касание → ввод, своя клавиатура / лазер */
-function w3FHit(p) { const d = devicePixelRatio || 1; let best = null, bd = 18 * d; for (const l of S.w3L || []) { const r = Math.hypot(l.c[0] - p[0], l.c[1] - p[1]); if (r < bd) { bd = r; best = l } } return best }
+function w3FHit(p) { const d = devicePixelRatio || 1; let best = null, bd = 1e9; for (const l of S.w3L || []) { const dx = p[0] - l.c[0], dy = p[1] - l.c[1], r = Math.hypot(dx, dy);
+    const inR = l.w ? (() => { const ca = Math.cos(l.an || 0), sa = Math.sin(l.an || 0), u = dx * ca + dy * sa, v = -dx * sa + dy * ca; return Math.abs(u) <= l.w / 2 + 6 * d && Math.abs(v) <= l.h / 2 + 6 * d })() : r < 18 * d;
+    if (inR && r < bd) { bd = r; best = l } } return best }   /* v71: по рамке поля */
 function w3FKind(l) {   /* что правит поле: {t, k|id|ax, v} */
   const Md = w3Model(); if (!Md) return null; const P = Md.P, ab = l.a + '-' + l.b, VV = w3Vols(Md);
   const man = { 'D-C': 'Lb', 'A-B': 'Lt', 'A-D': 'Hl', 'B-C': 'Hr' }[ab]; if (man) { const q = manV(man); return { t: 'man', k: man, v: q ? q.v : Math.hypot(P[l.b][0] - P[l.a][0], P[l.b][1] - P[l.a][1]) } }
@@ -4215,10 +4240,22 @@ function plBar() {   /* полоса действий плана: колонна
 }
 const W3VN = { KLT: 'верх-лево', KRT: 'верх-право', KRB: 'низ-право', KLB: 'низ-лево', WLT: 'внутренний · верх-лево', WRT: 'внутренний · верх-право', WRB: 'внутренний · низ-право', WLB: 'внутренний · низ-лево' };
 function w3Pt(Md, key) { if (!key) return null; if (Md.P[key]) return Md.P[key]; const [id, k] = key.split(':'), v = w3Vols(Md).find(x => x.id === id); return v ? v.P[k] : null }
+function w3AnSel() {   /* v71: выбранный угол стены → {node, lv, side} или null */
+  const s = W3.sel, Md = w3Model(); if (!Md || !['A', 'B', 'C', 'D'].includes(s)) return null; const side = s === 'A' || s === 'D' ? 'L' : 'R'; if (!Md.sd[side]) return null;
+  const m = S.room0.ms, ax = w3Ax(m, S.sess.seg), Cn = side === 'L' ? ax.Lp : ax.Rp, node = m.pts.findIndex(p => p[0] === Cn[0] && p[1] === Cn[1]); if (node < 0) return null;
+  return { node, lv: s === 'A' || s === 'B' ? 'u' : 'd', side };
+}
+function w3AnDeg(q) { return q && q.at > 0 && q.mm != null ? 90 + Math.atan2(+q.mm, +q.at) * 180 / Math.PI : null }
+function w3AnUi() {
+  const r = $('w3an'); if (!r) return; const g = w3AnSel(); r.style.display = g ? 'flex' : 'none'; if (!g) return; const q = ((S.room0.ms.angs || {})[g.node] || {})[g.lv] || {};
+  r.querySelector('.lv').textContent = g.lv === 'u' ? 'верх' : 'низ 100'; const ia = r.querySelector('[data-w3a="at"]'), im = r.querySelector('[data-w3a="mm"]');
+  if (document.activeElement !== ia) ia.value = String(+q.at || PL.at || 600); if (document.activeElement !== im) im.value = q.mm != null ? (q.mm > 0 ? '+' : '') + q.mm : ''; im.placeholder = 'зазор';
+  const a = w3AnDeg(q); r.querySelector('.an').textContent = a != null ? '∠ ' + String(Math.round(a * 10) / 10).replace('.', ',') + '°' : '∠ 90°';
+}
 function w3Win() {
   const x = $('w3x'), Md = w3Model(), p = window.__w3pts !== false && Md && w3Pt(Md, W3.sel); if (!p) { x.classList.remove('on'); return }
   let nm; if (Md.P[W3.sel]) nm = w3Name(Md, W3.sel); else { const [id, k] = W3.sel.split(':'), v = w3Vols(Md).find(q => q.id === id); nm = [W3VK[v.k][1], W3VN[k], ...(v.y0 < 1 && /B$/.test(k) ? ['пол'] : []), ...(v.y1 > Md.H - 1 && /T$/.test(k) ? ['потолок'] : [])].join(' · ') }
-  x.querySelector('.h').textContent = 'Угол · ' + nm; x.classList.add('on');
+  x.querySelector('.h').textContent = 'Угол · ' + nm; x.classList.add('on'); try { w3AnUi() } catch (e) { }   /* v71: разворот угла */
   x.querySelectorAll('[data-w3]').forEach(i => { if (document.activeElement !== i) i.value = String(Math.round(p[+i.dataset.w3])) });
 }
 async function w3Set(key, i, v) {   /* абсолютное значение оси угла → смещение в геометрию стены; общий угол — и в соседнюю стену */
@@ -4270,7 +4307,7 @@ const zLay47 = zLay; zLay = function () { const r = zLay47.apply(this, arguments
 const draw48 = draw; draw = function () { if (S.mode !== 'plan') $('angF').classList.remove('on'); const r = draw48.apply(this, arguments); try { if (S.mode !== 'plan') w3Row() } catch (e) { } return r };   /* v48: кнопка объёма — по текущим элементам */
 const fit47 = fit; fit = function () {   /* «всё» — со стеной, боковыми и полом */
   const Md = S.mode !== 'plan' && S.show < 0 ? w3Model() : null; if (!Md) return fit47.apply(this, arguments);
-  const W = cv.width, H = zFreeH(), Q = Object.values(Md.P).map(w3Pl); for (const r of S.refs || []) Q.push([r.x, r.y], [r.x + r.w, r.y - r.w * r.ih / r.iw]);
+  const W = cv.width, H = zFreeH(), Q = Object.values(Md.P).map(w3PlD);   /* v71: видимые координаты поворота */ for (const r of S.refs || []) Q.push([r.x, r.y], [r.x + r.w, r.y - r.w * r.ih / r.iw]);
   const ax = Math.min(...Q.map(q => q[0])), bx = Math.max(...Q.map(q => q[0])), ay = Math.min(...Q.map(q => q[1])), by = Math.max(...Q.map(q => q[1])), s = Math.min(W / (bx - ax), H / (by - ay)) * 0.86;
   S.view = { s, rot: 0, ox: W / 2 - (ax + bx) / 2 * s, oy: H / 2 + (ay + by) / 2 * s }; S.fitS = s; draw();
 };
@@ -4651,7 +4688,7 @@ zInit();   /* v22: каркас */
 $('zVer').textContent = 'Measure ' + ZVER; $('zVer2').textContent = 'Measure ' + ZVER; $('zVerB').textContent = ZVER;   /* v44 */   /* v18 */
 $('zb').appendChild($('zopt'));   /* v39: модификаторы — справа от пресетов (DrawNote) */
 $('bExp').onclick = () => zmSet('exp');   /* v40: выгрузка — из меню ⋮ */
-window.PM = { hdSet: async v => { const i = document.getElementById('hdIn'); i.value = v; await i.onchange() }, widDedupe: (...a) => widDedupe(...a), widUsed: (...a) => widUsed(...a), prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
+window.PM = { zTapSel: (...a) => zTapSel(...a), PEN, w3Win: () => w3Win(), w3AnSel: () => w3AnSel(), w3AnDeg: q => w3AnDeg(q), w3FS: () => w3FS(), toScr0: (...a) => toScr0(...a), hdSet: async v => { const i = document.getElementById('hdIn'); i.value = v; await i.onchange() }, widDedupe: (...a) => widDedupe(...a), widUsed: (...a) => widUsed(...a), prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
 if (navigator.webdriver) document.body.classList.add('tz');   /* v46: режим тестов */
 dbOpen().then(() => { if (!/[?&]nolist/.test(location.search)) sessList(true) });
