@@ -504,7 +504,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v68';
+const ZVER = 'v69';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -3200,7 +3200,7 @@ function prdOpen() {
 }
 
 function prtPairs(all) {   /* v57: стороны перегородок — пары стен разных помещений: параллельны, смотрят в разные стороны, перекрываются, зазор 40…600 мм */
-  const W = []; for (const r of all) { const m = r.ms, n = plN(m); for (let j = 0; j < n; j++) { const id = (r.wid || {})[j]; if (!id) continue; const ax = w3Ax(m, j), L = Math.hypot(ax.Rp[0] - ax.Lp[0], ax.Rp[1] - ax.Lp[1]); W.push({ r, j, id, ...ax, L }) } }
+  const W = []; for (const r of all) { if (r.pstub && r.pstub.same) continue; const m = r.ms, n = plN(m);   /* v69: заготовка со ссылкой same — не сторона пары (стена — та) */ for (let j = 0; j < n; j++) { const id = (r.wid || {})[j]; if (!id) continue; const ax = w3Ax(m, j), L = Math.hypot(ax.Rp[0] - ax.Lp[0], ax.Rp[1] - ax.Lp[1]); W.push({ r, j, id, ...ax, L }) } }
   const P = {};
   for (let i = 0; i < W.length; i++) for (let k = i + 1; k < W.length; k++) { const a = W[i], b = W[k]; if (a.r === b.r) continue;
     if (Math.abs(a.u[0] * b.u[1] - a.u[1] * b.u[0]) > 0.035) continue; if (a.n[0] * b.n[0] + a.n[1] * b.n[1] > -0.9) continue;   /* параллельны, нормали навстречу друг другу наружу */
@@ -3213,7 +3213,7 @@ function prtPts(rooms, PP) {   /* v57: сквозные точки — по ме
   const byId = {}; for (const R0 of rooms) for (const [k, W] of Object.entries(R0.ms.wl || {})) if (W.id) byId[W.id] = W;
   for (const [id, q] of Object.entries(PP)) { const A = byId[id], B = byId[q.pair]; if (!A || !B || !(A.pts || []).length || !(B.pts || []).length) continue;
     const La = (A.photo && A.photo.L) || q.W.L, Lb = (B.photo && B.photo.L) || q.P2.L, pa = x => [q.W.Lp[0] + q.W.u[0] * x * q.W.L / La, q.W.Lp[1] + q.W.u[1] * x * q.W.L / La], pb = x => [q.P2.Lp[0] + q.P2.u[0] * x * q.P2.L / Lb, q.P2.Lp[1] + q.P2.u[1] * x * q.P2.L / Lb];
-    for (const a of A.pts) { if (!a.id) continue; const A2 = pa(a.x); for (const b of B.pts) { if (!b.id) continue; const B2 = pb(b.x); if (Math.hypot(A2[0] - B2[0], A2[1] - B2[1]) <= 60 && Math.abs((a.y || 0) - (b.y || 0)) <= 60) { a.pair = b.id; b.pair = a.id } } } }
+    for (const a of A.pts) { if (!a.id) continue; const A2 = pa(a.x); for (const b of B.pts) { if (!b.id) continue; const B2 = pb(b.x); if (Math.abs((A2[0] - B2[0]) * q.W.u[0] + (A2[1] - B2[1]) * q.W.u[1]) <= 60 && Math.abs((a.y || 0) - (b.y || 0)) <= 60) { a.pair = b.id; b.pair = a.id }   /* v69: вдоль стены (между гранями — толщина) */ } } }
 }
 async function oidFix(all) {   /* v56: постоянный id объекта — у всех его помещений */
   let oid = (all.find(r => r.oid) || {}).oid; if (!oid) oid = 'o' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
