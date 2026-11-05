@@ -510,7 +510,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v78';
+const ZVER = 'v78.1';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -1392,7 +1392,7 @@ function preBar(el) {
   if (preDr && preDr.on) { const t = document.createElement('div'); t.className = 'tip'; t.textContent = preDr.out ? 'Отпустите — убрать из ряда' : 'Тяните по ряду · вверх / вниз — убрать'; el.appendChild(t) }
   if (S.colOpen) {
     const r = document.createElement('div'); r.className = 'rowc'; r.innerHTML = `<span class="mu" style="font-size:12px">${esc(kN(S.mk))}</span>`;
-    for (const q of QCOL) { const d = document.createElement('button'); d.className = 'cl' + (kC(S.mk) === q ? ' on' : ''); d.style.background = q; d.dataset.col = q; d.title = q; d.onclick = () => zCol(q); r.appendChild(d) }
+    for (const q of QCOL) { const d = document.createElement('button'); d.className = 'cl' + (kC(S.mk) === q ? ' on' : ''); d.style.setProperty('background', q, 'important');   /* v78.1 */ d.dataset.col = q; d.title = q; d.onclick = () => zCol(q); r.appendChild(d) }
     el.appendChild(r);
   }
 }
@@ -1405,7 +1405,7 @@ function zpbDraw() {
   const CL = zColL(); let o = ((PREF.qo || 0) % CL.length + CL.length) % CL.length, Q3 = [0, 1, 2].map(i => CL[(o + i) % CL.length]);
   if (!S.zqScr && !Q3.includes(c) && CL.includes(c)) { o = CL.indexOf(c); Q3 = [0, 1, 2].map(i => CL[(o + i) % CL.length]) } S.zqScr = false;   /* v53: выбранный цвет — среди трёх (квадратом); › — листает */   /* v44: окно цвета + 3 быстрых + › */
   el.innerHTML = `<button id="zpF" title="Футляр: все инструменты, цвета"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-cup"/></svg></button>${S.mosaic ? '<button id="zpE" class="fa" title="Фото стены: видно / скрыто"></button>' : ''}<span class="sep"></span>` + ZPB_K.map(k => `<button data-zk="${k}" class="${S.mk === k ? 'on' : ''}" title="${esc(kN(k))}">${kIcoD(k)}</button>`).join('') + `<span class="sep"></span>` +
-    `<button class="cur" id="zpP" style="background:${c}" title="Текущий цвет · все цвета — в футляре"></button><span class="zcols">` + CL.map(q => `<button class="cl${c === q ? ' on' : ''}" data-zc="${q}" style="background:${q}" title="Цвет ${q}"></button>`).join('') + `</span>`;   /* v77: все цвета — лента со свайпом */
+    `<button class="cur" id="zpP" style="background:${c}" title="Текущий цвет · все цвета — в футляре"></button><span class="zcols">` + CL.map(q => `<button class="cl${c === q ? ' on' : ''}" data-zc="${q}" style="background:${q}!important" title="Цвет ${q}"></button>`)   /* v78.1: свой цвет и у выбранного */.join('') + `</span>`;   /* v77: все цвета — лента со свайпом */
   $('zpF').onclick = () => tbOpen(); if ($('zpE')) $('zpE').onclick = faTog; if ($('zpRC')) { $('zpRC').onclick = () => $('fRC').click(); $('zpRG').onclick = () => $('fRG').click() }   /* v45 */ faUi(); $('zpP').onclick = () => tbOpen(true); { const zc = el.querySelector('.zcols'); if (zc) stripShow(zc, zc.querySelector('.cl.on')) }   /* v77 */
   el.querySelectorAll('[data-zk]').forEach(b => b.onclick = () => pickTool(b.dataset.zk)); el.querySelectorAll('[data-zc]').forEach(b => b.onclick = () => zCol(b.dataset.zc));
 }
