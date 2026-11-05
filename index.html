@@ -504,7 +504,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v67';
+const ZVER = 'v68';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -2041,7 +2041,7 @@ function plCen(P) { return [P.reduce((q, p) => q + p[0], 0) / P.length, P.reduce
 function plObjDraw() {
   const d = devicePixelRatio || 1; cx.textBaseline = 'middle';
   for (const o of S.objRooms) {
-    const m = o.ms, P = m.pts; if (!P.length) continue; if (o.pstub) { prtStubDraw(o); continue }   /* v64 */
+    const m = o.ms, P = m.pts; if (!P.length) continue; if (o.pstub) { if (!o.pstub.same) prtStubDraw(o); continue }   /* v64; v68: same — стена та же */
     cx.strokeStyle = '#b9c2cc'; cx.lineWidth = 3 * d; cx.fillStyle = 'rgba(185,194,204,.12)'; cx.beginPath(); P.forEach((p, i) => i ? cx.lineTo(...toScr(...p)) : cx.moveTo(...toScr(...p))); if (m.closed) { cx.closePath(); cx.fill() } cx.stroke();
     cx.font = (12 * d) + 'px system-ui'; cx.fillStyle = '#7b8794';
     for (let k = 0; k < plN(m); k++) { const [a, b] = plSeg(m, k), q = toScr((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), t = 'С' + wN(o, k), tw = cx.measureText(t).width; cx.fillStyle = 'rgba(244,246,248,.9)'; cx.fillRect(q[0] - tw / 2 - 3 * d, q[1] - 8 * d, tw + 6 * d, 16 * d); cx.fillStyle = '#7b8794'; cx.fillText(t, q[0] - tw / 2, q[1]) }
@@ -2678,7 +2678,7 @@ const geoR = v => Math.round(v * 10) / 10;
 function geoOut(r, sg) {   /* выгрузка: стены в порядке листа (j), координаты листа (y вниз, как ms.pts) */
   const G = geoBuild(r); if (!G || G.fail) return {};
   const n = plN(r.ms), byK = Object.fromEntries(G.W.map(w => [w.k, w])), walls = [];
-  for (let j = 0; j < n; j++) { const w = byK[sg(j)]; if (!w) continue; const q = { k: j, gn: wN(r, w.k), id: (r.wid || {})[w.k], a: [geoR(w.a[0]), geoR(-w.a[1])], b: [geoR(w.b[0]), geoR(-w.b[1])], L: geoR(w.L), ok: w.ok ? 1 : 0 }; if (w.cl) q.cl = 1; if (q.id && (r.nom || {})[q.id]) q.nom = 1; if (w.f) { q.f = w.f; q.R = w.R; q.s = w.s } walls.push(q) }
+  for (let j = 0; j < n; j++) { const w = byK[sg(j)]; if (!w) continue; const q = { k: j, gn: wN(r, w.k), id: (r.wid || {})[w.k], a: [geoR(w.a[0]), geoR(-w.a[1])], b: [geoR(w.b[0]), geoR(-w.b[1])], L: geoR(w.L), ok: w.ok ? 1 : 0 }; if (w.cl) q.cl = 1; if (q.id && (r.nom || {})[q.id]) q.nom = 1; if (r.pstub && r.pstub.same) q.same = r.pstub.same;   /* v68 */ if (w.f) { q.f = w.f; q.R = w.R; q.s = w.s } walls.push(q) }
   return { geo: { v: 1, rules: 'zamer-18', walls, err: G.err, rnd: G.rnd, mm: G.mm ? 1 : 0 } };
 }
 function geoStat() { if (!S.room || plN(S.room.ms) < 2) return ''; const G = geoBuild(); if (!G) return ''; if (G.fail) return ` · построение: <span class="er">${G.fail}</span>`; return G.err != null ? ` · невязка <b${Math.abs(G.err) > 10 ? ' class="er"' : ''}>${G.err > 0 ? '+' : ''}${G.err}</b> мм` : ' · построено' }
@@ -2941,7 +2941,7 @@ async function prtAuto(r) {   /* грани за перегородками по
   for (let k = 0; k < plN(r.ms); k++) { const q = prtScan(r, k); if (!q) continue; const rm = UL.R.rs.find(z => z.id === q.c); if (!rm || ulRDone(rm)) continue;
     const w = r.wid[k], ax = q.ax, P0 = [ax.Lp[0] + ax.u[0] * q.t0 - ax.n[0] * q.th, ax.Lp[1] + ax.u[1] * q.t0 - ax.n[1] * q.th], P1 = [ax.Lp[0] + ax.u[0] * q.t1 - ax.n[0] * q.th, ax.Lp[1] + ax.u[1] * q.t1 - ax.n[1] * q.th];
     let pts = [P0, P1].map(p => p.map(Math.round)); { const d = [pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]]; if (-d[1] * -ax.n[0] + d[0] * -ax.n[1] < 0) pts.reverse() }   /* левая нормаль — в своё помещение (от r) */
-    let o = S.objRooms.find(x => x.pstub && x.pstub.w === w); if (o && o.ms.pts.length !== 2) continue;   /* v66: тронутую не трогать */
+    let o = S.objRooms.find(x => x.pstub && x.pstub.w === w); if (o && (o.ms.pts.length !== 2 || o.pstub.same)) continue;   /* v68: и со ссылкой */   /* v66: тронутую не трогать */
     if (o) { o.ms.pts = pts; o.ms.ul = 1; o.obj = r.obj || '' } else { o = { id: 'r' + Date.now() + '_' + k, kind: 'room', obj: r.obj || '', name: 'За С' + wN(r, k), created: Date.now(), ms: { pts, closed: false, dims: [], angs: {}, H: r.ms.H || '', ul: 1 }, segs: {}, pstub: { r: r.id, w } }; S.objRooms.push(o); gnFix(o) }   /* v66: ul — масштаб плана и мм в выгрузке */
     await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { }); n++ }
   return n;
@@ -2954,9 +2954,9 @@ function prtAdopt(r, force) {   /* обвод помещения: стена н�
       const dl = Math.abs((A[0] - a[0]) * uk[1] - (A[1] - a[1]) * uk[0]); if (dl > 80) continue; const pr = p => (p[0] - a[0]) * uk[0] + (p[1] - a[1]) * uk[1], ov = Math.min(L, Math.max(pr(A), pr(B))) - Math.max(0, Math.min(pr(A), pr(B))); if (ov > bo && ov > 0.5 * Math.min(L, Lo)) { bo = ov; best = k } }
     if (best < 0) continue;
     const ow = (o.wid || {})[0], nomO = !!(o.nom && ow && o.nom[ow]);
-    if (took[best]) { if (nomO) { r.nom = r.nom || {}; r.nom[r.wid[best]] = 1 } gone.push(o); continue }   /* вторая заготовка на ту же стену — дубль */
-    if (!free(best)) continue;
-    if ((o.segs || {})[0] && r.segs[best]) continue;   /* у обеих фото — заготовку оставить */
+    if (took[best] === 1) { if (nomO) { r.nom = r.nom || {}; r.nom[r.wid[best]] = 1 } gone.push(o); continue }   /* вторая заготовка на ту же стену — дубль */
+    if (!free(best) || ((o.segs || {})[0] && r.segs[best])) { if (!r.wid[best]) { const used = widUsed(r); let id; r.wn = +r.wn || 0; do { id = 'w' + String(r.id || 'r').replace(/^r/, '') + '_' + (++r.wn) } while (used.has(id)); r.wid[best] = id }
+      if (o.pstub.same !== r.wid[best]) { o.pstub.same = r.wid[best]; dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { }) } took[best] = took[best] || 2; continue }   /* v68: та же плоскость — ссылка на стену, замер заготовки не теряется */
     r.wid[best] = ow; r.gn[best] = (o.gn || {})[0]; if (nomO) { r.nom = r.nom || {}; r.nom[ow] = 1 } if (+o.gnHi > (+r.gnHi || 0)) r.gnHi = +o.gnHi;
     if ((o.segs || {})[0]) { r.segs[best] = o.segs[0]; dbGet('sess', o.segs[0]).then(w => { if (w) { w.room = r.id; w.seg = best; dbPut('sess', w).catch(() => { }) } }).catch(() => { }) }
     const d0 = (o.ms.dims || []).find(d => (d.a.p === 0 && d.b.p === 1) || (d.a.p === 1 && d.b.p === 0)); if (d0 && !plDim(m, best)) { m.dims = m.dims || []; m.dims.push({ id: d0.id, a: { p: best }, b: { p: (best + 1) % m.pts.length }, v: d0.v }) }
@@ -3141,7 +3141,7 @@ async function exportRoomObj(rIn) {   /* v12: rIn — помещение объ�
     wl[k] = W;
   }
   nchOut(r, m0, n, rev, sg, wl);   /* v38 */
-  for (let j = 0; j < n; j++) { const k = sg(j), W = wl[k] = wl[k] || { H: m0.H ? +m0.H : null, els: [], pts: [], zn: [], gn: wN(r, j) }; W.id = (r.wid || {})[j]; if (W.id && (r.nom || {})[W.id]) W.nom = 1; else delete W.nom }   /* v56: wl — у всех стен, с id; v61: номинал */
+  for (let j = 0; j < n; j++) { const k = sg(j), W = wl[k] = wl[k] || { H: m0.H ? +m0.H : null, els: [], pts: [], zn: [], gn: wN(r, j) }; W.id = (r.wid || {})[j]; if (W.id && (r.nom || {})[W.id]) W.nom = 1; else delete W.nom; if (r.pstub && r.pstub.same) W.same = r.pstub.same; else delete W.same }   /* v68: same */   /* v56: wl — у всех стен, с id; v61: номинал */
   if (r.pstub && !(+m0.H > 0)) { const own = [S.room, ...S.objRooms].find(x => x && x.id === r.pstub.r); if (own && +own.ms.H > 0) m0.H = own.ms.H }   /* v66 */
   return { app: 'akrix-zamer', v: 3, kind: 'room', id: r.id, date: new Date().toISOString(), obj: r.obj, name: r.name,   /* v56: rooms[].id */
     ms: { v: 1, lvl: 'd', pts: m.pts.map(p => [p[0], -p[1]]), closed: !!m.closed, dims: m0.dims.map(d => ({ id: d.id, a: { p: nd(d.a.p) }, b: { p: nd(d.b.p) }, v: d.v })), angs: Object.fromEntries(Object.entries(m0.angs).map(([i, q]) => [nd(+i), JSON.parse(JSON.stringify(q))])), ink: [], H: m0.H || '', wl, ccw: true,
