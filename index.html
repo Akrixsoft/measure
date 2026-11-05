@@ -148,6 +148,7 @@ body.mk #rl{top:76px}
 .chip.ic.on{width:48px;height:48px;border:3px solid var(--ac);background:#3a3f46;color:#fff}
 #tb .tl{height:52px} #tb .tl>span:not([style]){display:none}
 #tb .cols{display:flex;gap:8px;flex-wrap:wrap;padding:4px 2px}
+#tb .lwr{display:flex;align-items:center;gap:10px;margin:4px 2px 0;min-height:26px}#tb .lwr span{font-size:12px;color:var(--mu);flex:none}#tb .lwr input{flex:1;min-width:0;height:24px;accent-color:#4DA3FF;margin:0}#tb .lwr b{flex:none;width:30px;text-align:right;color:#F6E08A;font-size:13px}   /* v78.3 */
 #tb .cols button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;padding:0;cursor:pointer}
 #tb .cols button.on{box-shadow:0 0 0 3px #4ea1ff}
 /* ═══ [BLOCK] СТИЛИ КАРКАСА (v22, R1 по DrawNote): шапка + строка, режимы внизу, плавающие полосы, футляр ═══ */
@@ -510,7 +511,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v78.1';
+const ZVER = 'v78.3';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -926,15 +927,16 @@ cv.addEventListener('pointerdown', e => {
   cv.setPointerCapture(e.pointerId); const d = devicePixelRatio || 1, p = [e.offsetX * d, e.offsetY * d];
   ptr.set(e.pointerId, p);
   if (ptr.size === 1) {
-    gest = { t: performance.now(), p0: p, last: p, moved: false, drag: null };
+    gest = { t: performance.now(), p0: p, last: p, moved: false, drag: null, pty: e.pointerType };   /* v78.2: тип указателя — ладонь при стилусе не в счёт */
     if (e.pointerType === 'pen') PEN.seen = true; if (PEN.on() && e.pointerType === 'touch') { gest.view = 1; return }   /* v21: палец при стилусе — только вид */
     if (S.mode !== 'plan' && S.show >= 0 && q4Need()) { const e = q4E(q4F()), v = S.view, i = e.pts.findIndex(q => Math.hypot(v.ox + q[0] * v.s - p[0], v.oy + q[1] * v.s - p[1]) < 26 * d); if (i >= 0) { gest.q4d = i; return } }   /* v43: точка фото — тянется */
-    if (S.mode === 'plan' && PL.tool === 'rs') { gest.prs = p; const sel = S.pmsel || []; if (sel.length) { const m = S.room.ms, hit = sel.find(i => { const s2 = toScr(...m.pts[i]); return Math.hypot(s2[0] - p[0], s2[1] - p[1]) < 26 * d }); if (hit != null || pmIn(p)) { gest.prs = null; gest.pmv = { q0: toPl(...p), P0: sel.map(i => [i, m.pts[i].slice()]) } } } return }   /* v43: рамка узлов */
+    if (zdrStart(p, e)) return;   /* v78.2: линия, стрелка, фигуры — одним движением */
+    if (S.mode === 'plan' && PL.tool === 'rs') { gest.prs = p; const sel = S.pmsel || [], sd = pdSelL(); if (sel.length || sd.length) { const m = S.room.ms, hit = sel.find(i => { const s2 = toScr(...m.pts[i]); return Math.hypot(s2[0] - p[0], s2[1] - p[1]) < 26 * d }); if (hit != null || pmIn(p) || sd.includes(pdHit(p))) { gest.prs = null; gest.pmv = { q0: toPl(...p), P0: sel.map(i => [i, m.pts[i].slice()]), D0: (m.pdrw || []).filter(q => sd.includes(q.id)).map(q => [q, q.pts.map(t => t.slice())]) } } } return }   /* v43: рамка узлов; v78.2: и рисунков */
     if (S.mode === 'plan') { const h = PL.tool === 'sel' ? plHit(p) : null; gest.ndrag = h && h.t === 'n' ? h.i : null; if (PL.tool === 'sto' && ulGet()) gest.stroke = [p]; if (PL.tool === 'st') gest.wst = [p]; if (PL.tool === 'ppen') gest.pst = [p] }   /* v6; v15; v36: штрих — стены */
     else if (S.tool === 'rul' && S.show < 0) gest.drag = hitHandle(p);
     if (S.mode !== 'plan' && S.tool === 'mk' && S.show < 0 && (S.mk === 'sel' || S.mk === 'rsel') && S.msel.length) { const h = mkHit(p), hd = dmHit(p); if ((h && S.msel.includes(h.id)) || (hd && S.msel.includes(hd))) gest.gdrag = { q0: toPl(...p), c0: S.msel.map(id => { const e = S.els.find(x => x.id === id); return e ? [id, e.c.slice()] : null }).filter(Boolean), d0: [...S.drw, ...S.dms, ...S.rts, ...S.polys].filter(q => S.msel.includes(q.id)).map(q => [q, JSON.parse(JSON.stringify(q))]) } }   /* v26: и рисунки */   /* v8: перенос группы */
     if (!gest.gdrag && S.mode !== 'plan' && S.tool === 'mk' && S.show < 0 && S.mk === 'rsel') gest.rs = p;   /* v8: рамка выделения */
-    if (S.mode !== 'plan' && S.tool === 'mk' && S.show < 0) { if (S.mk === 'pen') { gest.pen = [toPl(...p)]; return } if (S.mk === 'er') { gest.er = 1; return } if (S.mk === 'sel' && S.dsel && S.drw.some(x => x.id === S.dsel) && dmHit(p) === S.dsel) { gest.ddrag = { q0: toPl(...p) }; return } }   /* v26: перо, ластик, перенос рисунка */
+    if (S.mode !== 'plan' && S.tool === 'mk' && S.show < 0) { if (S.mk === 'pen') { gest.pen = [toPl(...p)]; return } if (S.mk === 'er') { gest.er = 1; return } if (S.mk === 'sel' && S.dsel) { const h = zdHdHit(p); if (h) { gest.dhd = h; return } }   /* v78.2: ручка выбранного (конец, угол, середина дуги) */ if (S.mk === 'sel' && S.dsel && S.drw.some(x => x.id === S.dsel) && dmHit(p) === S.dsel) { gest.ddrag = { q0: toPl(...p) }; return } }   /* v26: перо, ластик, перенос рисунка */
     if (!gest.gdrag && S.mode !== 'plan' && S.tool === 'mk' && S.show < 0 && S.mk === 'sel') { gest.vdrag = LAY.vyn ? nHit(p) : null; if (gest.vdrag) return; gest.hdrag = hHit(p); gest.ldrag = gest.hdrag ? null : lnHit(p); gest.edrag = gest.hdrag || gest.ldrag ? null : mkHit(p) }   /* v10: выноска — тянется подпись / точка */   /* v4: ручки размера, концы линий, элемент — только в «выбор» */
   } else if (ptr.size === 2) { const [a, b] = [...ptr.values()]; gest = { pinch: true, d0: Math.hypot(a[0] - b[0], a[1] - b[1]), v0: { ...S.view }, c0: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] } }
 });
@@ -946,9 +948,11 @@ cv.addEventListener('pointermove', e => {
   }
   if (gest.pinch) return;
   if (Math.hypot(p[0] - gest.p0[0], p[1] - gest.p0[1]) > 8 * d) gest.moved = true;
+  if (gest.zdr) return zdrMove(gest, p); if (gest.znp) return;   /* v78.2: превью от касания до стилуса; холст на месте */
+  if (gest.dhd) { if (gest.moved) zdHdMove(gest, p); return }   /* v78.2 */
   if (gest.q4d != null) { if (gest.moved) { const v = S.view; q4E(q4F()).pts[gest.q4d] = [(p[0] - v.ox) / v.s, (p[1] - v.oy) / v.s]; draw() } return }   /* v43 */
   if (gest.prs) { if (gest.moved) { S.rsr = [gest.prs, p]; draw() } return }   /* v43 */
-  if (gest.pmv) { if (gest.moved) { if (!gest.psn) { plSnap(); gest.psn = 1 } const dq = sub(toPl(...p), gest.pmv.q0), m = S.room.ms; for (const [i, q] of gest.pmv.P0) m.pts[i] = add(q, dq).map(Math.round); draw() } return }   /* v43 */
+  if (gest.pmv) { if (gest.moved) { if (!gest.psn) { plSnap(); gest.psn = 1 } const dq = sub(toPl(...p), gest.pmv.q0), m = S.room.ms; for (const [i, q] of gest.pmv.P0) m.pts[i] = add(q, dq).map(Math.round); for (const [q, P] of gest.pmv.D0 || []) q.pts = P.map(t => add(t, dq).map(Math.round)); draw() } return }   /* v43; v78.2: и рисунки */
   if (gest.stroke) { gest.stroke.push(p); S.stk = gest.stroke; draw(); return }   /* v15 */
   if (gest.wst) { gest.wst.push(p); S.wsk = gest.wst; draw(); return }
   if (gest.pst) { gest.pst.push(p); S.pstk = gest.pst; draw(); return }   /* v52: перо на плане */   /* v36 */
@@ -967,16 +971,18 @@ cv.addEventListener('pointermove', e => {
 });
 function pend(e) {
   if (!ptr.has(e.pointerId)) return; const d = devicePixelRatio || 1, p = ptr.get(e.pointerId); ptr.delete(e.pointerId);
+  if (e.type === 'pointercancel' && gest && gest.zdr) { gest.zdr = null; gest.moved = true; draw() }   /* v78.2: отмена системой (жест от края, ладонь) — штрих не ставится */
+  if (gest && gest.zdr && !gest.pinch) zdrEnd(gest, p);   /* v78.2 */
   if (gest && !gest.pinch && !gest.moved && performance.now() - gest.t < 500 && !gest.drag && !gest.view) tap(p);   /* v21 */
   else if (gest && gest.view && !gest.pinch && !gest.moved && performance.now() - gest.t < 500) zTapSel(p);   /* v28: палец при стилусе — выбор */
   if (gest && gest.drag) { S.loupe = null; draw(); saveSess() }
   if (gest && gest.edrag && gest.moved) { S.loupe = null; mkPanel(); draw(); saveSess() }
   if (gest && gest.gdrag && gest.moved) { mkPanel(); draw(); saveSess() }   /* v8 */
-  if (gest && gest.rs && gest.moved && S.rsr) { const [a, b] = S.rsr, x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]); S.msel = S.els.filter(e => elRect(e).every(q => { const s2 = toScr(...q); return s2[0] >= x0 && s2[0] <= x1 && s2[1] >= y0 && s2[1] <= y1 })).map(e => e.id).concat([...S.drw, ...S.dms, ...S.rts, ...S.polys].filter(q => zdPts(q).every(t => { const s2 = toScr(...t); return s2[0] >= x0 && s2[0] <= x1 && s2[1] >= y0 && s2[1] <= y1 })).map(q => q.id)); S.sel = null; S.rsr = null; mkPanel(); draw() }   /* v8: в группу — объекты целиком внутри рамки */
+  if (gest && gest.rs && gest.moved && S.rsr) { const [a, b] = S.rsr, x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]); S.msel = zrsPick(x0, y0, x1, y1); S.sel = null; S.dsel = null; S.rsr = null; mkPanel(); draw() }   /* v8; v78.2: в группу — всё, что рамка задела */
   if (gest && gest.pen) { const P = gest.pen; S.zpen = null; if (gest.moved && P.length > 2) { snap(); S.drw.push({ id: 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), k: 'pen', pts: zdThin(P), c: kC('pen'), ...(zo('pen').dash ? { dash: 1 } : {}) }); saveSess() } draw() }   /* v26 */
-  if (gest && (gest.er && gest.esnap || gest.ddrag && gest.dsnap)) { saveSess(); mkPanel(); draw() }
+  if (gest && (gest.er && gest.esnap || (gest.ddrag || gest.dhd) && gest.dsnap)) { saveSess(); mkPanel(); draw() }   /* v78.2: и ручка */
   if (gest && gest.q4d != null && gest.moved) { saveSess(); mkPanel() }   /* v43 */
-  if (gest && gest.prs) { if (gest.moved && S.rsr) { const [a, b] = S.rsr, x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]); S.pmsel = S.room.ms.pts.map((q, i) => [toScr(...q), i]).filter(([s2]) => s2[0] >= x0 && s2[0] <= x1 && s2[1] >= y0 && s2[1] <= y1).map(([, i]) => i); S.psel = null; S.zps = null } S.rsr = null; mkPanel(); draw(); zLay() }   /* v43 */
+  if (gest && gest.prs) { if (gest.moved && S.rsr) { const [a, b] = S.rsr, x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]); S.pmsel = S.room.ms.pts.map((q, i) => [toScr(...q), i]).filter(([s2]) => s2[0] >= x0 && s2[0] <= x1 && s2[1] >= y0 && s2[1] <= y1).map(([, i]) => i); S.psel = null; S.zps = null; S.ppms = pdPick(x0, y0, x1, y1); S.ppsel = null } S.rsr = null; mkPanel(); draw(); zLay() }   /* v43; v78.2: и рисунки плана */
   if (gest && gest.pmv && gest.moved) { saveRoom(); mkPanel(); status(); draw() }   /* v43 */
   if (gest && gest.stroke) { S.stk = null; if (gest.moved) ulStroke(gest.stroke); else draw() }
   if (gest && gest.pst) { S.pstk = null; if (gest.moved && gest.pst.length > 2) pdAdd('pen', gest.pst.map(q => toPl(...q).map(Math.round))); else draw() }   /* v52 */
@@ -1303,7 +1309,7 @@ const TOOLX = { pts: { n: '4 угла — точки стен: вкл / выкл
   pen: { n: 'перо', c: '#d93025' }, arr: { n: 'стрелка', c: '#e07a00' }, pl: { n: 'ломаная', c: '#1a2027' }, circ: { n: 'круг', c: '#1a2027' }, arc: { n: 'дуга 3 точки', c: '#7b3fc4' }, er: { n: 'ластик', c: '#6b7785' }, txt: { n: 'текст', c: '#1a2027' }, pin: { n: 'пин №', c: '#e07a00' }, rf: { n: 'фото-справка', c: '#1f6fd1' } };   /* v71: фото-справка */   /* v26 */   /* v25 */   /* v24: размер, пометки */   /* v10: выноска */
 const PRE0 = ['sel', 'rsel', 'dim', 'arr', 'pen'], PRE_N = 10;   /* v49: ряд прокручивается */   /* v43: рамка — вторая */   /* v39: как DrawNote — 5 пресетов + «+» */
 const QCOL = ['#1a2027', '#d93025', '#e07a00', '#d4a300', '#2e9e4f', '#1f6fd1', '#7b3fc4', '#8d6e63'];
-const PREF = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem('zamer.pre') || '{}') } catch (e) { } return { order: Array.isArray(o.order) && o.order.length ? o.order : PRE0.slice(), cols: o.cols || {}, v24: o.v24, v39: o.v39, v43: o.v43, cl: Array.isArray(o.cl) && o.cl.length ? o.cl : null, qo: o.qo || 0 } })();   /* v44: cl — порядок цветов, qo — прокрутка */
+const PREF = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem('zamer.pre') || '{}') } catch (e) { } return { order: Array.isArray(o.order) && o.order.length ? o.order : PRE0.slice(), cols: o.cols || {}, v24: o.v24, v39: o.v39, v43: o.v43, cl: Array.isArray(o.cl) && o.cl.length ? o.cl : null, qo: o.qo || 0, lw: o.lw } })();   /* v78.3: lw — толщина */   /* v44: cl — порядок цветов, qo — прокрутка */
 const zColL = () => PREF.cl || QCOL;   /* v39: флаги — из памяти */
 function prefSave() { try { localStorage.setItem('zamer.pre', JSON.stringify(PREF)) } catch (e) { } }
 if (!PREF.v39) { PREF.order = PRE0.slice(); PREF.v39 = 1; PREF.v24 = 1; prefSave() }   /* v39: ряд из 5 */
@@ -1380,7 +1386,7 @@ function preBar(el) {
   el.classList.add('pre');
   for (const k of PREF.order.filter(k => (TOOLX[k] || (KD[k] && !KD[k].hide)) && !q4Lk(k)).slice(0, PRE_N)) {   /* v39: 5; v41: по 4 углам — без линий стены */
     const b = document.createElement('button'); b.className = 'pb' + ((k === 'pts' ? window.__w3pts !== false : S.mk === k) ? ' on' : '');   /* v55: «4 угла» — режим */ b.dataset.k = k; b.style.setProperty('--c', kC(k) === '#1a2027' ? '#C9CED6' : kC(k));   /* v44 */
-    const K = KD[k]; b.title = kN(k) + (K && K.line ? ': два касания по линии' : K && K.pt ? ': касание в центр' : K ? ': два касания — углы' : '');
+    const K = KD[k]; b.title = kN(k) + (K && K.line ? ': два касания по линии' : K && K.pt ? ': касание в центр' : K ? ': провести от угла к углу (или два касания)' : '');   /* v78.2 */
     b.innerHTML = kIcoD(k) + (K && K.line && S.lines[k] ? '<i>✓</i>' : '');   /* v44: на графите */
     b.onpointerdown = ev => { preDr = { k, x: ev.clientX, y: ev.clientY, on: false, t: setTimeout(() => { preDr.on = true; b.classList.add('dr') }, 300), b } };
     b.onclick = () => { if (b.dataset.drag) { delete b.dataset.drag; return } pickTool(k) };
@@ -1430,6 +1436,7 @@ function tbOpen(toCol) { if (document.body.classList.contains('kb') && document.
   t.innerHTML = `<div class="hd"><button id="tbX" title="Закрыть">✕</button><b>Футляр</b><span class="mu" style="font-size:12px">★ — в пресеты · касание — взять</span></div>` +
     '<div class="gg7">' + G.map(([n, ks]) => `<h4>${n}</h4><div class="g">${ks.map(k => `<div class="tl${PREF.order.slice(0, PRE_N).includes(k) ? ' st' : ''}${(k === 'pts' ? window.__w3pts !== false : S.mk === k) ? ' on' : ''}" data-k="${k}" style="--c:${kC(k)}" title="${esc(kN(k))}">${kIcoD(k)}<span>${esc(kN(k))}</span><b data-star="${k}">★</b></div>`).join('')}</div>`).join('') + '</div>' +
     `<h4 id="tbCh">цвета · тянуть — порядок</h4><div class="cols" id="tbCols">${zColL().map(q => `<button data-tc="${q}" class="${kC(S.mk) === q ? 'on' : ''}" style="background:${q}" title="${q}"></button>`).join('')}<label class="addc" title="Добавить цвет">+<input type="color" id="tbAddC"></label></div>`;   /* v44 */   /* v39: подписи — в title; цвета */
+  lwRow(t);   /* v78.3 */
   t.classList.add('on');
   $('tbX').onclick = () => t.classList.remove('on');
   t.querySelectorAll('[data-star]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const k = b.dataset.star; if (PREF.order.slice(0, PRE_N).includes(k)) { if (PREF.order.length > 1) PREF.order = PREF.order.filter(x => x !== k) } else PREF.order = [k, ...PREF.order.filter(x => x !== k)]; prefSave(); tbOpen(); mkChips() });   /* v39: ★ — в начало ряда из 5 */
@@ -1465,7 +1472,7 @@ function zColDrag(row) {
 }
 function snap() { S.red = [];   /* v42: новое действие — ↷ не повторяет старое */ S.und.push(JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys })); if (S.und.length > 60) S.und.shift() }
 function unsnap() { const t = S.und[S.und.length - 1]; if (t && t === JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys })) S.und.pop() }   /* правка без изменений — не шаг истории */
-function undo() { const t = S.und.pop(); if (!t) return; if (t.startsWith('ZA:')) { const a = ZA.get(t); if (a) a.u(); return }   /* v23 */ const o = JSON.parse(t); S.lines = o.lines; S.els = o.els; S.man = o.man; S.notes = o.notes || S.notes; if (o.dms) S.dms = o.dms; if (o.drw) S.drw = o.drw; if (o.rts) S.rts = o.rts; if (o.polys) S.polys = o.polys; if (S.dsel && !zdGet(S.dsel)) S.dsel = null;   /* v24 */ if (S.nsel && !S.notes.some(n => n.id === S.nsel)) S.nsel = null; S.msel = S.msel.filter(id => S.els.some(e => e.id === id)); if (S.sel && !S.els.find(e => e.id === S.sel)) S.sel = null; mkChips(); mkPanel(); status(); if (Math.abs(viewRot() - (S.view.rot || 0)) > 1e-9) fit(); else draw(); saveSess(); refreshDisp() }
+function undo() { const t = S.und.pop(); if (!t) return; if (t.startsWith('ZA:')) { const a = ZA.get(t); if (a) a.u(); return }   /* v23 */ const o = JSON.parse(t); S.lines = o.lines; S.els = o.els; S.man = o.man; S.notes = o.notes || S.notes; if (o.dms) S.dms = o.dms; if (o.drw) S.drw = o.drw; if (o.rts) S.rts = o.rts; if (o.polys) S.polys = o.polys; if (S.dsel && !zdGet(S.dsel)) S.dsel = null;   /* v24 */ if (S.nsel && !S.notes.some(n => n.id === S.nsel)) S.nsel = null; S.msel = S.msel.filter(id => S.els.some(e => e.id === id) || zdGet(id));   /* v78.2: и рисунки */ if (S.sel && !S.els.find(e => e.id === S.sel)) S.sel = null; mkChips(); mkPanel(); status(); if (Math.abs(viewRot() - (S.view.rot || 0)) > 1e-9) fit(); else draw(); saveSess(); refreshDisp() }
 addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); zUndo() } if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y' && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); zRedo() } });   /* v23 */
 function elRect(e, W) {                        // углы элемента в плоскости (с поворотом стены)
   W = W || wf(); const w = (+e.W || +e.D || 60), h = (+e.H || +e.D || 60), N = Math.max(1, Math.round(+e.N || 1)), st = +e.st || w;
@@ -1490,7 +1497,7 @@ function mkDrag(g, p) {
 function mkTap(p) {
   let q = toPl(...p);
   if (ZT[S.mk]) return dmTap(q, p);   /* v24: размер, линия, прямоугольник */
-  if (S.mk === 'rsel') { const h = mkHit(p); if (h) S.msel = S.msel.includes(h.id) ? S.msel.filter(x => x !== h.id) : [...S.msel, h.id]; else S.msel = []; S.sel = null; mkPanel(); draw(); return }   /* v8 */
+  if (S.mk === 'rsel') { const hd = dmHit(p), h = hd ? { id: hd } : mkHit(p);   /* v78.2: и рисунок — он первым, как в «выбор» (пометка поверх окна / зоны) */ if (h) S.msel = S.msel.includes(h.id) ? S.msel.filter(x => x !== h.id) : [...S.msel, h.id]; else S.msel = []; S.sel = null; mkPanel(); draw(); return }   /* v8 */
   if (S.mk === 'vyn') return nTap(q);   /* v10: выноска */
   if (S.mk === 'sel') { { const wh = w3Hit(p); if (wh) { W3.sel = wh; w3Win(); draw(); return } }   /* v47: угол → окно X / Y / Z */ const nh = LAY.vyn ? nHit(p) : null; if (nh) { S.nsel = nh.id; S.sel = null; mkPanel(); draw(); return } const gh = LAY.geo && !w3On() ? gHit(p) : null;   /* v71: в виде стены — без старой сетки 3×3 */ if (gh) { S.gsel = gh; S.gOpen = true; S.sel = null; S.nsel = null; mkPanel(); draw(); return } S.nsel = null;   /* v10 */
     if (S.msel.length) S.msel = []; { const zh = dmHit(p); S.dsel = zh; if (zh) { S.sel = null; mkPanel(); draw(); return } }   /* v24: размер / пометка */ const dh = S.adim ? dimHit(p) : null; if (dh) { S.sel = dh.id; S.dfoc = dh.ax; mkPanel(); draw(); return } const hit = mkHit(p); S.sel = hit ? hit.id : null; S.dfoc = null; mkPanel(); draw(); return }   /* v4; v7: подпись размера */
@@ -1807,7 +1814,7 @@ function drawMarkup() {
     const K = KD[e.k] || KD.roz, R = elRect(e, W).map(p => toScr(...p)), sel = e.id === S.sel || S.msel.includes(e.id);   /* v8: группа */
     const ico = w3Ico(e.k), N1 = Math.max(1, Math.round(+e.N || 1)), icz = w3IcZ(), bw = Math.hypot(R[1][0] - R[0][0], R[1][1] - R[0][1]), bh = Math.hypot(R[3][0] - R[0][0], R[3][1] - R[0][1]);   /* v71: значок объекта (как в футляре) */
     let nI = 0; const rr = !!K.pt && e.W === '' && e.H === '' && !e.D, icO = !!(K.pt && ico && Math.min(bw, bh) < icz && !(sel && S.tool === 'mk' && S.mk === 'sel'));   /* точечный объект мельче значка — только значок; с размером — рамка размера и значок в центре; выбран для правки — и рамка */
-    if (!icO) { cx.lineWidth = zLW(sel ? 3 : 2); cx.strokeStyle = sel ? '#1f6fd1' : K.c;   /* v24 */ cx.fillStyle = K.c + '33';
+    if (!icO) { cx.lineWidth = zdW(2, sel); cx.strokeStyle = sel ? '#1f6fd1' : K.c;   /* v78.2: толщина — zdW */   /* v24 */ cx.fillStyle = K.c + '33';
     cx.setLineDash(K.rc || e.cand ? [6 * d, 4 * d] : []); cx.beginPath(); R.forEach((p, i) => i ? cx.lineTo(...p) : cx.moveTo(...p)); cx.closePath(); cx.fill(); cx.stroke(); cx.setLineDash([]) }
     if (!K.pt && ico) { const s = toScr(...e.c), z = icz * 0.8; if (Math.min(bw, bh) >= z * 1.5) { cx.drawImage(ico, s[0] - z / 2, s[1] - z / 2, z, z); nI = 1 } }   /* v71: значок проёма / зоны — в центре, если влезает */
     if (e.cand) { const q = R[2]; cx.font = 'bold ' + (14 * d) + 'px system-ui'; cx.fillStyle = '#b36b00'; cx.fillText('?', q[0] + 3 * d, q[1] - 2 * d) }   /* v7: найден автоматически — не подтверждён */
@@ -1828,8 +1835,8 @@ function drawMarkup() {
   if (LAY.dim) drawDims(); else S.dimHits = [];   /* v10: слой «размеры» */
   if (S.rsr) { const [a, b] = S.rsr; cx.setLineDash([6 * d, 4 * d]); cx.strokeStyle = '#1f6fd1'; cx.lineWidth = 1.5 * d; cx.fillStyle = 'rgba(31,111,209,.08)'; cx.fillRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); cx.strokeRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); cx.setLineDash([]) }   /* v8: рамка выделения */
   dmDraw();   /* v24 */
-  if (S.zpen && S.zpen.length > 1) { cx.beginPath(); S.zpen.forEach((q, i) => i ? cx.lineTo(...toScr(...q)) : cx.moveTo(...toScr(...q))); cx.strokeStyle = kC('pen'); cx.lineWidth = zLW(2.4); cx.stroke() }   /* v26: перо — на лету */
-  if (S.zdp && S.zdp.length) { const d0 = devicePixelRatio || 1; cx.strokeStyle = kC(S.mk); cx.lineWidth = zLW(2); cx.setLineDash([4 * d0, 3 * d0]); cx.beginPath(); S.zdp.forEach((q, i) => i ? cx.lineTo(...toScr(...q)) : cx.moveTo(...toScr(...q))); cx.stroke(); cx.setLineDash([]); for (const q of S.zdp) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d0, 0, 7); cx.stroke() } }
+  if (S.zpen && S.zpen.length > 1) { cx.beginPath(); S.zpen.forEach((q, i) => i ? cx.lineTo(...toScr(...q)) : cx.moveTo(...toScr(...q))); cx.strokeStyle = kC('pen'); cx.lineWidth = zdW(2.4); cx.stroke() }   /* v26: перо — на лету */
+  if (S.zdp && S.zdp.length) { const d0 = devicePixelRatio || 1; cx.strokeStyle = kC(S.mk); cx.lineWidth = zdW(2); cx.setLineDash([4 * d0, 3 * d0]); cx.beginPath(); S.zdp.forEach((q, i) => i ? cx.lineTo(...toScr(...q)) : cx.moveTo(...toScr(...q))); cx.stroke(); cx.setLineDash([]); for (const q of S.zdp) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d0, 0, 7); cx.stroke() } }
   if (S.pend && S.tool === 'mk') { const s = toScr(...S.pend); cx.strokeStyle = (KD[S.mk] || {}).c || '#fff'; cx.lineWidth = 2 * d; cx.beginPath(); cx.arc(s[0], s[1], 7 * d, 0, 7); cx.stroke() }
 }
 /* ─── [SUB] панель свойств: элемент или размеры стены ─── */
@@ -1999,7 +2006,7 @@ function nDraw() {
   const d = devicePixelRatio || 1;
   for (const n of S.notes) {
     const a = toScr(...n.p), b = toScr(...n.t), on = n.id === S.nsel, c = on ? '#1f6fd1' : '#c2410c', bx = nBox(n);
-    cx.strokeStyle = c; cx.lineWidth = 1.6 * d; cx.beginPath(); cx.moveTo(...a); cx.lineTo(b[0], b[1] - 7 * d); cx.stroke(); cx.fillStyle = c; cx.beginPath(); cx.arc(a[0], a[1], 4 * d, 0, 7); cx.fill();
+    cx.strokeStyle = c; cx.lineWidth = zdW(1.6, 0, 1); cx.beginPath(); cx.moveTo(...a); cx.lineTo(b[0], b[1] - 7 * d); cx.stroke(); cx.fillStyle = c; cx.beginPath(); cx.arc(a[0], a[1], 4 * d, 0, 7); cx.fill();
     cx.fillStyle = '#fff'; cx.fillRect(...bx); cx.strokeRect(...bx); cx.fillStyle = n.tx ? '#1a2027' : '#9aa5b1'; cx.textBaseline = 'middle'; cx.fillText(n.tx || '…', bx[0] + 4 * d, bx[1] + bx[3] / 2); cx.textBaseline = 'alphabetic';
   }
 }
@@ -3089,7 +3096,7 @@ function plHit(p) {
   return null;
 }
 function plTap(p) {
-  if (PL.tool === 'parr' || PL.tool === 'pln') { const q = toPl(...p).map(Math.round); if (!S.ppend) { S.ppend = q; return draw() } const a0 = S.ppend; S.ppend = null; pdAdd(PL.tool === 'parr' ? 'arr' : 'ln', [a0, q]); return }   /* v52 */
+  if (PL.tool === 'parr' || PL.tool === 'pln') { S.ppend = null; return draw() }   /* v52; v78.2: только движением (zdrStart) — касание ничего не ставит */
   if (PL.tool === 'ptxt') { const q = toPl(...p).map(Math.round), i = $('ptx'), d = devicePixelRatio || 1, r = cv.getBoundingClientRect(); i.style.left = (r.left + p[0] / d) + 'px'; i.style.top = (r.top + p[1] / d) + 'px'; i.value = ''; i._q = q; i.classList.add('on'); setTimeout(() => i.focus(), 0); return }
   if (PL.tool === 'sel') { const h = pdHit(p); if (h) { S.ppsel = h; S.psel = null; mkPanel(); draw(); zLay(); return } if (S.ppsel) { S.ppsel = null } }
   const onFld = (() => { const f = S.plFld, d = devicePixelRatio || 1; return !!(f && S.psel && S.psel.t === 's' && S.psel.i === f.i && Math.abs(p[0] - f.c[0]) < (f.w || 40 * d) && Math.abs(p[1] - f.c[1]) < 12 * d) })();   /* v66 */
@@ -3098,7 +3105,7 @@ function plTap(p) {
   if (PL.tool === 'sel') { const f = nchFHit(p); if (f) return w3FOpenAt(f.c, { t: 'nch', f: f.f, i: f.i, v: f.v }) }   /* v62: поле ниши */
   if (PL.tool === 'nch') return nchTap(p);   /* v62 */
   { const f = S.plFld, d = devicePixelRatio || 1; if (PL.tool === 'sel' && f && S.psel && S.psel.t === 's' && S.psel.i === f.i && Math.abs(p[0] - f.c[0]) < 40 * d && Math.abs(p[1] - f.c[1]) < 14 * d) return w3FOpenAt(f.c, { t: 'plL', v: f.v == null ? '' : f.v }) }   /* v51 */
-  if (PL.tool === 'rs') { if (!(gest && gest.prs === null)) { S.pmsel = []; mkPanel(); draw(); zLay() } return }   /* v43: касание мимо — снять выбор узлов */
+  if (PL.tool === 'rs') { if (!(gest && gest.prs === null)) { S.pmsel = []; S.ppms = []; mkPanel(); draw(); zLay() } return }   /* v78.2: и рисунки */   /* v43: касание мимо — снять выбор узлов */
   if (PL.tool === 'wp') return wpTap(p);   /* v33 */
   if (ZPX[PL.tool]) return zpTap(p);   /* v25 */
   if (PL.tool === 'sel' && !plHit(p)) { const zh = zpHit(p); S.zps = zh; if (zh) { S.psel = null; mkPanel(); draw(); return } } else S.zps = null;
@@ -3387,6 +3394,7 @@ $('dmIn').onkeydown = e => { if (e.key === 'Enter') $('dmIn').blur() };
 const zdGet = id => S.dms.find(x => x.id === id) || S.drw.find(x => x.id === id) || S.rts.find(x => x.id === id) || S.polys.find(x => x.id === id);
 function dmTap(q, p) {
   const k = S.mk, o = zo(k), d = devicePixelRatio || 1;
+  if (ZDR[k] && !S.zdrGo) { S.pend = null; return draw() }   /* v78.2: линия, стрелка, прямоугольник, круг, дуга — только движением */
   if (k === 'wrt' || k === 'poly') return zwTap(q, p);   /* v25 */
   if (ZD[k]) return zdTap(q, p);   /* v26 */
   if (k === 'dim' && o.sn) q = zSnap(q, p);
@@ -3407,7 +3415,7 @@ function dmDraw() {
   const d = devicePixelRatio || 1; zwDraw();   /* v25 */
   for (const q of S.drw) {
     if (!LAY.pen) break; if (ZD2[q.k]) { zdDraw(q); continue }   /* v26 */
-    const sel = q.id === S.dsel; cx.strokeStyle = sel ? '#1f6fd1' : q.c || kC(q.k); cx.lineWidth = zLW(sel ? 3 : 2.2); cx.setLineDash(q.dash ? [8 * d, 5 * d] : []); cx.beginPath();
+    const sel = zdSel(q); cx.strokeStyle = sel ? '#1f6fd1' : q.c || kC(q.k); cx.lineWidth = zdW(2.2, sel);   /* v78.2: и в группе */ cx.setLineDash(q.dash ? [8 * d, 5 * d] : []); cx.beginPath();
     if (q.k === 'ln') { cx.moveTo(...toScr(...q.a)); cx.lineTo(...toScr(...q.b)) }
     else { const P = rectPts(q); if (q.rnd) { const r = Math.min(Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), Math.hypot(P[2][0] - P[1][0], P[2][1] - P[1][1])) * 0.18; cx.moveTo((P[0][0] + P[1][0]) / 2, (P[0][1] + P[1][1]) / 2); for (let i = 1; i <= 4; i++) cx.arcTo(...P[i % 4], ...P[(i + 1) % 4], r); cx.closePath() } else { P.forEach((s2, i) => i ? cx.lineTo(...s2) : cx.moveTo(...s2)); cx.closePath() }
       if (q.fill) { cx.fillStyle = (q.c || kC(q.k)) + '40'; cx.fill() } }
@@ -3415,8 +3423,8 @@ function dmDraw() {
   }
   cx.font = 'bold ' + (12 * d) + 'px system-ui'; cx.textBaseline = 'middle';
   for (const q of S.dms) {
-    const A = toScr(...q.a), B = toScr(...q.b), v = sub(B, A), l = Math.hypot(...v) || 1, e = [v[0] / l, v[1] / l], n = [-e[1], e[0]], sel = q.id === S.dsel, c = sel ? '#1f6fd1' : kC('dim'), h = 7 * d;
-    cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = zLW(sel ? 2.4 : 1.6); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke();
+    const A = toScr(...q.a), B = toScr(...q.b), v = sub(B, A), l = Math.hypot(...v) || 1, e = [v[0] / l, v[1] / l], n = [-e[1], e[0]], sel = zdSel(q), c = sel ? '#1f6fd1' : kC('dim'), h = 7 * d;
+    cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = zdW(1.6, sel); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke();
     const ar = (P, s2) => { cx.beginPath(); cx.moveTo(...P); cx.lineTo(P[0] + s2 * e[0] * h * 1.6 + n[0] * h * 0.6, P[1] + s2 * e[1] * h * 1.6 + n[1] * h * 0.6); cx.lineTo(P[0] + s2 * e[0] * h * 1.6 - n[0] * h * 0.6, P[1] + s2 * e[1] * h * 1.6 - n[1] * h * 0.6); cx.fill() };
     ar(B, -1); if (q.t === 'from') { cx.beginPath(); cx.arc(A[0], A[1], 3.5 * d, 0, 7); cx.fill() } else ar(A, 1);
     for (const P of [A, B]) { cx.beginPath(); cx.moveTo(P[0] + n[0] * h, P[1] + n[1] * h); cx.lineTo(P[0] - n[0] * h, P[1] - n[1] * h); cx.stroke() }
@@ -3477,9 +3485,9 @@ function zwPend(pp) {
 function zwPath(P, close) { cx.beginPath(); P.forEach((q, i) => i ? cx.lineTo(...toScr(...q)) : cx.moveTo(...toScr(...q))); if (close) cx.closePath() }
 function zwDraw() {
   const d = devicePixelRatio || 1;
-  for (const q of S.polys) { const sel = q.id === S.dsel, c = sel ? '#1f6fd1' : kC('poly'); zwPath(q.pts, 1); cx.fillStyle = c + (q.kind === 'niche' ? '22' : '44'); cx.fill(); cx.strokeStyle = c; cx.lineWidth = zLW(sel ? 3 : 2); cx.setLineDash(q.kind === 'niche' ? [6 * d, 4 * d] : []); cx.stroke(); cx.setLineDash([]) }
-  for (const q of S.rts) { const sel = q.id === S.dsel; zwPath(q.pts); cx.strokeStyle = sel ? '#1f6fd1' : RT_C[q.t] || '#e07a00'; cx.lineWidth = zLW(sel ? 4 : 3); cx.setLineDash([10 * d, 4 * d]); cx.stroke(); cx.setLineDash([]) }
-  if (S.zpl.length && S.tool === 'mk') { zwPath(S.zpl); cx.strokeStyle = kC(S.mk); cx.lineWidth = zLW(2); cx.setLineDash([4 * d, 3 * d]); cx.stroke(); cx.setLineDash([]); for (const q of S.zpl) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.stroke() } }
+  for (const q of S.polys) { const sel = zdSel(q), c = sel ? '#1f6fd1' : kC('poly'); zwPath(q.pts, 1); cx.fillStyle = c + (q.kind === 'niche' ? '22' : '44'); cx.fill(); cx.strokeStyle = c; cx.lineWidth = zdW(2, sel); cx.setLineDash(q.kind === 'niche' ? [6 * d, 4 * d] : []); cx.stroke(); cx.setLineDash([]) }
+  for (const q of S.rts) { const sel = zdSel(q); zwPath(q.pts); cx.strokeStyle = sel ? '#1f6fd1' : RT_C[q.t] || '#e07a00'; cx.lineWidth = zdW(3, sel); cx.setLineDash([10 * d, 4 * d]); cx.stroke(); cx.setLineDash([]) }
+  if (S.zpl.length && S.tool === 'mk') { zwPath(S.zpl); cx.strokeStyle = kC(S.mk); cx.lineWidth = zdW(2); cx.setLineDash([4 * d, 3 * d]); cx.stroke(); cx.setLineDash([]); for (const q of S.zpl) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.stroke() } }
 }
 function zwHit(p, sd) {
   const d = devicePixelRatio || 1;
@@ -3505,6 +3513,7 @@ const ZPX = { shp: ['▣ элемент', 'Элемент в плане (кол�
 S.zpp = []; S.zps = null;
 function zpTb() {   /* набор инструментов плана: редкое */
   const t = $('tb'); t.innerHTML = `<div class="hd"><button id="tbX" title="Закрыть">✕</button><b style="flex:1">Инструменты плана</b></div><h4>Помещение</h4><div class="g">${(PLA() ? [['ppen', ['✎ перо']], ['parr', ['↗ стрелка']], ['pln', ['╱ линия']], ['ptxt', ['T текст']], ['rs', ['⬚ рамка']], ['op', ['⊓ проём']]]   /* v71: без ⌗ / ▭ */ : []).concat(ulGet() ? [['rm', ['⌂ по плану']]] : []).concat(Object.entries(ZPX)).map(([k, v]) => `<div class="tl" data-pk="${k}">${plxIco(k) || `<span style="font-size:22px">${v[0].split(' ')[0]}</span>`}<span>${esc(v[0].split(' ').slice(1).join(' '))}</span></div>`).join('')}</div>`; t.querySelectorAll('[data-pk]').forEach(x => x.title = x.textContent.trim().split(/\s+/).slice(1).join(' '));   /* v39: подписи — в title */
+  lwRow(t);   /* v78.3 */
   t.classList.add('on'); $('tbX').onclick = () => t.classList.remove('on');
   t.querySelectorAll('[data-pk]').forEach(x => x.onclick = () => { t.classList.remove('on'); if (PLA() && plxAdd(x.dataset.pk) === false) return;   /* v62: остаётся в наборе; v71: набор полон — не включать (тост), иначе активный без кнопки */ PL.tool = x.dataset.pk; S.zpp = []; S.psel = null; S.zps = null; mkChips(); mkPanel(); draw() });
 }
@@ -3579,12 +3588,12 @@ function nchFields() {   /* поля выбранной ниши: ширина �
 function nchFHit(p) { const d = devicePixelRatio || 1, F = (S.nchF || []).filter(f => Math.abs(p[0] - f.c[0]) < 34 * d && Math.abs(p[1] - f.c[1]) < 14 * d); F.sort((a, b) => Math.hypot(p[0] - a.c[0], p[1] - a.c[1]) - Math.hypot(p[0] - b.c[0], p[1] - b.c[1])); return F[0] || null }
 function zpDraw() {
   const m = S.room.ms, d = devicePixelRatio || 1, sel = (t, i) => S.zps && S.zps.t === t && S.zps.i === i;
-  (m.shp || []).forEach((q, i) => { const c = sel('shp', i) ? '#1f6fd1' : '#3e4954'; cx.fillStyle = c + (q.t === 'niche' ? '18' : '55'); cx.strokeStyle = c; cx.lineWidth = 2 * d; cx.setLineDash(q.t === 'niche' ? [6 * d, 4 * d] : []);   /* v38: ниша — пунктир */
+  (m.shp || []).forEach((q, i) => { const c = sel('shp', i) ? '#1f6fd1' : '#3e4954'; cx.fillStyle = c + (q.t === 'niche' ? '18' : '55'); cx.strokeStyle = c; cx.lineWidth = zdW(2, 0, 1); cx.setLineDash(q.t === 'niche' ? [6 * d, 4 * d] : []);   /* v38: ниша — пунктир */
     if (q.t === 'col') { const a = toScr(...q.pts[0]), b = toScr(...q.pts[1]); cx.beginPath(); cx.arc((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, Math.hypot(b[0] - a[0], b[1] - a[1]) / 2, 0, 7) } else zpPath(q.pts, 1); cx.fill(); cx.stroke(); cx.setLineDash([]) });
-  (m.rt || []).forEach((q, i) => { zpPath(q.pts); cx.strokeStyle = sel('rt', i) ? '#1f6fd1' : RT_C[q.t] || '#e07a00'; cx.lineWidth = 3 * d; cx.setLineDash(q.lvl === 'c' ? [3 * d, 4 * d] : [10 * d, 4 * d]); cx.stroke(); cx.setLineDash([]) });
+  (m.rt || []).forEach((q, i) => { zpPath(q.pts); cx.strokeStyle = sel('rt', i) ? '#1f6fd1' : RT_C[q.t] || '#e07a00'; cx.lineWidth = zdW(3, 0, 1); cx.setLineDash(q.lvl === 'c' ? [3 * d, 4 * d] : [10 * d, 4 * d]); cx.stroke(); cx.setLineDash([]) });
   if (m.ceil) { cx.fillStyle = '#7b3fc4'; cx.font = 'bold ' + (12 * d) + 'px system-ui'; m.ceil.p.forEach((x, i) => { const s2 = toScr(x[0], x[1]); cx.beginPath(); cx.moveTo(s2[0], s2[1] - 7 * d); cx.lineTo(s2[0] + 6 * d, s2[1] + 5 * d); cx.lineTo(s2[0] - 6 * d, s2[1] + 5 * d); cx.fill(); cx.fillText('h' + (i + 1) + (x[2] !== '' ? ' ' + x[2] : ''), s2[0] + 8 * d, s2[1] - 6 * d) }) }
   try { nchFields() } catch (e) { }   /* v62 */
-  if (S.zpp.length) { zpPath(S.zpp); cx.strokeStyle = '#1f6fd1'; cx.lineWidth = 2 * d; cx.setLineDash([4 * d, 3 * d]); cx.stroke(); cx.setLineDash([]); for (const q of S.zpp) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.stroke() } }
+  if (S.zpp.length) { zpPath(S.zpp); cx.strokeStyle = '#1f6fd1'; cx.lineWidth = zdW(2, 0, 1); cx.setLineDash([4 * d, 3 * d]); cx.stroke(); cx.setLineDash([]); for (const q of S.zpp) { const s2 = toScr(...q); cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.stroke() } }
 }
 function zpHit(p) {
   const m = S.room.ms, d = devicePixelRatio || 1, sd = (P, A, B) => { const v = sub(B, A), l2 = v[0] * v[0] + v[1] * v[1] || 1, t = Math.max(0, Math.min(1, ((P[0] - A[0]) * v[0] + (P[1] - A[1]) * v[1]) / l2)); return Math.hypot(A[0] + v[0] * t - P[0], A[1] + v[1] * t - P[1]) }, q = toPl(...p);
@@ -3616,9 +3625,9 @@ function zdTap(q, p) {
   if (k === 'er') { const h = dmHit(p); if (h && S.drw.some(x => x.id === h)) { snap(); S.drw = S.drw.filter(x => x.id !== h); saveSess(); toast('Стёрто · ↶ — вернуть') } return draw() }
   if (k === 'txt' || k === 'pin') { const n = k === 'pin' ? Math.max(0, ...S.drw.filter(x => x.k === 'pin').map(x => x.n || 0)) + 1 : 0; const r = zdNew(k, { a: q, tx: '', ...(n ? { n } : {}) }); S.dsel = r.id; mkPanel(); draw(); const i = $('pp').querySelector('[data-zt]'); if (i) i.focus(); return }
   if (k === 'arc') { P.push(q); if (P.length === 3) { const r = zdNew('arc', { pts: P.slice(), ...dsh }); S.zdp = []; S.dsel = r.id; S.mk = 'sel'; mkChips() } mkPanel(); return draw() }
-  if (k === 'pl') { if (P.length >= 2) { const l = toScr(...P[P.length - 1]); if (Math.hypot(l[0] - p[0], l[1] - p[1]) < 14 * d) return zdPlDone() } if (P.length) q = zMod('pl', P[P.length - 1], q); P.push(q); mkPanel(); return draw() }
+  if (k === 'pl') { if (!P.length) S.dsel = null;   /* v78.2: новая ломаная — прежняя не выбрана */ if (P.length >= 2) { const l = toScr(...P[P.length - 1]); if (Math.hypot(l[0] - p[0], l[1] - p[1]) < 14 * d) return zdPlDone() } if (P.length) q = zMod('pl', P[P.length - 1], q); P.push(q); mkPanel(); return draw() }
 }
-function zdPlDone() { if (S.zdp.length < 2) return; const r = zdNew('pl', { pts: S.zdp.slice(), ...(zo('pl').dash ? { dash: 1 } : {}) }); S.zdp = []; S.dsel = r.id; S.mk = 'sel'; mkChips(); mkPanel(); draw() }
+function zdPlDone() { if (S.zdp.length < 2) return; const r = zdNew('pl', { pts: S.zdp.slice(), ...(zo('pl').dash ? { dash: 1 } : {}) }); S.zdp = []; S.dsel = r.id; mkPanel(); draw() }   /* v78.2: инструмент остаётся; готовая — выбрана */
 function zdPend(pp) {
   pp.innerHTML = `<div class="row"><span class="t">${kN(S.mk)}</span><span class="mu">точек ${S.zdp.length}${S.mk === 'arc' ? ' / 3' : ''}</span>${S.mk === 'pl' ? '<button id="zdOk" title="Готово">✓</button>' : ''}<button id="zdX" title="Отмена">✕</button></div><div class="row mu">${S.mk === 'pl' ? 'касание последней точки — готово' : 'начало, точка на дуге, конец'}</div>`;
   const ok = $('zdOk'); if (ok) ok.onclick = zdPlDone; $('zdX').onclick = () => { S.zdp = []; mkPanel(); draw() };
@@ -3629,8 +3638,8 @@ function zdCirc3(A, B, C) {   /* окружность через 3 точки э
   return { x, y, r: Math.hypot(A[0] - x, A[1] - y), ccw: (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]) < 0 };
 }
 function zdDraw(q) {
-  const d = devicePixelRatio || 1, sel = q.id === S.dsel || S.msel.includes(q.id), c = sel ? '#1f6fd1' : q.c || kC(q.k);
-  cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = zLW(sel ? 3 : 2.2); cx.setLineDash(q.dash ? [8 * d, 5 * d] : []); cx.lineJoin = 'round'; cx.lineCap = 'round';
+  const d = devicePixelRatio || 1, sel = zdSel(q), c = sel ? '#1f6fd1' : q.c || kC(q.k);
+  cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = zdW(2.2, sel); cx.setLineDash(q.dash ? [8 * d, 5 * d] : []); cx.lineJoin = 'round'; cx.lineCap = 'round';
   if (q.k === 'pen' || q.k === 'pl') { cx.beginPath(); q.pts.forEach((t, i) => i ? cx.lineTo(...toScr(...t)) : cx.moveTo(...toScr(...t))); cx.stroke() }
   else if (q.k === 'arr') { const A = toScr(...q.a), B = toScr(...q.b), v = sub(B, A), l = Math.hypot(...v) || 1, e = [v[0] / l, v[1] / l], n = [-e[1], e[0]], h = 12 * d; cx.beginPath(); cx.moveTo(...A); cx.lineTo(B[0] - e[0] * h * 0.6, B[1] - e[1] * h * 0.6); cx.stroke(); cx.setLineDash([]); cx.beginPath(); cx.moveTo(...B); cx.lineTo(B[0] - e[0] * h + n[0] * h * 0.5, B[1] - e[1] * h + n[1] * h * 0.5); cx.lineTo(B[0] - e[0] * h - n[0] * h * 0.5, B[1] - e[1] * h - n[1] * h * 0.5); cx.fill() }
   else if (q.k === 'circ') { const A = toScr(...q.a), B = toScr(...q.b); cx.beginPath(); cx.arc(A[0], A[1], Math.hypot(B[0] - A[0], B[1] - A[1]), 0, 7); if (q.fill) { cx.fillStyle = c + '40'; cx.fill() } cx.stroke() }
@@ -4174,7 +4183,7 @@ function w3Draw(top) {
     for (const v of w3Vols(Md)) for (const f of w3VFaces(v, Md.H)) if (!f.vis) { cx.setLineDash([4 * d, 3 * d]); cx.strokeStyle = '#6B7380'; cx.lineWidth = 1.3 * d; cx.beginPath(); f.ks.forEach((k, j) => { const q = w3S(v.P[k]); j ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath(); cx.stroke(); cx.setLineDash([]) }
     const VA = [...w3Vols(Md).entries()], kS = w3K() > 0 ? -1 : 1;   /* v71: ниши — под колоннами; колонны — от дальней к ближней (зритель справа — слева направо) */
     for (const [i, v] of VA.filter(x => x[1].D < 0).concat(VA.filter(x => x[1].D > 0).sort((a, b) => kS * (a[1].x0 - b[1].x0)))) {   /* v48: объёмы */
-      const vp = ks => { cx.beginPath(); ks.forEach((k, j) => { const q = w3S(v.P[k]); j ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath() }, sf = k => (W3.pl === 'obj' && (W3.vi || 0) === i && (W3.vf || 'F') === k) || (k === 'F' && S.sel === v.id), sel = sf('F');   /* v71: выбранная грань объёма */
+      const vp = ks => { cx.beginPath(); ks.forEach((k, j) => { const q = w3S(v.P[k]); j ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath() }, sf = k => (W3.pl === 'obj' && (W3.vi || 0) === i && (W3.vf || 'F') === k) || (k === 'F' && (S.sel === v.id || S.msel.includes(v.id))), sel = sf('F');   /* v78.2: и в группе рамки */   /* v71: выбранная грань объёма */
       if (v.y0 < 1 && v.D > 0) { vp(['WLB', 'WRB', 'KRB', 'KLB']); cx.fillStyle = '#A9AEB6'; cx.fill() }   /* след на полу */
       if (v.D < 0) { vp(['KLT', 'KRT', 'KRB', 'KLB']); cx.fillStyle = sel ? '#BFD3EC' : '#C9C5BD'; cx.fill() }   /* дно ниши */
       let fS = v.D < 0 && sel ? ['KLT', 'KRT', 'KRB', 'KLB'] : null;
@@ -4402,13 +4411,14 @@ function w3FOpenAt(c, k) { const i = $('w3f'), d = devicePixelRatio || 1, r = cv
 const PD = { c: (() => { try { return localStorage.getItem('measure.pc') || '#E0442B' } catch (e) { return '#E0442B' } })(), all: false };
 function pdAdd(k, pts, tx) { const m = S.room.ms; plSnap(); m.pdrw = m.pdrw || []; m.pdrw.push({ id: 'pd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4), k, pts, c: PD.c, ...(tx ? { tx } : {}) }); saveRoom(); draw(); zLay() }
 function pdDraw() {
-  const m = S.room && S.room.ms; if (!m) return; const d = devicePixelRatio || 1, L = [...(m.pdrw || [])]; if (S.pstk) L.push({ k: 'pen', pts: S.pstk.map(q => toPl(...q)), c: PD.c });
-  for (const q of L) { const P = q.pts.map(x => toScr(...x)), sel = q.id && q.id === S.ppsel; cx.strokeStyle = cx.fillStyle = q.c; cx.lineWidth = (sel ? 4 : 2.5) * d; cx.lineCap = cx.lineJoin = 'round';
-    if (sel) { cx.save(); cx.shadowColor = '#4DA3FF'; cx.shadowBlur = 8 * d }
+  const m = S.room && S.room.ms; if (!m) return; const d = devicePixelRatio || 1, L = [...(m.pdrw || [])]; if (S.ppcol && S.ppcol !== S.ppsel) S.ppcol = null;   /* v78.2: выбор сменился — снова синим */ if (S.pstk) L.push({ k: 'pen', pts: S.pstk.map(q => toPl(...q)), c: PD.c }); { const z = gest && gest.zdr; if (z && z.pl && z.mv && z.b) L.push({ k: z.k, pts: [z.a, toPl(...z.b)], c: PD.c }) }   /* v78.2: превью стрелки / линии */
+  for (const q of L) { const P = q.pts.map(x => toScr(...x)), sel = pdSel(q); cx.strokeStyle = cx.fillStyle = sel && q.id !== S.ppcol ? '#1f6fd1' : q.c; cx.lineWidth = zdW(2.5, sel, 1);   /* v78.2: выбранное — синим (только что перекрашенный — своим цветом) */ cx.lineCap = cx.lineJoin = 'round';
+    /* v78.2: без свечения — синим с ручками, как на стене (макет Т2) */
     if (q.k === 'txt') { cx.font = `700 ${14 * d}px system-ui`; const tw = cx.measureText(q.tx).width; cx.save(); cx.fillStyle = 'rgba(255,255,255,.9)'; cx.fillRect(P[0][0] - 3 * d, P[0][1] - 13 * d, tw + 6 * d, 18 * d); cx.restore(); cx.fillText(q.tx, P[0][0], P[0][1]) }
     else { cx.beginPath(); P.forEach((x, i) => i ? cx.lineTo(...x) : cx.moveTo(...x)); cx.stroke();
       if (q.k === 'arr' && P.length > 1) { const [a, b] = P.slice(-2), an = Math.atan2(b[1] - a[1], b[0] - a[0]), h = 12 * d; cx.beginPath(); cx.moveTo(...b); cx.lineTo(b[0] - h * Math.cos(an - .45), b[1] - h * Math.sin(an - .45)); cx.lineTo(b[0] - h * Math.cos(an + .45), b[1] - h * Math.sin(an + .45)); cx.closePath(); cx.fill() } }
-    if (sel) cx.restore() }
+  }
+  pdHandles();   /* v78.2 */
   if (S.ppend && (PL.tool === 'parr' || PL.tool === 'pln')) { const s2 = toScr(...S.ppend); cx.fillStyle = PD.c; cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.fill() }
 }
 function pdHit(p) { const m = S.room && S.room.ms, d = devicePixelRatio || 1; let best = null, bd = 12 * d;
@@ -4416,7 +4426,7 @@ function pdHit(p) { const m = S.room && S.room.ms, d = devicePixelRatio || 1; le
     if (q.k === 'txt') { if (Math.abs(p[0] - P[0][0] - 20 * d) < 30 * d && Math.abs(p[1] - P[0][1] + 5 * d) < 12 * d) return q.id; continue }
     for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i], v = [b[0] - a[0], b[1] - a[1]], l2 = v[0] * v[0] + v[1] * v[1] || 1, t = Math.max(0, Math.min(1, ((p[0] - a[0]) * v[0] + (p[1] - a[1]) * v[1]) / l2)), e = Math.hypot(p[0] - a[0] - t * v[0], p[1] - a[1] - t * v[1]); if (e < bd) { bd = e; best = q.id } } }
   return best }
-function pdColor(c) { PD.c = c; try { localStorage.setItem('measure.pc', c) } catch (e) { } const m = S.room && S.room.ms, q = S.ppsel && (m.pdrw || []).find(x => x.id === S.ppsel); if (q) { plSnap(); q.c = c; saveRoom() } plBarCol(); draw() }
+function pdColor(c) { PD.c = c; try { localStorage.setItem('measure.pc', c) } catch (e) { } const m = S.room && S.room.ms, q = S.ppsel && (m.pdrw || []).find(x => x.id === S.ppsel); if (q) { plSnap(); q.c = c; saveRoom(); S.ppcol = q.id } plBarCol(); draw() }   /* v78.2: перекрашенный выбранный — в своём цвете (ручки — выбран), пока выбор тот же */
 function stripShow(box, it) { if (!box || !it) return; requestAnimationFrame(() => { const a = it.offsetLeft - box.offsetLeft, b = a + it.offsetWidth; if (a < box.scrollLeft) box.scrollLeft = a - 4; else if (b > box.scrollLeft + box.clientWidth) box.scrollLeft = b - box.clientWidth + 4 }) }   /* v77: выбранное — в зоне видимости ленты */
 function plBarCol() {   /* палитра в полосе плана: текущий · 3 цвета · › (все) */
   const b = $('plb'); if (!b) return; let w = b.querySelector('.pcol'); if (!w) { w = document.createElement('span'); w.className = 'pcol'; const z = b.querySelector('#zur'); b.insertBefore(w, z || null) }
@@ -4444,6 +4454,7 @@ function plxIco(k) {
 const PLX_I = { ppen: '✎', parr: '↗', pln: '╱', ptxt: 'T', rs: '⬚', ct: '⌗', wp: '▭', op: '⊓', rm: '⌂', shp: '▣', prt: '┅', ceil: '◿' };
 const PLX_T = { ppen: 'Перо', parr: 'Стрелка', pln: 'Линия', ptxt: 'Текст', rs: 'Рамка', ct: 'Контур', wp: 'Стены с плана', op: 'Проём', rm: 'По плану', shp: 'Элемент', prt: 'Трасса', ceil: 'Скат' };
 function plPick(k) {
+  if (k !== 'sel') S.ppsel = null; if (k !== 'rs') S.ppms = [];   /* v78.2: другой инструмент — выбор рисунков снят */
   if (k !== 'st') { S.pact = null; S.pfirst = null }   /* v63 */
   if (k === 'rm') { if (!ulGet()) { toast('Сначала план: фото / скан'); $('plUl').click(); return } PL.tool = 'rm'; S.psel = null; S.zps = null; mkChips(); mkPanel(); draw(); zLay(); toast('Помещения: коснитесь залитой комнаты — контур и стены'); return }   /* v65 */
   if (k === 'nch') { PL.tool = 'nch'; S.psel = null; S.zps = null; mkChips(); mkPanel(); draw(); zLay(); toast('Ниша: коснитесь стены'); return }   /* v62 */
@@ -4455,7 +4466,7 @@ function plPre(el) {
   for (const [k, ic, c, t] of PLP) { const b = document.createElement('button'); b.className = 'pb' + (plOn(k) ? ' on' : ''); b.dataset.pk = k; b.title = t; b.style.setProperty('--c', c); b.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#${ic}"/></svg>`; b.onclick = () => plPick(k); el.appendChild(b) }
   for (const k of plxGet()) { const b = document.createElement('button'); b.className = 'pb' + (PL.tool === k ? ' on' : ''); b.dataset.pk = k; b.dataset.plx = '1'; b.title = (PLX_T[k] || k) + ' · долгое нажатие — убрать из набора'; b.style.setProperty('--c', /^p(pen|arr|ln|txt)$/.test(k) ? PD.c : '#6B7785'); b.style.color = /^p(pen|arr|ln|txt)$/.test(k) ? PD.c : '#1A2027'; b.style.font = '700 16px system-ui'; { const ic = plxIco(k); if (ic) b.innerHTML = ic; else b.textContent = PLX_I[k] || '•' }   /* v65: значок */
     let lt = 0; b.onpointerdown = () => { lt = setTimeout(() => { if (SWP.mv) { lt = 0; return } lt = -1; plxSet(plxGet().filter(x => x !== k)); if (PL.tool === k) PL.tool = 'sel'; toast((PLX_T[k] || k) + ' — убран из набора'); mkChips(); mkPanel(); draw() }, 650) }; b.onpointerup = b.onpointerleave = b.onpointercancel = () => { if (lt > 0) clearTimeout(lt) };   /* v77: свайп ряда — отмена */
-    b.onclick = () => { if (lt === -1) { lt = 0; return } if (/^p(pen|arr|ln|txt)$/.test(k)) { PL.tool = k; mkChips(); mkPanel(); draw(); zLay() } else { S.zpp = []; S.psel = null; S.zps = null; plPick(k) } };   /* v66 */ el.appendChild(b) }   /* v62 */
+    b.onclick = () => { if (lt === -1) { lt = 0; return } if (/^p(pen|arr|ln|txt)$/.test(k)) { PL.tool = k; S.ppsel = null; S.ppms = []; mkChips(); mkPanel(); draw(); zLay() } else {   /* v78.2: выбор рисунков снят */ S.zpp = []; S.psel = null; S.zps = null; plPick(k) } };   /* v66 */ el.appendChild(b) }   /* v62 */
   if (/^p(pen|arr|ln|txt)$/.test(PL.tool) && !plxGet().includes(PL.tool)) { const b = document.createElement('button'); b.className = 'pb on'; b.dataset.pk = PL.tool; b.style.setProperty('--c', PD.c); b.title = 'Рисование на плане'; b.style.color = PD.c; b.style.font = '700 16px system-ui'; b.textContent = { ppen: '✎', parr: '↗', pln: '╱', ptxt: 'T' }[PL.tool]; b.onclick = () => plPick('sel'); el.appendChild(b) }   /* v52 */
   const a = document.createElement('button'); a.className = 'pa'; a.id = 'plAll'; a.title = 'Ещё инструменты плана: перо, стрелка, линия, текст, рамка, проём, трасса, скат'; a.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-plus"/></svg>'; a.onclick = zpTb; el.appendChild(a);
 }
@@ -4579,7 +4590,7 @@ const W3RD = 0.7;   /* ° на px */
 function w3SlUpd() { const sl = $('w3sl'); if (sl && sl.classList.contains('on') && sl.dataset.t === 'a') { sl.querySelector('input').value = W3.a; sl.querySelector('.v').textContent = W3.a + '°' } }
 cv.addEventListener('pointerdown', e => {
   const g = gest; if (!g || ptr.size !== 1 || g.view || g.pinch || S.mode === 'plan' || S.show >= 0 || !S.mosaic || q4Need() || !w3On()) return;
-  if (g.drag || g.gdrag || g.rs || g.pen || g.er || g.ddrag || g.vdrag || g.hdrag || g.ldrag || g.edrag || g.q4d != null) return;
+  if (g.drag || g.gdrag || g.rs || g.pen || g.er || g.ddrag || g.vdrag || g.hdrag || g.ldrag || g.edrag || g.q4d != null || g.zdr || g.znp || g.dhd) return;   /* v78.2: рисование — без поворота */
   const p = g.p0; try { if (w3Hit(p) || w3FHit(p) || mkHit(p) || dmHit(p)) return } catch (x) { return }
   g.w3r = { a: W3.a };
 });
@@ -4843,16 +4854,16 @@ document.querySelectorAll('#zkb [data-kk]').forEach(b => { b.onpointerdown = e =
 S.pmsel = [];
 function pmIn(p) { const m = S.room.ms, P = (S.pmsel || []).map(i => toScr(...m.pts[i])); if (P.length < 2) return false; const d = devicePixelRatio || 1, xs = P.map(q => q[0]), ys = P.map(q => q[1]); return p[0] >= Math.min(...xs) - 12 * d && p[0] <= Math.max(...xs) + 12 * d && p[1] >= Math.min(...ys) - 12 * d && p[1] <= Math.max(...ys) + 12 * d }
 function pmPanel() {
-  const pp = $('pp'); pp.classList.add('on'); const n = (S.pmsel || []).length;
-  pp.innerHTML = `<div class="row"><span class="t">⬚ рамка</span><span class="mu">${n ? 'узлов ' + n : 'провести рамку'}</span>${n ? '<button onclick="zDelSel()" title="Удалить выбранные узлы (↶ — вернуть)">🗑</button><button onclick="S.pmsel=[];mkPanel();draw();zLay()" title="Снять выбор">⊘</button>' : ''}</div><div class="row mu">рамка — узлы внутри выбраны; тянуть выбранный узел или внутри группы — перенос группой</div>`;
+  const pp = $('pp'); pp.classList.add('on'); const n = (S.pmsel || []).length, nd = pdSelL().length;   /* v78.2: и рисунки */
+  pp.innerHTML = `<div class="row"><span class="t">⬚ рамка</span><span class="mu">${n || nd ? [n ? 'узлов ' + n : '', nd ? 'рисунков ' + nd : ''].filter(Boolean).join(' · ') : 'провести рамку'}</span>${n || nd ? '<button onclick="zDelSel()" title="Удалить выбранное (↶ — вернуть)">🗑</button><button onclick="S.pmsel=[];S.ppms=[];mkPanel();draw();zLay()" title="Снять выбор">⊘</button>' : ''}</div><div class="row mu">рамка — узлы внутри выбраны; тянуть выбранный узел или внутри группы — перенос группой</div>`;
 }
 const zPlD0 = plDraw; plDraw = function () { zPlD0(); const d = devicePixelRatio || 1, m = S.room && S.room.ms; if (!m) return;
   for (const i of S.pmsel || []) { if (!m.pts[i]) continue; const s2 = toScr(...m.pts[i]); cx.strokeStyle = '#1f6fd1'; cx.lineWidth = 3 * d; cx.beginPath(); cx.arc(s2[0], s2[1], 13 * d, 0, 7); cx.stroke() }
   if (S.rsr) { const [a, b] = S.rsr; cx.setLineDash([6 * d, 4 * d]); cx.strokeStyle = '#1f6fd1'; cx.lineWidth = 1.5 * d; cx.fillStyle = 'rgba(31,111,209,.08)'; cx.fillRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); cx.strokeRect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])); cx.setLineDash([]) } };
 /* ═══ [BLOCK] УДАЛЕНИЕ ВЫДЕЛЕННОГО (v42): 🗑 в шапке — любой выделенный объект; ↶ ↷ — как у остальных действий ═══ */
 const PA = new Map(); let paN = 0;   /* составные действия плана: {u, r} — ↶ ↷ */
-function zSelHas() { if (S.mode === 'plan' && S.ppsel) return true; return zSelHas0() }
-async function zDelSel() { if (S.mode === 'plan' && S.ppsel) { const m = S.room.ms; plSnap(); m.pdrw = (m.pdrw || []).filter(q => q.id !== S.ppsel); S.ppsel = null; saveRoom(); toast('Удалено · ↶ — вернуть'); draw(); return zLay() } return zDelSel0() }
+function zSelHas() { if (S.mode === 'plan' && (S.ppsel || pdSelL().length)) return true; return zSelHas0() }   /* v78.2: и рамка рисунков плана */
+async function zDelSel() { if (S.mode === 'plan' && S.ppsel) { const m = S.room.ms; plSnap(); m.pdrw = (m.pdrw || []).filter(q => q.id !== S.ppsel); S.ppsel = null; saveRoom(); toast('Удалено · ↶ — вернуть'); draw(); return zLay() } if (S.mode === 'plan' && pdSelL().length) return pdDelSel(); return zDelSel0() }   /* v78.2 */
 function zSelHas0() {
   if (S.mode === 'plan') return !!(S.room && ((S.pmsel || []).length || (S.zps && zpGet(S.zps)) || (S.psel && (S.psel.t === 's' || S.psel.t === 'n')) || (S.pf && poolGet(S.pf))));
   return !!((S.msel || []).length || (S.dsel && zdGet(S.dsel)) || S.nsel || S.sel || (S.gsel && S.gOpen) || (S.tool !== 'mk' && S.show >= 0 && S.frames[S.show]));
@@ -4952,6 +4963,157 @@ function zInit() {
   mo.observe($('pp'), { childList: true, attributes: true, attributeFilter: ['class'] }); mo.observe($('ch'), { childList: true }); mo.observe($('fr'), { childList: true }); mo.observe($('st'), { childList: true, characterData: true, subtree: true });
   zLay();
 }
+
+/* ═══ [BLOCK] РИСОВАНИЕ ОДНИМ ДВИЖЕНИЕМ, ВЫДЕЛЕННОЕ — СИНИМ С РУЧКАМИ, ТОЛЩИНА — ОДНА ФУНКЦИЯ (v78.2, макет Т1 / Т2) ═══ */
+/* Стена: линия, стрелка, прямоугольник (угол → угол), круг (центр → край), дуга (начало → конец, прогиб по умолчанию; средняя ручка тянется) —
+   касание = начало, ведёшь = объект тянется за стилусом, поднял = готово; касание без движения (до 10 px) — ничего. Размер, элемент-прямоугольник, выноска —
+   так же движением, касания (как раньше) тоже работают. Ломаная, текст, пин, точки — касаниями. Инструмент после объекта остаётся (и после дуги, ломаной).
+   В инструменте рисования стилус холст не двигает и не поворачивает; палец (стилус уже был — PEN.on()) — двигает и масштабирует; стилуса не было —
+   один палец рисует, два — двигают и масштабируют. Ладонь (до стилуса или во время) — не в счёт. Стена ребром — не рисует (подсказка ∠°).
+   План: стрелка и линия — так же движением; текст, контур, элемент, трасса, проём, ниша — касаниями, стилус холст не двигает.
+   Рамка: выбрано всё, что она задела (контур задет или объект внутри; рамка внутри большого объекта его не берёт; скрытые слои — нет).
+   Выбранное (касанием или рамкой) — синим, толще, с ручками (макет Т2); у текста и пина точка — сбоку, надпись не закрывает. */
+const ZDR = { ln: 1, arr: 1, rect: 1, circ: 1, arc: 1 };   /* только движением: касание — ничего */
+const ZPN = { ptxt: 1, ct: 1, shp: 1, prt: 1, op: 1, nch: 1 };   /* план: инструменты касаний — стилус холст не двигает */
+TOOLX.arc.n = 'дуга';   /* дуга — движением, не 3 касания */
+/* ═══ [BLOCK] ТОЛЩИНА ЛИНИИ — ОДНА НА ВСЕ ИНСТРУМЕНТЫ (v78.3, макет Т2): PREF.lw 0,5…12, по умолчанию 3; строка внизу футляра и набора плана ═══ */
+function lwV() { const v = +(typeof PREF !== 'undefined' && PREF.lw); return v >= 0.5 && v <= 12 ? v : 3 }   /* объявления функций — доступны и до этой строки (рисование при загрузке) */
+function lwK() { return lwV() / 3 }
+function lwTxt(v) { return String(v).replace('.', ',') }
+function lwRow(t) {   /* строка «толщина · бегунок · число» в конец панели t */
+  t.insertAdjacentHTML('beforeend', `<div class="lwr"><span>толщина</span><input type="range" id="tbLw" min="0.5" max="12" step="0.5" value="${lwV()}" aria-label="Толщина линии"><b id="tbLwV">${lwTxt(lwV())}</b></div>`);
+  const i = $('tbLw'), o = $('tbLwV'); i.oninput = () => { PREF.lw = +i.value; o.textContent = lwTxt(lwV()); draw() }; i.onchange = () => { PREF.lw = +i.value; prefSave() };
+}
+function zdW(w, sel, fx) {   /* толщина линии рисунка / построения, px устройства — единая точка (будущая общая настройка толщины, макет Т2); fx — без масштаба вида (план, выноска) */
+  const v = w * (sel ? 1.6 : 1) * lwK(); return fx ? v * (devicePixelRatio || 1) : zLW(v);   /* v78.3: × общая толщина */
+}
+function zdSel(q) { return !!(q && q.id) && (q.id === S.dsel || (S.msel || []).includes(q.id)) }   /* выбран касанием или рамкой */
+const zdrTk = () => S.mode + ':' + (S.mode === 'plan' ? PL.tool : S.tool + ':' + S.mk);   /* инструмент на момент касания — сменили посреди штриха → штрих отменён */
+function zdLay(k) {   /* рисуешь в скрытом слое — слой включается (иначе объект невидим) */
+  const K = KD[k], l = ZDR[k] || (ZD[k] && k !== 'er') ? 'pen' : k === 'vyn' ? 'vyn' : K && !K.line ? (K.pt ? 'kom' : k === 'zon' ? 'zon' : 'el') : null;
+  if (!l || LAY[l]) return; LAY[l] = true; try { localStorage.setItem('zamer.lay', JSON.stringify(LAY)) } catch (e) { } toast('Слой «' + ((LAY_N.find(x => x[0] === l) || [])[1] || l) + '» включён');
+}
+function zdrStart(p, e) {   /* pointerdown одним указателем: true — жест забран рисованием */
+  const g = gest; if (!g) return false;
+  if (S.mode === 'plan') { const k = { parr: 'arr', pln: 'ln' }[PL.tool]; if (k) { g.zdr = { pl: 1, k, a: toPl(...p).map(Math.round), p0: p, tk: zdrTk() }; return true } if (ZPN[PL.tool]) g.znp = 1; return false }
+  if (S.tool !== 'mk' || S.show >= 0 || !S.mosaic || q4Need()) return false;
+  const k = S.mk; if (k === 'sel' || k === 'rsel') return false;
+  { const f = w3FS(); if (f && Math.abs(f.c) < 0.15) { g.znp = 1; g.moved = true; toast('Стена ребром — поверните ∠°, чтобы рисовать'); return true } }   /* как draw(): разметка ребром не видна — объекты не ставятся */
+  zdLay(k);
+  if (k === 'arc' && S.dsel) { const h = zdHdHit(p, 1); if (h) { g.dhd = h; return true } }   /* готовая дуга: средняя ручка тянется, не выходя из инструмента */
+  if (ZDR[k] || k === 'dim' || k === 'vyn' || (KD[k] && KD[k].rc)) { g.zdr = { k, a: toPl(...p), p0: p, tk: zdrTk() }; return true }
+  if (k !== 'pen' && k !== 'er') g.znp = 1;   /* инструмент касаний: рисующий ввод холст не двигает */
+  return false;
+}
+function zdrMove(g, p) { const z = g.zdr, d = devicePixelRatio || 1; if (z.tk !== zdrTk()) { g.zdr = null; g.znp = 1; return draw() }
+  if (!z.mv && Math.hypot(p[0] - z.p0[0], p[1] - z.p0[1]) > 10 * d) z.mv = 1; z.b = p; if (z.mv) draw() }   /* превью — с 10 px (тот же порог, что у создания) */
+function zdArc3(a, b) {   /* дуга по хорде: средняя точка — прогиб 1/4 хорды влево от направления */
+  const v = sub(b, a), m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; return [a.slice(), [m[0] - v[1] * 0.25, m[1] + v[0] * 0.25], b.slice()];
+}
+function zdrEnd(g, p) {
+  const z = g.zdr, d = devicePixelRatio || 1; g.zdr = null;
+  if (z.tk !== zdrTk()) return draw();   /* инструмент / режим сменили, пока стилус вёл, — ничего */
+  if (!z.mv) { g.moved = false; return draw() }   /* до 10 px — касание: размер, элемент, выноска — точка (как раньше); линия и фигуры — ничего */
+  if (Math.hypot(p[0] - z.p0[0], p[1] - z.p0[1]) < 10 * d) return draw();   /* ушёл и вернулся к началу — ничего */
+  if (z.pl) { S.ppsel = null; return pdAdd(z.k, [z.a, toPl(...p).map(Math.round)]) }
+  const k = z.k; S.pend = null; S.dsel = null;   /* новое — прежний выбор снят */
+  if (k === 'arc') { const r = zdNew('arc', { pts: zdArc3(z.a, toPl(...p)), ...(zo('arc').dash ? { dash: 1 } : {}) }); S.dsel = r.id; mkPanel(); return draw() }   /* инструмент остаётся; готовая выбрана — средняя ручка тянется */
+  if (k === 'vyn') { nTap(z.a); return nTap(toPl(...p)) }   /* выноска: точка → подпись */
+  if (KD[k] && KD[k].rc) { mkTap(z.p0); return mkTap(p) }
+  S.zdrGo = 1; try { dmTap(z.a, z.p0); dmTap(toPl(...p), p) } finally { S.zdrGo = 0 }
+}
+function zdrPv(z) {   /* объект на лету (без id — не выбран) */
+  const k = z.k, q1 = toPl(...z.b);
+  if (k === 'vyn') return { vyn: 1, q: { a: z.a, b: q1 } };
+  const o = zo(k);
+  if (k === 'arc') return { q: { k, pts: zdArc3(z.a, q1), c: kC(k), ...(o.dash ? { dash: 1 } : {}) } };
+  const b = zMod(k, z.a, q1);
+  if (KD[k] && KD[k].rc) return { rc: KD[k], q: { a: z.a, b } };
+  if (k === 'dim') return { dm: 1, q: { a: z.a, b, t: o.t || 'both' } };
+  return { q: { k, a: z.a, b, c: kC(k), ...(o.dash ? { dash: 1 } : {}), ...(o.rnd ? { rnd: 1 } : {}), ...(o.fill ? { fill: 1 } : {}) } };
+}
+function zdHd(q) {   /* ручки: {s — точка экрана, set — правка (нет — только показ), m — средняя дуги} */
+  if (!q) return [];
+  if (q.k === 'txt' || q.k === 'pin') { const d = devicePixelRatio || 1, b = zdBox(q), A = toScr(...q.a); return [{ s: q.k === 'pin' ? [A[0], A[1] - 11 * d] : [b[0] - 6 * d, (b[1] + b[3]) / 2] }] }   /* точка — у края (номер пина и буквы не закрывает); тянется объект целиком */
+  if (q.k === 'rect') { const W = wf(), A = toW(q.a, W), B = toW(q.b, W);
+    return [[0, 0], [1, 0], [1, 1], [0, 1]].map(([i, j]) => ({ s: toScr(...fromW([i ? B[0] : A[0], j ? B[1] : A[1]], W)), set: t => { const w = toW(t, W), a = toW(q.a, W), b = toW(q.b, W); (i ? b : a)[0] = w[0]; (j ? b : a)[1] = w[1]; q.a = fromW(a, W); q.b = fromW(b, W) } })) }
+  if (q.pts) return q.k === 'pen' ? [0, q.pts.length - 1].map(i => ({ s: toScr(...q.pts[i]) })) : q.pts.map((t, i) => ({ s: toScr(...t), set: v => { q.pts[i] = v }, m: q.k === 'arc' && i === 1 }));
+  if (q.k === 'circ') return [{ s: toScr(...q.a), set: v => { const dv = sub(v, q.a); q.a = v; q.b = add(q.b, dv) } }, { s: toScr(...q.b), set: v => { q.b = v } }];   /* центр — круг целиком, край — радиус */
+  return ['a', 'b'].filter(f => q[f]).map(f => ({ s: toScr(...q[f]), set: v => { q[f] = v } }));
+}
+function zdHdHit(p, mid) {   /* ручка выбранного под касанием; мелкий объект — зона ручки ≤ 1/3 его (за середину — тянется целиком) */
+  const q = zdGet(S.dsel); if (!q || (S.drw.includes(q) && !LAY.pen)) return null; const d = devicePixelRatio || 1, A = zdHd(q);
+  let r = 16 * d; for (let i = 1; i < A.length; i++) r = Math.min(r, Math.max(5 * d, Math.hypot(A[i].s[0] - A[i - 1].s[0], A[i].s[1] - A[i - 1].s[1]) / 3));
+  let best = null; for (const h of A) { if (!h.set || (mid && !h.m)) continue; const l = Math.hypot(h.s[0] - p[0], h.s[1] - p[1]); if (l < r) { r = l; best = h } }
+  return best && { ...best, o: sub(best.s, p) };   /* o — сдвиг пальца от ручки: ручка не прыгает под стилус */
+}
+function zdHdMove(g, p) { if (!g.dsnap) { snap(); g.dsnap = 1 } g.dhd.set(toPl(...add(p, g.dhd.o || [0, 0]))); draw() }
+function zdDots(L) { const d = devicePixelRatio || 1; cx.setLineDash([]); cx.lineWidth = 2 * d; cx.strokeStyle = '#1f6fd1'; cx.fillStyle = '#fff'; for (const s of L) { cx.beginPath(); cx.arc(s[0], s[1], 4.5 * d, 0, 7); cx.fill(); cx.stroke() } }
+function zdBox(q) {   /* текст / пин на экране — [x0, y0, x1, y1] (как рисует zdDraw) */
+  const d = devicePixelRatio || 1, A = toScr(...q.a), t = q.tx || (q.k === 'txt' ? '…' : ''); cx.save(); cx.font = 'bold ' + (15 * d) + 'px system-ui'; const tw = t ? cx.measureText(t).width + 4 * d : 0; cx.restore();
+  return q.k === 'pin' ? [A[0] - 11 * d, A[1] - 11 * d, A[0] + Math.max(11 * d, 13 * d + tw), A[1] + 11 * d] : [A[0] - 2 * d, A[1] - 10 * d, A[0] - 2 * d + Math.max(tw, 12 * d), A[1] + 10 * d];
+}
+const zDmD782 = dmDraw; dmDraw = function () {   /* + объект на лету и ручки выбранного */
+  const z = gest && gest.zdr, pv = z && !z.pl && z.mv && z.b ? zdrPv(z) : null, L = pv && !pv.rc && !pv.vyn ? (pv.dm ? S.dms : S.drw) : null, d = devicePixelRatio || 1;
+  if (L) L.push(pv.q); try { zDmD782.apply(this, arguments) } finally { if (L) L.pop() }
+  if (pv && pv.rc) { const P = rectPts(pv.q); cx.strokeStyle = pv.rc.c; cx.lineWidth = zdW(2); cx.setLineDash([6 * d, 4 * d]); cx.beginPath(); P.forEach((s2, i) => i ? cx.lineTo(...s2) : cx.moveTo(...s2)); cx.closePath(); cx.stroke(); cx.setLineDash([]) }
+  if (pv && pv.vyn) { const A = toScr(...pv.q.a), B = toScr(...pv.q.b); cx.strokeStyle = '#c2410c'; cx.lineWidth = zdW(1.6, 0, 1); cx.setLineDash([6 * d, 4 * d]); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke(); cx.setLineDash([]) }
+  if (pv) zdA0(z.a, pv.rc ? pv.rc.c : pv.vyn ? '#c2410c' : kC(pv.dm ? 'dim' : z.k));
+  const Q = [...S.dms, ...(LAY.pen ? S.drw : []), ...S.rts, ...S.polys].filter(zdSel);
+  zdDots(Q.flatMap(q => zdHd(q).map(h => h.s)));
+};
+function zdA0(a, c) { const d = devicePixelRatio || 1, s2 = toScr(...a); cx.fillStyle = c; cx.beginPath(); cx.arc(s2[0], s2[1], 5 * d, 0, 7); cx.fill() }   /* точка касания — начало (макет Т1) */
+function segBox(A, B, x0, y0, x1, y1) {   /* отрезок задевает прямоугольник (Лианг — Барски) */
+  let t0 = 0, t1 = 1; const dx = B[0] - A[0], dy = B[1] - A[1];
+  for (const [pp, qq] of [[-dx, A[0] - x0], [dx, x1 - A[0]], [-dy, A[1] - y0], [dy, y1 - A[1]]]) {
+    if (pp === 0) { if (qq < 0) return false } else { const r = qq / pp; if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r } else { if (r < t0) return false; if (r < t1) t1 = r } } }
+  return true;
+}
+const polyBox = (P, B, cl) => P.some((s, i) => i ? segBox(P[i - 1], s, ...B) : P.length === 1 && segBox(s, s, ...B)) || (!!cl && P.length > 2 && segBox(P[P.length - 1], P[0], ...B));
+const boxBox = (a, b) => a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
+function zdArcPts(q, n) { const [A, B, C] = q.pts.map(t => toScr(...t)), o = zdCirc3(A, B, C); if (!o) return [A, C];
+  const a0 = Math.atan2(A[1] - o.y, A[0] - o.x); let da = Math.atan2(C[1] - o.y, C[0] - o.x) - a0; if (o.ccw) { if (da > 0) da -= 2 * Math.PI } else if (da < 0) da += 2 * Math.PI;
+  return Array.from({ length: n + 1 }, (_, i) => [o.x + o.r * Math.cos(a0 + da * i / n), o.y + o.r * Math.sin(a0 + da * i / n)]) }
+function zrsPick(x0, y0, x1, y1) {   /* рамка на стене: всё, что она задела (контур задет или объект целиком внутри); рамка внутри большого объекта его не берёт; скрытые слои — нет */
+  const B = [x0, y0, x1, y1], inB = ([x, y]) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
+  const el = e => { if (!layOn(e)) return false; const P = elRect(e).map(q => toScr(...q)); return polyBox(P, B, 1) || P.every(inB) };
+  const dr = q => {
+    if (q.k === 'circ') { const A = toScr(...q.a), r = Math.hypot(...sub(toScr(...q.b), A)), dn = Math.hypot(Math.max(x0, Math.min(x1, A[0])) - A[0], Math.max(y0, Math.min(y1, A[1])) - A[1]), dx = Math.max(...[[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(c => Math.hypot(c[0] - A[0], c[1] - A[1]))); return dn <= r && dx >= r }   /* окружность задета или круг внутри */
+    if (q.k === 'txt' || q.k === 'pin') return boxBox(zdBox(q), B);   /* надпись целиком (не только точка) */
+    if (q.k === 'arc') return polyBox(zdArcPts(q, 24), B);
+    if (q.k === 'rect') return polyBox(rectPts(q), B, 1);
+    const P = (q.pts || [q.a, q.b]).map(t => toScr(...t)); return polyBox(P, B, S.polys.includes(q));
+  };
+  return S.els.filter(el).map(e => e.id).concat([...(LAY.pen ? S.drw : []), ...S.dms, ...S.rts, ...S.polys].filter(dr).map(q => q.id));
+}
+/* ─── план: рисунки ms.pdrw — выбранные рамкой (S.ppms, пока инструмент «рамка»), синим с ручками; 🗑 — один шаг ↶ ─── */
+S.ppms = [];
+function pdSelL() { const m = S.room && S.room.ms; return S.mode === 'plan' && PL.tool === 'rs' && m ? (S.ppms || []).filter(id => (m.pdrw || []).some(q => q.id === id)) : [] }   /* только рисунки этого помещения */
+function pdSel(q) { return !!(q && q.id) && (q.id === S.ppsel || pdSelL().includes(q.id)) }
+function pdTxBox(q) { const d = devicePixelRatio || 1, P = toScr(...q.pts[0]); cx.save(); cx.font = `700 ${14 * d}px system-ui`; const tw = cx.measureText(q.tx || '').width; cx.restore(); return [P[0] - 3 * d, P[1] - 13 * d, P[0] + tw + 3 * d, P[1] + 5 * d] }   /* как рисует pdDraw */
+function pdPick(x0, y0, x1, y1) { const m = S.room && S.room.ms, B = [x0, y0, x1, y1];
+  return (m && m.pdrw || []).filter(q => q.k === 'txt' ? boxBox(pdTxBox(q), B) : polyBox(q.pts.map(t => toScr(...t)), B)).map(q => q.id) }
+function pdHandles() { const m = S.room && S.room.ms, z = gest && gest.zdr, d = devicePixelRatio || 1; if (!m) return; if (z && z.pl && z.mv) zdA0(z.a, PD.c);
+  zdDots((m.pdrw || []).filter(pdSel).flatMap(q => q.k === 'txt' ? [(b => [b[0] - 6 * d, (b[1] + b[3]) / 2])(pdTxBox(q))] : [q.pts[0], q.pts[q.pts.length - 1]].map(t => toScr(...t)))) }   /* текст — точка слева от надписи */
+async function pdDelSel() {
+  const m = S.room.ms, L = pdSelL().slice(), n0 = S.pund.length; plSnap(); m.pdrw = (m.pdrw || []).filter(q => !L.includes(q.id)); S.ppms = [];
+  if ((S.pmsel || []).length) { await zDelSel0(); S.pund.splice(n0 + 1); return }   /* и узлы — одним шагом ↶ */
+  saveRoom(); toast('Удалено · ↶ — вернуть'); mkPanel(); draw(); zLay();
+}
+/* ладонь и стилус: стилус ведёт (рисует, тянет, рамка, ручка) — касание ладонью / пальцем не в счёт; ладонь легла раньше стилуса — стилус главный (не щипок) */
+cv.addEventListener('pointerdown', e => {
+  const g = gest;
+  if (e.pointerType === 'touch' && g && g.pty === 'pen') return e.stopImmediatePropagation();
+  if (e.pointerType === 'touch' && !ptr.size) zPalm = { id: e.pointerId, v: { ...S.view } };
+  if (e.pointerType === 'pen' && ptr.size) { const d = devicePixelRatio || 1;
+    if (g && g.view && zPalm && ptr.has(zPalm.id) && Math.hypot(g.last[0] - g.p0[0], g.last[1] - g.p0[1]) < 20 * d) { S.view = zPalm.v; draw() }   /* ладонь чуть сдвинула вид, пока ложилась, — вид как был */
+    for (const id of [...ptr.keys()]) { ptr.delete(id); try { cv.releasePointerCapture(id) } catch (x) { } } gest = null; S.rsr = null; S.zpen = null; S.pstk = null }   /* касания под ладонью дальше не учитываются (их нет в ptr) */
+}, true);
+let zPalm = null;
+/* стилус был — запомнить (и наведение стилуса): после перезапуска палец в инструменте рисования сразу двигает холст */
+try { if (localStorage.getItem('zamer.penSeen')) PEN.seen = true } catch (e) { }
+function zPenSeen(e) { if (e.pointerType !== 'pen') return; PEN.seen = true; if (zPenSeen.ok) return; zPenSeen.ok = 1; try { localStorage.setItem('zamer.penSeen', '1') } catch (x) { } }
+addEventListener('pointerover', zPenSeen, true); addEventListener('pointerdown', zPenSeen, true);
 
 /* ═══ [BLOCK] КНОПКИ ═══ */
 $('fCam').onchange = e => { const f = [...e.target.files]; S.mode === 'plan' ? poolAdd(f) : addFiles(f); e.target.value = '' };   /* v13: на плане — в пул объекта */
