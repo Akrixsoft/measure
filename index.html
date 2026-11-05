@@ -347,7 +347,7 @@ body.pla #zf.c-plan>#plb{display:flex} #plb>button{width:28px;height:28px;border
 #plb .pcol{gap:1px} #tb .cols{gap:4px}
 #zpb .zcols{display:flex;align-items:center;gap:1px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:0 1 auto;touch-action:pan-x;overscroll-behavior-x:contain} #zpb .zcols::-webkit-scrollbar,#plb .pcol::-webkit-scrollbar,#ch::-webkit-scrollbar{display:none}
 #plb .pcol{touch-action:pan-x;overscroll-behavior-x:contain} #ch.pre{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
-#ch.pre #plAll{position:sticky;right:0;z-index:2;background:var(--pn);box-shadow:-8px 0 8px var(--pn)}   /* v77: свайп — ленты; «+» — у края */   /* v71: зазор цветов — как в полосе стены (1 + 2 × 1,5 px) */
+#ch.pre #plAll{position:sticky;right:0;z-index:2;background:var(--pn);box-shadow:-8px 0 8px var(--pn),9px 0 0 3px var(--pn)}   /* v78: и правый отступ */   /* v77: свайп — ленты; «+» — у края */   /* v71: зазор цветов — как в полосе стены (1 + 2 × 1,5 px) */
 #tb .gg7{display:flex!important;flex-direction:column;gap:8px} #tb .g{display:grid!important;grid-template-columns:repeat(8,minmax(0,36px));gap:5px;justify-content:space-between}
 #tb .tl{border:1px solid #C9CED6!important} body.kb #tb{bottom:202px!important} #tb{max-height:min(560px,calc(100vh - 160px))!important}
 #prd{position:fixed;left:8px;right:8px;top:56px;max-height:calc(100vh - 120px);overflow:auto;z-index:11;display:none;background:#1B1E23;border:1px solid #2A2F37;border-radius:14px;box-shadow:0 10px 26px rgba(0,0,0,.5);padding:10px 12px;color:#E8EBEF;font:500 13px system-ui} #prd.on{display:block}
@@ -510,7 +510,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v77';
+const ZVER = 'v78';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
