@@ -424,6 +424,14 @@ body.kb #rfr.on{bottom:196px} body.fwo #toast{z-index:22}
 #fws button{flex:1;height:64px;border:none;border-radius:12px;background:#262A31;color:#E8EBEF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;cursor:pointer} #fws button span{font-size:22px;line-height:1}
 #zpb .fwt{width:auto!important;height:28px;flex:0 0 auto;padding:0 10px;border-radius:8px;border:none;background:#1F6FD1;color:#fff;font-size:12.5px;font-weight:700;white-space:nowrap;display:flex;align-items:center;cursor:pointer}
 #zpb .fwt.ol{background:transparent;border:1.5px solid #3A4150;color:#E8EBEF} #zpb .fwt.ok{background:#2BB673} #zpb .fwt.no{background:#3A2A2A;color:#FF8A7A} #zpb .fwt.mid{background:#F2C200;color:#1A2027} #zpb .fwt.mid.off{background:#3A3F47;color:#8B93A1}
+/* ═══ [BLOCK] СТИЛИ v80: фото на стене или рядом (макет Н1–Н3) — ⚙ «Фото стены: на стену | рядом», панель фото «🔍 ⤢ ⧉ рядом / ▣ на стену 🗑» ═══ */
+#set .nwsg{display:flex;flex:none;border:1px solid #3A4150;border-radius:9px;overflow:hidden}
+#set .nwsg button{height:auto;border:none;border-radius:0;margin:0;padding:6px 9px;font-size:12px;font-weight:700;line-height:1.2;color:#CFD4DC;background:#1B1E23;cursor:pointer}
+#set .nwsg button.on{background:#F6E08A;color:#1A2027}
+#set div.nwh{display:block;margin:-4px 0 6px;font-size:11px;color:#8B93A1}
+#rfb{gap:4px;padding:4px;background:#1B1E23;border:1px solid #2A2F37;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+#rfb button{width:auto;min-width:34px;height:34px;border-radius:8px;background:#262A31;color:#E8EBEF;font-size:15px;font-weight:700;padding:0 7px;display:grid;place-items:center}
+#rfb button.tg{font-size:12px;background:#F6E08A;color:#1A2027;white-space:nowrap} #rfb button:disabled{opacity:.5}
 </style>
 </head>
 <body>
@@ -448,6 +456,7 @@ body.kb #rfr.on{bottom:196px} body.fwo #toast{z-index:22}
   <div style="display:none"><span>Сторона маркера A4, мм</span><input id="sA4" inputmode="decimal" placeholder="180"></div>
   <div style="display:none"><span>Сторона маркера A5, мм</span><input id="sA5" inputmode="decimal" placeholder="120"></div>
   <div><span>Ширина стены по умолчанию, мм</span><input id="sWd" inputmode="decimal" placeholder="2000" title="Стена без длины — для развёртки и 3D (авторазмер)"></div><div><span>Средние точки по фото</span><input id="sGmid" type="checkbox" title="Жёлтые средние точки сетки 3×3 ≈ по фото (прогиб пола, потолка, краёв) — подсказка; углы — лазером" style="width:22px;height:22px;accent-color:#1F6FD1"></div>   <!-- v79 -->
+  <div><span>Фото стены</span><span class="nwsg" id="sNw" role="group" aria-label="Фото стены — для новых фото"><button data-nw="on" class="on" title="Новое фото выпрямляется по 4 углам и ложится на стену">на стену</button><button data-nw="near" title="Новое фото — справкой рядом, стена пустая">рядом</button></span></div><div class="nwh">для новых фото; у каждого фото — свой переключатель</div>   <!-- v80: макет Н1 -->
   <div><span>Макс. сторона кадра, px</span><input id="sMax" inputmode="numeric" placeholder="4096"></div>
   <div><span>Дальномер Bosch GLM</span><button id="bBt" title="Подключить дальномер Bosch GLM по Bluetooth" style="height:32px;min-width:44px;border:1px solid var(--ln);border-radius:6px;background:var(--bt);font-size:17px">📡</button></div>   <!-- v25: из панели — в ⚙ -->
   <div><span>Дисторсия объектива</span><select id="sDist" style="height:32px;background:var(--in);border:1px solid var(--ln);border-radius:6px;color:var(--tx)"><option value="auto">авто</option><option value="off">не учитывать</option><option value="on">учитывать</option></select></div>
@@ -504,7 +513,7 @@ body.kb #rfr.on{bottom:196px} body.fwo #toast{z-index:22}
 <button data-kk="7">7</button><button data-kk="8">8</button><button data-kk="9">9</button>
 <button data-kk=",">,</button><button data-kk="0">0</button><button data-kk="pm" title="Знак">±</button><button data-kk="lz" id="zkL" class="kl" title="Лазерная рулетка: подключить"><svg viewBox="0 0 80 44" preserveAspectRatio="none" aria-hidden="true"><use href="#kb-beam"/></svg></button>
 </div>
-<div id="rfb"><button id="rfbR" title="🔍 Распознать: AI или вручную">🔍</button><button id="rfbV" title="На весь экран">⤢</button><button id="rfbD" title="Удалить фото (↶ — вернуть)">🗑</button></div>   <!-- v45: действия фото -->
+<div id="rfb"><button id="rfbR" title="🔍 Распознать: AI или вручную">🔍</button><button id="rfbV" title="На весь экран">⤢</button><button id="rfbM" class="tg" title="На стену: выпрямить по 4 углам">▣ на стену</button><button id="rfbD" title="Удалить фото (↶ — вернуть)">🗑</button></div>   <!-- v45: действия фото -->
 <div id="rfv"><div class="hd"><span id="rfvT"></span><button id="rfvP" title="Предыдущее фото">‹</button><button id="rfvN" title="Следующее фото">›</button><button id="rfvX" title="Закрыть">✕</button></div><canvas id="rfvC"></canvas><div class="ft">два пальца — масштаб · тянуть — сдвиг</div></div>
 <div id="rfr"><div class="fwh"><button id="rfrX" class="x" title="Закрыть">✕</button><b id="rfrT"></b><button id="rfrOk" class="ok" title="Дальше: распознать">Далее ›</button></div><canvas id="rfrC"></canvas>   <!-- v79: макет Ф2 (углы) / Ф3 (распознано) -->
   <div class="fwp"><div id="rfrK" class="fwr fwkk f3"></div><div class="fws" id="rfrS"></div>
@@ -547,7 +556,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v79';
+const ZVER = 'v80';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -4217,7 +4226,7 @@ function w3Draw(top) {
     const CT3 = [P.A, ...top.flatMap(v => [v.P.WLT, v.P.KLT, v.P.KRT, v.P.WRT]), P.B, P.C, ...bot.slice().reverse().flatMap(v => [v.P.WRB, v.P.KRB, v.P.KLB, v.P.WLB]), P.D];
     if (FL3) { pp3(FL3); cx.fillStyle = W3.pl === 'floor' ? '#B9CCE3' : '#CDD1D6'; cx.fill(); cx.strokeStyle = W3.pl === 'floor' ? '#1F6FD1' : '#8E949C'; cx.lineWidth = (W3.pl === 'floor' ? 2.5 : 1.4) * d; cx.stroke() }
     for (const k of ['L', 'R']) { const x = fv[k]; if (!x || !x.vis) continue; path(x.ks); cx.fillStyle = W3.pl === k ? '#C6D7EC' : '#DCD8D0'; cx.fill(); cx.strokeStyle = W3.pl === k ? '#1F6FD1' : '#A7A39B'; cx.lineWidth = (W3.pl === k ? 2.5 : 1) * d; cx.stroke() }
-    if (W3.pl === 'M') { path(fv.M.ks); cx.fillStyle = 'rgba(31,111,209,.13)'; cx.fill() }
+    if (W3.pl === 'M' && !(S.mosaic && S.mosaic.nk && LAY.foto && FA.v < 1)) { path(fv.M.ks); cx.fillStyle = 'rgba(31,111,209,.13)'; cx.fill() }   /* v80: на фото оттенка нет (макет Н2) — выделение контуром и точками */
     pp3(CT3); cx.strokeStyle = W3.pl === 'M' ? '#1F6FD1' : '#5B6472'; cx.lineWidth = (W3.pl === 'M' ? 2.5 : 2) * d; cx.stroke();   /* v50: контур стены — под объёмами; v54: обходит колонну у пола / потолка */
     for (const v of w3Vols(Md)) for (const f of w3VFaces(v, Md.H)) if (!f.vis) { cx.setLineDash([4 * d, 3 * d]); cx.strokeStyle = '#6B7380'; cx.lineWidth = 1.3 * d; cx.beginPath(); f.ks.forEach((k, j) => { const q = w3S(v.P[k]); j ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath(); cx.stroke(); cx.setLineDash([]) }
     const VA = [...w3Vols(Md).entries()], kS = w3K() > 0 ? -1 : 1;   /* v71: ниши — под колоннами; колонны — от дальней к ближней (зритель справа — слева направо) */
@@ -4231,8 +4240,10 @@ function w3Draw(top) {
     }
     return;
   }
+  const nwC = !!(S.mosaic && S.mosaic.nk && LAY.foto && FA.v < 1 && fv.M && fv.M.vis);   /* v80: фото на стене — скрытые рёбра за ним не видны (вне передней грани — как было) */
+  if (nwC) { cx.save(); cx.beginPath(); cx.rect(0, 0, cv.width, cv.height); fv.M.ks.forEach((k, i) => { const q = w3S(P[k]); i ? cx.lineTo(...q) : cx.moveTo(...q) }); cx.closePath(); cx.clip('evenodd') }
   cx.setLineDash([4 * d, 3 * d]); cx.strokeStyle = '#6B7380'; cx.lineWidth = 1.3 * d;   /* скрытые грани */
-  for (const x of F) if (!x.vis) { path(x.ks); cx.stroke() } cx.setLineDash([]);
+  for (const x of F) if (!x.vis) { path(x.ks); cx.stroke() } cx.setLineDash([]); if (nwC) { cx.restore(); cx.setLineDash([]) }
   const VV = w3Vols(Md), PV = w3PV(Md);   /* v71: видимые точки — только с видимых граней */
   if (!VV.length) { path(fv.M.ks); cx.strokeStyle = W3.pl === 'M' ? '#1F6FD1' : '#5B6472'; cx.lineWidth = (W3.pl === 'M' ? 2.5 : 2) * d; cx.stroke() }   /* v50: с объёмами контур — под ними */
   const vk = k => PV.has(k), ve = (a, b) => F.some(x => x.vis && x.ks.includes(a) && x.ks.includes(b));
@@ -4597,7 +4608,7 @@ const zLay47 = zLay; zLay = function () { const r = zLay47.apply(this, arguments
 const draw48 = draw; draw = function () { if (S.mode !== 'plan') $('angF').classList.remove('on'); const r = draw48.apply(this, arguments); try { if (S.mode !== 'plan') w3Row() } catch (e) { } return r };   /* v48: кнопка объёма — по текущим элементам */
 const fit47 = fit; fit = function () {   /* «всё» — со стеной, боковыми и полом */
   const Md = S.mode !== 'plan' && S.show < 0 ? w3Model() : null; if (!Md) return fit47.apply(this, arguments);
-  const W = cv.width, H = zFreeH(), Q = Object.values(Md.P).map(w3PlD);   /* v71: видимые координаты поворота */ for (const r of S.refs || []) Q.push([r.x, r.y], [r.x + r.w, r.y - r.w * r.ih / r.iw]);
+  const W = cv.width, H = zFreeH(), Q = Object.values(Md.P).map(w3PlD);   /* v71: видимые координаты поворота */ for (const r of S.refs || []) if (!r.on) Q.push([r.x, r.y], [r.x + r.w, r.y - r.w * r.ih / r.iw]);   /* v80: фото на стене — справки рядом нет */
   const ax = Math.min(...Q.map(q => q[0])), bx = Math.max(...Q.map(q => q[0])), ay = Math.min(...Q.map(q => q[1])), by = Math.max(...Q.map(q => q[1])), s = Math.min(W / (bx - ax), H / (by - ay)) * 0.86;
   S.view = { s, rot: 0, ox: W / 2 - (ax + bx) / 2 * s, oy: H / 2 + (ay + by) / 2 * s }; S.fitS = s; draw();
 };
@@ -5141,11 +5152,11 @@ $('fRC').onchange = e => { const F = [...e.target.files]; e.target.value = ''; i
 $('fRG').onchange = e => { const F = [...e.target.files]; e.target.value = ''; if (F.length) rfAdd(F) };
 function rfOn() { return S.mode !== 'plan' && S.show < 0 && !!S.mosaic && rfVis() && !$('ss').classList.contains('on') }
 function rfCorners(r) { const h = rfH(r); return [toScr(r.x, r.y), toScr(r.x + r.w, r.y), toScr(r.x, r.y - h)] }
-function rfHit(p) { if (!rfOn()) return null; for (let i = S.refs.length - 1; i >= 0; i--) { const r = S.refs[i], q = toPl(...p); if (q[0] >= r.x && q[0] <= r.x + r.w && q[1] <= r.y && q[1] >= r.y - rfH(r)) return r } return null }
+function rfHit(p) { if (!rfOn()) return null; for (let i = S.refs.length - 1; i >= 0; i--) { const r = S.refs[i], q = toPl(...p); if (r.on) continue; /* v80 */ if (q[0] >= r.x && q[0] <= r.x + r.w && q[1] <= r.y && q[1] >= r.y - rfH(r)) return r } return null }
 const zDr45 = draw; draw = function () {
   const res = zDr45.apply(this, arguments); if (!rfOn()) { rfUi(); return res }
   const d = devicePixelRatio || 1; cx.save();
-  for (const r of S.refs) {
+  for (const r of S.refs) { if (r.on) continue;   /* v80: фото на стене — справки рядом нет (значок — в углу стены) */
     const [A, B, C] = rfCorners(r), im = rfImg(r);
     cx.setTransform((B[0] - A[0]) / r.iw, (B[1] - A[1]) / r.iw, (C[0] - A[0]) / r.ih, (C[1] - A[1]) / r.ih, A[0], A[1]);
     if (im) cx.drawImage(im, 0, 0, r.iw, r.ih); else { cx.fillStyle = '#d5dce3'; cx.fillRect(0, 0, r.iw, r.ih) }
@@ -5160,8 +5171,8 @@ const zDr45 = draw; draw = function () {
 function rfBadge(x, y, n, R) { const d = devicePixelRatio || 1; cx.fillStyle = '#E2B93B'; cx.strokeStyle = '#fff'; cx.lineWidth = 1.2 * d; cx.beginPath(); cx.arc(x, y, R * d, 0, 7); cx.fill(); cx.stroke(); cx.fillStyle = '#1A2027'; cx.font = 'bold ' + (R * 1.2 * d) + 'px system-ui'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(String(n), x, y + 0.5 * d); cx.textAlign = 'start'; cx.textBaseline = 'alphabetic' }
 function rfUi() { const b = $('rfb'), r = S.rsel && rfGet(S.rsel); if (!r || !rfOn()) { b.classList.remove('on'); return } const d = devicePixelRatio || 1, A = toScr(r.x, r.y), B = toScr(r.x + r.w, r.y), t = cv.getBoundingClientRect().top; b.classList.add('on'); const x = Math.max(4, Math.min(innerWidth - 124, (A[0] + B[0]) / 2 / d - 60)), y = Math.max(t + 4, A[1] / d + t - 40); b.style.left = x + 'px'; b.style.top = y + 'px' }
 const zFit45 = fit; fit = function () {
-  const res = zFit45.apply(this, arguments); if (!rfOn() || !S.refs.length || (S.mode !== 'plan' && S.show < 0 && w3Model())) return res;   /* v79 ревью: 3D-вид — уже со справками (fit47) */
-  const M = S.mosaic, W = cv.width, H = zFreeH(), P = [[M.x0, M.y1], [M.x0 + M.W * M.r, M.y1 - M.H * M.r], ...S.refs.flatMap(r => [[r.x, r.y], [r.x + r.w, r.y - rfH(r)]])];
+  const res = zFit45.apply(this, arguments), RS = (S.refs || []).filter(r => !r.on);   /* v80: фото на стене — справки рядом нет */ if (!rfOn() || !RS.length || (S.mode !== 'plan' && S.show < 0 && w3Model())) return res;   /* v79 ревью: 3D-вид — уже со справками (fit47) */
+  const M = S.mosaic, W = cv.width, H = zFreeH(), P = [[M.x0, M.y1], [M.x0 + M.W * M.r, M.y1 - M.H * M.r], ...RS.flatMap(r => [[r.x, r.y], [r.x + r.w, r.y - rfH(r)]])];
   const ax = Math.min(...P.map(p => p[0])), bx = Math.max(...P.map(p => p[0])), ay = Math.min(...P.map(p => p[1])), by = Math.max(...P.map(p => p[1])), sc = Math.min(W / (bx - ax), H / (by - ay)) * 0.9;
   S.view = { s: sc, rot: 0, ox: W / 2 - (ax + bx) / 2 * sc, oy: H / 2 + (ay + by) / 2 * sc }; S.fitS = sc; draw(); return res;
 };
@@ -5172,7 +5183,7 @@ cv.addEventListener('pointerdown', e => {
   if (RG.r && RG.ptr.size === 1) { RG.ptr.set(e.pointerId, p); const [a, b] = [...RG.ptr.values()], r = RG.r; RG.pz = { d0: Math.hypot(a[0] - b[0], a[1] - b[1]), w0: r.w, x0: r.x, y0: r.y, c: toPl((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) }; e.stopImmediatePropagation(); cv.setPointerCapture(e.pointerId); return }
   if (ptr.size || RG.ptr.size) return; const r = rfHit(p);
   if (!r) { if (S.rsel) { S.rsel = null; draw() } return }
-  e.stopImmediatePropagation(); cv.setPointerCapture(e.pointerId); RG.ptr.set(e.pointerId, p); RG.r = r; RG.q0 = toPl(...p); RG.o0 = [r.x, r.y, r.w]; RG.mv = false; S.rsel = r.id; S.sel = null; S.msel = []; draw();
+  e.stopImmediatePropagation(); cv.setPointerCapture(e.pointerId); RG.ptr.set(e.pointerId, p); RG.r = r; RG.q0 = toPl(...p); RG.o0 = [r.x, r.y, r.w]; RG.mv = false; S.rsel = r.id; S.sel = null; S.msel = []; W3.sel = null; w3Win(); /* v80 */ draw();
 }, true);
 cv.addEventListener('pointermove', e => {
   if (!RG.ptr.has(e.pointerId)) return; e.stopImmediatePropagation(); const d = devicePixelRatio || 1, p = [e.offsetX * d, e.offsetY * d]; RG.ptr.set(e.pointerId, p); const r = RG.r;
@@ -6212,7 +6223,7 @@ rfAdd = async function (files) {
       let f35 = null; try { f35 = fwExif35(await f.arrayBuffer()) } catch (e) { }   /* фокус — из исходного файла: после пережатия EXIF нет */
       const bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }), k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k); c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
       const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.85)), id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); await dbPut('img', blob, 'ref:' + id);
-      const w = hR * c.width / c.height, bl = S.refs.filter(r => r.y < W.y0 + 1), n = Math.max(0, ...S.refs.map(r => r.n || 0)) + 1, r = { id, n, iw: c.width, ih: c.height, w, x: bl.length ? Math.min(...bl.map(r => r.x)) - gap - w : W.x1 - w, y: Math.min(W.y0 - Math.max(gap, hW * 0.3), yF - gap), q: null, found: [], t: Date.now(), name: f.name || '', f35 };
+      const w = hR * c.width / c.height, bl = S.refs.filter(r => r.y < W.y0 + 1 && !r.on), n = Math.max(0, ...S.refs.map(r => r.n || 0)) + 1, r = { id, n, iw: c.width, ih: c.height, w, x: bl.length ? Math.min(...bl.map(r => r.x)) - gap - w : W.x1 - w, y: Math.min(W.y0 - Math.max(gap, hW * 0.3), yF - gap), q: null, found: [], t: Date.now(), name: f.name || '', f35 };
       const im = new Image(); im.onload = () => draw(); im.src = URL.createObjectURL(blob); RIMG.set(id, im);
       S.refs.push(r); zaAdd(() => { S.refs = S.refs.filter(x => x !== r); S.rsel = null; saveSess(); rfUi() }, () => { S.refs.push(r); saveSess(); rfUi() }); S.rsel = id; nw.push(r);
     } catch (e) { toast('Фото не добавлено: ' + e.message) }
@@ -6547,6 +6558,147 @@ try { if (localStorage.getItem('zamer.penSeen')) PEN.seen = true } catch (e) { }
 function zPenSeen(e) { if (e.pointerType !== 'pen') return; PEN.seen = true; if (zPenSeen.ok) return; zPenSeen.ok = 1; try { localStorage.setItem('zamer.penSeen', '1') } catch (x) { } }
 addEventListener('pointerover', zPenSeen, true); addEventListener('pointerdown', zPenSeen, true);
 
+/* ═══ [BLOCK] ФОТО НА СТЕНЕ ИЛИ РЯДОМ (v80, макет Н) ═══ */
+/* ⚙ «Фото стены: на стену | рядом» — режим для НОВЫХ фото (measure.nwm, по умолчанию «на стену»); у каждого фото — свой: r.on = 1 — на стене (на стене одно фото).
+   На стене: фото выпрямлено по 4 углам (r.q) в L × H чистой стены и лежит фоном — S.mosaic той же сетки, что blankMos (плоско и на передней грани 3D: mosM);
+   объекты и размеры — поверх, 👁 — скрыть / прозрачность (FA); справки рядом нет, значок с номером — в правом верхнем углу стены (касание — панель фото).
+   Новое фото (⚙ «на стену» → r.pend; из пачки — только первое) ложится на стену, когда экран углов покинут (Далее / Распознать / ✓ на стену / ✕) и углы найдены
+   (или тронуты пальцем / AI — nwTrust, как углы в выгрузке); углы не найдены или не выпрямилось — рядом, тост.
+   Фон пересобирается сам (nwSync при отрисовке): углы, L / H, открытие стены, ↶ ↷, удаление; кэш — фото + углы + L × H; не выпрямить — стена пустая (не прежнее фото).
+   Режим фото — один шаг ↶; найденное не двигается. 👁: касание — скрыть / показать, долгое нажатие — прозрачность 0 / 60 / 100 % (полоса v44). */
+const NWP = { m: (() => { try { return localStorage.getItem('measure.nwm') === 'near' ? 'near' : 'on' } catch (e) { return 'on' } })() };
+const NW = { cache: new Map(), inf: new Map(), bad: new Set(), warn: new Set(), busy: 0, P: NWP };
+const nwBlank0 = blankMos;   /* чистая стена (до обёртки) */
+const nwRef = () => S.mode !== 'plan' && S.q4 && S.q4.blank ? (S.refs || []).find(r => r.on) || null : null;   /* фото на стене этой стены */
+const nwKey = (r, L, H) => JSON.stringify([r.id, r.q, +L, +H]);
+const nwTrust = r => !!(r && r.q) && !!(r.qUser || r.qa === 1 || r.qai);   /* углы — найдены, тронуты пальцем или AI (как углы в выгрузке); заготовка / «не найдены» — не на стену */
+const nwBg = () => S.mode !== 'plan' && !!S.mosaic && (!!nwRef() || !(S.q4 && S.q4.blank));   /* на стене — фото (не чистая стена) */
+function nwConvex(q) {   /* 4 угла — выпуклый четырёхугольник (иначе не выпрямить) */
+  if (!Array.isArray(q) || q.length !== 4) return false; let sg = 0, a2 = 0;
+  for (let i = 0; i < 4; i++) { const a = q[i], b = q[(i + 1) % 4], c = q[(i + 2) % 4], z = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]); if (!isFinite(z) || Math.abs(z) < 1e-6 || (sg && Math.sign(z) !== sg)) return false; sg = Math.sign(z); a2 += a[0] * b[1] - b[0] * a[1] }
+  return Math.abs(a2) / 2 > 400;
+}
+async function nwBuild(r, L, H, key) {   /* фото → фон стены: сетка чистой стены (≈ 1 600 px по большей стороне), мм → px фото по 4 углам, билинейно; вне кадра — цвет чистой стены; кусками — экран не замирает */
+  if (!(L > 0 && H > 0) || !nwConvex(r.q)) return null;
+  let b = null, bm = null; for (let i = 0; i < 2 && !bm; i++) { try { b = b || await dbGet('img', 'ref:' + r.id); if (b) bm = await createImageBitmap(b) } catch (e) { } if (!bm && !i) await new Promise(res => setTimeout(res, 250)) }   /* сбой чтения / декодирования — ещё раз */
+  if (!bm) return null; const IW = bm.width, IH = bm.height, c0 = document.createElement('canvas'); c0.width = IW; c0.height = IH; const g0 = c0.getContext('2d', { willReadFrequently: true }); g0.drawImage(bm, 0, 0); if (bm.close) bm.close();
+  const A = g0.getImageData(0, 0, IW, IH).data, k = IW / (r.iw || IW), h = hDLT([[0, 0], [L, 0], [L, H], [0, H]], r.q.map(p => [p[0] * k, p[1] * k])); if (!h || !h.every(isFinite)) return null;
+  const rr = Math.max(L, H) / 1600, W = Math.max(2, Math.ceil(L / rr)), Hh = Math.max(2, Math.ceil(H / rr)), c = document.createElement('canvas'); c.width = W; c.height = Hh;
+  const g = c.getContext('2d'), id = g.createImageData(W, Hh), D = id.data, I4 = IW * 4; let t0 = performance.now();
+  for (let j = 0; j < Hh; j++) {
+    const y = H - (j + 0.5) * rr, ax = h[1] * y + h[2], ay = h[4] * y + h[5], aw = h[7] * y + 1;
+    for (let i = 0, o = j * W * 4; i < W; i++, o += 4) {
+      const x = (i + 0.5) * rr, w = h[6] * x + aw, px = (h[0] * x + ax) / w - 0.5, py = (h[3] * x + ay) / w - 0.5; D[o + 3] = 255;
+      if (!(w > 0 && px >= 0 && py >= 0 && px <= IW - 1.001 && py <= IH - 1.001)) { D[o] = 247; D[o + 1] = 248; D[o + 2] = 250; continue }
+      const i0 = px | 0, j0 = py | 0, fx = px - i0, fy = py - j0, p = (j0 * IW + i0) * 4, q = p + I4, a = (1 - fx) * (1 - fy), e = fx * (1 - fy), f = (1 - fx) * fy, l = fx * fy;
+      D[o] = A[p] * a + A[p + 4] * e + A[q] * f + A[q + 4] * l; D[o + 1] = A[p + 1] * a + A[p + 5] * e + A[q + 1] * f + A[q + 5] * l; D[o + 2] = A[p + 2] * a + A[p + 6] * e + A[q + 2] * f + A[q + 6] * l;
+    }
+    if (performance.now() - t0 > 30) { await new Promise(res => setTimeout(res, 0)); t0 = performance.now() }
+  }
+  g.putImageData(id, 0, 0);
+  return { c, x0: 0, y1: H, r: rr, W, H: Hh, nk: key, rf: r.id, Lm: L, Hm: H };
+}
+function nwGet(r, L, H) {   /* фон по фото: кэш (3 последних) или сборка (одна на ключ) */
+  const key = nwKey(r, L, H); if (NW.cache.has(key)) { const m = NW.cache.get(key); NW.cache.delete(key); NW.cache.set(key, m); return Promise.resolve(m) } if (NW.inf.has(key)) return NW.inf.get(key);
+  const rc = { id: r.id, iw: r.iw, ih: r.ih, q: r.q.map(p => p.slice()) };   /* снимок углов: правка во время сборки — уже другой ключ */
+  const pr = nwBuild(rc, +L, +H, key).catch(() => null).then(m => { NW.inf.delete(key); if (m) { NW.cache.set(key, m); while (NW.cache.size > 3) NW.cache.delete(NW.cache.keys().next().value) } else NW.bad.add(key); return m });
+  NW.inf.set(key, pr); return pr;
+}
+function nwSync() {   /* при отрисовке: фон стены ← фото на стене (или чистая стена) по текущим углам и L × H */
+  if (S.mode === 'plan' || S.show >= 0 || !S.mosaic || !S.q4 || !S.q4.blank) return;
+  const L = +S.q4.L, H = +S.q4.H, r = nwRef(), M = S.mosaic, key = r && r.q ? nwKey(r, L, H) : ''; if ((M.nk || '') === key) return;
+  if (!key) { S.mosaic = nwBlank0(); return }   /* фото ушло рядом / удалено — стена пустая */
+  const tr = nwTrust(r), m = tr && NW.cache.get(key); if (m) { S.mosaic = m; return }
+  if (M.nk && (M.Lm !== L || M.Hm !== H)) S.mosaic = nwBlank0();   /* фото другой сетки (L / H другие) — пока чистая */
+  if (fwOn()) return;   /* открыт экран фото — после */
+  if (!tr || NW.bad.has(key)) {   /* углы не найдены / не выпрямилось — стена пустая (прежнее фото не держать), как и после перезагрузки */
+    if (S.mosaic.nk) S.mosaic = nwBlank0(); if (!tr && !NW.warn.has(key)) { NW.warn.add(key); toast(`Фото ${r.n}: углы не найдены — стена пустая · 🔍 углы или ⧉ рядом`) } return }
+  if (NW.inf.size) return;   /* уже собирается — после */
+  nwGet(r, L, H).then(m2 => { if (!m2) { const r2 = nwRef(); if (r2 && r2.id === r.id) toast(`Фото ${r.n}: не выпрямить по 4 углам — стена пустая · ⧉ рядом`) } draw() });
+}
+blankMos = function () {   /* v80: чистая стена с фото на стене — сразу фото (если уже выпрямлено при этих углах и L × H); стена открыта заново — неудачи забыты (ещё попытка) */
+  NW.bad.clear(); NW.warn.clear(); const m = nwBlank0.apply(this, arguments); try { const r = nwRef(); if (r && nwTrust(r)) { const c = NW.cache.get(nwKey(r, +S.q4.L, +S.q4.H)); if (c) return c } } catch (e) { } return m;
+};
+function nwBadgeP() {   /* значок фото на стене — у правого верхнего угла стены, внутрь по биссектрисе: 14 px по обеим сторонам (макет Н2), не ближе 20 px к точке угла (под углом ∠° — не на ней); px устройства */
+  const r = nwRef(); if (!r || !rfOn()) return null; const d = devicePixelRatio || 1, L = +S.q4.L, H = +S.q4.H, T = toScr(L, H), A = toScr(0, H), B = toScr(L, 0);
+  const u = P => { const x = P[0] - T[0], y = P[1] - T[1], l = Math.hypot(x, y) || 1; return [x / l, y / l] }, a = u(A), b = u(B), m = [a[0] + b[0], a[1] + b[1]], l = Math.hypot(m[0], m[1]) || 1, s = Math.max(14 * l, 20) * d;
+  return [T[0] + s * m[0] / l, T[1] + s * m[1] / l];
+}
+function nwSt() { return JSON.stringify((S.refs || []).map(r => [r.id, r.on ? 1 : 0, r.x, r.y])) }
+function nwPutSt(t) { for (const [id, on, x, y] of JSON.parse(t)) { const r = rfGet(id); if (!r) continue; if (on) r.on = 1; else delete r.on; r.x = x; r.y = y } saveSess(); draw() }
+function nwPlace(x) {   /* фото уходит рядом, а место занято другой справкой — левее справок под стеной */
+  const R = (S.refs || []).filter(r => r !== x && !r.on), ov = r => x.x < r.x + r.w && x.x + x.w > r.x && x.y - rfH(x) < r.y && x.y > r.y - rfH(r); if (!R.some(ov)) return;
+  const W = rfWall(), gap = Math.max(W.x1 - W.x0, W.y1 - W.y0) * 0.06, bl = R.filter(r => r.y < W.y0 + 1); x.x = Math.min(...(bl.length ? bl : R).map(r => r.x)) - gap - x.w;
+}
+async function nwSet(id, on, auto) {   /* фото → на стену (выпрямить; прежнее — рядом) / рядом (стена пустая); один шаг ↶ ↷ */
+  let r = rfGet(id); if (!r || !S.q4 || !S.q4.blank) return false; const sid = S.sess && S.sess.id;
+  if (!on) delete r.pendM;   /* v80: «⧉ рядом» — ждать замера больше не нужно */
+  if (on) {
+    if (!r.q) { toast(`Фото ${r.n}: углы стены не заданы — 🔍`); return false }
+    if (!nwTrust(r)) { toast(`Фото ${r.n}: углы не найдены — поставьте углы (🔍), затем ▣ на стену`); return false }   /* заготовка углов — не выпрямление */
+    if (S.q4.aL && S.q4.aH) { r.pendM = 1; saveSess(); toast(`Фото ${r.n}: L и H не замерены — на стену после первого замера`); draw(); return false }   /* v80: база 2 000 × 2 700 исказила бы фото */
+    const m = await nwGet(r, +S.q4.L, +S.q4.H); r = rfGet(id); if (!r || !S.sess || S.sess.id !== sid || !S.q4 || !S.q4.blank) return false;
+    if (!m) { toast(`Фото ${r.n}: не выпрямить по 4 углам — лежит рядом`); saveSess(); draw(); return false }
+  }
+  const a = nwSt(), out = []; for (const x of S.refs) { if (x.id === id) { if (on) x.on = 1; else if (x.on) { delete x.on; out.push(x) } } else if (on && x.on) { delete x.on; out.push(x) } }
+  out.forEach(nwPlace); const b = nwSt(); if (a !== b) zaAdd(() => nwPutSt(a), () => nwPutSt(b));
+  saveSess(); status(); draw(); if (!auto || on) toast(on ? `Фото ${r.n} выпрямлено и лежит на стене ${fwWn()}` : `Фото ${r.n} — рядом, стена пустая`);
+  if (!on) { try { const Q = rfCorners(r), cr = cv.height; if (Q.some(P => P[1] < 0 || P[1] > cr || P[0] < 0 || P[0] > cv.width)) fit() } catch (e) { } }   /* справка за краем экрана — показать всё */
+  return true;
+}
+async function nwAfter(id) {   /* экран углов покинут: новое фото (⚙ «на стену») — на стену, если углы есть */
+  const r = rfGet(id); if (!r || !r.pend || !r.q) return; delete r.pend; saveSess(); if (!S.q4 || !S.q4.blank) return;
+  if (!nwTrust(r)) { toast(`Фото ${r.n}: углы не найдены — лежит рядом · поставьте углы (🔍), затем ▣ на стену`); return }   /* догадка углов — на стену не кладём */
+  NW.busy = 1; try { await nwSet(id, true, 1) } finally { NW.busy = 0; rfUi() }
+}
+{ const zGo80 = fwGo; fwGo = async function () { const id = RR.id, res = await zGo80.apply(this, arguments); nwAfter(id); return res } }   /* Далее / 🔍 Распознать */
+{ const zCl80 = fwClose; fwClose = function () { const id = RR.id, res = zCl80.apply(this, arguments); nwAfter(id); return res } }   /* ✕ / ✓ на стену */
+{ const zAdd80 = rfAdd; rfAdd = async function () {   /* новое фото — режим из ⚙: «на стену» — первое новое (его экран углов открывается сам); остальные из пачки — рядом */
+    const ids = new Set((S.refs || []).map(r => r.id)), res = await zAdd80.apply(this, arguments), nw = (S.refs || []).filter(r => !ids.has(r.id)); if (NWP.m === 'on' && nw[0]) { nw[0].pend = 1; saveSess() } return res } }
+{ const zOut80 = rfOut; rfOut = async function (o) { const out = await zOut80.apply(this, arguments); for (const p of out || []) { const r = ((o && o.refs) || []).find(x => x.id === p.id); if (r && r.on && p.corners) p.on = 1 } return out } }   /* выгрузка: ph[].on — у фото на стене (с углами) */
+function nwEye() {   /* 👁 — светлая заливка, пока фото лежит на стене и видно (макет Н2) или открыта полоса прозрачности; фото со стены ушло — полоса закрыта */
+  if (FA.open && !nwBg()) { FA.open = false; return faUi() } const on = FA.open || (!!nwRef() && FA.v < 1); document.querySelectorAll('button.fa').forEach(b => b.classList.toggle('on', on));
+}
+{ const zFa80 = faUi; faUi = function () { const res = zFa80.apply(this, arguments); nwEye(); return res } }
+{ const zDr80 = draw; draw = function () {   /* фон по фото — до отрисовки; значок фото на стене — поверх всего */
+    try { nwSync() } catch (e) { } const res = zDr80.apply(this, arguments);
+    try { const P = nwBadgeP(), r = P && nwRef(); if (r) { cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); rfBadge(P[0], P[1], r.n, 9); cx.restore() } } catch (e) { } try { nwEye() } catch (e) { } return res } }
+{ const zUi80 = rfUi; rfUi = function () {   /* панель фото: «⧉ рядом» / «▣ на стену»; на стене — под значком, рядом — под справкой (макет Н2 / Н3) */
+    const res = zUi80.apply(this, arguments), b = $('rfb'), r = S.rsel && rfGet(S.rsel), m = $('rfbM'); if (!r || !b.classList.contains('on')) return res;
+    m.style.display = S.q4 && S.q4.blank ? '' : 'none'; m.textContent = r.on ? '⧉ рядом' : '▣ на стену';   /* стена по 4 углам (⌗4) — фото уже фон */ m.title = r.on ? 'Снять со стены — фото рядом, стена пустая' : 'На стену: выпрямить по 4 углам (на стене одно фото — прежнее уйдёт рядом)'; m.disabled = !!NW.busy;
+    const d = devicePixelRatio || 1, cr = cv.getBoundingClientRect(), w = b.offsetWidth || 190, h = b.offsetHeight || 44; let bot = cr.bottom, x, y;
+    for (const e of $('zf').children) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') bot = Math.min(bot, q.top) }
+    if (r.on) { const P = nwBadgeP(); if (!P) { b.classList.remove('on'); return res } x = cr.left + P[0] / d + 26 - w; y = cr.top + P[1] / d + 45 }
+    else { const Q = rfCorners(r), X = [Q[0][0], Q[1][0], Q[2][0], Q[1][0] + Q[2][0] - Q[0][0]], Y = [Q[0][1], Q[1][1], Q[2][1], Q[1][1] + Q[2][1] - Q[0][1]];
+      x = cr.left + Math.max(...X) / d + 6 - w; y = cr.top + Math.max(...Y) / d + 29; if (y + h > bot - 4) y = cr.top + Math.min(...Y) / d - h - 10 }
+    b.style.left = Math.max(4, Math.min(innerWidth - w - 4, x)) + 'px'; b.style.top = Math.max(cr.top + 4, Math.min(bot - h - 4, y)) + 'px'; return res;
+  } }
+$('rfbM').onclick = async () => { const r = S.rsel && rfGet(S.rsel); if (!r || NW.busy) return; NW.busy = 1; rfUi(); try { await nwSet(r.id, !r.on) } finally { NW.busy = 0; rfUi() } };
+{ let pid = null;   /* касание значка фото на стене — выбрать фото (панель; окно X / Y / Z угла — закрыть); раньше жестов холста.
+     Сам значок (R 9 + 3 px) — его; рядом, до 16 px, — только если под пальцем нет точки угла, поля, объекта, размера; точка угла ближе центра значка — всегда её */
+  document.addEventListener('pointerdown', e => {
+    if (e.target !== cv || !e.isPrimary) return; const P = nwBadgeP(); if (!P) return; const d = devicePixelRatio || 1, p = [e.offsetX * d, e.offsetY * d], dB = Math.hypot(p[0] - P[0], p[1] - P[1]); if (dB > 16 * d) return;
+    try { const k = w3Hit(p), Md = k && w3Model(), q = Md && w3Pt(Md, k), s = q && w3S(q); if (s && Math.hypot(s[0] - p[0], s[1] - p[1]) < dB) return;
+      if (dB > 12 * d && (k || w3FHit(p) || mkHit(p) || dmHit(p))) return } catch (x) { }
+    e.stopPropagation(); pid = e.pointerId; const r = nwRef(); S.rsel = r.id; S.sel = null; S.msel = []; W3.sel = null; w3Win(); draw() }, true);
+  for (const t of ['pointermove', 'pointerup', 'pointercancel']) document.addEventListener(t, e => { if (pid !== e.pointerId) return; e.stopPropagation(); if (t !== 'pointermove') pid = null }, true) }
+{ let lp = null, fired = 0;   /* 👁 (макет Н2: «скрывает его или делает прозрачнее»): касание — скрыть / показать, как было; долгое нажатие (фото на стене) — полоса прозрачности v44 «фото 0 · 60 · 100 %» */
+  const end = () => { if (lp) { clearTimeout(lp.t); lp = null } }, isEye = e => !!(e.target && e.target.closest && e.target.closest('button.fa'));
+  document.addEventListener('pointerdown', e => { end(); fired = 0; if (!isEye(e) || !e.isPrimary) return;
+    lp = { x: e.clientX, y: e.clientY, t: setTimeout(() => { lp = null; if (!nwBg()) return; fired = 1; FA.open = !FA.open; faUi() }, 450) } }, true);
+  document.addEventListener('pointermove', e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 10) end() }, true);
+  for (const t of ['pointerup', 'pointercancel']) document.addEventListener(t, end, true);
+  document.addEventListener('click', e => { if (fired && isEye(e)) { fired = 0; e.stopPropagation(); e.preventDefault() } }, true);   /* после долгого нажатия — не скрывать */
+  document.addEventListener('contextmenu', e => { if (isEye(e)) e.preventDefault() }, true) }
+function nwSetUi() { document.querySelectorAll('#sNw [data-nw]').forEach(b => { const on = b.dataset.nw === NWP.m; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false') }) }
+document.querySelectorAll('#sNw [data-nw]').forEach(b => b.onclick = () => { NWP.m = b.dataset.nw === 'near' ? 'near' : 'on'; try { localStorage.setItem('measure.nwm', NWP.m) } catch (e) { } nwSetUi() });
+nwSetUi(); Object.assign(NW, { set: nwSet, ref: nwRef, badge: nwBadgeP, sync: nwSync, get: nwGet, key: nwKey, trust: nwTrust, FA });
+
+function nwPendM() {   /* v80: фото, ждавшее замера, — на стену, как только L или H замерены */
+  if (NW.busy || !S.q4 || !S.q4.blank || (S.q4.aL && S.q4.aH)) return; const r = (S.refs || []).find(x => x.pendM); if (!r) return;
+  delete r.pendM; NW.busy = 1; Promise.resolve(nwSet(r.id, true, 1)).finally(() => { NW.busy = 0; rfUi() });
+}
+const zDrNw80p = draw; draw = function () { try { nwPendM() } catch (e) { } return zDrNw80p.apply(this, arguments) };
 /* ═══ [BLOCK] КНОПКИ ═══ */
 $('fCam').onchange = e => { const f = [...e.target.files]; S.mode === 'plan' ? poolAdd(f) : addFiles(f); e.target.value = '' };   /* v13: на плане — в пул объекта */
 $('fGal').onchange = e => { const f = [...e.target.files]; S.mode === 'plan' ? poolAdd(f) : addFiles(f); e.target.value = '' };
@@ -6565,7 +6717,7 @@ zInit();   /* v22: каркас */
 $('zVer').textContent = 'Measure ' + ZVER; $('zVer2').textContent = 'Measure ' + ZVER; $('zVerB').textContent = ZVER;   /* v44 */   /* v18 */
 $('zb').appendChild($('zopt'));   /* v39: модификаторы — справа от пресетов (DrawNote) */
 $('bExp').onclick = () => zmSet('exp');   /* v40: выгрузка — из меню ⋮ */
-window.PM = { fwOpen, fwGo, fwPut, fwRun, fwMidSet, FWP, FW, fwDims, fwCandN, fwCandAll, fwReproj, RR, rfGet, fwSheet, hDLT, hApply, zpbDraw: () => zpbDraw(), mdGo: (...a) => mdGo(...a), rfWall, fwYF: () => { const M = w3Model(); return M ? Math.min(...Object.values(M.P).map(w3PlD).map(q => q[1])) : null }, fwDetect, fwDetCam, fwImg, fwCorners, fwAspect, fwRectify, fwMids, fwExif35, stripShow: (...a) => stripShow(...a), flushAll: () => flushAll(), lastPut: () => lastPut(), lastOpen: () => lastOpen(), zTapSel: (...a) => zTapSel(...a), PEN, w3Win: () => w3Win(), w3AnSel: () => w3AnSel(), w3AnDeg: q => w3AnDeg(q), w3FS: () => w3FS(), toScr0: (...a) => toScr0(...a), w3PV: () => { const M = w3Model(); return M ? [...w3PV(M)] : [] }, w3Hit: (...a) => w3Hit(...a), w3Win: () => w3Win(), w3Row: () => w3Row(), w3ObbX: (...a) => w3ObbX(...a), w3CirX: (...a) => w3CirX(...a), w3Ico: k => w3Ico(k), elTip: e => elTip(e), otipUpd: () => otipUpd(), w3AnD: q => w3AnD(q), w3VFaces: (...a) => w3VFaces(...a), inPoly: (...a) => inPoly(...a), elRect: (...a) => elRect(...a), ulXf: (...a) => ulXf(...a), prtOwn: (...a) => prtOwn(...a), prtHand: (...a) => prtHand(...a), stubHit: (...a) => stubHit(...a), stubTap: (...a) => stubTap(...a), stubNom: (...a) => stubNom(...a), stFace: (...a) => stFace(...a), ulDoors: (...a) => ulDoors(...a), opWorld: (...a) => opWorld(...a), w3Ax: (...a) => w3Ax(...a), toPl: (...a) => toPl(...a), inPoly: (...a) => inPoly(...a), plxAdd: (...a) => plxAdd(...a), wsStroke: (...a) => wsStroke(...a), rfPick: () => rfPick(), plBar: () => plBar(), PLP, hdSet: async v => { const i = document.getElementById('hdIn'); i.value = v; await i.onchange() }, widDedupe: (...a) => widDedupe(...a), widUsed: (...a) => widUsed(...a), prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
+window.PM = { nw: NW, fwOpen, fwGo, fwPut, fwRun, fwMidSet, FWP, FW, fwDims, fwCandN, fwCandAll, fwReproj, RR, rfGet, fwSheet, hDLT, hApply, zpbDraw: () => zpbDraw(), mdGo: (...a) => mdGo(...a), rfWall, fwYF: () => { const M = w3Model(); return M ? Math.min(...Object.values(M.P).map(w3PlD).map(q => q[1])) : null }, fwDetect, fwDetCam, fwImg, fwCorners, fwAspect, fwRectify, fwMids, fwExif35, stripShow: (...a) => stripShow(...a), flushAll: () => flushAll(), lastPut: () => lastPut(), lastOpen: () => lastOpen(), zTapSel: (...a) => zTapSel(...a), PEN, w3Win: () => w3Win(), w3AnSel: () => w3AnSel(), w3AnDeg: q => w3AnDeg(q), w3FS: () => w3FS(), toScr0: (...a) => toScr0(...a), w3PV: () => { const M = w3Model(); return M ? [...w3PV(M)] : [] }, w3Hit: (...a) => w3Hit(...a), w3Win: () => w3Win(), w3Row: () => w3Row(), w3ObbX: (...a) => w3ObbX(...a), w3CirX: (...a) => w3CirX(...a), w3Ico: k => w3Ico(k), elTip: e => elTip(e), otipUpd: () => otipUpd(), w3AnD: q => w3AnD(q), w3VFaces: (...a) => w3VFaces(...a), inPoly: (...a) => inPoly(...a), elRect: (...a) => elRect(...a), ulXf: (...a) => ulXf(...a), prtOwn: (...a) => prtOwn(...a), prtHand: (...a) => prtHand(...a), stubHit: (...a) => stubHit(...a), stubTap: (...a) => stubTap(...a), stubNom: (...a) => stubNom(...a), stFace: (...a) => stFace(...a), ulDoors: (...a) => ulDoors(...a), opWorld: (...a) => opWorld(...a), w3Ax: (...a) => w3Ax(...a), toPl: (...a) => toPl(...a), inPoly: (...a) => inPoly(...a), plxAdd: (...a) => plxAdd(...a), wsStroke: (...a) => wsStroke(...a), rfPick: () => rfPick(), plBar: () => plBar(), PLP, hdSet: async v => { const i = document.getElementById('hdIn'); i.value = v; await i.onchange() }, widDedupe: (...a) => widDedupe(...a), widUsed: (...a) => widUsed(...a), prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
 if (navigator.webdriver) document.body.classList.add('tz');   /* v46: режим тестов */
 /* ═══ [BLOCK] ЗАПИСЬ ПРИ ЗАКРЫТИИ И ВОЗВРАТ К ПОСЛЕДНЕМУ (v74) ═══ */
