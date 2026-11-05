@@ -504,7 +504,7 @@ const S = { frames: [], sol: null, mosaic: null, tool: 'view', rulers: [], pend:
   sess: null, lines: {}, man: {}, els: [], sel: null, mk: 'sel', und: [], la: {},
   mode: 'wall', room: null, room0: null, psel: null, pund: [], planL: null, wsh: {}, adim: true, dimHits: [], dfoc: null, msel: [], rsr: null, colOpen: false, notes: [], nsel: null, gOpen: false, gsel: '2.0', objRooms: [], pf: null, poolW: [] };   /* v13: pf — выбранный кадр пула, poolW — кадры замеров стен объекта */   /* v11: objRooms — другие помещения объекта */   /* v10: notes — выноски, gsel — точка сетки 'ряд.столбец' */   /* v8: msel — группа (рамка выделения), rsr — рамка на экране */   /* v7: adim — авторазмеры всех объектов; dimHits — подписи размеров под пальцем; dfoc — поле размера в фокусе */   /* v6: mode 'plan' — план помещения */   /* v5: la — привязка концов линий к кадрам */   /* v4: mk 'sel' — выбор и правка */   /* v2: замер, разметка */
 const $ = id => document.getElementById(id);
-const ZVER = 'v66';
+const ZVER = 'v67';
 const PEN = { seen: false, mode: (() => { try { return localStorage.getItem('zamer.pen') || 'auto' } catch (e) { return 'auto' } })(), on() { return this.mode === 'auto' && this.seen } };   /* v21: стилус и палец */   /* v18: номер версии — подставляет build.py */
 function setNum(id) { const v = $(id).value.trim(); if (!v) return null; try { if (!/^[0-9+\-*/(). ,]+$/.test(v)) return null; const r = Function('return (' + v.replace(/,/g, '.') + ')')(); return isFinite(r) && r > 0 ? r : null } catch (e) { return null } }
 function sizeOf(id) { return id >= 100 ? (setNum('sA5') || 120) : (setNum('sA4') || 180) }
@@ -2018,15 +2018,23 @@ const wN = (r, k) => (r && r.gn && r.gn[k]) || k + 1;
 async function objLoad(r) { const all = (await dbAll('sess').catch(() => [])) || []; S.objRooms = r.obj ? all.filter(o => o.kind === 'room' && !o.del && o.id !== r.id && o.obj === r.obj)   /* v17: без удалённых */.sort((a, b) => a.created - b.created) : [] }
 function gnMax() { let m = 0; for (const o of [S.room, ...S.objRooms]) if (o) { m = Math.max(m, +o.gnHi || 0); for (const [k, v] of Object.entries(o.gn || {})) if (+k < plN(o.ms)) m = Math.max(m, v) } return m }   /* v56: и выданные ранее — не переиспользуются */
 function gnFix(r) { r = r || S.room; if (!r) return false; r.gn = r.gn || {}; let m = gnMax(), ch = false; for (let k = 0; k < plN(r.ms); k++) if (r.gn[k] == null) { r.gn[k] = ++m; ch = true } if (m > (+r.gnHi || 0)) r.gnHi = m; return wIdFix(r) || ch }
+function widUsed(r) { const u = new Set(); for (const o of [S.room, ...(S.objRooms || [])]) if (o && o !== r) for (const v of Object.values(o.wid || {})) u.add(v); for (const v of Object.values((r && r.wid) || {})) u.add(v); return u }
+function widDedupe(all) {   /* v67: совпавшие id стен разных помещений (старая схема) — у более позднего помещения новый id; возвращает изменённые помещения */
+  const seen = new Set(), ch = []; for (const r of [...all].filter(Boolean).sort((a, b) => (a.created || 0) - (b.created || 0))) { let c = false;
+    for (const k of Object.keys(r.wid || {})) { const v = r.wid[k]; if (!seen.has(v)) { seen.add(v); continue } let id; r.wn = +r.wn || 0; do { id = 'w' + String(r.id || 'r').replace(/^r/, '') + '_' + (++r.wn) } while (seen.has(id)); if (r.nom && r.nom[v]) { r.nom[id] = 1; delete r.nom[v] } r.wid[k] = id; seen.add(id); c = true }
+    if (c) ch.push(r) }
+  return ch;
+}
 function wIdFix(r) {   /* v56: постоянные id стен (по отрезку) и объектов плана; новые — новые, не переиспользуются */
   if (!r || !r.ms) return false; const m = r.ms, n = plN(m); let ch = false; r.wid = r.wid || {}; r.wn = +r.wn || 0;
   for (const k of Object.keys(r.wid)) if (+k >= n) { delete r.wid[k]; ch = true }
-  for (let k = 0; k < n; k++) if (!r.wid[k]) { r.wid[k] = 'w' + String(r.id || 'r').slice(-6) + '_' + (++r.wn); ch = true }
+  const used = widUsed(r); for (let k = 0; k < n; k++) if (!r.wid[k]) { let id; do { id = 'w' + String(r.id || 'r').replace(/^r/, '') + '_' + (++r.wn) } while (used.has(id)); r.wid[k] = id; used.add(id); ch = true }   /* v67: полный id помещения, без совпадений в объекте */
   const nid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   for (const q of m.shp || []) if (!q.id) { q.id = nid('sh'); ch = true } for (const q of m.rt || []) if (!q.id) { q.id = nid('rt'); ch = true } for (const q of m.ops || []) if (!q.id) { q.id = nid('op'); ch = true }
   return ch;
 }
 async function gnAll() {   /* помещения без номеров (до v11) — по порядку создания */
+  for (const o of widDedupe([S.room, ...S.objRooms])) if (o !== S.room) await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { });   /* v67 */
   for (const o of [...S.objRooms, S.room].sort((a, b) => a.created - b.created)) if (gnFix(o)) await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { });
 }
 function plCen(P) { return [P.reduce((q, p) => q + p[0], 0) / P.length, P.reduce((q, p) => q + p[1], 0) / P.length] }
@@ -3157,7 +3165,7 @@ function nchOut(r, m0, n, rev, sg, wl) {   /* v38: ниши плана → wl[k]
 async function exportObjObj() {
   await saveNow().catch(() => { }); if (S.room) { clearTimeout(roomT); S.room.upd = Date.now(); await dbPut('sess', JSON.parse(JSON.stringify(S.room))).catch(() => { }) }
   const all = [S.room, ...S.objRooms].filter(r => r && r.ms && r.ms.pts.length >= 2).sort((a, b) => a.created - b.created), rooms = [];
-  const oid = await oidFix(all);
+  const oid = await oidFix(all); for (const r of widDedupe(all)) if (r !== S.room) await dbPut('sess', JSON.parse(JSON.stringify(r))).catch(() => { });   /* v67 */
   for (const r of all) { if (wIdFix(r) && r !== S.room) await dbPut('sess', JSON.parse(JSON.stringify(r))).catch(() => { }); rooms.push(await exportRoomObj(r)) }
   if (S.room) saveRoom();
   const PP = prtPairs(all); for (const R0 of rooms) for (const W of Object.values(R0.ms.wl || {})) { const q = W.id && PP[W.id]; if (q) { W.pair = q.pair; W.t = q.t } } prtPts(rooms, PP);   /* v57: перегородки */
@@ -3212,7 +3220,7 @@ async function oidFix(all) {   /* v56: постоянный id объекта �
   for (const r of all) if (r.oid !== oid) { r.oid = oid; if (r !== S.room) await dbPut('sess', JSON.parse(JSON.stringify(r))).catch(() => { }) } return oid;
 }
 async function exportRoomAsObj() {   /* v56 (п. 9): помещение — kind 'object' с одним помещением */
-  const r = S.room; wIdFix(r); const oid = await oidFix([r, ...S.objRooms].filter(Boolean)); saveRoom(); const room = await exportRoomObj(r);
+  const r = S.room; for (const x of widDedupe([r, ...S.objRooms])) if (x !== r) await dbPut('sess', JSON.parse(JSON.stringify(x))).catch(() => { }); wIdFix(r); const oid = await oidFix([r, ...S.objRooms].filter(Boolean));   /* v67 */ saveRoom(); const room = await exportRoomObj(r);
   return { app: 'akrix-zamer', v: 3, kind: 'object', date: room.date, obj: r.obj, oid, rooms: [room], gnMax: gnMax(), name: r.name };
 }
 async function exportObj2() {
@@ -3338,8 +3346,8 @@ function dmPanel(pp) {
 }
 function dmOut(W, C) {   /* выгрузка: x вдоль стены от левого края, y от пола, мм (с подгонкой — исправленные) */
   const w = p => toWc(p, W, C).map(r1), o = {};
-  if (S.dms.length) o.dm = S.dms.map(q => ({ a: w(q.a), b: w(q.b), v: dmVal(q), t: q.t || 'both', ...(q.ch ? { ch: 1 } : {}) }));
-  if (S.drw.length) o.drw = S.drw.map(q => ({ k: q.k, ...(q.a ? { a: w(q.a) } : {}), ...(q.b ? { b: w(q.b) } : {}), ...(q.pts ? { pts: q.pts.map(w) } : {}), ...(q.tx ? { tx: q.tx } : {}), ...(q.n ? { n: q.n } : {}), c: q.c, ...(q.dash ? { dash: 1 } : {}), ...(q.rnd ? { rnd: 1 } : {}), ...(q.fill ? { fill: 1 } : {}) }));
+  if (S.dms.length) o.dm = S.dms.map(q => ({ ...(q.id ? { id: q.id } : {}), a: w(q.a), b: w(q.b), v: dmVal(q), t: q.t || 'both', ...(q.ch ? { ch: 1 } : {}) }));
+  if (S.drw.length) o.drw = S.drw.map(q => ({ ...(q.id ? { id: q.id } : {}), k: q.k, ...(q.a ? { a: w(q.a) } : {}), ...(q.b ? { b: w(q.b) } : {}), ...(q.pts ? { pts: q.pts.map(w) } : {}), ...(q.tx ? { tx: q.tx } : {}), ...(q.n ? { n: q.n } : {}), c: q.c, ...(q.dash ? { dash: 1 } : {}), ...(q.rnd ? { rnd: 1 } : {}), ...(q.fill ? { fill: 1 } : {}) }));
   return o;
 }
 
@@ -3388,8 +3396,8 @@ function zwPanel(pp) {
 }
 function zwOut(W, C) {
   const w = p => toWc(p, W, C).map(r1), num = v => v === '' || v == null ? undefined : +v, o = {};
-  if (S.rts.length) o.rt = S.rts.map(q => ({ t: q.t, ...(num(q.d) ? { d: num(q.d) } : {}), pts: q.pts.map(w) }));
-  if (S.polys.length) o.poly = S.polys.map(q => ({ kind: q.kind, ...(num(q.d) ? { d: num(q.d) } : {}), pts: q.pts.map(w) }));
+  if (S.rts.length) o.rt = S.rts.map(q => ({ ...(q.id ? { id: q.id } : {}), t: q.t, ...(num(q.d) ? { d: num(q.d) } : {}), pts: q.pts.map(w) }));
+  if (S.polys.length) o.poly = S.polys.map(q => ({ ...(q.id ? { id: q.id } : {}), kind: q.kind, ...(num(q.d) ? { d: num(q.d) } : {}), pts: q.pts.map(w) }));
   return o;
 }
 /* ─── план ─── */
@@ -3573,7 +3581,7 @@ async function frEnsure(f) { if (f.rgba || !f.file) return; const g = await load
 async function zMosaic() { if (!S.sol) return S.q4 && S.q4.ok ? q4Mosaic() : null;   /* v34 */ await Promise.all(S.frames.map(frEnsure)); const m = buildMosaic(); for (const f of S.frames) f.rgba = null; return m }
 function opOut(m, n, rev, sg) {   /* проёмы: a, b — мм от начала отрезка k по ходу листа (ccw); эскиз от руки — в масштабе замеренной длины */
   const o = (m.ops || []).filter(q => q.k < n).map(q => { const [A, B] = plSeg(m, q.k), Ls = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, L = plLen(m, q.k), sc = L ? L.v / Ls : 1, Lr = Ls * sc;
-    let a = q.a * sc, b = q.b * sc; if (rev) [a, b] = [Lr - b, Lr - a]; return { k: sg(q.k), a: Math.round(a), b: Math.round(b), t: q.t || 'door' } });
+    let a = q.a * sc, b = q.b * sc; if (rev) [a, b] = [Lr - b, Lr - a]; return { ...(q.id ? { id: q.id } : {}), k: sg(q.k), a: Math.round(a), b: Math.round(b), t: q.t || 'door' } });   /* v67: id */
   return o.length ? { ops: o } : {};
 }
 function zWarn() {   /* предупреждения выгрузки: план — контур, L, невязка; стена — пол / край / L */
@@ -4642,7 +4650,7 @@ zInit();   /* v22: каркас */
 $('zVer').textContent = 'Measure ' + ZVER; $('zVer2').textContent = 'Measure ' + ZVER; $('zVerB').textContent = ZVER;   /* v44 */   /* v18 */
 $('zb').appendChild($('zopt'));   /* v39: модификаторы — справа от пресетов (DrawNote) */
 $('bExp').onclick = () => zmSet('exp');   /* v40: выгрузка — из меню ⋮ */
-window.PM = { prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
+window.PM = { widDedupe: (...a) => widDedupe(...a), widUsed: (...a) => widUsed(...a), prtAdoptF: (...a) => prtAdopt(...a), nchRebind: (...a) => nchRebind(...a), wallNoFrame: (...a) => wallNoFrame(...a), plxIco: (...a) => plxIco(...a), plHit: (...a) => plHit(...a), prtAuto: (...a) => prtAuto(...a), prtScan: (...a) => prtScan(...a), prtAdopt: (...a) => prtAdopt(...a), stTap: (...a) => stTap(...a), stOrtho: (...a) => stOrtho(...a), nchPts: (...a) => nchPts(...a), nchTap: (...a) => nchTap(...a), plxGet: () => plxGet(), get NCH0() { return NCH0 }, ulRooms: (...a) => ulRooms(...a), ulRoomAt: (...a) => ulRoomAt(...a), nomTog: (...a) => nomTog(...a), wNom: (...a) => wNom(...a), nomHit: (...a) => nomHit(...a), ulRFresh: () => ulRFresh(), prdOpen: (...a) => prdOpen(...a), prdGet: (...a) => prdGet(...a), prtPairs: (...a) => prtPairs(...a), exportObjObj: (...a) => exportObjObj(...a), gnFix: (...a) => gnFix(...a), saveNow: (...a) => saveNow(...a), wIdFix: (...a) => wIdFix(...a), exportRoomAsObj: (...a) => exportRoomAsObj(...a), get PD() { return PD }, pdColor: (...a) => pdColor(...a), plPick: (...a) => plPick(...a), get WS() { return WS }, get ANG_LV() { return ANG_LV }, w3FHit: (...a) => w3FHit(...a), w3FOpen: (...a) => w3FOpen(...a), tbOpen: (...a) => tbOpen(...a), PREF: () => PREF, w3Vols: (...a) => w3Vols(...a), dbGet, dbAll, get W3() { return W3 }, w3Model: (...a) => w3Model(...a), w3Set: (...a) => w3Set(...a), w3Pick: (...a) => w3Pick(...a), w3S: (...a) => w3S(...a), rfOut, rfAdd, rfrOpen, rfvOpen, bwSet, rfDel, AI, poolGo, pmPanel, zDelSel, zSelHas, wsSplit, PA, strip, saveRoom: (...a) => saveRoom(...a), q4Lk, zWarnG, dmInShow, zCol, PRE0, wpOps, q4Y, nchOut, WS, wsStroke, q4Q, q4Use, q4Need, q4Tap, q4Set, q4Mosaic, ulWalls, wpTap, zBreak, envApply, envAt, zEnv, ulSteps, lqStart, lqNext, zTapSel, zMosaic, frEnsure, zWarn, zBackup, zRestore, opOut, ZD, zdPts, zdCopy, nAttach, LAY, BT, btUi, mkChips, ZPX, zpOut, zwOut, zpGet, ZN_K, ZOPT, zOpt, zMod, dmOut, dmTap, zLW, zdGet, zFrDel, zFrBack, ZA, ulRetrace, zmSet, zCur, zSheet, zLay, zUndo, zRedo, zDone, PEN, status, ZVER, geoBuild, plUndo, ctOpen, ctAddNode, ctDelNode, ctClear, sessList, opSnap, opT, ulSnapSt, ulFree, stDraw, opList: () => (S.room.ms.ops || []), ulGet, ulAdd, ulContour, ulMasks, ulScale, UL, poolList, poolSet, poolAdd, poolDel, poolN, poolLoad, exportObjObj, wN, gnMax, objLoad, LAY, gridFull, gStats, gPts, gOut, nOut, arcInfo, layPanel, PREF, pickTool, tbOpen, kIco, detectEls, wEnds, wCorners, elSide, elDist, elRef, setDim, dimHit, mkPanel, draw, S, PL, newRoom, openRoom, openWall, exportRoomObj, plFlip, plLen, btVal, manV, saveNow, toD, refreshDisp, lnHit, anchorOf, corrH, elGeo, solve, img2plane, detect, recompute, addFiles, toScr, toPl, fit, wf, toW, fromW, dims, exportObj, openSess, newSess, sessList, tool };
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
 if (navigator.webdriver) document.body.classList.add('tz');   /* v46: режим тестов */
 dbOpen().then(() => { if (!/[?&]nolist/.test(location.search)) sessList(true) });
