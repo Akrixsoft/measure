@@ -1,0 +1,2336 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "real trusted touch drag creates defaultL1 magnet dimension",
+      "detail": {
+        "id": "dmw8c9zwevl6",
+        "a": [
+          599.9999801973697,
+          904.686712903884
+        ],
+        "b": [
+          2614.57,
+          904.686712903884
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "ok": true,
+      "name": "real pen drag creates magnet arrow with orthogonal constraint",
+      "detail": {
+        "id": "dmw8ca06pfkc",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          904.686712903884
+        ],
+        "b": [
+          2614.57,
+          904.686712903884
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "ok": true,
+      "name": "test uses trusted touch AND stylus events",
+      "detail": [
+        {
+          "type": "touch",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        }
+      ]
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.1",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          149.45260344664027,
+          999.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 35.47429125727631,
+        "handleGap": 35.47429125727631,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.1",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          75.53260344664028,
+          999.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 38.446646285548404,
+        "handleGap": 3.5509173261890177,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.2",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.2",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.35",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.35,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          281.984112063241,
+          951.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 31.76498426765516,
+        "handleGap": 31.76498426765516,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.35",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.35",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.35,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          208.06411206324103,
+          951.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 42.16671284229285,
+        "handleGap": 42.16671284229285,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.35",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.5",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.5,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          361.5030172332015,
+          922.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 29.543659373066795,
+        "handleGap": 29.543659373066795,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.5",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.5",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.5,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          287.58301723320153,
+          922.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 44.400722529614356,
+        "handleGap": 44.400722529614356,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.5",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at2",
+      "detail": {
+        "stage": "initial",
+        "factor": 2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          1156.6920689328063,
+          637.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 8.136280380420486,
+        "handleGap": 8.136280380420486,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at2",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at2",
+      "detail": {
+        "stage": "initial",
+        "factor": 2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          1082.7720689328062,
+          637.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 66.78760713207838,
+        "handleGap": 66.78760713207838,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at2",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at4",
+      "detail": {
+        "stage": "initial",
+        "factor": 4,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          2239.431992411067,
+          256.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 7.439975783411455,
+        "handleGap": 7.439975783411455,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at4",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at4",
+      "detail": {
+        "stage": "initial",
+        "factor": 4,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          2120.536283320158,
+          256.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 119.1282623053316,
+        "handleGap": 119.1282623053316,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at4",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at1",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.2",
+      "detail": 0
+    },
+    {
+      "ok": false,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "actual gestures survive save/reload",
+      "detail": {
+        "dim": {
+          "id": "dmw8c9zwevl6",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            904.686712903884
+          ],
+          "t": "both"
+        },
+        "arr": {
+          "id": "dmw8ca06pfkc",
+          "k": "arr",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            904.686712903884
+          ],
+          "c": "#e07a00"
+        },
+        "group": {
+          "id": "group3",
+          "k": "roz",
+          "c": [
+            2543.27,
+            913.61
+          ],
+          "N": 3,
+          "st": 71.3
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at0.1",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          149.45260344664027,
+          995.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 35.47429125727631,
+        "handleGap": 35.47429125727631,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at0.1",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          75.53260344664028,
+          995.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 38.446646285548404,
+        "handleGap": 3.5509173261890177,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at0.35",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.35,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          281.984112063241,
+          947.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 31.76498426765516,
+        "handleGap": 31.76498426765516,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at0.35",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.35,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          208.06411206324103,
+          947.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 42.16671284229285,
+        "handleGap": 42.16671284229285,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at0.5",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.5,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          361.5030172332015,
+          918.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 29.543659373066795,
+        "handleGap": 29.543659373066795,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at0.5",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.5,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          287.58301723320153,
+          918.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 44.400722529614356,
+        "handleGap": 44.400722529614356,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at2",
+      "detail": {
+        "stage": "reload",
+        "factor": 2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          1156.6920689328063,
+          633.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 8.136280380420486,
+        "handleGap": 8.136280380420486,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at2",
+      "detail": {
+        "stage": "reload",
+        "factor": 2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          1082.7720689328062,
+          633.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 66.78760713207838,
+        "handleGap": 66.78760713207838,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at4",
+      "detail": {
+        "stage": "reload",
+        "factor": 4,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          2239.431992411067,
+          252.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 7.439975783411455,
+        "handleGap": 7.439975783411455,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at4",
+      "detail": {
+        "stage": "reload",
+        "factor": 4,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          2120.536283320158,
+          252.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 119.1282623053316,
+        "handleGap": 119.1282623053316,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded dim head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "reloaded arr head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "real pen selects referenced outlet group for movement"
+    },
+    {
+      "ok": false,
+      "name": "real pen drag moves referenced outlet group",
+      "detail": {
+        "oldGroup": [
+          2543.27,
+          913.61
+        ],
+        "newGroup": [
+          2543.27,
+          913.61
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at0.1",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          149.45260344664027,
+          995.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 35.47429125727631,
+        "handleGap": 35.47429125727631,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at0.1",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          75.53260344664028,
+          995.0675031778657
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 38.446646285548404,
+        "handleGap": 3.5509173261890177,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at0.35",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.35,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          281.984112063241,
+          947.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 31.76498426765516,
+        "handleGap": 31.76498426765516,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at0.35",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.35,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          208.06411206324103,
+          947.4586721897233
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 42.16671284229285,
+        "handleGap": 42.16671284229285,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at0.5",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.5,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          361.5030172332015,
+          918.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 29.543659373066795,
+        "handleGap": 29.543659373066795,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at0.5",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.5,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          287.58301723320153,
+          918.8933735968379
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 44.400722529614356,
+        "handleGap": 44.400722529614356,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at2",
+      "detail": {
+        "stage": "moved",
+        "factor": 2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          1156.6920689328063,
+          633.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 8.136280380420486,
+        "handleGap": 8.136280380420486,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at2",
+      "detail": {
+        "stage": "moved",
+        "factor": 2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          1082.7720689328062,
+          633.2403876679842
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 66.78760713207838,
+        "handleGap": 66.78760713207838,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at4",
+      "detail": {
+        "stage": "moved",
+        "factor": 4,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          2239.431992411067,
+          252.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 7.439975783411455,
+        "handleGap": 7.439975783411455,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at4",
+      "detail": {
+        "stage": "moved",
+        "factor": 4,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          2120.536283320158,
+          252.36973976284594
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 119.1282623053316,
+        "handleGap": 119.1282623053316,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 22.176176149354564,
+        "handleGap": 22.176176149354564,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          823.6757116205533
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 51.855332344969284,
+        "handleGap": 51.855332344969284,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group dim binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8c9zwevl6",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 33.98964299936506,
+        "handleGap": 33.98964299936506,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "moved group arr binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8ca06pfkc",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          976.0239707826087
+        ],
+        "world": [
+          2614.57,
+          904.686712903884
+        ],
+        "headGap": 39.93412540702866,
+        "handleGap": 39.93412540702866,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "no page errors",
+      "detail": []
+    }
+  ],
+  "dim": {
+    "id": "dmw8c9zwevl6",
+    "a": [
+      599.9999801973697,
+      904.686712903884
+    ],
+    "b": [
+      2614.57,
+      904.686712903884
+    ],
+    "t": "both"
+  },
+  "arr": {
+    "id": "dmw8ca06pfkc",
+    "k": "arr",
+    "a": [
+      599.9999801973697,
+      904.686712903884
+    ],
+    "b": [
+      2614.57,
+      904.686712903884
+    ],
+    "c": "#e07a00"
+  },
+  "events": [
+    {
+      "type": "touch",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    }
+  ],
+  "frames": [
+    {
+      "stage": "initial",
+      "factor": 0.1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        149.45260344664027,
+        999.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 35.47429125727631,
+      "handleGap": 35.47429125727631,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        75.53260344664028,
+        999.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 38.446646285548404,
+      "handleGap": 3.5509173261890177,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.35,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        281.984112063241,
+        951.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 31.76498426765516,
+      "handleGap": 31.76498426765516,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.35,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        208.06411206324103,
+        951.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 42.16671284229285,
+      "handleGap": 42.16671284229285,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.5,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        361.5030172332015,
+        922.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 29.543659373066795,
+      "handleGap": 29.543659373066795,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.5,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        287.58301723320153,
+        922.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 44.400722529614356,
+      "handleGap": 44.400722529614356,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        1156.6920689328063,
+        637.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 8.136280380420486,
+      "handleGap": 8.136280380420486,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        1082.7720689328062,
+        637.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 66.78760713207838,
+      "handleGap": 66.78760713207838,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 4,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        2239.431992411067,
+        256.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 7.439975783411455,
+      "handleGap": 7.439975783411455,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 4,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        2120.536283320158,
+        256.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 119.1282623053316,
+      "handleGap": 119.1282623053316,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    }
+  ],
+  "reload": {
+    "dim": {
+      "id": "dmw8c9zwevl6",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        904.686712903884
+      ],
+      "t": "both"
+    },
+    "arr": {
+      "id": "dmw8ca06pfkc",
+      "k": "arr",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        904.686712903884
+      ],
+      "c": "#e07a00"
+    },
+    "group": {
+      "id": "group3",
+      "k": "roz",
+      "c": [
+        2543.27,
+        913.61
+      ],
+      "N": 3,
+      "st": 71.3
+    }
+  },
+  "reloadFrames": [
+    {
+      "stage": "reload",
+      "factor": 0.1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        149.45260344664027,
+        995.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 35.47429125727631,
+      "handleGap": 35.47429125727631,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        75.53260344664028,
+        995.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 38.446646285548404,
+      "handleGap": 3.5509173261890177,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.35,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        281.984112063241,
+        947.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 31.76498426765516,
+      "handleGap": 31.76498426765516,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.35,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        208.06411206324103,
+        947.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 42.16671284229285,
+      "handleGap": 42.16671284229285,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.5,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        361.5030172332015,
+        918.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 29.543659373066795,
+      "handleGap": 29.543659373066795,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.5,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        287.58301723320153,
+        918.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 44.400722529614356,
+      "handleGap": 44.400722529614356,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        1156.6920689328063,
+        633.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 8.136280380420486,
+      "handleGap": 8.136280380420486,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        1082.7720689328062,
+        633.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 66.78760713207838,
+      "handleGap": 66.78760713207838,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 4,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        2239.431992411067,
+        252.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 7.439975783411455,
+      "handleGap": 7.439975783411455,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 4,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        2120.536283320158,
+        252.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 119.1282623053316,
+      "handleGap": 119.1282623053316,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    }
+  ],
+  "movedFrames": [
+    {
+      "stage": "moved",
+      "factor": 0.1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        149.45260344664027,
+        995.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 35.47429125727631,
+      "handleGap": 35.47429125727631,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        75.53260344664028,
+        995.0675031778657
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 38.446646285548404,
+      "handleGap": 3.5509173261890177,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.35,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        281.984112063241,
+        947.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 31.76498426765516,
+      "handleGap": 31.76498426765516,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.35,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        208.06411206324103,
+        947.4586721897233
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 42.16671284229285,
+      "handleGap": 42.16671284229285,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.5,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        361.5030172332015,
+        918.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 29.543659373066795,
+      "handleGap": 29.543659373066795,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.5,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        287.58301723320153,
+        918.8933735968379
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 44.400722529614356,
+      "handleGap": 44.400722529614356,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        1156.6920689328063,
+        633.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 8.136280380420486,
+      "handleGap": 8.136280380420486,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        1082.7720689328062,
+        633.2403876679842
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 66.78760713207838,
+      "handleGap": 66.78760713207838,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 4,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        2239.431992411067,
+        252.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 7.439975783411455,
+      "handleGap": 7.439975783411455,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 4,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        2120.536283320158,
+        252.36973976284594
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 119.1282623053316,
+      "handleGap": 119.1282623053316,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 22.176176149354564,
+      "handleGap": 22.176176149354564,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        823.6757116205533
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 51.855332344969284,
+      "handleGap": 51.855332344969284,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8c9zwevl6",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 33.98964299936506,
+      "handleGap": 33.98964299936506,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8ca06pfkc",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        976.0239707826087
+      ],
+      "world": [
+        2614.57,
+        904.686712903884
+      ],
+      "headGap": 39.93412540702866,
+      "handleGap": 39.93412540702866,
+      "glyphGap": 0
+    }
+  ],
+  "errors": []
+}

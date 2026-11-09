@@ -1,0 +1,492 @@
+{
+  "target": "web/v81.html",
+  "checks": [
+    {
+      "ok": true,
+      "name": "baseline v81 byte-exact"
+    },
+    {
+      "ok": true,
+      "name": "app boots"
+    },
+    {
+      "ok": true,
+      "name": "open room remains open on export"
+    },
+    {
+      "ok": true,
+      "name": "open polyline exports exactly two walls"
+    },
+    {
+      "ok": true,
+      "name": "open room included in object"
+    },
+    {
+      "ok": true,
+      "name": "exported walls have IDs"
+    },
+    {
+      "ok": true,
+      "name": "measured lengths retained",
+      "details": [
+        4000,
+        3000
+      ]
+    },
+    {
+      "ok": true,
+      "name": "open room geometry survives reload"
+    },
+    {
+      "ok": true,
+      "name": "open room wall can be measured",
+      "details": {
+        "mode": "wall",
+        "L": 4000,
+        "H": 2700
+      }
+    },
+    {
+      "ok": true,
+      "name": "standalone plane exports to object",
+      "details": {
+        "rooms": 1,
+        "base": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "standalone plane exposes real UI export button"
+    },
+    {
+      "ok": true,
+      "name": "UI export calls native file bridge"
+    },
+    {
+      "ok": true,
+      "name": "UI native file has one real v3 wall"
+    },
+    {
+      "ok": true,
+      "name": "no JavaScript page errors",
+      "details": []
+    }
+  ],
+  "errors": [],
+  "open": {
+    "room": {
+      "app": "akrix-zamer",
+      "v": 3,
+      "kind": "room",
+      "id": "r1794169033772",
+      "date": "2026-11-08T20:17:14.516Z",
+      "obj": "QA Open",
+      "name": "",
+      "ms": {
+        "v": 1,
+        "lvl": "d",
+        "pts": [
+          [
+            0,
+            0
+          ],
+          [
+            4000,
+            0
+          ],
+          [
+            4000,
+            -3000
+          ]
+        ],
+        "closed": false,
+        "dims": [
+          {
+            "id": "d0",
+            "a": {
+              "p": 0
+            },
+            "b": {
+              "p": 1
+            },
+            "v": 4000
+          },
+          {
+            "id": "d1",
+            "a": {
+              "p": 1
+            },
+            "b": {
+              "p": 2
+            },
+            "v": 3000
+          }
+        ],
+        "angs": {},
+        "ink": [],
+        "H": 2700,
+        "wl": {
+          "0": {
+            "H": 2700,
+            "els": [],
+            "pts": [],
+            "zn": [],
+            "gn": 1,
+            "id": "w1794169033772_1",
+            "L": 4000
+          },
+          "1": {
+            "H": 2700,
+            "els": [],
+            "pts": [],
+            "zn": [],
+            "gn": 2,
+            "id": "w1794169033772_2",
+            "L": 3000
+          }
+        },
+        "ccw": true,
+        "arcs": {},
+        "rnd": {},
+        "gn": {
+          "0": 1,
+          "1": 2
+        },
+        "wid": {
+          "0": "w1794169033772_1",
+          "1": "w1794169033772_2"
+        },
+        "geo": {
+          "v": 1,
+          "rules": "zamer-18",
+          "walls": [
+            {
+              "k": 0,
+              "gn": 1,
+              "id": "w1794169033772_1",
+              "a": [
+                0,
+                0
+              ],
+              "b": [
+                4000,
+                0
+              ],
+              "L": 4000,
+              "ok": 1
+            },
+            {
+              "k": 1,
+              "gn": 2,
+              "id": "w1794169033772_2",
+              "a": [
+                4000,
+                0
+              ],
+              "b": [
+                4000,
+                -3000
+              ],
+              "L": 3000,
+              "ok": 1
+            }
+          ],
+          "err": null,
+          "rnd": {},
+          "mm": 0
+        },
+        "wsd": {
+          "0": 1,
+          "1": 1
+        }
+      }
+    },
+    "obj": {
+      "app": "akrix-zamer",
+      "v": 3,
+      "kind": "object",
+      "date": "2026-11-08T20:17:14.520Z",
+      "obj": "QA Open",
+      "oid": "omw89x34nf98g",
+      "rooms": [
+        {
+          "app": "akrix-zamer",
+          "v": 3,
+          "kind": "room",
+          "id": "r1794169033772",
+          "date": "2026-11-08T20:17:14.519Z",
+          "obj": "QA Open",
+          "name": "",
+          "ms": {
+            "v": 1,
+            "lvl": "d",
+            "pts": [
+              [
+                0,
+                0
+              ],
+              [
+                4000,
+                0
+              ],
+              [
+                4000,
+                -3000
+              ]
+            ],
+            "closed": false,
+            "dims": [
+              {
+                "id": "d0",
+                "a": {
+                  "p": 0
+                },
+                "b": {
+                  "p": 1
+                },
+                "v": 4000
+              },
+              {
+                "id": "d1",
+                "a": {
+                  "p": 1
+                },
+                "b": {
+                  "p": 2
+                },
+                "v": 3000
+              }
+            ],
+            "angs": {},
+            "ink": [],
+            "H": 2700,
+            "wl": {
+              "0": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 1,
+                "id": "w1794169033772_1",
+                "L": 4000
+              },
+              "1": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 2,
+                "id": "w1794169033772_2",
+                "L": 3000
+              }
+            },
+            "ccw": true,
+            "arcs": {},
+            "rnd": {},
+            "gn": {
+              "0": 1,
+              "1": 2
+            },
+            "wid": {
+              "0": "w1794169033772_1",
+              "1": "w1794169033772_2"
+            },
+            "geo": {
+              "v": 1,
+              "rules": "zamer-18",
+              "walls": [
+                {
+                  "k": 0,
+                  "gn": 1,
+                  "id": "w1794169033772_1",
+                  "a": [
+                    0,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    0
+                  ],
+                  "L": 4000,
+                  "ok": 1
+                },
+                {
+                  "k": 1,
+                  "gn": 2,
+                  "id": "w1794169033772_2",
+                  "a": [
+                    4000,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    -3000
+                  ],
+                  "L": 3000,
+                  "ok": 1
+                }
+              ],
+              "err": null,
+              "rnd": {},
+              "mm": 0
+            },
+            "wsd": {
+              "0": 1,
+              "1": 1
+            }
+          }
+        }
+      ],
+      "gnMax": 2
+    }
+  },
+  "restored": {
+    "pts": [
+      [
+        0,
+        0
+      ],
+      [
+        4000,
+        0
+      ],
+      [
+        4000,
+        3000
+      ]
+    ],
+    "closed": false,
+    "name": ""
+  },
+  "plane": {
+    "o": {
+      "app": "akrix-zamer",
+      "v": 3,
+      "kind": "object",
+      "date": "2026-11-08T20:17:16.139Z",
+      "obj": "QA plane",
+      "oid": "o_lab_plane_s1794169035514",
+      "rooms": [
+        {
+          "app": "akrix-zamer",
+          "v": 3,
+          "kind": "room",
+          "id": "r_lab_plane_s1794169035514",
+          "date": "2026-11-08T20:17:16.139Z",
+          "obj": "QA plane",
+          "name": "",
+          "ms": {
+            "v": 1,
+            "lvl": "d",
+            "pts": [
+              [
+                0,
+                0
+              ],
+              [
+                3500,
+                0
+              ]
+            ],
+            "closed": false,
+            "dims": [
+              {
+                "id": "d_lab_plane_s1794169035514",
+                "a": {
+                  "p": 0
+                },
+                "b": {
+                  "p": 1
+                },
+                "v": 3500
+              }
+            ],
+            "angs": {},
+            "ink": [],
+            "H": 2650,
+            "wl": {
+              "0": {
+                "ph": [],
+                "H": 2650,
+                "yf": [
+                  null,
+                  null,
+                  null
+                ],
+                "yc": [
+                  2650,
+                  2650,
+                  2650
+                ],
+                "pl": {
+                  "d": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "u": [
+                    null,
+                    null,
+                    null
+                  ]
+                },
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "photo": {
+                  "rms": null,
+                  "fit": false,
+                  "frames": null,
+                  "L": 3500,
+                  "src": "фото"
+                },
+                "gn": 1,
+                "id": "w_lab_plane_s1794169035514",
+                "notes": [],
+                "L": 3500
+              }
+            },
+            "ccw": true,
+            "arcs": {},
+            "rnd": {},
+            "gn": {
+              "0": 1
+            },
+            "wid": {
+              "0": "w_lab_plane_s1794169035514"
+            },
+            "geo": {
+              "v": 1,
+              "rules": "zamer-18",
+              "walls": [
+                {
+                  "k": 0,
+                  "gn": 1,
+                  "id": "w_lab_plane_s1794169035514",
+                  "a": [
+                    0,
+                    0
+                  ],
+                  "b": [
+                    3500,
+                    0
+                  ],
+                  "L": 3500,
+                  "ok": 1
+                }
+              ],
+              "err": null,
+              "rnd": {},
+              "mm": 0
+            },
+            "wsd": {
+              "0": -1
+            }
+          }
+        }
+      ],
+      "gnMax": 1
+    },
+    "base": true
+  }
+}

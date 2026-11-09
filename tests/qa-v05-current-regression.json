@@ -1,0 +1,2719 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "arr H magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d708veo8",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr H magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d70fu3ml",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr H screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          65.98656085205074,
+          1007.0675031778657
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          90.99968255615232,
+          968.9804383873518
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H screen constraint zoom1",
+      "detail": {
+        "a": [
+          178.5456085205078,
+          835.6757116205533
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H screen constraint zoom2",
+      "detail": {
+        "a": [
+          303.6112170410156,
+          645.2403876679842
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H screen constraint zoom4",
+      "detail": {
+        "a": [
+          553.7424340820314,
+          264.36973976284594
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d70o7svk",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d70v1e74",
+        "k": "arr",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr V screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          143.45260344664027,
+          982.3380728849509
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          249.4778103399209,
+          894.7921475086076
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V screen constraint zoom1",
+      "detail": {
+        "a": [
+          620.5660344664032,
+          588.3814086914062
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V screen constraint zoom2",
+      "detail": {
+        "a": [
+          1150.6920689328063,
+          150.65178180968996
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V screen constraint zoom4",
+      "detail": {
+        "a": [
+          2233.431992411067,
+          -724.8074719537426
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d712die3",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d7192l45",
+        "k": "arr",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "arr P screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          100.40833040248333,
+          1039.3507079609833
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          167.65379120745004,
+          1030.348452736705
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P screen constraint zoom1",
+      "detail": {
+        "a": [
+          403.01290402483323,
+          998.8405594517308
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P screen constraint zoom2",
+      "detail": {
+        "a": [
+          739.2402080496663,
+          953.8292833303392
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P screen constraint zoom4",
+      "detail": {
+        "a": [
+          1419.7904437356965,
+          874.6009012693736
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d71hqg2h",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet0 preview constraint",
+      "detail": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2490.000128792328,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d71pyk70",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet1 preview constraint",
+      "detail": {
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim H screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          65.98656085205074,
+          1007.0675031778657
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          90.99968255615232,
+          968.9804383873518
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H screen constraint zoom1",
+      "detail": {
+        "a": [
+          178.5456085205078,
+          835.6757116205533
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H screen constraint zoom2",
+      "detail": {
+        "a": [
+          303.6112170410156,
+          645.2403876679842
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H screen constraint zoom4",
+      "detail": {
+        "a": [
+          553.7424340820314,
+          264.36973976284594
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d71ytfgx",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet0 preview constraint",
+      "detail": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          840.000061535141
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d7273nov",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet1 preview constraint",
+      "detail": {
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim V screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          143.45260344664027,
+          982.3380728849509
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          249.4778103399209,
+          894.7921475086076
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V screen constraint zoom1",
+      "detail": {
+        "a": [
+          620.5660344664032,
+          588.3814086914062
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V screen constraint zoom2",
+      "detail": {
+        "a": [
+          1150.6920689328063,
+          150.65178180968996
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V screen constraint zoom4",
+      "detail": {
+        "a": [
+          2233.431992411067,
+          -724.8074719537426
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d72fid10",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet0 preview constraint",
+      "detail": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1335.2000176501506,
+          2326.3999168479327
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d72nsmye",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet1 preview constraint",
+      "detail": {
+        "a": [
+          1613.0443704164672,
+          215.94077781235058
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "dim P screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          100.40833040248333,
+          1039.3507079609833
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          167.65379120745004,
+          1030.348452736705
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P screen constraint zoom1",
+      "detail": {
+        "a": [
+          403.01290402483323,
+          998.8405594517308
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P screen constraint zoom2",
+      "detail": {
+        "a": [
+          739.2402080496663,
+          953.8292833303392
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P screen constraint zoom4",
+      "detail": {
+        "a": [
+          1419.7904437356965,
+          874.6009012693736
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "constraint and durable post binding survive native save/reload",
+      "detail": {
+        "id": "dmw8d72nsmye",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "constraint survives JSON flipped wall restore",
+      "detail": {
+        "id": "dmw8d72nsmye",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        },
+        "a": [
+          1638.712,
+          181.68400000000008
+        ],
+        "b": [
+          2614.6,
+          913.6
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr both parallel and L retains native final axis precedence",
+      "detail": {
+        "id": "dmw8d737py31",
+        "k": "arr",
+        "a": [
+          599.9999818997826,
+          913.6
+        ],
+        "b": [
+          2614.6000000000004,
+          913.6
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr incompatible secondpost rejected while first binding and V preserved",
+      "detail": {
+        "id": "dmw8d73er4qu",
+        "k": "arr",
+        "a": [
+          2614.6000000000004,
+          913.6
+        ],
+        "b": [
+          2614.6000000000004,
+          1900.43
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "a": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": 1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim both parallel and L retains native final axis precedence",
+      "detail": {
+        "id": "dmw8d73lmb0h",
+        "a": [
+          599.9999818997826,
+          913.6
+        ],
+        "b": [
+          2614.6000000000004,
+          913.6
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim incompatible secondpost rejected while first binding and V preserved",
+      "detail": {
+        "id": "dmw8d73sj4eu",
+        "a": [
+          2614.6000000000004,
+          913.6
+        ],
+        "b": [
+          2614.6000000000004,
+          1900.43
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "a": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": 1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr vertical actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          300.42889404296875,
+          702.4791259765625
+        ],
+        "rectcenter": [
+          300.42889404296875,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr vertical actual text readable tangent rotation",
+      "detail": {
+        "angle": 1.5707963267948966,
+        "expected": 1.5707963267948966
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr diagonal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          702.4791564941406
+        ],
+        "rectcenter": [
+          375.120849609375,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr diagonal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0.5880026664058964,
+        "expected": 0.5880026664058964
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr deliberate centered field tap opens native inline keypad",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-arr",
+          "id": "dmw8d745ibs6",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "matrix(0.83205, 0.5547, -0.5547, 0.83205, 0, 0)",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr inline input matches painted rotation",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-arr",
+          "id": "dmw8d745ibs6",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "matrix(0.83205, 0.5547, -0.5547, 0.83205, 0, 0)",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr native inline change stores numeric value"
+    },
+    {
+      "ok": true,
+      "name": "arr reverse actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          702.4791564941406
+        ],
+        "rectcenter": [
+          375.120849609375,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr reverse actual text readable tangent rotation",
+      "detail": {
+        "angle": 0.5880026664058962,
+        "expected": 0.5880026664058962
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr horizontal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          627.7871704101562
+        ],
+        "rectcenter": [
+          375.120849609375,
+          627.7871704101562
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr horizontal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim vertical actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          300.42889404296875,
+          702.4791259765625
+        ],
+        "rectcenter": [
+          300.42889404296875,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim vertical actual text readable tangent rotation",
+      "detail": {
+        "angle": 1.5707963267948966,
+        "expected": 1.5707963267948966
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim diagonal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          702.4791564941406
+        ],
+        "rectcenter": [
+          375.120849609375,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim diagonal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0.5880026664058964,
+        "expected": 0.5880026664058964
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim deliberate centered field tap opens native inline keypad",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-dim",
+          "id": "dmw8d756v4yg",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "matrix(0.83205, 0.5547, -0.5547, 0.83205, 0, 0)",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim inline input matches painted rotation",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-dim",
+          "id": "dmw8d756v4yg",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "matrix(0.83205, 0.5547, -0.5547, 0.83205, 0, 0)",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim native inline change stores numeric value"
+    },
+    {
+      "ok": true,
+      "name": "dim reverse actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          702.4791564941406
+        ],
+        "rectcenter": [
+          375.120849609375,
+          702.4791259765625
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim reverse actual text readable tangent rotation",
+      "detail": {
+        "angle": 0.5880026664058962,
+        "expected": 0.5880026664058962
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim horizontal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          375.12083435058594,
+          627.7871704101562
+        ],
+        "rectcenter": [
+          375.120849609375,
+          627.7871704101562
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim horizontal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "rotated vertical inline field fits above keyboard near lower canvas",
+      "detail": {
+        "on": true,
+        "field": {
+          "top": 637,
+          "bottom": 711,
+          "left": 136.203125,
+          "right": 164.203125
+        },
+        "keyboardTop": 719
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual RZ field centered on own shaft",
+      "detail": {
+        "A": [
+          569.5501744400527,
+          945.228026350461
+        ],
+        "B": [
+          569.5501744400527,
+          774.6315826086956
+        ],
+        "r": [
+          537.5501744400527,
+          812.4870249385626,
+          601.5501744400527,
+          907.3725840205939,
+          569.5501744400527,
+          859.9298044795783
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual RZ actual text rotates vertically",
+      "detail": {
+        "k": "fillText",
+        "a": [
+          "≈914",
+          0,
+          0
+        ],
+        "m": [
+          6.123233995736766e-17,
+          -1,
+          1,
+          6.123233995736766e-17,
+          569.5501708984375,
+          859.9298095703125
+        ],
+        "align": "center",
+        "baseline": "middle"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual RZ deliberate field tap opens rotated native editor",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "rz",
+          "id": "manual-rz-v05",
+          "v": 914,
+          "v0": "914",
+          "fresh": 1
+        },
+        "transform": "matrix(2.67949e-08, -1, 1, 2.67949e-08, 0, 0)"
+      }
+    },
+    {
+      "ok": true,
+      "name": "ordinary native wall field clears prior arrow rotation"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    },
+    {
+      "ok": true,
+      "name": "trusted touch and pen used"
+    }
+  ],
+  "cases": [
+    {
+      "k": "arr",
+      "axis": "H",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d708veo8",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "H",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d70fu3ml",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "V",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d70o7svk",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "V",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d70v1e74",
+        "k": "arr",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "P",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d712die3",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "P",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d7192l45",
+        "k": "arr",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "H",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d71hqg2h",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2490.000128792328,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "H",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d71pyk70",
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "a": [
+          599.9999801973697,
+          913.61
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 1,
+          "dy": 0,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "V",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d71ytfgx",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          840.000061535141
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "V",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d7273nov",
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "a": [
+          2614.57,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "axis",
+          "dx": 0,
+          "dy": -1,
+          "fixed": "b"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "P",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d72fid10",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      },
+      "preview": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1335.2000176501506,
+          2326.3999168479327
+        ],
+        "t": "both",
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "a"
+        }
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "P",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d72nsmye",
+        "a": [
+          1638.7123704164674,
+          181.71677781235041
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      },
+      "preview": {
+        "a": [
+          1613.0443704164672,
+          215.94077781235058
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1,
+        "labConstraint": {
+          "v": 1,
+          "kind": "parallel",
+          "dx": 0.8,
+          "dy": 0.6,
+          "fixed": "b"
+        }
+      }
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,810 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "pen placement creates selected water outlet",
+      "detail": {
+        "tool": "hvs",
+        "sel": "emw8d50n6j83",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              700.0000129625635,
+              500.00026665845024
+            ],
+            "W": "",
+            "H": ""
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "stylus drag moves selected water instead of cloning",
+      "detail": {
+        "tool": "hvs",
+        "sel": "emw8d50n6j83",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "first blank pen tap only clears water selection",
+      "detail": {
+        "tool": "hvs",
+        "sel": null,
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "following blank pen tap creates next water outlet",
+      "detail": {
+        "tool": "hvs",
+        "sel": "emw8d516utge",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "another blank tap cannot spam a third water outlet"
+    },
+    {
+      "ok": true,
+      "name": "next tap creates third water only after deselection"
+    },
+    {
+      "ok": true,
+      "name": "changing placement tool clears old water selection",
+      "detail": {
+        "tool": "roz",
+        "sel": null,
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "new socket is selected"
+    },
+    {
+      "ok": true,
+      "name": "selected socket stylus move does not create another socket"
+    },
+    {
+      "ok": true,
+      "name": "zone gesture creates selected zone",
+      "detail": {
+        "tool": "zon",
+        "sel": "emw8d524v223",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              1849.9999925928207,
+              2050.000034566837
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "selected zone moves intact instead of drawing another zone",
+      "detail": {
+        "tool": "zon",
+        "sel": "emw8d524v223",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              2100.0000049381188,
+              2150.000039504956
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "blank tap deselects zone without starting another"
+    },
+    {
+      "ok": true,
+      "name": "next rectangle gesture creates next selected zone"
+    },
+    {
+      "ok": true,
+      "name": "trusted touch really moves selected object before pinch cancellation",
+      "detail": {
+        "tool": "zon",
+        "sel": "emw8d52qtkae",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              2100.0000049381188,
+              2150.000039504956
+            ],
+            "W": 500,
+            "H": 500
+          },
+          {
+            "id": "emw8d52qtkae",
+            "k": "zon",
+            "c": [
+              3172.491956297248,
+              2171.3592578678076
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "pinch/cancel restores selected object and does not clone",
+      "detail": {
+        "tool": "zon",
+        "sel": "emw8d52qtkae",
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              2100.0000049381188,
+              2150.000039504956
+            ],
+            "W": 500,
+            "H": 500
+          },
+          {
+            "id": "emw8d52qtkae",
+            "k": "zon",
+            "c": [
+              2950.0000469121346,
+              2050.000034566837
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "pen drag actually starts before interrupted tool change"
+    },
+    {
+      "ok": true,
+      "name": "tool change interrupts and rolls back selected pen drag without phantom creation",
+      "detail": {
+        "tool": "hvs",
+        "sel": null,
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              2100.0000049381188,
+              2150.000039504956
+            ],
+            "W": 500,
+            "H": 500
+          },
+          {
+            "id": "emw8d52qtkae",
+            "k": "zon",
+            "c": [
+              2950.0000469121346,
+              2050.000034566837
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "new placement flow retains manual-only dimensions",
+      "detail": {
+        "tool": "hvs",
+        "sel": null,
+        "els": [
+          {
+            "id": "emw8d50n6j83",
+            "k": "hvs",
+            "c": [
+              950.0000253078621,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d516utge",
+            "k": "hvs",
+            "c": [
+              1799.999990123761,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51fmepb",
+            "k": "hvs",
+            "c": [
+              2800.0000395049556,
+              699.9999679022243
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d51itulu",
+            "k": "roz",
+            "c": [
+              1100.0000327150412,
+              1299.9999975309408
+            ],
+            "W": "",
+            "H": ""
+          },
+          {
+            "id": "emw8d524v223",
+            "k": "zon",
+            "c": [
+              2100.0000049381188,
+              2150.000039504956
+            ],
+            "W": 500,
+            "H": 500
+          },
+          {
+            "id": "emw8d52qtkae",
+            "k": "zon",
+            "c": [
+              2950.0000469121346,
+              2050.000034566837
+            ],
+            "W": 500,
+            "H": 500
+          }
+        ],
+        "dims": 0,
+        "drawings": 0,
+        "hits": 0,
+        "handles": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "placement tests use trusted pen and touch events",
+      "detail": [
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        },
+        {
+          "type": "touch",
+          "trusted": true
+        },
+        {
+          "type": "touch",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "no JavaScript page errors",
+      "detail": []
+    }
+  ],
+  "final": {
+    "tool": "hvs",
+    "sel": null,
+    "els": [
+      {
+        "id": "emw8d50n6j83",
+        "k": "hvs",
+        "c": [
+          950.0000253078621,
+          699.9999679022243
+        ],
+        "W": "",
+        "H": ""
+      },
+      {
+        "id": "emw8d516utge",
+        "k": "hvs",
+        "c": [
+          1799.999990123761,
+          699.9999679022243
+        ],
+        "W": "",
+        "H": ""
+      },
+      {
+        "id": "emw8d51fmepb",
+        "k": "hvs",
+        "c": [
+          2800.0000395049556,
+          699.9999679022243
+        ],
+        "W": "",
+        "H": ""
+      },
+      {
+        "id": "emw8d51itulu",
+        "k": "roz",
+        "c": [
+          1100.0000327150412,
+          1299.9999975309408
+        ],
+        "W": "",
+        "H": ""
+      },
+      {
+        "id": "emw8d524v223",
+        "k": "zon",
+        "c": [
+          2100.0000049381188,
+          2150.000039504956
+        ],
+        "W": 500,
+        "H": 500
+      },
+      {
+        "id": "emw8d52qtkae",
+        "k": "zon",
+        "c": [
+          2950.0000469121346,
+          2050.000034566837
+        ],
+        "W": 500,
+        "H": 500
+      }
+    ],
+    "dims": 0,
+    "drawings": 0,
+    "hits": 0,
+    "handles": 0
+  },
+  "events": [
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    },
+    {
+      "type": "touch",
+      "trusted": true
+    },
+    {
+      "type": "touch",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    }
+  ],
+  "errors": []
+}

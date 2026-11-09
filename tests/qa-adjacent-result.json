@@ -1,0 +1,292 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "actual rectangle identifies wall1 as neighbor",
+      "details": {
+        "side": "L",
+        "atLeft": false,
+        "angle": 135
+      }
+    },
+    {
+      "ok": true,
+      "name": "saved adjacent window and outlet project on visible side",
+      "details": [
+        {
+          "side": "L",
+          "neighbor": 1,
+          "session": "s1794171194339",
+          "count": 2,
+          "spanMm": 1000,
+          "flipped": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "sideElements false removes projected content",
+      "details": []
+    },
+    {
+      "ok": true,
+      "name": "side-elements toggle changes rendered canvas"
+    },
+    {
+      "ok": true,
+      "name": "no side-render errors",
+      "details": {
+        "errors": [],
+        "warnings": []
+      }
+    }
+  ],
+  "setup": {
+    "rid": "r1794171194010",
+    "side": "L",
+    "atLeft": false,
+    "neighborSid": "s1794171194339",
+    "out": {
+      "app": "akrix-photo-measure",
+      "v": 2,
+      "date": "2026-11-08T20:53:14.458Z",
+      "units": "mm",
+      "obj": "QA adjacent",
+      "plane": "Room · С2",
+      "axes": {
+        "x": "вдоль пола от левого края",
+        "y": "вверх от пола",
+        "pt": "x,y — центр",
+        "rect": "x,y — левый нижний угол",
+        "floor": true,
+        "left": true
+      },
+      "dims": {
+        "Lb": {
+          "v": 3000,
+          "photo": 3000,
+          "src": "план"
+        },
+        "Lt": {
+          "v": 3000,
+          "photo": 3000,
+          "src": "фото×L"
+        },
+        "Hl": {
+          "v": 2700,
+          "photo": 2700,
+          "src": "фото×L"
+        },
+        "Hr": {
+          "v": 2700,
+          "photo": 2700,
+          "src": "фото×L"
+        }
+      },
+      "fit": false,
+      "lean": {
+        "left": 0,
+        "right": 0
+      },
+      "els": [
+        {
+          "n": 1,
+          "id": "qa-side-window",
+          "t": "rect",
+          "kind": "win",
+          "name": "окно",
+          "x": 2600,
+          "y": 1200,
+          "W": 200,
+          "H": 500,
+          "D": null,
+          "N": null,
+          "st": null,
+          "note": "adjacent window"
+        },
+        {
+          "n": 2,
+          "id": "qa-side-outlet",
+          "t": "pt",
+          "kind": "roz",
+          "name": "розетка",
+          "x": 2800,
+          "y": 450,
+          "W": null,
+          "H": null,
+          "D": null,
+          "N": null,
+          "st": null,
+          "note": "adjacent outlet"
+        }
+      ],
+      "quality": null,
+      "markers": [],
+      "rulers": [],
+      "grid": null,
+      "notes": []
+    },
+    "angles": [
+      {
+        "a": 45,
+        "faces": [
+          {
+            "k": "floor",
+            "vis": true
+          },
+          {
+            "k": "L",
+            "vis": false
+          },
+          {
+            "k": "R",
+            "vis": true
+          },
+          {
+            "k": "M",
+            "vis": true
+          }
+        ],
+        "last": []
+      },
+      {
+        "a": 60,
+        "faces": [
+          {
+            "k": "floor",
+            "vis": true
+          },
+          {
+            "k": "L",
+            "vis": true
+          },
+          {
+            "k": "R",
+            "vis": true
+          },
+          {
+            "k": "M",
+            "vis": true
+          }
+        ],
+        "last": [
+          {
+            "side": "L",
+            "neighbor": 1,
+            "session": "s1794171194339",
+            "count": 2,
+            "spanMm": 1000,
+            "flipped": true
+          }
+        ]
+      },
+      {
+        "a": 90,
+        "faces": [
+          {
+            "k": "floor",
+            "vis": true
+          },
+          {
+            "k": "L",
+            "vis": true
+          },
+          {
+            "k": "R",
+            "vis": true
+          },
+          {
+            "k": "M",
+            "vis": true
+          }
+        ],
+        "last": [
+          {
+            "side": "L",
+            "neighbor": 1,
+            "session": "s1794171194339",
+            "count": 2,
+            "spanMm": 1000,
+            "flipped": true
+          }
+        ]
+      },
+      {
+        "a": 115,
+        "faces": [
+          {
+            "k": "floor",
+            "vis": true
+          },
+          {
+            "k": "L",
+            "vis": true
+          },
+          {
+            "k": "R",
+            "vis": true
+          },
+          {
+            "k": "M",
+            "vis": true
+          }
+        ],
+        "last": [
+          {
+            "side": "L",
+            "neighbor": 1,
+            "session": "s1794171194339",
+            "count": 2,
+            "spanMm": 1000,
+            "flipped": true
+          }
+        ]
+      },
+      {
+        "a": 135,
+        "faces": [
+          {
+            "k": "floor",
+            "vis": true
+          },
+          {
+            "k": "L",
+            "vis": true
+          },
+          {
+            "k": "R",
+            "vis": false
+          },
+          {
+            "k": "M",
+            "vis": true
+          }
+        ],
+        "last": [
+          {
+            "side": "L",
+            "neighbor": 1,
+            "session": "s1794171194339",
+            "count": 2,
+            "spanMm": 1000,
+            "flipped": true
+          }
+        ]
+      }
+    ],
+    "angle": 135
+  },
+  "on": [
+    {
+      "side": "L",
+      "neighbor": 1,
+      "session": "s1794171194339",
+      "count": 2,
+      "spanMm": 1000,
+      "flipped": true
+    }
+  ],
+  "off": [],
+  "errors": [],
+  "warnings": []
+}

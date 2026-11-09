@@ -1,0 +1,15 @@
+# Lab 0.7 independent QA
+
+Final targeted results: communications UI **50/50**, native photo pipeline **5/5**. Both runs report no browser errors. Root separately ran arrow 101/101, floor 72/72, core 14/14 and constructor consumer checks.
+
+The communications test (`node tests/qa-v07-comms.cjs`) uses actual trusted CDP pen/touch input in mobile Chromium, 412×915 CSS pixels, DPR2. It checks the visible toolbar, all ten native communication kinds, and six unified arrow gestures: left/right/top/bottom toward an outlet, plus outlet-to-left/top. Diagonal dominant motion chooses the expected horizontal/vertical axis, reference side, and arrowhead direction. No input opens automatically.
+
+Actual Canvas stroke and arrowhead fill use the chosen palette color. Red and blue selected swatches retain their real colors, color survives native save/reload and JSON export/import, and the palette retains its scroll offset when switching tools. A short touch swipe scrolls the communications row without changing order/tool; a 480 ms hold followed by a drag moves a button across four slots. Order survives browser reload. Cancelled holds preserve order/tool, and the next deliberate tool click works immediately. Water placement still selects the new object; stylus movement moves it without cloning, one blank tap deselects, and the following tap creates another object. No automatic arrows are added. Ordinary tools return when RZ mode ends.
+
+QA found and verified three interface corrections before handoff: native high-specificity CSS initially hid the entire new bottom toolbar; the native selected-button background initially turned a red swatch yellow; and the post-drag ghost-click guard initially swallowed a fresh deliberate tool click after cancellation. All three final gates pass. Screenshot: `tests/qa-v07-comms-toolbar.png`; evidence: `tests/qa-v07-comms.json`.
+
+The photo test (`node tests/qa-v07-photo.cjs`) creates a PNG, passes the actual File through native `rfAdd`, waits for native corner detection, applies explicit user corners, closes the photo editor, and lets native NW perspective rectification build the stored-photo wall background. It does not inject a mosaic or display homography. All 25 sampled photo interior pixels retain the image colors before and after a full browser reload and native session reopening; the photo placement and corner calibration persist. Evidence: `tests/qa-v07-current-photo.json` and `tests/qa-v07-current-photo-{photo-on,restored}.png`.
+
+The exact gray-triangle screenshot supplied by the owner was not reproduced from its original project data. The verified photo fixture has no display homography; it establishes the supported photo-on-wall path and restoration. Source review confirms the new floor-only main-wall exclusion clip protects the main face without changing photo data or wall coordinates. This is not evidence that every legacy calibration state was reproduced or repaired.
+
+Original v81 remains byte-identical. Browser pen/touch emulation does not establish physical Android stylus, camera capture, BLE or hardware keyboard behavior. QA changed tests and this report only.

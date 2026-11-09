@@ -1,0 +1,2297 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "arr H magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4tc91zh",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr H magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr H magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4tj32us",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr H magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr H screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          65.98656085205074,
+          1004.2245535978416
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr H screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          90.99968255615232,
+          960.4515896472795
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr H screen constraint zoom1",
+      "detail": {
+        "a": [
+          178.5456085205078,
+          807.2462158203125
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr H screen constraint zoom2",
+      "detail": {
+        "a": [
+          303.61121704101566,
+          588.3813960675025
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr H screen constraint zoom4",
+      "detail": {
+        "a": [
+          553.7424340820314,
+          150.6517565618824
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4tqj5w7",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr V magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr V magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4txi39x",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr V magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr V screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          103.50624316406247,
+          982.3380728849509
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr V screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          203.55872949218747,
+          894.7921475086076
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr V screen constraint zoom1",
+      "detail": {
+        "a": [
+          553.742431640625,
+          588.3814086914062
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr V screen constraint zoom2",
+      "detail": {
+        "a": [
+          1054.00486328125,
+          150.65178180968996
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr V screen constraint zoom4",
+      "detail": {
+        "a": [
+          2054.5297265625,
+          -724.8074719537426
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4u6od12",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr P magnet0 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr P magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4uda93f",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr P magnet1 preview constraint",
+      "detail": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "arr P screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          63.90213473510739,
+          990.6757804044821
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr P screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          84.74640420532224,
+          919.8052700672014
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr P screen constraint zoom1",
+      "detail": {
+        "a": [
+          157.70134735107422,
+          671.7584838867188
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr P screen constraint zoom2",
+      "detail": {
+        "a": [
+          261.9226947021485,
+          317.40593220031496
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr P screen constraint zoom4",
+      "detail": {
+        "a": [
+          470.365389404297,
+          -391.2991711724926
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4ulzj07",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim H magnet0 preview constraint",
+      "detail": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2490.000128792328,
+          1049.9999885744262
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim H magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4utvrop",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim H magnet1 preview constraint",
+      "detail": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim H screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          65.98656085205074,
+          1004.2245535978416
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim H screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          90.99968255615232,
+          960.4515896472795
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim H screen constraint zoom1",
+      "detail": {
+        "a": [
+          178.5456085205078,
+          807.2462158203125
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim H screen constraint zoom2",
+      "detail": {
+        "a": [
+          303.61121704101566,
+          588.3813960675025
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim H screen constraint zoom4",
+      "detail": {
+        "a": [
+          553.7424340820314,
+          150.6517565618824
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4v2nwex",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim V magnet0 preview constraint",
+      "detail": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          840.000061535141
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim V magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4vaxldk",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim V magnet1 preview constraint",
+      "detail": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim V screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          103.50624316406247,
+          982.3380728849509
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim V screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          203.55872949218747,
+          894.7921475086076
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim V screen constraint zoom1",
+      "detail": {
+        "a": [
+          553.742431640625,
+          588.3814086914062
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim V screen constraint zoom2",
+      "detail": {
+        "a": [
+          1054.00486328125,
+          150.65178180968996
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim V screen constraint zoom4",
+      "detail": {
+        "a": [
+          2054.5297265625,
+          -724.8074719537426
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet0 final constraint",
+      "detail": {
+        "id": "dmw8d4vjbpq7",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim P magnet0 preview constraint",
+      "detail": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1335.2000176501506,
+          2326.3999168479327
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim P magnet1 final constraint",
+      "detail": {
+        "id": "dmw8d4vsvr9l",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim P magnet1 preview constraint",
+      "detail": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "creation does not open inline keyboard"
+    },
+    {
+      "ok": false,
+      "name": "dim P screen constraint zoom0.1",
+      "detail": {
+        "a": [
+          63.90213473510739,
+          990.6757804044821
+        ],
+        "b": [
+          143.45260344664027,
+          1007.0675031778657
+        ],
+        "ref": [
+          16.675415019762838,
+          -12.506561264822153
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim P screen constraint zoom0.3",
+      "detail": {
+        "a": [
+          84.74640420532224,
+          919.8052700672014
+        ],
+        "b": [
+          249.4778103399209,
+          968.9804383873518
+        ],
+        "ref": [
+          50.02624505928854,
+          -37.519683794466346
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim P screen constraint zoom1",
+      "detail": {
+        "a": [
+          157.70134735107422,
+          671.7584838867188
+        ],
+        "b": [
+          620.5660344664032,
+          835.6757116205533
+        ],
+        "ref": [
+          166.75415019762843,
+          -125.06561264822142
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim P screen constraint zoom2",
+      "detail": {
+        "a": [
+          261.9226947021485,
+          317.40593220031496
+        ],
+        "b": [
+          1150.6920689328063,
+          645.2403876679842
+        ],
+        "ref": [
+          333.5083003952568,
+          -250.13122529644272
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim P screen constraint zoom4",
+      "detail": {
+        "a": [
+          470.365389404297,
+          -391.2991711724926
+        ],
+        "b": [
+          2233.431992411067,
+          264.36973976284594
+        ],
+        "ref": [
+          667.0166007905138,
+          -500.26245059288544
+        ],
+        "refs": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr both parallel and L retains native final axis precedence",
+      "detail": {
+        "id": "dmw8d4w2qyqo",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr incompatible secondpost rejected while first binding and V preserved",
+      "detail": {
+        "id": "dmw8d4wafxmm",
+        "k": "arr",
+        "a": [
+          2614.57,
+          913.61
+        ],
+        "b": [
+          2200.13,
+          1900.43
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "a": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          },
+          "b": {
+            "v": 1,
+            "e": "other-post",
+            "kind": "post",
+            "p": 1,
+            "n": 1
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim both parallel and L retains native final axis precedence",
+      "detail": {
+        "id": "dmw8d4wjstf5",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim incompatible secondpost rejected while first binding and V preserved",
+      "detail": {
+        "id": "dmw8d4wx7xaf",
+        "a": [
+          2614.57,
+          913.61
+        ],
+        "b": [
+          2200.13,
+          1900.43
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "a": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          },
+          "b": {
+            "v": 1,
+            "e": "other-post",
+            "kind": "post",
+            "p": 1,
+            "n": 1
+          }
+        }
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr vertical actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          287.45550537109375,
+          776.1355590820312
+        ],
+        "rectcenter": [
+          265.45550537109375,
+          776.1355590820312
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr vertical actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 1.5707963267948966
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr diagonal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          776.1355285644531
+        ],
+        "rectcenter": [
+          358.6291741097574,
+          794.4406361565545
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr diagonal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0.58800251204286
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr deliberate centered field tap opens native inline keypad",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-arr",
+          "id": "dmw8d4xmybcd",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "none",
+        "kb": true
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr inline input matches painted rotation",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-arr",
+          "id": "dmw8d4xmybcd",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "none",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr native inline change stores numeric value"
+    },
+    {
+      "ok": false,
+      "name": "arr reverse actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          776.1355285644531
+        ],
+        "rectcenter": [
+          383.03597939366057,
+          757.8304209723517
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr reverse actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0.58800251204286
+      }
+    },
+    {
+      "ok": false,
+      "name": "arr horizontal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          692.7584838867188
+        ],
+        "rectcenter": [
+          370.832576751709,
+          714.7584838867188
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr horizontal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim vertical actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          287.45550537109375,
+          776.1355590820312
+        ],
+        "rectcenter": [
+          265.45550537109375,
+          776.1355590820312
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim vertical actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 1.5707963267948966
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim diagonal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          776.1355285644531
+        ],
+        "rectcenter": [
+          358.6291741097574,
+          794.4406361565545
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim diagonal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0.58800251204286
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim deliberate centered field tap opens native inline keypad",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-dim",
+          "id": "dmw8d50max81",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "none",
+        "kb": true
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim inline input matches painted rotation",
+      "detail": {
+        "on": true,
+        "key": {
+          "t": "lab-dim",
+          "id": "dmw8d50max81",
+          "v": "",
+          "v0": "",
+          "fresh": 1
+        },
+        "transform": "none",
+        "kb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim native inline change stores numeric value"
+    },
+    {
+      "ok": false,
+      "name": "dim reverse actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          776.1355285644531
+        ],
+        "rectcenter": [
+          383.03597939366057,
+          757.8304209723517
+        ]
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim reverse actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0.58800251204286
+      }
+    },
+    {
+      "ok": false,
+      "name": "dim horizontal actual painted field centered on shaft",
+      "detail": {
+        "center": [
+          370.832576751709,
+          692.7584838867188
+        ],
+        "rectcenter": [
+          370.832576751709,
+          714.7584838867188
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim horizontal actual text readable tangent rotation",
+      "detail": {
+        "angle": 0,
+        "expected": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "rotated vertical inline field fits above keyboard near lower canvas",
+      "detail": {
+        "on": true,
+        "field": {
+          "top": 675,
+          "bottom": 703,
+          "left": 95.71875,
+          "right": 169.71875
+        },
+        "keyboardTop": 719
+      }
+    },
+    {
+      "ok": false,
+      "name": "manual RZ field centered on own shaft",
+      "detail": {
+        "A": [
+          583.5660344664032,
+          1047.1110355731225
+        ],
+        "B": [
+          583.5660344664032,
+          856.6757116205533
+        ],
+        "r": [
+          584.5660344664032,
+          904.4505940558223,
+          634.5660344664032,
+          999.3361531378536,
+          609.5660344664032,
+          951.8933735968379
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual RZ actual text rotates vertically",
+      "detail": {
+        "k": "fillText",
+        "a": [
+          "≈914",
+          0,
+          2
+        ],
+        "m": [
+          6.123233995736766e-17,
+          -1,
+          1,
+          6.123233995736766e-17,
+          609.5660400390625,
+          951.8933715820312
+        ],
+        "align": "center",
+        "baseline": "middle"
+      }
+    },
+    {
+      "ok": false,
+      "name": "manual RZ deliberate field tap opens rotated native editor",
+      "detail": {
+        "on": false,
+        "key": null,
+        "transform": "none"
+      }
+    },
+    {
+      "ok": true,
+      "name": "ordinary native wall field clears prior arrow rotation"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    },
+    {
+      "ok": true,
+      "name": "trusted touch and pen used"
+    }
+  ],
+  "cases": [
+    {
+      "k": "arr",
+      "axis": "H",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4tc91zh",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "H",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4tj32us",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "V",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4tqj5w7",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "V",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4txi39x",
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "P",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4u6od12",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "c": "#e07a00"
+      }
+    },
+    {
+      "k": "arr",
+      "axis": "P",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4uda93f",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "H",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4ulzj07",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2700.000055831613,
+          1049.9999885744262
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2490.000128792328,
+          1049.9999885744262
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "H",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4utvrop",
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "a": [
+          599.9999801973697,
+          1049.9999885744262
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "V",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4v2nwex",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          699.9999149655833
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2399.999909076876,
+          840.000061535141
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "V",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4vaxldk",
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "a": [
+          2399.999909076876,
+          2099.999916585904
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "P",
+      "sn": 0,
+      "q": {
+        "id": "dmw8d4vjbpq7",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1428.0000411827587,
+          2395.999934497389
+        ],
+        "t": "both",
+        "labAnchorVersion": 1
+      },
+      "preview": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          1335.2000176501506,
+          2326.3999168479327
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "k": "dim",
+      "axis": "P",
+      "sn": 1,
+      "q": {
+        "id": "dmw8d4vsvr9l",
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      },
+      "preview": {
+        "a": [
+          500.0000166835139,
+          1699.9999161229553
+        ],
+        "b": [
+          2543.27,
+          913.61
+        ],
+        "t": "both",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "triple",
+            "kind": "post",
+            "p": 2,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    }
+  ],
+  "errors": []
+}

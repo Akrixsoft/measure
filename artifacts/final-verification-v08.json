@@ -1,0 +1,19 @@
+{
+  "version": "0.8-v81-lab",
+  "versionCode": 8,
+  "apk_sha256": "7ad08adc165c4345ee15aba80a15f560eba74854c7b42a2a348a3c8a450c1e09",
+  "bytes": 973793,
+  "byte_exact_assets": {
+    "assets/v81/index.html": true,
+    "assets/experimental/index.html": true,
+    "assets/experimental/lab-comms-ui.js": true,
+    "assets/experimental/lab-export.js": true,
+    "assets/experimental/lab-geometry.js": true,
+    "assets/experimental/lab-manual.js": true,
+    "assets/experimental/lab-placement.js": true,
+    "assets/experimental/lab-snap.js": true,
+    "assets/experimental/lab-ui.js": true,
+    "assets/experimental/lab-comms-ui.css": true,
+    "assets/experimental/lab-ui.css": true
+  }
+}

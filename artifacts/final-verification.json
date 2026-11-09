@@ -1,0 +1,13 @@
+{
+  "apk_sha256": "345a9618bc4f4c5827a0595b38bdca3b8f321d65ca56e4cfd33f3ab10d8751ae",
+  "bytes": 963500,
+  "asset_checks": {
+    "assets/v81/index.html": true,
+    "assets/experimental/index.html": true,
+    "assets/experimental/lab-geometry.js": true,
+    "assets/experimental/lab-ui.js": true,
+    "assets/experimental/lab-ui.css": true,
+    "assets/experimental/lab-export.js": true
+  },
+  "browser_checks": 50
+}

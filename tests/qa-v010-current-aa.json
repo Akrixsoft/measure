@@ -1,0 +1,2004 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 30%"
+    },
+    {
+      "ok": true,
+      "name": "Aa30 actual three outlet glyphs captured",
+      "detail": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Aa30 arr actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 1.3200000524520874,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 6.289431664093652
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa30 arr effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 1.3200000524520874,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 6.289431664093652
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa30 dim actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 4.5741318353414
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 4.574131835341348
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa30 dim effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 4.5741318353414
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 4.574131835341348
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa30 rz actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -15.989035034179688,
+          -10,
+          31.978070068359376,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 4.574131937581214
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa30 rz effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -15.989035034179688,
+          -10,
+          31.978070068359376,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 4.574131937581214
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa does not open numeric input"
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 46%"
+    },
+    {
+      "ok": true,
+      "name": "Aa46 actual three outlet glyphs captured",
+      "detail": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Aa46 arr actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.40808837890625,
+          -10.120000000000001,
+          34.8161767578125,
+          20.240000000000002
+        ],
+        "lw": 2.0239999294281006,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 9.643794498811555
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa46 arr effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.40808837890625,
+          -10.120000000000001,
+          34.8161767578125,
+          20.240000000000002
+        ],
+        "lw": 2.0239999294281006,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 9.643794498811555
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa46 dim actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.40808837890625,
+          -10.120000000000001,
+          34.8161767578125,
+          20.240000000000002
+        ],
+        "lw": 1.472000002861023,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 7.013668984589708
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 7.013668984589762
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa46 dim effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.40808837890625,
+          -10.120000000000001,
+          34.8161767578125,
+          20.240000000000002
+        ],
+        "lw": 1.472000002861023,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 7.013668984589708
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 7.013668984589762
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa46 rz actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.269035034179687,
+          -10.120000000000001,
+          34.538070068359374,
+          20.240000000000002
+        ],
+        "lw": 1.472000002861023,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 7.013668970957798
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa46 rz effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -17.269035034179687,
+          -10.120000000000001,
+          34.538070068359374,
+          20.240000000000002
+        ],
+        "lw": 1.472000002861023,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 7.013668970957798
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa does not open numeric input"
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 100%"
+    },
+    {
+      "ok": true,
+      "name": "Aa100 actual three outlet glyphs captured",
+      "detail": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Aa100 arr actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.7440185546875,
+          -22,
+          75.488037109375,
+          44
+        ],
+        "lw": 4.400000095367432,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 20.964771834979537
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa100 arr effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.7440185546875,
+          -22,
+          75.488037109375,
+          44
+        ],
+        "lw": 4.400000095367432,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 20.964771834979537
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa100 dim actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.7440185546875,
+          -22,
+          75.488037109375,
+          44
+        ],
+        "lw": 3.200000047683716,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 15.247106685803498
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 15.24710668580347
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa100 dim effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.7440185546875,
+          -22,
+          75.488037109375,
+          44
+        ],
+        "lw": 3.200000047683716,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 15.247106685803498
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 15.24710668580347
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa100 rz actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.442779541015625,
+          -22,
+          74.88555908203125,
+          44
+        ],
+        "lw": 3.200000047683716,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 15.247106458603902
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa100 rz effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 26px system-ui",
+        "rect": [
+          -37.442779541015625,
+          -22,
+          74.88555908203125,
+          44
+        ],
+        "lw": 3.200000047683716,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 15.247106458603902
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa does not open numeric input"
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 160%"
+    },
+    {
+      "ok": true,
+      "name": "Aa160 actual three outlet glyphs captured",
+      "detail": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Aa160 arr actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ],
+        "lw": 7.039999961853027,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 33.543634027168906
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa160 arr effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ],
+        "lw": 7.039999961853027,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 33.543634027168906
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa160 dim actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ],
+        "lw": 5.119999885559082,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 24.395369788487237
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 24.39536978848718
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa160 dim effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ],
+        "lw": 5.119999885559082,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 24.395369788487237
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 24.39536978848718
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa160 rz actual arrowhead and handle stay on rendered post",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -59.901371765136716,
+          -35.2,
+          119.80274353027343,
+          70.4
+        ],
+        "lw": 5.119999885559082,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 24.39537033376622
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa160 rz effective font and field respect 6px/10px minima",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 41.6px system-ui",
+        "rect": [
+          -59.901371765136716,
+          -35.2,
+          119.80274353027343,
+          70.4
+        ],
+        "lw": 5.119999885559082,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 24.39537033376622
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "Aa does not open numeric input"
+    },
+    {
+      "ok": true,
+      "name": "Aa keeps actual outlet size and triple packing centers unchanged at fixed zoom",
+      "detail": [
+        {
+          "aa": 0.3,
+          "icons": {
+            "z": 44,
+            "cs": [
+              [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              [
+                540.5753058658659,
+                757.3408948148148
+              ]
+            ]
+          }
+        },
+        {
+          "aa": 0.46,
+          "icons": {
+            "z": 44,
+            "cs": [
+              [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              [
+                540.5753058658659,
+                757.3408948148148
+              ]
+            ]
+          }
+        },
+        {
+          "aa": 1,
+          "icons": {
+            "z": 44,
+            "cs": [
+              [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              [
+                540.5753058658659,
+                757.3408948148148
+              ]
+            ]
+          }
+        },
+        {
+          "aa": 1.6,
+          "icons": {
+            "z": 44,
+            "cs": [
+              [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              [
+                540.5753058658659,
+                757.3408948148148
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "arr Aa increases actual painted label font",
+      "detail": {
+        "low": "bold 12px system-ui",
+        "high": "bold 41.6px system-ui"
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr Aa increases actual stroke and filled arrowhead",
+      "detail": {
+        "low": {
+          "kind": "arr",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -16.12808837890625,
+            -10,
+            32.2561767578125,
+            20
+          ],
+          "lw": 1.3200000524520874,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 6.289431664093652
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "high": {
+          "kind": "arr",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -60.38328247070312,
+            -35.2,
+            120.76656494140624,
+            70.4
+          ],
+          "lw": 7.039999961853027,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 33.543634027168906
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr Aa increases painted label field bounds",
+      "detail": {
+        "low": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "high": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim Aa increases actual painted label font",
+      "detail": {
+        "low": "bold 12px system-ui",
+        "high": "bold 41.6px system-ui"
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim Aa increases actual stroke and filled arrowhead",
+      "detail": {
+        "low": {
+          "kind": "dim",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -16.12808837890625,
+            -10,
+            32.2561767578125,
+            20
+          ],
+          "lw": 0.9599999785423279,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 4.5741318353414
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 4.574131835341348
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "high": {
+          "kind": "dim",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -60.38328247070312,
+            -35.2,
+            120.76656494140624,
+            70.4
+          ],
+          "lw": 5.119999885559082,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 24.395369788487237
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 24.39536978848718
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim Aa increases painted label field bounds",
+      "detail": {
+        "low": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "high": [
+          -60.38328247070312,
+          -35.2,
+          120.76656494140624,
+          70.4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz Aa increases actual painted label font",
+      "detail": {
+        "low": "bold 12px system-ui",
+        "high": "bold 41.6px system-ui"
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz Aa increases actual stroke and filled arrowhead",
+      "detail": {
+        "low": {
+          "kind": "rz",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -15.989035034179688,
+            -10,
+            31.978070068359376,
+            20
+          ],
+          "lw": 0.9599999785423279,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 4.574131937581214
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "high": {
+          "kind": "rz",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -59.901371765136716,
+            -35.2,
+            119.80274353027343,
+            70.4
+          ],
+          "lw": 5.119999885559082,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 24.39537033376622
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz Aa increases painted label field bounds",
+      "detail": {
+        "low": [
+          -15.989035034179688,
+          -10,
+          31.978070068359376,
+          20
+        ],
+        "high": [
+          -59.901371765136716,
+          -35.2,
+          119.80274353027343,
+          70.4
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 100%"
+    },
+    {
+      "ok": true,
+      "name": "arr linePx setting independently increases actual stroke",
+      "detail": {
+        "base": 4.400000095367432,
+        "thick": 8.800000190734863
+      }
+    },
+    {
+      "ok": true,
+      "name": "arr arrowPx independently increases filled head without widening line",
+      "detail": {
+        "thick": {
+          "kind": "arr",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 8.800000190734863,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 41.92954366995908
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "head": {
+          "kind": "arr",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 8.800000190734863,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 83.85908733991805
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim linePx setting independently increases actual stroke",
+      "detail": {
+        "base": 3.200000047683716,
+        "thick": 6.400000095367432
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim arrowPx independently increases filled head without widening line",
+      "detail": {
+        "thick": {
+          "kind": "dim",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 6.400000095367432,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 30.49421337160694
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 30.49421337160694
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "head": {
+          "kind": "dim",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 6.400000095367432,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 60.98842674321387
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 60.98842674321387
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz linePx setting independently increases actual stroke",
+      "detail": {
+        "base": 3.200000047683716,
+        "thick": 6.400000095367432
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz arrowPx independently increases filled head without widening line",
+      "detail": {
+        "thick": {
+          "kind": "rz",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.442779541015625,
+            -22,
+            74.88555908203125,
+            44
+          ],
+          "lw": 6.400000095367432,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 30.494212917207697
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        "head": {
+          "kind": "rz",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.442779541015625,
+            -22,
+            74.88555908203125,
+            44
+          ],
+          "lw": 6.400000095367432,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 60.9884258344155
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 30%"
+    },
+    {
+      "ok": true,
+      "name": "arr text6 field10 remain exact minima at Aa30",
+      "detail": {
+        "kind": "arr",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 1.3200000524520874,
+        "heads": [
+          {
+            "tip": [
+              466.6553058658659,
+              757.3408948148148
+            ],
+            "length": 6.289431664093652
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim text6 field10 remain exact minima at Aa30",
+      "detail": {
+        "kind": "dim",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -16.12808837890625,
+          -10,
+          32.2561767578125,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              540.5753058658659,
+              757.3408948148148
+            ],
+            "length": 4.5741318353414
+          },
+          {
+            "tip": [
+              213.7368568568569,
+              787.6457177177177
+            ],
+            "length": 4.574131835341348
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "rz text6 field10 remain exact minima at Aa30",
+      "detail": {
+        "kind": "rz",
+        "font": "bold 12px system-ui",
+        "rect": [
+          -15.989035034179688,
+          -10,
+          31.978070068359376,
+          20
+        ],
+        "lw": 0.9599999785423279,
+        "heads": [
+          {
+            "tip": [
+              503.6153058658659,
+              757.3408948148148
+            ],
+            "length": 4.574131937581214
+          }
+        ],
+        "headGap": 0,
+        "handleGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual Aa slider reaches 160%"
+    },
+    {
+      "ok": true,
+      "name": "scaled field touch tap opens native inline keypad after Aa popup closed",
+      "detail": {
+        "on": true,
+        "kb": true,
+        "key": {
+          "t": "lab-arr",
+          "id": "ordinary-arr",
+          "v": 1717,
+          "v0": "1717",
+          "fresh": 1
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "deliberate scaled field pen tap opens original inline keypad",
+      "detail": {
+        "hit": {
+          "target": "cv",
+          "tool": "mk",
+          "mk": "sel",
+          "ptr": 0,
+          "rz": false
+        },
+        "edit": {
+          "on": true,
+          "kb": true,
+          "key": {
+            "t": "lab-arr",
+            "id": "ordinary-arr",
+            "v": 998,
+            "v0": "998",
+            "fresh": 1
+          }
+        },
+        "center": [
+          170.0980406806807,
+          437.87267915915913
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "active inline input retains native 15px font"
+    },
+    {
+      "ok": true,
+      "name": "native inline keypad field commits scaled arrow value"
+    },
+    {
+      "ok": true,
+      "name": "Aa preference persists after browser reload"
+    },
+    {
+      "ok": true,
+      "name": "reopening does not open inline keyboard"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "frames": [
+    {
+      "stage": 30,
+      "aa": 0.3,
+      "icons": {
+        "z": 44,
+        "cs": [
+          [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          [
+            540.5753058658659,
+            757.3408948148148
+          ]
+        ]
+      },
+      "glyphs": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ],
+      "out": [
+        {
+          "kind": "arr",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -16.12808837890625,
+            -10,
+            32.2561767578125,
+            20
+          ],
+          "lw": 1.3200000524520874,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 6.289431664093652
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "dim",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -16.12808837890625,
+            -10,
+            32.2561767578125,
+            20
+          ],
+          "lw": 0.9599999785423279,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 4.5741318353414
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 4.574131835341348
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "rz",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -15.989035034179688,
+            -10,
+            31.978070068359376,
+            20
+          ],
+          "lw": 0.9599999785423279,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 4.574131937581214
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      ]
+    },
+    {
+      "stage": 46,
+      "aa": 0.46,
+      "icons": {
+        "z": 44,
+        "cs": [
+          [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          [
+            540.5753058658659,
+            757.3408948148148
+          ]
+        ]
+      },
+      "glyphs": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ],
+      "out": [
+        {
+          "kind": "arr",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -17.40808837890625,
+            -10.120000000000001,
+            34.8161767578125,
+            20.240000000000002
+          ],
+          "lw": 2.0239999294281006,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 9.643794498811555
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "dim",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -17.40808837890625,
+            -10.120000000000001,
+            34.8161767578125,
+            20.240000000000002
+          ],
+          "lw": 1.472000002861023,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 7.013668984589708
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 7.013668984589762
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "rz",
+          "font": "bold 12px system-ui",
+          "rect": [
+            -17.269035034179687,
+            -10.120000000000001,
+            34.538070068359374,
+            20.240000000000002
+          ],
+          "lw": 1.472000002861023,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 7.013668970957798
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      ]
+    },
+    {
+      "stage": 100,
+      "aa": 1,
+      "icons": {
+        "z": 44,
+        "cs": [
+          [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          [
+            540.5753058658659,
+            757.3408948148148
+          ]
+        ]
+      },
+      "glyphs": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ],
+      "out": [
+        {
+          "kind": "arr",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 4.400000095367432,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 20.964771834979537
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "dim",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.7440185546875,
+            -22,
+            75.488037109375,
+            44
+          ],
+          "lw": 3.200000047683716,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 15.247106685803498
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 15.24710668580347
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "rz",
+          "font": "bold 26px system-ui",
+          "rect": [
+            -37.442779541015625,
+            -22,
+            74.88555908203125,
+            44
+          ],
+          "lw": 3.200000047683716,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 15.247106458603902
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      ]
+    },
+    {
+      "stage": 160,
+      "aa": 1.6,
+      "icons": {
+        "z": 44,
+        "cs": [
+          [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          [
+            540.5753058658659,
+            757.3408948148148
+          ]
+        ]
+      },
+      "glyphs": [
+        {
+          "center": [
+            466.6553058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            503.6153058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        },
+        {
+          "center": [
+            540.5753058658659,
+            757.3408948148148
+          ],
+          "width": 44,
+          "height": 44
+        }
+      ],
+      "out": [
+        {
+          "kind": "arr",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -60.38328247070312,
+            -35.2,
+            120.76656494140624,
+            70.4
+          ],
+          "lw": 7.039999961853027,
+          "heads": [
+            {
+              "tip": [
+                466.6553058658659,
+                757.3408948148148
+              ],
+              "length": 33.543634027168906
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "dim",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -60.38328247070312,
+            -35.2,
+            120.76656494140624,
+            70.4
+          ],
+          "lw": 5.119999885559082,
+          "heads": [
+            {
+              "tip": [
+                540.5753058658659,
+                757.3408948148148
+              ],
+              "length": 24.395369788487237
+            },
+            {
+              "tip": [
+                213.7368568568569,
+                787.6457177177177
+              ],
+              "length": 24.39536978848718
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        },
+        {
+          "kind": "rz",
+          "font": "bold 41.6px system-ui",
+          "rect": [
+            -59.901371765136716,
+            -35.2,
+            119.80274353027343,
+            70.4
+          ],
+          "lw": 5.119999885559082,
+          "heads": [
+            {
+              "tip": [
+                503.6153058658659,
+                757.3408948148148
+              ],
+              "length": 24.39537033376622
+            }
+          ],
+          "headGap": 0,
+          "handleGap": 0
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,72 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "communication tool completes placements",
+      "details": [
+        {
+          "persist": true,
+          "before": 0,
+          "after": 1,
+          "tool": "roz"
+        },
+        {
+          "persist": true,
+          "before": 1,
+          "after": 2,
+          "tool": "roz"
+        },
+        {
+          "persist": false,
+          "before": 2,
+          "after": 3,
+          "tool": "sel"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "repeat option keeps communication tool active"
+    },
+    {
+      "ok": true,
+      "name": "single-use option returns completed tool to select"
+    },
+    {
+      "ok": true,
+      "name": "original settings controls preserved inside new dialog"
+    },
+    {
+      "ok": true,
+      "name": "original settings returned after dialog closes"
+    },
+    {
+      "ok": true,
+      "name": "native chooser blocks while settings editor open"
+    },
+    {
+      "ok": true,
+      "name": "exact Android HTTPS origins isolate IndexedDB and localStorage",
+      "details": {
+        "sessions": 0,
+        "value": null
+      }
+    },
+    {
+      "ok": true,
+      "name": "test-version writes do not modify original-version data",
+      "details": {
+        "sessions": [
+          "QA storage original"
+        ],
+        "value": "original"
+      }
+    },
+    {
+      "ok": true,
+      "name": "no page errors in final UI interactions",
+      "details": []
+    }
+  ],
+  "errors": []
+}

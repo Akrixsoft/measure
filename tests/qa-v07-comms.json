@@ -1,0 +1,787 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "ordinary mode does not expose RZ toolbar"
+    },
+    {
+      "ok": true,
+      "name": "native communications dimension mode enabled"
+    },
+    {
+      "ok": true,
+      "name": "bottom contains select unified cross-arrow magnifier only",
+      "detail": [
+        "sel",
+        "arr",
+        "lup"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "second row contains all native communication kinds",
+      "detail": [
+        "roz",
+        "vyk",
+        "svet",
+        "slab",
+        "hvs",
+        "gvs",
+        "kan",
+        "gaz",
+        "vent",
+        "shch"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "communications scroll and palette precedes undo redo delete",
+      "detail": {
+        "tools": [
+          "sel",
+          "arr",
+          "lup"
+        ],
+        "order": [
+          "roz",
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch"
+        ],
+        "kinds": [
+          "roz",
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch"
+        ],
+        "row": [
+          "roz",
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch"
+        ],
+        "scroll": true,
+        "palette": 4
+      }
+    },
+    {
+      "ok": true,
+      "name": "unified L toobject actual pen horizontal dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dssafhh8",
+        "a": [
+          0,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "L",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dssafhh8",
+        "a": [
+          0,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "L",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "unified R toobject actual pen horizontal dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dssogdxv",
+        "a": [
+          4000,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "R",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dssogdxv",
+        "a": [
+          4000,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "R",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "unified C toobject actual touch vertical dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dst544st",
+        "a": [
+          2571.53,
+          2700
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "C",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dst544st",
+        "a": [
+          2571.53,
+          2700
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "C",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "unified F toobject actual touch vertical dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dstl235q",
+        "a": [
+          2571.53,
+          0
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "F",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dstl235q",
+        "a": [
+          2571.53,
+          0
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "F",
+          "hd": "e"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "unified L fromobject actual pen horizontal dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dstw1b7j",
+        "a": [
+          0,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "L",
+          "hd": "r"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dstw1b7j",
+        "a": [
+          0,
+          1100.57
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "x",
+          "s": "L",
+          "hd": "r"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "unified C fromobject actual touch vertical dominant gesture creates correct axis",
+      "detail": {
+        "id": "dmw8dsu9328z",
+        "a": [
+          2571.53,
+          2700
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "C",
+          "hd": "r"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "palette selected color assigned to manual arrow",
+      "detail": {
+        "id": "dmw8dsu9328z",
+        "a": [
+          2571.53,
+          2700
+        ],
+        "b": [
+          2571.53,
+          1100.57
+        ],
+        "t": "from",
+        "rz": {
+          "e": "qa07outlet",
+          "p": 3,
+          "ax": "y",
+          "s": "C",
+          "hd": "r"
+        },
+        "c": "#E0442B"
+      }
+    },
+    {
+      "ok": true,
+      "name": "manual arrow creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "actual RZ stroke and arrowhead use palette color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        },
+        {
+          "kind": "fill",
+          "color": "#ffffff"
+        },
+        {
+          "kind": "stroke",
+          "color": "#e0442b"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "native object export contains manual arrow color"
+    },
+    {
+      "ok": true,
+      "name": "manual arrow color survives native save/reload"
+    },
+    {
+      "ok": true,
+      "name": "palette color persists across browser reload"
+    },
+    {
+      "ok": true,
+      "name": "selected blue palette swatch retains actual blue"
+    },
+    {
+      "ok": true,
+      "name": "selected red palette swatch retains actual red"
+    },
+    {
+      "ok": true,
+      "name": "palette retains scroll position when changing tool"
+    },
+    {
+      "ok": true,
+      "name": "native JSON import restores colored RZ arrow"
+    },
+    {
+      "ok": true,
+      "name": "short touch swipe horizontally scrolls communication row",
+      "detail": {
+        "left": 26,
+        "order": [
+          "roz",
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch"
+        ],
+        "t": "sel"
+      }
+    },
+    {
+      "ok": true,
+      "name": "row scroll changes neither order nor selected tool"
+    },
+    {
+      "ok": true,
+      "name": "long touch drag reorders across multiple communication slots",
+      "detail": {
+        "order": [
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "roz",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch"
+        ],
+        "t": "sel"
+      }
+    },
+    {
+      "ok": true,
+      "name": "reordering does not accidentally select communication tool"
+    },
+    {
+      "ok": true,
+      "name": "communication order persists after reload"
+    },
+    {
+      "ok": true,
+      "name": "cancelled touch hold leaves order and active tool intact"
+    },
+    {
+      "ok": true,
+      "name": "fresh water tool click works immediately after cancelled reorder"
+    },
+    {
+      "ok": true,
+      "name": "RZ communication row still creates selected water point"
+    },
+    {
+      "ok": true,
+      "name": "selected RZ water point drag does not clone"
+    },
+    {
+      "ok": true,
+      "name": "blank tap only clears selected water point"
+    },
+    {
+      "ok": true,
+      "name": "following blank tap creates next selected water point"
+    },
+    {
+      "ok": true,
+      "name": "RZ communication placement adds no automatic arrows"
+    },
+    {
+      "ok": true,
+      "name": "leaving RZ mode restores ordinary toolbar"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "layout": {
+    "tools": [
+      "sel",
+      "arr",
+      "lup"
+    ],
+    "order": [
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "kinds": [
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "row": [
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "scroll": true,
+    "palette": 4
+  },
+  "initial": {
+    "order": [
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "t": "sel",
+    "scroll": 0
+  },
+  "scrolled": {
+    "left": 26,
+    "order": [
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "t": "sel"
+  },
+  "reordered": {
+    "order": [
+      "vyk",
+      "svet",
+      "slab",
+      "hvs",
+      "roz",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch"
+    ],
+    "t": "sel"
+  },
+  "errors": []
+}

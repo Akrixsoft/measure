@@ -1,0 +1,22 @@
+# Local Android SDK/JDK, build caches and signing identity
+tools/
+.gradle/
+android/.gradle/
+android/local.properties
+android/app/build/
+android/build/
+.signing/
+*.jks
+*.keystore
+*.apk
+*.aab
+*.apks
+# Disposable test captures
+tests/qa-*.png
+
+android/app/src/main/assets/
+
+android-native-build.log
+
+scripts/__pycache__/
+*.log

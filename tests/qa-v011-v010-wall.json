@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "ok": false,
+      "name": "actual stylus drag creates one two-endpoint wall route",
+      "detail": {
+        "routes": [],
+        "pending": [],
+        "selected": null
+      }
+    },
+    {
+      "ok": false,
+      "name": "new dragged route is selected",
+      "detail": {
+        "routes": [],
+        "pending": [],
+        "selected": null
+      }
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "first": {
+    "routes": [],
+    "pending": [],
+    "selected": null
+  }
+}

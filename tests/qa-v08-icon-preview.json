@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "five standalone icon choices"
+    },
+    {
+      "ok": true,
+      "name": "choice 1 updates only preview"
+    },
+    {
+      "ok": true,
+      "name": "choice 2 updates only preview"
+    },
+    {
+      "ok": true,
+      "name": "choice 3 updates only preview"
+    },
+    {
+      "ok": true,
+      "name": "choice 4 updates only preview"
+    },
+    {
+      "ok": true,
+      "name": "choice 5 updates only preview"
+    },
+    {
+      "ok": true,
+      "name": "mobile preview no horizontal overflow"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors"
+    }
+  ],
+  "errors": []
+}

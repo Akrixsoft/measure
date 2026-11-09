@@ -1,0 +1,351 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "old ten-tool custom order is preserved and znd/wrt appended once",
+      "detail": [
+        "hvs",
+        "roz",
+        "vyk",
+        "svet",
+        "slab",
+        "gvs",
+        "kan",
+        "gaz",
+        "vent",
+        "shch",
+        "znd",
+        "wrt"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "all twelve communication tools have native SVG icons",
+      "detail": [
+        {
+          "k": "hvs",
+          "svg": true
+        },
+        {
+          "k": "roz",
+          "svg": true
+        },
+        {
+          "k": "vyk",
+          "svg": true
+        },
+        {
+          "k": "svet",
+          "svg": true
+        },
+        {
+          "k": "slab",
+          "svg": true
+        },
+        {
+          "k": "gvs",
+          "svg": true
+        },
+        {
+          "k": "kan",
+          "svg": true
+        },
+        {
+          "k": "gaz",
+          "svg": true
+        },
+        {
+          "k": "vent",
+          "svg": true
+        },
+        {
+          "k": "shch",
+          "svg": true
+        },
+        {
+          "k": "znd",
+          "svg": true
+        },
+        {
+          "k": "wrt",
+          "svg": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "twelve communications remain horizontally scrollable"
+    },
+    {
+      "ok": true,
+      "name": "no-drill row button activates native rectangle tool"
+    },
+    {
+      "ok": true,
+      "name": "actual pen drag creates selected no-drill rectangle",
+      "detail": {
+        "id": "emw8dz9vx0g5",
+        "k": "znd",
+        "c": [
+          974.999948666526,
+          1799.9998518564166
+        ],
+        "W": 650,
+        "H": 600,
+        "D": "",
+        "N": "",
+        "st": "",
+        "note": ""
+      }
+    },
+    {
+      "ok": true,
+      "name": "selected no-drill rectangle moves without resizing or cloning",
+      "detail": {
+        "id": "emw8dz9vx0g5",
+        "k": "znd",
+        "c": [
+          1224.9998246393402,
+          1900.0002501214913
+        ],
+        "W": 650,
+        "H": 600,
+        "D": "",
+        "N": "",
+        "st": "",
+        "note": ""
+      }
+    },
+    {
+      "ok": true,
+      "name": "zone movement creates no duplicate"
+    },
+    {
+      "ok": true,
+      "name": "blank tap deselects no-drill zone without another zone"
+    },
+    {
+      "ok": true,
+      "name": "no-drill placement creates no automatic arrows"
+    },
+    {
+      "ok": true,
+      "name": "real manual RZ arrow selected before switching to route tool"
+    },
+    {
+      "ok": true,
+      "name": "route row button activates native route tool"
+    },
+    {
+      "ok": true,
+      "name": "actual tap chain and repeated last-point tap complete native three-point route",
+      "detail": {
+        "id": "wmw8dzbjvcau",
+        "t": "el",
+        "d": "",
+        "pts": [
+          [
+            1800.0000992217488,
+            600.0002232489343
+          ],
+          [
+            2199.9999007782512,
+            600.0002232489343
+          ],
+          [
+            2199.9999007782512,
+            1099.9999751945625
+          ]
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "completed route retains native drawing selection"
+    },
+    {
+      "ok": true,
+      "name": "zone and route tools create no automatic dimension arrows"
+    },
+    {
+      "ok": true,
+      "name": "native export includes no-drill zone"
+    },
+    {
+      "ok": true,
+      "name": "native export includes actual route"
+    },
+    {
+      "ok": true,
+      "name": "no-drill zone survives native save/reload"
+    },
+    {
+      "ok": true,
+      "name": "route vertices survive native save/reload"
+    },
+    {
+      "ok": true,
+      "name": "native JSON import restores no-drill zone"
+    },
+    {
+      "ok": true,
+      "name": "native JSON import restores route vertices"
+    },
+    {
+      "ok": true,
+      "name": "new route entry participates in native touch reordering",
+      "detail": [
+        "hvs",
+        "roz",
+        "vyk",
+        "svet",
+        "slab",
+        "gvs",
+        "kan",
+        "wrt",
+        "gaz",
+        "vent",
+        "shch",
+        "znd"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "reordered new tools persist without duplication"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "row": {
+    "order": [
+      "hvs",
+      "roz",
+      "vyk",
+      "svet",
+      "slab",
+      "gvs",
+      "kan",
+      "gaz",
+      "vent",
+      "shch",
+      "znd",
+      "wrt"
+    ],
+    "buttons": [
+      {
+        "k": "hvs",
+        "svg": true
+      },
+      {
+        "k": "roz",
+        "svg": true
+      },
+      {
+        "k": "vyk",
+        "svg": true
+      },
+      {
+        "k": "svet",
+        "svg": true
+      },
+      {
+        "k": "slab",
+        "svg": true
+      },
+      {
+        "k": "gvs",
+        "svg": true
+      },
+      {
+        "k": "kan",
+        "svg": true
+      },
+      {
+        "k": "gaz",
+        "svg": true
+      },
+      {
+        "k": "vent",
+        "svg": true
+      },
+      {
+        "k": "shch",
+        "svg": true
+      },
+      {
+        "k": "znd",
+        "svg": true
+      },
+      {
+        "k": "wrt",
+        "svg": true
+      }
+    ],
+    "scroll": true
+  },
+  "zone": {
+    "id": "emw8dz9vx0g5",
+    "k": "znd",
+    "c": [
+      974.999948666526,
+      1799.9998518564166
+    ],
+    "W": 650,
+    "H": 600,
+    "D": "",
+    "N": "",
+    "st": "",
+    "note": ""
+  },
+  "moved": {
+    "id": "emw8dz9vx0g5",
+    "k": "znd",
+    "c": [
+      1224.9998246393402,
+      1900.0002501214913
+    ],
+    "W": 650,
+    "H": 600,
+    "D": "",
+    "N": "",
+    "st": "",
+    "note": ""
+  },
+  "route": {
+    "id": "wmw8dzbjvcau",
+    "t": "el",
+    "d": "",
+    "pts": [
+      [
+        1800.0000992217488,
+        600.0002232489343
+      ],
+      [
+        2199.9999007782512,
+        600.0002232489343
+      ],
+      [
+        2199.9999007782512,
+        1099.9999751945625
+      ]
+    ]
+  },
+  "changed": [
+    "hvs",
+    "roz",
+    "vyk",
+    "svet",
+    "slab",
+    "gvs",
+    "kan",
+    "wrt",
+    "gaz",
+    "vent",
+    "shch",
+    "znd"
+  ],
+  "errors": []
+}

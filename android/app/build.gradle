@@ -1,0 +1,22 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'ge.akrix.zamer'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'ge.akrix.measure.lab'
+        minSdk 26
+        targetSdk 34
+        versionCode 11
+        versionName '0.11-v81-lab'
+    }
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('../.signing/measure-lab.jks')
+            storePassword rootProject.file('../.signing/password').text.trim()
+            keyAlias 'measurelab'
+            keyPassword rootProject.file('../.signing/password').text.trim()
+        }
+    }
+    buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

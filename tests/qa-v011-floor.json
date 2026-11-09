@@ -1,0 +1,635 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "actual pen drag creates selected warm-floor route in real plan",
+      "detail": {
+        "id": "frmw8ezj3uagcty",
+        "t": "ufh",
+        "lvl": "f",
+        "d": "",
+        "pts": [
+          [
+            800.0000465594117,
+            700.000101584171
+          ],
+          [
+            1899.9999068811762,
+            1499.9999999999998
+          ]
+        ],
+        "dash": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "floor route coordinates equal actual room millimeters",
+      "detail": [
+        [
+          800.0000465594117,
+          700.000101584171
+        ],
+        [
+          1899.9999068811762,
+          1499.9999999999998
+        ]
+      ]
+    },
+    {
+      "ok": true,
+      "name": "trusted touch endpoint edit changes route without cloning",
+      "detail": {
+        "id": "frmw8ezj3uagcty",
+        "t": "ufh",
+        "lvl": "f",
+        "d": "",
+        "pts": [
+          [
+            800.0000465594117,
+            700.000101584171
+          ],
+          [
+            2249.9999153465237,
+            1849.9997968316572
+          ]
+        ],
+        "dash": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "floor dropdown changes selected route type after creation"
+    },
+    {
+      "ok": true,
+      "name": "selected warm-floor stroke and painted code preserve catalog color",
+      "detail": [
+        {
+          "kind": "stroke",
+          "color": "#d93263",
+          "dash": [
+            16,
+            6,
+            16,
+            14
+          ]
+        },
+        {
+          "kind": "text",
+          "color": "#d93263",
+          "text": "ТП"
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "trusted floor pointercancel leaves routes unchanged"
+    },
+    {
+      "ok": true,
+      "name": "floor tool change during route drag creates no ghost route"
+    },
+    {
+      "ok": true,
+      "name": "arbitrary floor dimension uses actual plan coordinates",
+      "detail": {
+        "id": "fdmw8ezk3fh3zjn",
+        "a": [
+          599.9999661386095,
+          2400.0002031683425
+        ],
+        "b": [
+          1649.9999915346523,
+          1849.9997968316572
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "floor dimension creation does not open keyboard"
+    },
+    {
+      "ok": true,
+      "name": "selected floor dimension endpoint edits without cloning"
+    },
+    {
+      "ok": true,
+      "name": "floor dimension estimate follows measured room scale rather than schematic extrusion",
+      "detail": {
+        "scale": {
+          "factor": 2,
+          "calibrated": true
+        },
+        "v": {
+          "v": 2818,
+          "manual": false
+        },
+        "expected": 2818
+      }
+    },
+    {
+      "ok": true,
+      "name": "floor dimension exposes painted value field",
+      "detail": [
+        150.12249755859375,
+        355.04249572753906
+      ]
+    },
+    {
+      "ok": true,
+      "name": "deliberate floor value tap opens native inline keypad"
+    },
+    {
+      "ok": true,
+      "name": "manual floor value commits through native field"
+    },
+    {
+      "ok": true,
+      "name": "vertical floor inline field fits above native keyboard",
+      "detail": {
+        "on": true,
+        "top": 637,
+        "bottom": 711,
+        "left": 285.71875,
+        "right": 313.71875,
+        "keyboardTop": 719
+      }
+    },
+    {
+      "ok": true,
+      "name": "real floor route and manual dimension survive native save/reload"
+    },
+    {
+      "ok": true,
+      "name": "floor route default type survives reload and actual next creation"
+    },
+    {
+      "ok": true,
+      "name": "native JSON exchange restores warm floor and manual dimensions",
+      "detail": {
+        "rt": [
+          {
+            "id": "frmw8ezj3uagcty",
+            "t": "ufh",
+            "lvl": "f",
+            "d": "",
+            "pts": [
+              [
+                800.0000465594117,
+                700.000101584171
+              ],
+              [
+                2249.9999153465237,
+                1849.9997968316572
+              ]
+            ],
+            "dash": true
+          }
+        ],
+        "dims": [
+          {
+            "id": "fdmw8ezk3fh3zjn",
+            "a": [
+              599.9999661386095,
+              2400.0002031683425
+            ],
+            "b": [
+              1849.9999661386096,
+              1749.9999153465237
+            ],
+            "v": 1234,
+            "units": "mm",
+            "coordinateSpace": "plan"
+          },
+          {
+            "id": "fdmw8ezkpaiy4uv",
+            "a": [
+              3300.000152376257,
+              700.000101584171
+            ],
+            "b": [
+              3300.000152376257,
+              2100.0001354455617
+            ],
+            "v": 1400,
+            "units": "mm",
+            "coordinateSpace": "plan"
+          }
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual prior stylus use enables native auto stylus policy"
+    },
+    {
+      "ok": true,
+      "name": "finger drag in explicit stylus mode does not create floor routes"
+    },
+    {
+      "ok": true,
+      "name": "floor tools cannot create in an empty unsurveyed plan"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "route": {
+    "id": "frmw8ezj3uagcty",
+    "t": "ufh",
+    "lvl": "f",
+    "d": "",
+    "pts": [
+      [
+        800.0000465594117,
+        700.000101584171
+      ],
+      [
+        1899.9999068811762,
+        1499.9999999999998
+      ]
+    ],
+    "dash": true
+  },
+  "edited": {
+    "id": "frmw8ezj3uagcty",
+    "t": "ufh",
+    "lvl": "f",
+    "d": "",
+    "pts": [
+      [
+        800.0000465594117,
+        700.000101584171
+      ],
+      [
+        2249.9999153465237,
+        1849.9997968316572
+      ]
+    ],
+    "dash": true
+  },
+  "dim": {
+    "id": "fdmw8ezk3fh3zjn",
+    "a": [
+      599.9999661386095,
+      2400.0002031683425
+    ],
+    "b": [
+      1649.9999915346523,
+      1849.9997968316572
+    ]
+  },
+  "saved": {
+    "rid": "r1794177546334",
+    "obj": {
+      "app": "akrix-zamer",
+      "v": 3,
+      "kind": "object",
+      "date": "2026-11-08T22:39:09.157Z",
+      "obj": "QA011",
+      "oid": "omw8ezl29qwd1",
+      "rooms": [
+        {
+          "app": "akrix-zamer",
+          "v": 3,
+          "kind": "room",
+          "id": "r1794177546334",
+          "date": "2026-11-08T22:39:09.155Z",
+          "obj": "QA011",
+          "name": "Measured floor",
+          "ms": {
+            "v": 1,
+            "lvl": "d",
+            "pts": [
+              [
+                0,
+                0
+              ],
+              [
+                4000,
+                0
+              ],
+              [
+                4000,
+                -3000
+              ],
+              [
+                0,
+                -3000
+              ]
+            ],
+            "closed": true,
+            "dims": [
+              {
+                "id": "fL0",
+                "a": {
+                  "p": 0
+                },
+                "b": {
+                  "p": 1
+                },
+                "v": 4000
+              },
+              {
+                "id": "fL1",
+                "a": {
+                  "p": 1
+                },
+                "b": {
+                  "p": 2
+                },
+                "v": 3000
+              },
+              {
+                "id": "fL2",
+                "a": {
+                  "p": 2
+                },
+                "b": {
+                  "p": 3
+                },
+                "v": 4000
+              },
+              {
+                "id": "fL3",
+                "a": {
+                  "p": 3
+                },
+                "b": {
+                  "p": 0
+                },
+                "v": 3000
+              }
+            ],
+            "angs": {},
+            "ink": [],
+            "H": 2700,
+            "wl": {
+              "0": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 1,
+                "id": "w1794177546334_1",
+                "L": 4000
+              },
+              "1": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 2,
+                "id": "w1794177546334_2",
+                "L": 3000
+              },
+              "2": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 3,
+                "id": "w1794177546334_3",
+                "L": 4000
+              },
+              "3": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 4,
+                "id": "w1794177546334_4",
+                "L": 3000
+              }
+            },
+            "ccw": true,
+            "arcs": {},
+            "rnd": {},
+            "gn": {
+              "0": 1,
+              "1": 2,
+              "2": 3,
+              "3": 4
+            },
+            "wid": {
+              "0": "w1794177546334_1",
+              "1": "w1794177546334_2",
+              "2": "w1794177546334_3",
+              "3": "w1794177546334_4"
+            },
+            "geo": {
+              "v": 1,
+              "rules": "zamer-18",
+              "walls": [
+                {
+                  "k": 0,
+                  "gn": 1,
+                  "id": "w1794177546334_1",
+                  "a": [
+                    0,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    0
+                  ],
+                  "L": 4000,
+                  "ok": 1
+                },
+                {
+                  "k": 1,
+                  "gn": 2,
+                  "id": "w1794177546334_2",
+                  "a": [
+                    4000,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    -3000
+                  ],
+                  "L": 3000,
+                  "ok": 1
+                },
+                {
+                  "k": 2,
+                  "gn": 3,
+                  "id": "w1794177546334_3",
+                  "a": [
+                    4000,
+                    -3000
+                  ],
+                  "b": [
+                    0,
+                    -3000
+                  ],
+                  "L": 4000,
+                  "ok": 1
+                },
+                {
+                  "k": 3,
+                  "gn": 4,
+                  "id": "w1794177546334_4",
+                  "a": [
+                    0,
+                    -3000
+                  ],
+                  "b": [
+                    0,
+                    0
+                  ],
+                  "L": 3000,
+                  "ok": 1,
+                  "cl": 1
+                }
+              ],
+              "err": 0,
+              "rnd": {},
+              "mm": 0
+            },
+            "wsd": {
+              "0": 1,
+              "1": 1,
+              "2": 1,
+              "3": 1
+            },
+            "rt": [
+              {
+                "id": "frmw8ezj3uagcty",
+                "t": "ufh",
+                "lvl": "f",
+                "d": "",
+                "pts": [
+                  [
+                    800.0000465594117,
+                    -700.000101584171
+                  ],
+                  [
+                    2249.9999153465237,
+                    -1849.9997968316572
+                  ]
+                ],
+                "dash": true
+              }
+            ],
+            "labFloorDims": [
+              {
+                "id": "fdmw8ezk3fh3zjn",
+                "a": [
+                  599.9999661386095,
+                  -2400.0002031683425
+                ],
+                "b": [
+                  1849.9999661386096,
+                  -1749.9999153465237
+                ],
+                "v": 1234,
+                "units": "mm",
+                "coordinateSpace": "plan-sheet"
+              },
+              {
+                "id": "fdmw8ezkpaiy4uv",
+                "a": [
+                  3300.000152376257,
+                  -700.000101584171
+                ],
+                "b": [
+                  3300.000152376257,
+                  -2100.0001354455617
+                ],
+                "v": 1400,
+                "units": "mm",
+                "coordinateSpace": "plan-sheet"
+              }
+            ]
+          }
+        }
+      ],
+      "gnMax": 4
+    },
+    "route": {
+      "id": "frmw8ezj3uagcty",
+      "t": "ufh",
+      "lvl": "f",
+      "d": "",
+      "pts": [
+        [
+          800.0000465594117,
+          700.000101584171
+        ],
+        [
+          2249.9999153465237,
+          1849.9997968316572
+        ]
+      ],
+      "dash": true
+    },
+    "dim": {
+      "id": "fdmw8ezk3fh3zjn",
+      "a": [
+        599.9999661386095,
+        2400.0002031683425
+      ],
+      "b": [
+        1849.9999661386096,
+        1749.9999153465237
+      ],
+      "v": 1234,
+      "units": "mm"
+    }
+  },
+  "restored": {
+    "rt": [
+      {
+        "id": "frmw8ezj3uagcty",
+        "t": "ufh",
+        "lvl": "f",
+        "d": "",
+        "pts": [
+          [
+            800.0000465594117,
+            700.000101584171
+          ],
+          [
+            2249.9999153465237,
+            1849.9997968316572
+          ]
+        ],
+        "dash": true
+      }
+    ],
+    "dims": [
+      {
+        "id": "fdmw8ezk3fh3zjn",
+        "a": [
+          599.9999661386095,
+          2400.0002031683425
+        ],
+        "b": [
+          1849.9999661386096,
+          1749.9999153465237
+        ],
+        "v": 1234,
+        "units": "mm",
+        "coordinateSpace": "plan"
+      },
+      {
+        "id": "fdmw8ezkpaiy4uv",
+        "a": [
+          3300.000152376257,
+          700.000101584171
+        ],
+        "b": [
+          3300.000152376257,
+          2100.0001354455617
+        ],
+        "v": 1400,
+        "units": "mm",
+        "coordinateSpace": "plan"
+      }
+    ]
+  }
+}

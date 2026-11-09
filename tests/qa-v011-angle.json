@@ -1,0 +1,1557 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "actual angle slider reaches labeled 0 degrees",
+      "detail": "Раскрытие боковых стен · 0°"
+    },
+    {
+      "ok": true,
+      "name": "0 L wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          1000,
+          0,
+          0
+        ],
+        "expected": [
+          1000,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 L hidden wing point cannot be edited",
+      "detail": {
+        "key": "L",
+        "D": 1000,
+        "delta": [
+          1000,
+          0,
+          0
+        ],
+        "topDelta": [
+          1000,
+          0,
+          0
+        ],
+        "farHit": null,
+        "visible": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 R wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          -1000,
+          0,
+          0
+        ],
+        "expected": [
+          -1000,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 R hidden wing point cannot be edited",
+      "detail": {
+        "key": "R",
+        "D": 1000,
+        "delta": [
+          -1000,
+          0,
+          0
+        ],
+        "topDelta": [
+          -1000,
+          0,
+          0
+        ],
+        "farHit": null,
+        "visible": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 leaves measured front and room plan unchanged"
+    },
+    {
+      "ok": true,
+      "name": "0 leaves front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "actual angle slider reaches labeled 45 degrees",
+      "detail": "Раскрытие боковых стен · 45°"
+    },
+    {
+      "ok": true,
+      "name": "45 L wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          707.1067811865476,
+          0,
+          707.1067811865474
+        ],
+        "expected": [
+          707.1067811865476,
+          0,
+          707.1067811865474
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 L hidden wing point cannot be edited",
+      "detail": {
+        "key": "L",
+        "D": 1000,
+        "delta": [
+          707.1067811865476,
+          0,
+          707.1067811865474
+        ],
+        "topDelta": [
+          707.1067811865476,
+          0,
+          707.1067811865474
+        ],
+        "farHit": null,
+        "visible": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 R wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          -707.1067811865478,
+          0,
+          707.1067811865474
+        ],
+        "expected": [
+          -707.1067811865476,
+          0,
+          707.1067811865474
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 R hidden wing point cannot be edited",
+      "detail": {
+        "key": "R",
+        "D": 1000,
+        "delta": [
+          -707.1067811865478,
+          0,
+          707.1067811865474
+        ],
+        "topDelta": [
+          -707.1067811865478,
+          0,
+          707.1067811865474
+        ],
+        "farHit": null,
+        "visible": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 leaves measured front and room plan unchanged"
+    },
+    {
+      "ok": true,
+      "name": "45 leaves front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "actual angle slider reaches labeled 90 degrees",
+      "detail": "Раскрытие боковых стен · 90°"
+    },
+    {
+      "ok": true,
+      "name": "90 L wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          0,
+          0,
+          1000
+        ],
+        "expected": [
+          6.123233995736766e-14,
+          0,
+          1000
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 L hidden wing point cannot be edited",
+      "detail": {
+        "key": "L",
+        "D": 1000,
+        "delta": [
+          0,
+          0,
+          1000
+        ],
+        "topDelta": [
+          0,
+          0,
+          1000
+        ],
+        "farHit": "LB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 R wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          0,
+          0,
+          1000
+        ],
+        "expected": [
+          -6.123233995736766e-14,
+          0,
+          1000
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 R hidden wing point cannot be edited",
+      "detail": {
+        "key": "R",
+        "D": 1000,
+        "delta": [
+          0,
+          0,
+          1000
+        ],
+        "topDelta": [
+          0,
+          0,
+          1000
+        ],
+        "farHit": "RB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 leaves measured front and room plan unchanged"
+    },
+    {
+      "ok": true,
+      "name": "90 leaves front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "actual angle slider reaches labeled 135 degrees",
+      "detail": "Раскрытие боковых стен · 135°"
+    },
+    {
+      "ok": true,
+      "name": "135 L wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          -707.1067811865474,
+          0,
+          707.1067811865476
+        ],
+        "expected": [
+          -707.1067811865474,
+          0,
+          707.1067811865476
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 L hidden wing point cannot be edited",
+      "detail": {
+        "key": "L",
+        "D": 1000,
+        "delta": [
+          -707.1067811865474,
+          0,
+          707.1067811865476
+        ],
+        "topDelta": [
+          -707.1067811865474,
+          0,
+          707.1067811865476
+        ],
+        "farHit": "LB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 R wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          707.1067811865478,
+          0,
+          707.1067811865476
+        ],
+        "expected": [
+          707.1067811865474,
+          0,
+          707.1067811865476
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 R hidden wing point cannot be edited",
+      "detail": {
+        "key": "R",
+        "D": 1000,
+        "delta": [
+          707.1067811865478,
+          0,
+          707.1067811865476
+        ],
+        "topDelta": [
+          707.1067811865478,
+          0,
+          707.1067811865476
+        ],
+        "farHit": "RB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 leaves measured front and room plan unchanged"
+    },
+    {
+      "ok": true,
+      "name": "135 leaves front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "actual angle slider reaches labeled 180 degrees",
+      "detail": "Раскрытие боковых стен · 180°"
+    },
+    {
+      "ok": true,
+      "name": "180 L wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          -1000,
+          0,
+          0
+        ],
+        "expected": [
+          -1000,
+          0,
+          1.2246467991473532e-13
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 L hidden wing point cannot be edited",
+      "detail": {
+        "key": "L",
+        "D": 1000,
+        "delta": [
+          -1000,
+          0,
+          0
+        ],
+        "topDelta": [
+          -1000,
+          0,
+          0
+        ],
+        "farHit": "LB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 R wing uses true local fold angle",
+      "detail": {
+        "delta": [
+          1000,
+          0,
+          0
+        ],
+        "expected": [
+          1000,
+          0,
+          1.2246467991473532e-13
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 R hidden wing point cannot be edited",
+      "detail": {
+        "key": "R",
+        "D": 1000,
+        "delta": [
+          1000,
+          0,
+          0
+        ],
+        "topDelta": [
+          1000,
+          0,
+          0
+        ],
+        "farHit": "RB",
+        "visible": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 leaves measured front and room plan unchanged"
+    },
+    {
+      "ok": true,
+      "name": "180 leaves front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "display slider does not alter exported plan or measured angles"
+    },
+    {
+      "ok": true,
+      "name": "adjacent content remains projected in a visible side view",
+      "detail": [
+        {
+          "angle": 0,
+          "content": []
+        },
+        {
+          "angle": 45,
+          "content": []
+        },
+        {
+          "angle": 90,
+          "content": [
+            {
+              "side": "L",
+              "neighbor": 1,
+              "session": "s1794177552537",
+              "count": 1,
+              "spanMm": 1000,
+              "flipped": true
+            }
+          ]
+        },
+        {
+          "angle": 135,
+          "content": [
+            {
+              "side": "L",
+              "neighbor": 1,
+              "session": "s1794177552537",
+              "count": 1,
+              "spanMm": 1000,
+              "flipped": true
+            }
+          ]
+        },
+        {
+          "angle": 180,
+          "content": [
+            {
+              "side": "L",
+              "neighbor": 1,
+              "session": "s1794177552537",
+              "count": 1,
+              "spanMm": 1000,
+              "flipped": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "frames": [
+    {
+      "angle": 0,
+      "value": 0,
+      "front": {
+        "A": [
+          0,
+          2700,
+          0
+        ],
+        "B": [
+          4000,
+          2700,
+          0
+        ],
+        "C": [
+          4000,
+          0,
+          0
+        ],
+        "D": [
+          0,
+          0,
+          0
+        ]
+      },
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "mos": [
+        0.3406923076923077,
+        0,
+        0,
+        0.3406923076923077,
+        139.44615384615383,
+        476.1430769230769
+      ],
+      "glyph": 44,
+      "scale": 1,
+      "sides": [
+        {
+          "key": "L",
+          "D": 1000,
+          "delta": [
+            1000,
+            0,
+            0
+          ],
+          "topDelta": [
+            1000,
+            0,
+            0
+          ],
+          "farHit": null,
+          "visible": false
+        },
+        {
+          "key": "R",
+          "D": 1000,
+          "delta": [
+            -1000,
+            0,
+            0
+          ],
+          "topDelta": [
+            -1000,
+            0,
+            0
+          ],
+          "farHit": null,
+          "visible": false
+        }
+      ],
+      "label": "Раскрытие боковых стен · 0°",
+      "content": []
+    },
+    {
+      "angle": 45,
+      "value": 45,
+      "front": {
+        "A": [
+          0,
+          2700,
+          0
+        ],
+        "B": [
+          4000,
+          2700,
+          0
+        ],
+        "C": [
+          4000,
+          0,
+          0
+        ],
+        "D": [
+          0,
+          0,
+          0
+        ]
+      },
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "mos": [
+        0.3406923076923077,
+        0,
+        0,
+        0.3406923076923077,
+        139.44615384615383,
+        476.1430769230769
+      ],
+      "glyph": 44,
+      "scale": 1,
+      "sides": [
+        {
+          "key": "L",
+          "D": 1000,
+          "delta": [
+            707.1067811865476,
+            0,
+            707.1067811865474
+          ],
+          "topDelta": [
+            707.1067811865476,
+            0,
+            707.1067811865474
+          ],
+          "farHit": null,
+          "visible": false
+        },
+        {
+          "key": "R",
+          "D": 1000,
+          "delta": [
+            -707.1067811865478,
+            0,
+            707.1067811865474
+          ],
+          "topDelta": [
+            -707.1067811865478,
+            0,
+            707.1067811865474
+          ],
+          "farHit": null,
+          "visible": false
+        }
+      ],
+      "label": "Раскрытие боковых стен · 45°",
+      "content": []
+    },
+    {
+      "angle": 90,
+      "value": 90,
+      "front": {
+        "A": [
+          0,
+          2700,
+          0
+        ],
+        "B": [
+          4000,
+          2700,
+          0
+        ],
+        "C": [
+          4000,
+          0,
+          0
+        ],
+        "D": [
+          0,
+          0,
+          0
+        ]
+      },
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "mos": [
+        0.3406923076923077,
+        0,
+        0,
+        0.3406923076923077,
+        139.44615384615383,
+        476.1430769230769
+      ],
+      "glyph": 44,
+      "scale": 1,
+      "sides": [
+        {
+          "key": "L",
+          "D": 1000,
+          "delta": [
+            0,
+            0,
+            1000
+          ],
+          "topDelta": [
+            0,
+            0,
+            1000
+          ],
+          "farHit": "LB",
+          "visible": true
+        },
+        {
+          "key": "R",
+          "D": 1000,
+          "delta": [
+            0,
+            0,
+            1000
+          ],
+          "topDelta": [
+            0,
+            0,
+            1000
+          ],
+          "farHit": "RB",
+          "visible": true
+        }
+      ],
+      "label": "Раскрытие боковых стен · 90°",
+      "content": [
+        {
+          "side": "L",
+          "neighbor": 1,
+          "session": "s1794177552537",
+          "count": 1,
+          "spanMm": 1000,
+          "flipped": true
+        }
+      ]
+    },
+    {
+      "angle": 135,
+      "value": 135,
+      "front": {
+        "A": [
+          0,
+          2700,
+          0
+        ],
+        "B": [
+          4000,
+          2700,
+          0
+        ],
+        "C": [
+          4000,
+          0,
+          0
+        ],
+        "D": [
+          0,
+          0,
+          0
+        ]
+      },
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "mos": [
+        0.3406923076923077,
+        0,
+        0,
+        0.3406923076923077,
+        139.44615384615383,
+        476.1430769230769
+      ],
+      "glyph": 44,
+      "scale": 1,
+      "sides": [
+        {
+          "key": "L",
+          "D": 1000,
+          "delta": [
+            -707.1067811865474,
+            0,
+            707.1067811865476
+          ],
+          "topDelta": [
+            -707.1067811865474,
+            0,
+            707.1067811865476
+          ],
+          "farHit": "LB",
+          "visible": true
+        },
+        {
+          "key": "R",
+          "D": 1000,
+          "delta": [
+            707.1067811865478,
+            0,
+            707.1067811865476
+          ],
+          "topDelta": [
+            707.1067811865478,
+            0,
+            707.1067811865476
+          ],
+          "farHit": "RB",
+          "visible": true
+        }
+      ],
+      "label": "Раскрытие боковых стен · 135°",
+      "content": [
+        {
+          "side": "L",
+          "neighbor": 1,
+          "session": "s1794177552537",
+          "count": 1,
+          "spanMm": 1000,
+          "flipped": true
+        }
+      ]
+    },
+    {
+      "angle": 180,
+      "value": 180,
+      "front": {
+        "A": [
+          0,
+          2700,
+          0
+        ],
+        "B": [
+          4000,
+          2700,
+          0
+        ],
+        "C": [
+          4000,
+          0,
+          0
+        ],
+        "D": [
+          0,
+          0,
+          0
+        ]
+      },
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "mos": [
+        0.3406923076923077,
+        0,
+        0,
+        0.3406923076923077,
+        139.44615384615383,
+        476.1430769230769
+      ],
+      "glyph": 44,
+      "scale": 1,
+      "sides": [
+        {
+          "key": "L",
+          "D": 1000,
+          "delta": [
+            -1000,
+            0,
+            0
+          ],
+          "topDelta": [
+            -1000,
+            0,
+            0
+          ],
+          "farHit": "LB",
+          "visible": true
+        },
+        {
+          "key": "R",
+          "D": 1000,
+          "delta": [
+            1000,
+            0,
+            0
+          ],
+          "topDelta": [
+            1000,
+            0,
+            0
+          ],
+          "farHit": "RB",
+          "visible": true
+        }
+      ],
+      "label": "Раскрытие боковых стен · 180°",
+      "content": [
+        {
+          "side": "L",
+          "neighbor": 1,
+          "session": "s1794177552537",
+          "count": 1,
+          "spanMm": 1000,
+          "flipped": true
+        }
+      ]
+    }
+  ],
+  "original": {
+    "front": {
+      "A": [
+        0,
+        2700,
+        0
+      ],
+      "B": [
+        4000,
+        2700,
+        0
+      ],
+      "C": [
+        4000,
+        0,
+        0
+      ],
+      "D": [
+        0,
+        0,
+        0
+      ]
+    },
+    "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+    "exported": {
+      "app": "akrix-zamer",
+      "v": 3,
+      "kind": "object",
+      "date": "2026-11-08T22:39:13.342Z",
+      "obj": "QA011",
+      "oid": "omw8ezoad92g2",
+      "rooms": [
+        {
+          "app": "akrix-zamer",
+          "v": 3,
+          "kind": "room",
+          "id": "r1794177552183",
+          "date": "2026-11-08T22:39:13.341Z",
+          "obj": "QA011",
+          "name": "Route draw/edit",
+          "ms": {
+            "v": 1,
+            "lvl": "d",
+            "pts": [
+              [
+                0,
+                0
+              ],
+              [
+                4000,
+                0
+              ],
+              [
+                4000,
+                -2700
+              ],
+              [
+                0,
+                -2700
+              ]
+            ],
+            "closed": true,
+            "dims": [
+              {
+                "id": "ql0",
+                "a": {
+                  "p": 0
+                },
+                "b": {
+                  "p": 1
+                },
+                "v": 4000
+              },
+              {
+                "id": "ql1",
+                "a": {
+                  "p": 1
+                },
+                "b": {
+                  "p": 2
+                },
+                "v": 2700
+              },
+              {
+                "id": "ql2",
+                "a": {
+                  "p": 2
+                },
+                "b": {
+                  "p": 3
+                },
+                "v": 4000
+              },
+              {
+                "id": "ql3",
+                "a": {
+                  "p": 3
+                },
+                "b": {
+                  "p": 0
+                },
+                "v": 2700
+              }
+            ],
+            "angs": {},
+            "ink": [],
+            "H": 2700,
+            "wl": {
+              "0": {
+                "ph": [
+                  {
+                    "id": "rmw8eznyh4f3",
+                    "n": 1,
+                    "name": "angle-wall.png",
+                    "t": "2026-11-08T22:39:12.906Z",
+                    "w": 600,
+                    "h": 400,
+                    "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
+                    "corners": [
+                      [
+                        570,
+                        370
+                      ],
+                      [
+                        30,
+                        370
+                      ],
+                      [
+                        30,
+                        30
+                      ],
+                      [
+                        570,
+                        30
+                      ]
+                    ],
+                    "on": 1
+                  }
+                ],
+                "H": 2700,
+                "yf": [
+                  null,
+                  null,
+                  null
+                ],
+                "yc": [
+                  2700,
+                  2700,
+                  2700
+                ],
+                "pl": {
+                  "d": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "u": [
+                    null,
+                    null,
+                    null
+                  ]
+                },
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "photo": {
+                  "rms": null,
+                  "fit": false,
+                  "frames": null,
+                  "L": 4000,
+                  "src": "план"
+                },
+                "gn": 1,
+                "id": "w1794177552183_1",
+                "notes": [],
+                "L": 4000
+              },
+              "1": {
+                "ph": [],
+                "H": 2700,
+                "yf": [
+                  null,
+                  null,
+                  null
+                ],
+                "yc": [
+                  2700,
+                  2700,
+                  2700
+                ],
+                "pl": {
+                  "d": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "u": [
+                    null,
+                    null,
+                    null
+                  ]
+                },
+                "els": [
+                  {
+                    "id": "adjacent-window",
+                    "t": "win",
+                    "x0": 175,
+                    "x1": 425,
+                    "y0": 1000,
+                    "y1": 1600,
+                    "note": ""
+                  }
+                ],
+                "pts": [],
+                "zn": [],
+                "photo": {
+                  "rms": null,
+                  "fit": false,
+                  "frames": null,
+                  "L": 2700,
+                  "src": "план"
+                },
+                "gn": 2,
+                "id": "w1794177552183_2",
+                "notes": [],
+                "L": 2700
+              },
+              "2": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 3,
+                "id": "w1794177552183_3",
+                "L": 4000
+              },
+              "3": {
+                "H": 2700,
+                "els": [],
+                "pts": [],
+                "zn": [],
+                "gn": 4,
+                "id": "w1794177552183_4",
+                "L": 2700
+              }
+            },
+            "ccw": true,
+            "arcs": {},
+            "rnd": {},
+            "gn": {
+              "0": 1,
+              "1": 2,
+              "2": 3,
+              "3": 4
+            },
+            "wid": {
+              "0": "w1794177552183_1",
+              "1": "w1794177552183_2",
+              "2": "w1794177552183_3",
+              "3": "w1794177552183_4"
+            },
+            "geo": {
+              "v": 1,
+              "rules": "zamer-18",
+              "walls": [
+                {
+                  "k": 0,
+                  "gn": 1,
+                  "id": "w1794177552183_1",
+                  "a": [
+                    0,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    0
+                  ],
+                  "L": 4000,
+                  "ok": 1
+                },
+                {
+                  "k": 1,
+                  "gn": 2,
+                  "id": "w1794177552183_2",
+                  "a": [
+                    4000,
+                    0
+                  ],
+                  "b": [
+                    4000,
+                    -2700
+                  ],
+                  "L": 2700,
+                  "ok": 1
+                },
+                {
+                  "k": 2,
+                  "gn": 3,
+                  "id": "w1794177552183_3",
+                  "a": [
+                    4000,
+                    -2700
+                  ],
+                  "b": [
+                    0,
+                    -2700
+                  ],
+                  "L": 4000,
+                  "ok": 1
+                },
+                {
+                  "k": 3,
+                  "gn": 4,
+                  "id": "w1794177552183_4",
+                  "a": [
+                    0,
+                    -2700
+                  ],
+                  "b": [
+                    0,
+                    0
+                  ],
+                  "L": 2700,
+                  "ok": 1,
+                  "cl": 1
+                }
+              ],
+              "err": 0,
+              "rnd": {},
+              "mm": 0
+            },
+            "wsd": {
+              "0": 1,
+              "1": 1,
+              "2": 1,
+              "3": 1
+            }
+          }
+        }
+      ],
+      "gnMax": 4
+    },
+    "mos": [
+      0.3406923076923077,
+      0,
+      0,
+      0.3406923076923077,
+      139.44615384615383,
+      476.1430769230769
+    ],
+    "glyph": 44,
+    "scale": 1
+  },
+  "exported": {
+    "app": "akrix-zamer",
+    "v": 3,
+    "kind": "object",
+    "date": "2026-11-08T22:39:50.404Z",
+    "obj": "QA011",
+    "oid": "omw8ezoad92g2",
+    "rooms": [
+      {
+        "app": "akrix-zamer",
+        "v": 3,
+        "kind": "room",
+        "id": "r1794177552183",
+        "date": "2026-11-08T22:39:50.404Z",
+        "obj": "QA011",
+        "name": "Route draw/edit",
+        "ms": {
+          "v": 1,
+          "lvl": "d",
+          "pts": [
+            [
+              0,
+              0
+            ],
+            [
+              4000,
+              0
+            ],
+            [
+              4000,
+              -2700
+            ],
+            [
+              0,
+              -2700
+            ]
+          ],
+          "closed": true,
+          "dims": [
+            {
+              "id": "ql0",
+              "a": {
+                "p": 0
+              },
+              "b": {
+                "p": 1
+              },
+              "v": 4000
+            },
+            {
+              "id": "ql1",
+              "a": {
+                "p": 1
+              },
+              "b": {
+                "p": 2
+              },
+              "v": 2700
+            },
+            {
+              "id": "ql2",
+              "a": {
+                "p": 2
+              },
+              "b": {
+                "p": 3
+              },
+              "v": 4000
+            },
+            {
+              "id": "ql3",
+              "a": {
+                "p": 3
+              },
+              "b": {
+                "p": 0
+              },
+              "v": 2700
+            }
+          ],
+          "angs": {},
+          "ink": [],
+          "H": 2700,
+          "wl": {
+            "0": {
+              "ph": [
+                {
+                  "id": "rmw8eznyh4f3",
+                  "n": 1,
+                  "name": "angle-wall.png",
+                  "t": "2026-11-08T22:39:12.906Z",
+                  "w": 600,
+                  "h": 400,
+                  "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
+                  "corners": [
+                    [
+                      570,
+                      370
+                    ],
+                    [
+                      30,
+                      370
+                    ],
+                    [
+                      30,
+                      30
+                    ],
+                    [
+                      570,
+                      30
+                    ]
+                  ],
+                  "on": 1
+                }
+              ],
+              "H": 2700,
+              "yf": [
+                null,
+                null,
+                null
+              ],
+              "yc": [
+                2700,
+                2700,
+                2700
+              ],
+              "pl": {
+                "d": [
+                  null,
+                  null,
+                  null
+                ],
+                "u": [
+                  null,
+                  null,
+                  null
+                ]
+              },
+              "els": [],
+              "pts": [],
+              "zn": [],
+              "photo": {
+                "rms": null,
+                "fit": false,
+                "frames": null,
+                "L": 4000,
+                "src": "план"
+              },
+              "gn": 1,
+              "id": "w1794177552183_1",
+              "notes": [],
+              "L": 4000
+            },
+            "1": {
+              "ph": [],
+              "H": 2700,
+              "yf": [
+                null,
+                null,
+                null
+              ],
+              "yc": [
+                2700,
+                2700,
+                2700
+              ],
+              "pl": {
+                "d": [
+                  null,
+                  null,
+                  null
+                ],
+                "u": [
+                  null,
+                  null,
+                  null
+                ]
+              },
+              "els": [
+                {
+                  "id": "adjacent-window",
+                  "t": "win",
+                  "x0": 175,
+                  "x1": 425,
+                  "y0": 1000,
+                  "y1": 1600,
+                  "note": ""
+                }
+              ],
+              "pts": [],
+              "zn": [],
+              "photo": {
+                "rms": null,
+                "fit": false,
+                "frames": null,
+                "L": 2700,
+                "src": "план"
+              },
+              "gn": 2,
+              "id": "w1794177552183_2",
+              "notes": [],
+              "L": 2700
+            },
+            "2": {
+              "H": 2700,
+              "els": [],
+              "pts": [],
+              "zn": [],
+              "gn": 3,
+              "id": "w1794177552183_3",
+              "L": 4000
+            },
+            "3": {
+              "H": 2700,
+              "els": [],
+              "pts": [],
+              "zn": [],
+              "gn": 4,
+              "id": "w1794177552183_4",
+              "L": 2700
+            }
+          },
+          "ccw": true,
+          "arcs": {},
+          "rnd": {},
+          "gn": {
+            "0": 1,
+            "1": 2,
+            "2": 3,
+            "3": 4
+          },
+          "wid": {
+            "0": "w1794177552183_1",
+            "1": "w1794177552183_2",
+            "2": "w1794177552183_3",
+            "3": "w1794177552183_4"
+          },
+          "geo": {
+            "v": 1,
+            "rules": "zamer-18",
+            "walls": [
+              {
+                "k": 0,
+                "gn": 1,
+                "id": "w1794177552183_1",
+                "a": [
+                  0,
+                  0
+                ],
+                "b": [
+                  4000,
+                  0
+                ],
+                "L": 4000,
+                "ok": 1
+              },
+              {
+                "k": 1,
+                "gn": 2,
+                "id": "w1794177552183_2",
+                "a": [
+                  4000,
+                  0
+                ],
+                "b": [
+                  4000,
+                  -2700
+                ],
+                "L": 2700,
+                "ok": 1
+              },
+              {
+                "k": 2,
+                "gn": 3,
+                "id": "w1794177552183_3",
+                "a": [
+                  4000,
+                  -2700
+                ],
+                "b": [
+                  0,
+                  -2700
+                ],
+                "L": 4000,
+                "ok": 1
+              },
+              {
+                "k": 3,
+                "gn": 4,
+                "id": "w1794177552183_4",
+                "a": [
+                  0,
+                  -2700
+                ],
+                "b": [
+                  0,
+                  0
+                ],
+                "L": 2700,
+                "ok": 1,
+                "cl": 1
+              }
+            ],
+            "err": 0,
+            "rnd": {},
+            "mm": 0
+          },
+          "wsd": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1
+          }
+        }
+      }
+    ],
+    "gnMax": 4
+  }
+}

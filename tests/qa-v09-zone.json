@@ -1,0 +1,314 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "generic zone appears exactly once in native toolbox",
+      "detail": {
+        "groups": [
+          {
+            "title": "Правка",
+            "tools": [
+              "sel",
+              "rsel",
+              "pts"
+            ]
+          },
+          {
+            "title": "Рисование и пометки",
+            "tools": [
+              "pen",
+              "ln",
+              "arr",
+              "pl",
+              "dim",
+              "rect",
+              "circ",
+              "arc",
+              "er",
+              "txt",
+              "pin",
+              "vyn",
+              "rf"
+            ]
+          },
+          {
+            "title": "Коммуникации",
+            "tools": [
+              "roz",
+              "vyk",
+              "svet",
+              "slab",
+              "hvs",
+              "gvs",
+              "kan",
+              "gaz",
+              "vent",
+              "shch",
+              "znd",
+              "wrt",
+              "zon"
+            ]
+          },
+          {
+            "title": "Проёмы и элементы",
+            "tools": [
+              "win",
+              "door",
+              "nis",
+              "kol",
+              "rig",
+              "kor"
+            ]
+          },
+          {
+            "title": "Зоны и геометрия",
+            "tools": [
+              "znt",
+              "znf",
+              "poly"
+            ]
+          }
+        ],
+        "count": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "generic zone belongs to Communications toolbox group"
+    },
+    {
+      "ok": true,
+      "name": "generic zone removed from old Zones and Geometry group"
+    },
+    {
+      "ok": true,
+      "name": "existing native zone remains unchanged on session reopen",
+      "detail": {
+        "id": "legacy-zone",
+        "k": "zon",
+        "c": [
+          2800,
+          2000
+        ],
+        "W": 400,
+        "H": 300,
+        "note": "existing v81 zone"
+      }
+    },
+    {
+      "ok": true,
+      "name": "saved twelve-tool order preserved and generic zone appended once",
+      "detail": [
+        "hvs",
+        "roz",
+        "vyk",
+        "svet",
+        "slab",
+        "gvs",
+        "kan",
+        "wrt",
+        "gaz",
+        "vent",
+        "shch",
+        "znd",
+        "zon"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "RZ row has thirteen tools including native generic zone icon"
+    },
+    {
+      "ok": true,
+      "name": "generic zone button activates native rectangle placement"
+    },
+    {
+      "ok": true,
+      "name": "real pen rectangle creates selected generic zone",
+      "detail": {
+        "id": "emw8e3zeyz5s",
+        "k": "zon",
+        "c": [
+          974.999948666526,
+          1799.9998518564166
+        ],
+        "W": 650,
+        "H": 600,
+        "D": "",
+        "N": "",
+        "st": "",
+        "note": ""
+      }
+    },
+    {
+      "ok": true,
+      "name": "selected generic zone moves intact without cloning",
+      "detail": {
+        "id": "emw8e3zeyz5s",
+        "k": "zon",
+        "c": [
+          1224.9998246393402,
+          1900.0002501214913
+        ],
+        "W": 650,
+        "H": 600,
+        "D": "",
+        "N": "",
+        "st": "",
+        "note": ""
+      }
+    },
+    {
+      "ok": true,
+      "name": "blank tap deselects generic zone without creating another"
+    },
+    {
+      "ok": true,
+      "name": "generic zone placement creates no automatic arrows"
+    },
+    {
+      "ok": true,
+      "name": "native export includes existing and new generic zone data"
+    },
+    {
+      "ok": true,
+      "name": "new generic zone survives native save/reload"
+    },
+    {
+      "ok": true,
+      "name": "thirteen-tool migrated order persists without duplication"
+    },
+    {
+      "ok": true,
+      "name": "native JSON import restores both existing and new zones"
+    },
+    {
+      "ok": true,
+      "name": "no browser errors",
+      "detail": []
+    }
+  ],
+  "groups": {
+    "groups": [
+      {
+        "title": "Правка",
+        "tools": [
+          "sel",
+          "rsel",
+          "pts"
+        ]
+      },
+      {
+        "title": "Рисование и пометки",
+        "tools": [
+          "pen",
+          "ln",
+          "arr",
+          "pl",
+          "dim",
+          "rect",
+          "circ",
+          "arc",
+          "er",
+          "txt",
+          "pin",
+          "vyn",
+          "rf"
+        ]
+      },
+      {
+        "title": "Коммуникации",
+        "tools": [
+          "roz",
+          "vyk",
+          "svet",
+          "slab",
+          "hvs",
+          "gvs",
+          "kan",
+          "gaz",
+          "vent",
+          "shch",
+          "znd",
+          "wrt",
+          "zon"
+        ]
+      },
+      {
+        "title": "Проёмы и элементы",
+        "tools": [
+          "win",
+          "door",
+          "nis",
+          "kol",
+          "rig",
+          "kor"
+        ]
+      },
+      {
+        "title": "Зоны и геометрия",
+        "tools": [
+          "znt",
+          "znf",
+          "poly"
+        ]
+      }
+    ],
+    "count": 1
+  },
+  "legacy": {
+    "id": "legacy-zone",
+    "k": "zon",
+    "c": [
+      2800,
+      2000
+    ],
+    "W": 400,
+    "H": 300,
+    "note": "existing v81 zone"
+  },
+  "order": [
+    "hvs",
+    "roz",
+    "vyk",
+    "svet",
+    "slab",
+    "gvs",
+    "kan",
+    "wrt",
+    "gaz",
+    "vent",
+    "shch",
+    "znd",
+    "zon"
+  ],
+  "zone": {
+    "id": "emw8e3zeyz5s",
+    "k": "zon",
+    "c": [
+      974.999948666526,
+      1799.9998518564166
+    ],
+    "W": 650,
+    "H": 600,
+    "D": "",
+    "N": "",
+    "st": "",
+    "note": ""
+  },
+  "moved": {
+    "id": "emw8e3zeyz5s",
+    "k": "zon",
+    "c": [
+      1224.9998246393402,
+      1900.0002501214913
+    ],
+    "W": 650,
+    "H": 600,
+    "D": "",
+    "N": "",
+    "st": "",
+    "note": ""
+  },
+  "errors": []
+}

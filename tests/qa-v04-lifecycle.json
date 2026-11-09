@@ -1,0 +1,691 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "actual pen selects imported referenced group"
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps dim identity/handle at0.1",
+      "detail": {
+        "n": 2,
+        "factor": 0.1,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps arr identity/handle at0.1",
+      "detail": {
+        "n": 2,
+        "factor": 0.1,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps dim identity/handle at0.35",
+      "detail": {
+        "n": 2,
+        "factor": 0.35,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps arr identity/handle at0.35",
+      "detail": {
+        "n": 2,
+        "factor": 0.35,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps dim identity/handle at1",
+      "detail": {
+        "n": 2,
+        "factor": 1,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps arr identity/handle at1",
+      "detail": {
+        "n": 2,
+        "factor": 1,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps dim identity/handle at4",
+      "detail": {
+        "n": 2,
+        "factor": 4,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual2-post edit keeps arr identity/handle at4",
+      "detail": {
+        "n": 2,
+        "factor": 4,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 2
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps dim identity/handle at0.1",
+      "detail": {
+        "n": 4,
+        "factor": 0.1,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps arr identity/handle at0.1",
+      "detail": {
+        "n": 4,
+        "factor": 0.1,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps dim identity/handle at0.35",
+      "detail": {
+        "n": 4,
+        "factor": 0.35,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps arr identity/handle at0.35",
+      "detail": {
+        "n": 4,
+        "factor": 0.35,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps dim identity/handle at1",
+      "detail": {
+        "n": 4,
+        "factor": 1,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps arr identity/handle at1",
+      "detail": {
+        "n": 4,
+        "factor": 1,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps dim identity/handle at4",
+      "detail": {
+        "n": 4,
+        "factor": 4,
+        "k": "dim",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 2,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "actual4-post edit keeps arr identity/handle at4",
+      "detail": {
+        "n": 4,
+        "factor": 4,
+        "k": "arr",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 4
+        },
+        "gap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "real pen endpoint drag rebinds to different outlet identity",
+      "detail": {
+        "id": "dmw8cfwduxxw",
+        "k": "arr",
+        "a": [
+          600,
+          904.7
+        ],
+        "b": [
+          1478.4,
+          536.8
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "point-a",
+            "kind": "post",
+            "p": 1,
+            "n": 1
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "whole-arrow pen drag detaches durable refs and moves freely",
+      "detail": {
+        "detached": {
+          "id": "dmw8cfwduxxw",
+          "k": "arr",
+          "a": [
+            889.1877398961392,
+            733.3294874689548
+          ],
+          "b": [
+            1767.5877398961393,
+            365.4294874689546
+          ],
+          "c": "#e07a00",
+          "labAnchorVersion": 1
+        },
+        "dragDebug": {
+          "tool": "mk",
+          "mk": "sel",
+          "dsel": "dmw8cfwduxxw",
+          "active": "",
+          "gesture": {
+            "keys": [
+              "t",
+              "p0",
+              "last",
+              "moved",
+              "drag",
+              "pty",
+              "ddrag",
+              "dsnap"
+            ],
+            "dhd": null,
+            "ddrag": {
+              "q0": [
+                1521.6357908423315,
+                468.44153648543517
+              ]
+            },
+            "edrag": null,
+            "moved": true
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "referenced group can be selected for native deletion"
+    },
+    {
+      "ok": true,
+      "name": "deleting referenced object preserves dimension at last location and clears orphan binding",
+      "detail": {
+        "id": "dmw8cfvpd6ma",
+        "labAnchorVersion": 1,
+        "a": [
+          600,
+          904.7
+        ],
+        "b": [
+          2766.8,
+          1047.9
+        ],
+        "t": "both"
+      }
+    },
+    {
+      "ok": true,
+      "name": "safe migration repairs actual0.3 L1 displaced dimension to unique stored post",
+      "detail": {
+        "dim": {
+          "id": "dmw8c9zwevl6",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            913.61
+          ],
+          "t": "both",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          },
+          "labAnchorVersion": 1
+        },
+        "arr": {
+          "id": "dmw8ca06pfkc",
+          "k": "arr",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            913.61
+          ],
+          "c": "#e07a00",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          },
+          "labAnchorVersion": 1
+        },
+        "migrations": [
+          {
+            "id": "dmw8c9zwevl6",
+            "endpoint": "b",
+            "ref": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          },
+          {
+            "id": "dmw8ca06pfkc",
+            "endpoint": "b",
+            "ref": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "legacy repair stabilizes stored nearest post without inventing lost first-post intent",
+      "detail": {
+        "id": "dmw8ca06pfkc",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          904.686712903884
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "legacy drawing kept free with magnet off never later auto-binds on zoom",
+      "detail": {
+        "initial": {
+          "id": "dmw8c9zwevl6",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            904.686712903884
+          ],
+          "t": "both",
+          "labAnchorVersion": 1
+        },
+        "after": {
+          "id": "dmw8c9zwevl6",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            904.686712903884
+          ],
+          "t": "both",
+          "labAnchorVersion": 1
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "no page errors",
+      "detail": []
+    }
+  ],
+  "rebound": {
+    "id": "dmw8cfwduxxw",
+    "k": "arr",
+    "a": [
+      600,
+      904.7
+    ],
+    "b": [
+      1478.4,
+      536.8
+    ],
+    "c": "#e07a00",
+    "labAnchorVersion": 1,
+    "labAnchors": {
+      "b": {
+        "v": 1,
+        "e": "point-a",
+        "kind": "post",
+        "p": 1,
+        "n": 1
+      }
+    }
+  },
+  "detached": {
+    "id": "dmw8cfwduxxw",
+    "k": "arr",
+    "a": [
+      889.1877398961392,
+      733.3294874689548
+    ],
+    "b": [
+      1767.5877398961393,
+      365.4294874689546
+    ],
+    "c": "#e07a00",
+    "labAnchorVersion": 1
+  },
+  "dragDebug": {
+    "tool": "mk",
+    "mk": "sel",
+    "dsel": "dmw8cfwduxxw",
+    "active": "",
+    "gesture": {
+      "keys": [
+        "t",
+        "p0",
+        "last",
+        "moved",
+        "drag",
+        "pty",
+        "ddrag",
+        "dsnap"
+      ],
+      "dhd": null,
+      "ddrag": {
+        "q0": [
+          1521.6357908423315,
+          468.44153648543517
+        ]
+      },
+      "edrag": null,
+      "moved": true
+    }
+  },
+  "orphan": {
+    "id": "dmw8cfvpd6ma",
+    "labAnchorVersion": 1,
+    "a": [
+      600,
+      904.7
+    ],
+    "b": [
+      2766.8,
+      1047.9
+    ],
+    "t": "both"
+  },
+  "migration": {
+    "dim": {
+      "id": "dmw8c9zwevl6",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        913.61
+      ],
+      "t": "both",
+      "labAnchors": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "labAnchorVersion": 1
+    },
+    "arr": {
+      "id": "dmw8ca06pfkc",
+      "k": "arr",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        913.61
+      ],
+      "c": "#e07a00",
+      "labAnchors": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "labAnchorVersion": 1
+    },
+    "migrations": [
+      {
+        "id": "dmw8c9zwevl6",
+        "endpoint": "b",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      {
+        "id": "dmw8ca06pfkc",
+        "endpoint": "b",
+        "ref": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      }
+    ]
+  },
+  "disabled": {
+    "initial": {
+      "id": "dmw8c9zwevl6",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        904.686712903884
+      ],
+      "t": "both",
+      "labAnchorVersion": 1
+    },
+    "after": {
+      "id": "dmw8c9zwevl6",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        904.686712903884
+      ],
+      "t": "both",
+      "labAnchorVersion": 1
+    }
+  },
+  "errors": []
+}
