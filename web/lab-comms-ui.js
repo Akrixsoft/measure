@@ -4,12 +4,12 @@
   const orderKey='measure.lab.rz.order', colorKey='measure.lab.rz.color';
   // Match v81's complete communications group. The additional entries are deliberately
   // native rectangle/polyline tools, not point communications or RZ arrows.
-  const all=[...KINDS.filter(k=>k.pt&&!k.hide).map(k=>k.k),'znd','wrt','zon'];
+  const all=[...KINDS.filter(k=>k.pt&&!k.hide).map(k=>k.k),'znd','wrt','zon','shield'];
   const commName=k=>k==='wrt'?'Трасса коммуникаций':kN(k);
   const commHint=k=>k==='wrt'?'Трасса коммуникаций: проведите линию; тяните крайние точки или середину для правки':k==='znd'?'Не сверлить: касание — поставить зону; выбранную зону можно перемещать':rzNm(k);
   let stored=[];try{stored=JSON.parse(localStorage.getItem(orderKey)||localStorage.getItem('measure.rzset')||'[]');}catch(e){}
   if(!Array.isArray(stored))stored=[];
-  let order=[...new Set([...stored.filter(k=>all.includes(k)),...all])];
+  let order=[...new Set([...stored.map(k=>k==='shch'?'wire':k).filter(k=>all.includes(k)),...all])];
   let color=localStorage.getItem(colorKey)||'#1F6FD1';
   const valid=c=>/^#[0-9a-f]{6}$/i.test(c||'');if(!valid(color))color='#1F6FD1';
   const colors=['#1F6FD1','#E0442B','#2E9E4F','#D4A300','#A86BE8','#E87CB0','#E8EBEF','#22262C'];

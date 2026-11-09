@@ -1,0 +1,26 @@
+#lab12-plan {
+  position: fixed;
+  z-index: 12;
+  left: 8px;
+  top: max(112px, calc(env(safe-area-inset-top) + 112px));
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  pointer-events: none;
+}
+#lab12-plan[hidden], body.kb #lab12-plan { display: none }
+#lab12-plan :is(button, input, small) {
+  pointer-events: auto;
+  border: 1px solid var(--ln);
+  border-radius: 6px;
+  color: var(--tx);
+  background: var(--pn);
+  min-height: 32px;
+  padding: 4px 8px;
+}
+#lab12-plan input { width: 145px }
+#lab12-plan small { width: 100% }
+#pp .lab12-fields label { display: flex; flex-direction: column; align-items: flex-start; }
+
+body.rz.lab12-rect #zf:not(.sh) > #zopt.on { display: flex !important }
