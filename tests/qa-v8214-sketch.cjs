@@ -19,6 +19,8 @@ const {start} = require('./qa-v011-harness.cjs');
   try {
     const ic = await p.evaluate(() => { const b = document.querySelector('#mdT [data-rz]'); return {svg: !!b.querySelector('svg circle'), emoji: b.textContent.includes('📐')}; });
     check(ic.svg && !ic.emoji, 'icon: кнопка «Коммуникации и размеры» — вариант 2, без угольника', ic);
+    const ti = await p.evaluate(() => ({ver: $('zVer').textContent, badge: $('zVerB').textContent, plane: !$('bNew').hidden, room: !!$('bNewR')}));
+    check(/^Measure 82\.\d+$/.test(ti.ver) && ti.ver !== 'Measure v81' && ti.badge !== 'v81' && !ti.plane && ti.room, 'title: на титуле актуальная версия; «＋ Плоскость» убрана, «＋ Помещение» есть', ti);
     const ent = await p.evaluate(() => ({ss: !!document.querySelector('#ss .nw [data-sk-open]'), menu: !!document.querySelector('#zMenu [data-sk-open]')}));
     check(ent.ss && ent.menu, 'entry: «✎ Скетч» в списке замеров и в меню «Ещё»', ent);
     // ── холст объекта

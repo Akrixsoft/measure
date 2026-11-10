@@ -366,7 +366,7 @@
 
   /* ═══ [BLOCK SK-JSON] перенос: фото и заметки холста (стены и план — штатной выгрузкой замеров) ═══ */
   const b2u = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(''); r.readAsDataURL(b); });
-  async function exportObj() { const items = clone(K.items); for (const it of items) if (it.t === 'photo') { const b = await sGet('img', it.id).catch(() => null); it.src = b ? await b2u(b) : ''; } return {format: 'measure-sketch', v: 2, app: 'Measure 82.16', obj: K.obj, date: new Date().toISOString(), items}; }
+  async function exportObj() { const items = clone(K.items); for (const it of items) if (it.t === 'photo') { const b = await sGet('img', it.id).catch(() => null); it.src = b ? await b2u(b) : ''; } return {format: 'measure-sketch', v: 2, app: 'Measure 82.17', obj: K.obj, date: new Date().toISOString(), items}; }
   api.exportObj = exportObj;
   async function exportJson() { const o = await exportObj(), txt = JSON.stringify(o), fn = 'holst_' + (K.obj || 'obekt').replace(/[^\wа-яА-ЯёЁ.-]+/g, '_') + '_' + o.date.slice(0, 10) + '.json';
     try { if (typeof appSave === 'function' && appSave(fn, txt)) return say('Холст сохранён: ' + fn); } catch (e) { }
