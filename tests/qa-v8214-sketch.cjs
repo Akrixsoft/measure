@@ -45,13 +45,13 @@ const {start} = require('./qa-v011-harness.cjs');
     await p.locator('#labSketch [data-sk-name]').fill('Кухня');
     await p.evaluate(() => { const B = document.querySelector('#labSketch .sk-dlg'); B.querySelector('[data-sk-l]').value = '2391'; B.querySelector('[data-sk-h]').value = '2700'; });
     await p.locator('#labSketch .sk-dlg .bt .pr').click();
-    await p.waitForFunction(() => { const a = MeasureLabSketch.active(); return a && a.t === 'wall' && S.refs && S.refs.length; }, null, {timeout: 15000});
+    await p.waitForFunction(() => { const a = MeasureLabSketch.active(); return a && a.t === 'wall' && S.mosaic && S.q4 && S.q4.ok; }, null, {timeout: 15000});
     await p.waitForTimeout(400);
     const w1 = await p.evaluate(async id => { const K = MeasureLabSketch.state, a = MeasureLabSketch.active(), ph = K.items.find(i => i.id === id), Rw = MeasureLabSketch.region(a), Rp = MeasureLabSketch.region(ph), o = await dbGet('sess', S.sess.id), r = await dbGet('sess', S.room0.id);
-      return {wid: a.id, sid: S.sess.id, seg: S.sess.seg, room: S.room0.name, q4: [S.q4.L, S.q4.H, S.q4.aL, S.q4.aH], above: Rw.y + Rw.h <= Rp.y + 1, link: ph.wall === a.id, ref: !!(S.refs[0] && S.refs[0].on === 1 && S.refs[0].qUser === 1), out: !!o.out, dims: r.ms.dims.map(d => d.v), H: r.ms.H, plan: K.items.filter(i => i.t === 'plan').length}; }, pid);
+      return {wid: a.id, sid: S.sess.id, seg: S.sess.seg, room: S.room0.name, q4: [S.q4.L, S.q4.H, S.q4.aL, S.q4.aH], above: Rw.y + Rw.h <= Rp.y + 1, link: ph.wall === a.id, ref: (S.refs || []).length === 0, out: !!o.out, dims: r.ms.dims.map(d => d.v), H: r.ms.H, plan: K.items.filter(i => i.t === 'plan').length}; }, pid);
     check(w1.seg === 0 && w1.room === 'Кухня' && w1.q4[0] === 2391 && w1.q4[1] === 2700 && !w1.q4[2] && !w1.q4[3], 'wall: стена С1 «Кухня» 2391 × 2700 (замер), открыта штатно', w1);
     check(w1.above && w1.link, 'wall: область стены — над фото', {above: w1.above});
-    check(w1.ref && w1.out && w1.dims[0] === 2391 && w1.H === 2700 && w1.plan === 1, 'wall: фото на стене по 4 углам, план L/H, снимок для выгрузки, область плана на холсте', {dims: w1.dims, H: w1.H});
+    check(w1.ref && w1.out && w1.dims[0] === 2391 && w1.H === 2700 && w1.plan === 1, 'wall: стена без заливки фото (фото рядом на холсте), план L/H, снимок для выгрузки, область плана на холсте', {dims: w1.dims, H: w1.H});
     check(await aligned() < 0.5, 'align: вид v81 совмещён с местом стены на холсте', await aligned());
     await shot('8214-1-wall');
     // ── общий набор: штатный инструмент коммуникаций внутри области стены
@@ -110,8 +110,8 @@ const {start} = require('./qa-v011-harness.cjs');
     check(js.fmt === 'measure-sketch' && js.v === 2 && js.n === 2 && js.blob > 10000, 'json: фото и заметки переносятся в другой холст (стены — штатной выгрузкой)', js);
     // ── выгрузка помещения v81
     const rid = await p.evaluate(() => MeasureLabSketch.state.rooms[0].id);
-    const ex = await p.evaluate(async rid => { await openRoom(rid); const o = await exportRoomAsObj(), t = JSON.stringify(o); return {size: t.length, ph: /"ph":\[\{/.test(t), noLab: !/labSketch/.test(t)}; }, rid);
-    check(ex.size > 2000 && ex.ph && ex.noLab, 'export: выгрузка помещения v81 со стеной и фото (контракт без изменений)', ex);
+    const ex = await p.evaluate(async rid => { await openRoom(rid); const o = await exportRoomAsObj(), t = JSON.stringify(o); return {size: t.length, ph: !/"ph":\[\{/.test(t), roz: /"t":"so"/.test(t), noLab: !/labSketch/.test(t)}; }, rid);
+    check(ex.size > 1000 && ex.ph && ex.roz && ex.noLab, 'export: выгрузка помещения v81 со стеной и розеткой, без фото холста (контракт без изменений)', ex);
     // ── закрыть холст
     await p.evaluate(() => MeasureLabSketch.close());
     check(await p.evaluate(() => !MeasureLabSketch.isOpen() && !document.querySelector('#zf .sk-row') && !document.body.classList.contains('lab-sketch')), 'close: холст закрыт, строка убрана, обычный вид', null);

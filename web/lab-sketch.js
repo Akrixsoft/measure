@@ -1,8 +1,8 @@
-/* Measure 82.15 — «Скетч»: холст объекта (как DrawNote) поверх штатного холста v81.
+/* Measure 82.16 — «Скетч»: холст объекта (как DrawNote) поверх штатного холста v81.
    Решение владельца 10.11.2026: один бесконечный холст — фото, рендеры, пометки, стены и общий план помещений видны сразу;
    стены и план — области холста, правятся ОБЩИМ набором инструментов приложения: касание области делает её активной,
    вид v81 совмещается с её местом на холсте; неактивные области — снимки последнего вида.
-   Фото → 4 угла → стена над фото (нет места — под фото). Последовательность стен, колонны, выступы, ниши — на общем плане.
+   Фото → 4 угла → стена над фото (нет места — под фото); фото на стену не заливается — остаётся рядом на холсте. Последовательность стен, колонны, выступы, ниши — на общем плане.
    Работает поверх неизменной v81: S, cv, cx, draw, fit, plFit, openSess, openRoom, newRoom, dbGet/dbPut/dbAll, saveNow, saveRoom … */
 (() => {
   'use strict';
@@ -304,7 +304,7 @@
   api.addPhotos = addPhotos;
   for (const k of ['cam', 'gal', 'imp']) { const inp = $s(`[data-skf="${k}"]`); inp.onchange = async ev => { const fs0 = [...ev.target.files]; ev.target.value = ''; if (!fs0.length) return; if (k === 'imp') { try { await importJson(JSON.parse(await fs0[0].text())); } catch (e) { say('Файл не прочитан: ' + e.message); } } else await addPhotos(fs0); }; }
 
-  /* ═══ [BLOCK SK-WALL] фото → стена: помещение, стена плана (или новая), L, H; фото — на стену по 4 углам; область — над фото ═══ */
+  /* ═══ [BLOCK SK-WALL] фото → стена: помещение, стена плана (или новая), L, H; область — над фото; фото рядом, без заливки стены ═══ */
   const aspect = c => { const d = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]); return (d(c[0], c[1]) + d(c[3], c[2])) / (d(c[0], c[3]) + d(c[1], c[2])); };
   async function wallDlg(p) {
     if (!p.cor) return say('Сначала 4 угла стены');
@@ -343,9 +343,7 @@
       if (!aL) { const a = k, b = (k + 1) % m.pts.length, od = plDim(m, k); m.dims = (m.dims || []).filter(q => !((q.a.p === a && q.b.p === b) || (q.a.p === b && q.b.p === a))); m.dims.push({id: od ? od.id : 'd' + Date.now().toString(36), a: {p: a}, b: {p: b}, v: L}); }
       if (!aH && !(+m.H > 0)) m.H = H;
       try { gnFix(r); } catch (e) { }
-      const refs = [], sb = await sGet('img', p.id).catch(() => null);   // фото — на стену: r.q = ЛН ПН ПВ ЛВ в px фото
-      if (sb) { const j = await toJpeg(sb, 1600), rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), kk = j.w / p.iw; await dbPut('img', j.blob, 'ref:' + rid);
-        refs.push({id: rid, n: 1, iw: j.w, ih: j.h, w: H * j.w / j.h, x: L + Math.max(L, H) * .06, y: H, q: [p.cor[3], p.cor[2], p.cor[1], p.cor[0]].map(q => [r1(q[0] * kk), r1(q[1] * kk)]), qa: 1, qUser: 1, on: 1, found: [], t: Date.now(), name: 'холст ' + K.obj}); }
+      const refs = [];   // фото на стену не заливается (владелец 10.11.2026): остаётся на холсте рядом с чертежом
       const old = (r.segs || {})[k]; if (old) { try { const o = await dbGet('sess', old); if (o) { o.del = Date.now(); o.delWhy = 'холст: вид стены заменён'; await dbPut('sess', o); } } catch (e) { } }
       const ts = Date.now(), sid = 's' + ts.toString(36) + Math.random().toString(36).slice(2, 5);
       const o = {id: sid, obj: r.obj, name: r.name + ' · С' + wN(r, k), created: ts, upd: ts, frames: [], room: r.id, seg: k,
@@ -368,7 +366,7 @@
 
   /* ═══ [BLOCK SK-JSON] перенос: фото и заметки холста (стены и план — штатной выгрузкой замеров) ═══ */
   const b2u = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(''); r.readAsDataURL(b); });
-  async function exportObj() { const items = clone(K.items); for (const it of items) if (it.t === 'photo') { const b = await sGet('img', it.id).catch(() => null); it.src = b ? await b2u(b) : ''; } return {format: 'measure-sketch', v: 2, app: 'Measure 82.15', obj: K.obj, date: new Date().toISOString(), items}; }
+  async function exportObj() { const items = clone(K.items); for (const it of items) if (it.t === 'photo') { const b = await sGet('img', it.id).catch(() => null); it.src = b ? await b2u(b) : ''; } return {format: 'measure-sketch', v: 2, app: 'Measure 82.16', obj: K.obj, date: new Date().toISOString(), items}; }
   api.exportObj = exportObj;
   async function exportJson() { const o = await exportObj(), txt = JSON.stringify(o), fn = 'holst_' + (K.obj || 'obekt').replace(/[^\wа-яА-ЯёЁ.-]+/g, '_') + '_' + o.date.slice(0, 10) + '.json';
     try { if (typeof appSave === 'function' && appSave(fn, txt)) return say('Холст сохранён: ' + fn); } catch (e) { }
