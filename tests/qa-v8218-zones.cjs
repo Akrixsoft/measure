@@ -92,6 +92,11 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
     await p.locator('#bDelS').tap(); await p.waitForTimeout(100);
     s = await st();
     check(s.zones.length === 1 && s.zones[0].name === 'Прихожая', 'Д2: корзина удаляет выбранную зону', s.zones.map(z => z.name));
+    /* zn (AKX-2026-0012 §7): номер по проекту, после удаления «Зоны 2» новый — 3, не 2 */
+    await press('fill'); await pen([3700, 1500]);
+    let zn = await p.evaluate(() => MeasureLab012.regions().map(({q}) => [q.name, q.zn]));
+    check(JSON.stringify(zn) === JSON.stringify([['Прихожая', 1], ['Зона 3', 3]]), 'zn: номера зон постоянные, удалённый номер не переиспользуется', zn);
+    await press('delete-zone');
 
     /* ── 4. Правка стен: Д5, Д11, Д6, Д12 ── */
     await press('walls');
@@ -162,6 +167,12 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
     await press('assigned');
     s = await st();
     check(s.zones[0].walls === 2, 'Д4: стены зоны назначаются пальцем', s.zones);
+    const wid = await p.evaluate(() => ({walls: MeasureLab012.regions()[0].q.walls, wid: Object.values(S.room.wid || {})}));
+    check(wid.walls.length === 2 && wid.walls.every(id => typeof id === 'string' && wid.wid.includes(id)), 'walls: состав зоны — постоянные ID стен (r.wid), не индексы', wid);
+    /* зона 0.12 без zn (старое сохранение) получает номер при показе плана */
+    const mig = await p.evaluate(() => { S.room.ms.labRooms.push({id: 'old-012', name: 'Старая', pts: [[100, 100], [900, 100], [900, 900], [100, 900]], walls: []}); delete S.room.ms.labRooms[0].zn; draw();
+      return MeasureLab012.regions().map(({q}) => q.zn); });
+    check(mig.length === 2 && mig.every(n => n > 0) && new Set(mig).size === 2, 'zn: зоны без номера (0.12) получают уникальный zn', mig);
 
     /* ── 7. Д1: подложка с двумя комнатами, граница в A, затем штатный ⌂ по B ── */
     await room('Скан', {pts: [], closed: false});
@@ -196,8 +207,9 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
     /* ── 8. Выгрузка: формат v3 + расширения 0.12 без новых полей ── */
     const ex = await p.evaluate(async () => { await PM.flushAll(); return PM.exportObjObj(); });
     const zones = ex.rooms.flatMap(r => r.ms.labRooms || []);
-    check(zones.length === 1 && zones.every(q => !('src' in q) && q.id && q.name && Array.isArray(q.pts) && Array.isArray(q.walls)),
-      'Контракт: зоны выгружаются прежними полями ms.labRooms {id,name,pts,walls}', zones.map(q => Object.keys(q)));
+    check(zones.length === 1 && zones.every(q => !('src' in q) && q.id && q.name && q.zn === 1 && Array.isArray(q.pts) && Array.isArray(q.walls))
+      && ex.rooms.every(r => !('labZnHi' in r.ms)),
+      'Контракт: ms.labRooms {id,name,pts,walls} + необязательное zn; служебные src/labZnHi не выгружаются', zones.map(q => Object.keys(q)));
     check(h.errors.length === 0, 'Нет ошибок страницы', h.errors);
   } catch (e) {
     check(false, 'Сценарий прерван', String(e && e.stack || e));

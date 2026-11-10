@@ -240,18 +240,31 @@
   const zoneOwner = P => { const c = interior(P); return c && closedRooms().find(r => inPoly(c, r.ms.pts)); };
   const clashes = (P, owner, skip) => regions().some(({q}) => q.id !== skip && overlaps(P, q.pts)) ? 'zone'
     : closedRooms().some(r => r !== owner && overlaps(P, r.ms.pts)) ? 'room' : '';
-  const nextName = () => ZONE + ' ' + (Math.max(0, ...regions().map(({q}) => +((/^Зона (\d+)$/.exec(q.name) || [])[1] || 0))) + 1);
-  const host = () => S.room.ms.pts.length >= 2 ? S.room : rooms().find(r => r.ms.pts.length >= 2);
-  function store(owner) {
-    if (owner === S.room) saveRoom();
-    else {
-      saveRoom();
-      dbPut('sess', JSON.parse(JSON.stringify(owner))).catch(error => {
-        console.error(error); toast('Не удалось сохранить помещение');
-      });
-    }
-    draw();
+  /* ── AKX-2026-0010 + AKX-2026-0012 §7: номер зоны zn («З1…») — постоянный, уникален по проекту (все помещения
+     объекта), не переиспользуется. Счётчик — ms.labZnHi помещения-владельца (максимум по объекту); если модуль
+     проектов даёт MeasureLabStore.znNext (P.znHi), берётся больший. Состав зоны walls — постоянные ID стен r.wid[k]. ── */
+  const znHi = () => Math.max(0, ...rooms().map(r => +r.ms.labZnHi || 0), ...regions().map(({q}) => +q.zn || 0));
+  function znNext(owner) {
+    const ext = window.MeasureLabStore?.znNext;
+    const z = Math.max(typeof ext === 'function' ? +ext(owner) || 0 : 0, znHi() + 1);
+    owner.ms.labZnHi = z;
+    return z;
   }
+  const zoneLabel = q => /^Зона \d+$/.test(q.name) || !q.zn ? q.name : ZONE + ' ' + q.zn + ' · ' + q.name;
+  /* зоны 0.12 без zn получают номер при первом показе плана (порядок помещений и зон сохраняется) */
+  function znFix() {
+    const touched = new Set();
+    for (const {r, q} of regions()) if (!(+q.zn > 0)) { q.zn = znNext(r); touched.add(r); }
+    for (const r of touched) persist(r);
+  }
+  const host = () => S.room.ms.pts.length >= 2 ? S.room : rooms().find(r => r.ms.pts.length >= 2);
+  function persist(owner) {
+    saveRoom();
+    if (owner !== S.room) dbPut('sess', JSON.parse(JSON.stringify(owner))).catch(error => {
+      console.error(error); toast('Не удалось сохранить помещение');
+    });
+  }
+  function store(owner) { persist(owner); draw(); }
   let mode = '', draft = [], selected = null, selectedDivider = null, edit = null, shift = null;
   let canvasId = null, active = false;
   const selection = () => regions().find(({q}) => q.id === selected);
@@ -267,7 +280,7 @@
     plSnap();
     if (target) { target.q.pts = P; if (src) target.q.src = src; }
     else {
-      const q = {id: crypto.randomUUID(), name: nextName(), pts: P, walls: [], ...(src ? {src} : {})};
+      const zn = znNext(owner), q = {id: crypto.randomUUID(), zn, name: ZONE + ' ' + zn, pts: P, walls: [], ...(src ? {src} : {})};
       (owner.ms.labRooms ||= []).push(q);
       selected = q.id; selectedDivider = null;   /* AKX-2026-0010: одно выделение в панели */
     }
@@ -497,6 +510,11 @@
     if (fresh.length && active) toast('Стены или границы изменились: ' + fresh.join(', ') + ' — выберите и «Перезалить»');
   }
   api.stale = () => { refreshStale(); return [...staleIds]; };
+  /* AKX-2026-0012: вход в зоны из холста — плитка футляра плана «Зона» (lab-tb, инженер C) вызывает open('pick'|'fill'|…) */
+  api.open = (m = 'pick') => { if (S.mode !== 'plan' || !S.room) return false; active = true; switchMode(m); return true; };
+  api.close = () => { active = false; switchMode(''); };
+  api.isOpen = () => active;
+  api.zoneLabel = zoneLabel;
 
   /* ── AKX-2026-0010 Д9: панель внизу, над штатной полосой #zf — не закрывает тосты, плашку угла и кнопки вида.
      Д6б: при открытой клавиатуре панель не исчезает, а сжимается в один прокручиваемый ряд (см. lab-v012.css). ── */
@@ -610,6 +628,51 @@
     }
     return priorDelete.apply(this, arguments);
   };
+  /* ── AKX-2026-0010: подпись зоны не накрывает подписи стен С№ и «⌂ помещение». Места подписей v81 (draw) снаружи
+     не видны — берутся приближённо: С№ у середины стены внутрь контура, «⌂» у центра помещения. Подпись ставится
+     в свободную точку зоны ближе к её центру; своё имя — в две строки: «Зона N» мелко, имя ниже. ── */
+  function labelBoxes() {
+    const d = devicePixelRatio || 1, out = [];
+    cx.save(); cx.font = 'bold ' + 14 * d + 'px system-ui';
+    for (const r of rooms()) {
+      const m = r.ms, n = plN(m);
+      for (let k = 0; k < n; k++) {
+        const [A, B] = plSeg(m, k).map(v => toScr(...v)), M = mix(A, B, 0.5), l = dist(A, B) || 1;
+        const N = [-(B[1] - A[1]) / l, (B[0] - A[0]) / l], in1 = add(M, N, 25 * d), in2 = add(M, N, -25 * d);
+        const c = m.closed && m.pts.length > 2 && !inPoly(toPl(...in1), m.pts) ? in2 : in1;
+        out.push([c[0] - 22 * d, c[1] - 14 * d, c[0] + 22 * d, c[1] + 14 * d]);
+      }
+      if (m.closed && m.pts.length > 2 && r.name) {
+        const c = toScr(...plCen(m.pts)), w = cx.measureText('⌂ ' + r.name).width / 2;
+        out.push([c[0] - w - 4 * d, c[1] - 14 * d, c[0] + w + 4 * d, c[1] + 6 * d]);
+      }
+    }
+    cx.restore();
+    return out;
+  }
+  function zoneText(q, old, avoid) {
+    const d = devicePixelRatio || 1, P = q.pts.map(v => toScr(...v)), xs = P.map(v => v[0]), ys = P.map(v => v[1]);
+    const custom = !/^Зона \d+$/.test(q.name) && q.zn, top = custom ? ZONE + ' ' + q.zn : '', text = q.name + (old ? ' ⟳' : '');
+    const span = (Math.max(...xs) - Math.min(...xs)) * 0.9;
+    let size = 13; cx.font = 'bold ' + size * d + 'px system-ui';
+    while (size > 9 && cx.measureText(text).width > span) cx.font = 'bold ' + --size * d + 'px system-ui';
+    const w = Math.max(cx.measureText(text).width, custom ? cx.measureText(top).width * 0.8 : 0) / 2;
+    const h0 = (custom ? 24 : 12) * d, h1 = 5 * d;
+    const box = c => [c[0] - w, c[1] - h0, c[0] + w, c[1] + h1];
+    const hits = c => { const b = box(c); return avoid.filter(x => x[0] < b[2] && x[2] > b[0] && x[1] < b[3] && x[3] > b[1]).length; };
+    const c0 = toScr(...zCen(q.pts));
+    let best = c0, score = hits(c0);
+    if (score) for (let i = 1; i < 12; i++) for (let j = 1; j < 12; j++) {
+      const c = [Math.min(...xs) + (Math.max(...xs) - Math.min(...xs)) * i / 12, Math.min(...ys) + (Math.max(...ys) - Math.min(...ys)) * j / 12 + h0 / 2];
+      if (!inPoly(toPl(...c), q.pts)) continue;
+      const v = hits(c) + dist(c, c0) / 1e5;
+      if (v < score) { score = v; best = c; }
+    }
+    avoid.push(box(best));
+    cx.fillStyle = old ? '#b4610f' : '#11766c'; cx.textAlign = 'center';
+    cx.fillText(text, best[0], best[1]);
+    if (custom) { cx.font = 'bold ' + Math.max(9, size - 3) * d + 'px system-ui'; cx.globalAlpha = 0.8; cx.fillText(top, best[0], best[1] - 13 * d); cx.globalAlpha = 1; }
+  }
   function paint(P, line, fillColor, closed = false, dash = []) {
     if (P.length < 2) return;
     cx.strokeStyle = line; cx.lineWidth = pixels(2); cx.setLineDash(dash);
@@ -622,16 +685,15 @@
   draw = function() {
     const result = priorDraw.apply(this, arguments);
     document.body.classList.toggle('lab12-rect', S.mode !== 'plan' && rect({k: S.mk}));
-    if (S.mode === 'plan' && S.room) refreshStale();   /* AKX-2026-0010 Д7 */
+    if (S.mode === 'plan' && S.room) { znFix(); refreshStale(); }   /* AKX-2026-0010 zn, Д7 */
     refreshPanel();
     if (panel.hidden) return result;
     cx.save();
+    const avoid = labelBoxes();
     for (const {q} of regions()) {
       const isSelected = q.id === selected && active, old = staleIds.has(q.id);
       paint(q.pts, old ? '#d9822b' : '#13827c', isSelected ? (old ? '#f0a03040' : '#2ab5ad40') : (old ? '#f0a03019' : '#2ab5ad19'), true, [pixels(5), pixels(3)]);
-      const p = zCen(q.pts);
-      cx.fillStyle = old ? '#b4610f' : '#11766c'; cx.font = 'bold ' + pixels(13) + 'px system-ui';
-      cx.textAlign = 'center'; cx.fillText(q.name + (old ? ' ⟳' : ''), ...toScr(...p));
+      zoneText(q, old, avoid);
     }
     for (const {q} of dividers()) paint(q.pts, q.id === selectedDivider && active ? '#b71a7e' : '#13827c', null, false, [pixels(6), pixels(5)]);
     if (active && (selection() || mode === 'assign')) {
