@@ -1,11 +1,15 @@
 // Measure 82.18 (AKX-2026-0012, инженер C): ↶ ↷ — фото с изображением, стена, выноска; после перезапуска.
 // Запуск: NODE_PATH=/opt/npm-tools/node_modules QA_VW=412 QA_VH=797 QA_DPR=3 node tests/qa-v8218-undo.cjs
+// QA_IDB_DELAY=<мс> — искусственная задержка завершения каждой записи IndexedDB (медленный телефон): oncomplete транзакций readwrite DB.db.
 const {start} = require('./qa-v011-harness.cjs');
 (async () => {
-  const h = await start(); const {p, check} = h; const tag = `${process.env.QA_VW || 412}x${process.env.QA_VH || 915}`;
+  const h = await start(); const {p, check} = h; const DLY = +process.env.QA_IDB_DELAY || 0;
+  const slow = async () => { if (DLY) await p.evaluate(ms => { if (!DB.db || DB.db.__qaSlow) return; const d = DB.db, t0 = d.transaction.bind(d); d.__qaSlow = 1;
+    d.transaction = function (st, mode) { const t = t0(st, mode); if (mode === 'readwrite') Object.defineProperty(t, 'oncomplete', {configurable: true, set(f) { t.addEventListener('complete', ev => setTimeout(() => f.call(t, ev), ms)); }}); return t; }; }, DLY); };
+  await slow(); const tag = `${process.env.QA_VW || 412}x${process.env.QA_VH || 915}`;
   const st = () => p.evaluate(() => ({refs: (S.refs || []).map(r => r.id), els: S.els.length, notes: S.notes.length, und: S.und.length, sess: S.sess && S.sess.id}));
   const click = async sel => { await p.locator(sel).click(); await p.waitForTimeout(150); };
-  const reopen = async sid => { await p.evaluate(() => PM.flushAll()); await p.reload(); await p.waitForFunction(() => window.MeasureLabHistory);
+  const reopen = async sid => { await p.evaluate(() => PM.flushAll()); await p.reload(); await p.waitForFunction(() => window.MeasureLabHistory); await slow();
     await p.evaluate(async sid => { await openSess(sid); document.body.classList.remove('tz'); PM.zmSet('mk'); PM.fit(); PM.draw(); }, sid); await p.waitForTimeout(400); };
   const red = async id => p.evaluate(async id => {   // изображение фото: Blob в базе и отрисованный пиксель внутри фото (не фон)
     const b = await dbGet('img', 'ref:' + id); const r = S.refs.find(x => x.id === id); if (!r) return {blob: b instanceof Blob, px: null};
@@ -73,9 +77,14 @@ const {start} = require('./qa-v011-harness.cjs');
     // ── холст проекта (82.18, инженер B): фото подложки и область стены — ↶ после перезапуска (журнал проекта) ──
     if (await p.evaluate(() => !!(window.MeasureLabSketch && MeasureLabSketch.state && 'board' in MeasureLabSketch.state))) {
       const PRJ = 'QA8218 C — Undo';
-      const reopenK = async () => { await p.evaluate(async () => { await PM.flushAll(); await MeasureLabSketch.saveNow(); MeasureLabHistory.flush(); }); await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && window.MeasureLabHistory);
+      const reopenK = async () => { await p.evaluate(async () => { await PM.flushAll(); await MeasureLabSketch.saveNow(); MeasureLabHistory.flush(); }); await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && window.MeasureLabHistory); await slow();
         await p.evaluate(async n => { document.body.classList.remove('tz'); PM.PEN.mode = 'off'; if (!MeasureLabSketch.isOpen()) await MeasureLabSketch.open(n); }, PRJ); await p.waitForTimeout(500); };
-      await p.evaluate(async n => { document.body.classList.remove('tz'); PM.PEN.mode = 'off'; await MeasureLabSketch.open(n); }, PRJ); await p.waitForTimeout(300);
+      // draw() каждые 4 мс во время open — как отрисовки по таймерам на медленном телефоне (без исправления — холст уходил в проект стены QA011)
+      await p.evaluate(async n => { document.body.classList.remove('tz'); PM.PEN.mode = 'off'; const iv = setInterval(() => { try { draw(); } catch (e) { } }, 4);
+        try { await MeasureLabSketch.open(n); await new Promise(z => setTimeout(z, 60)); } finally { clearInterval(iv); } }, PRJ); await p.waitForTimeout(300);
+      // открытие проекта, пока в S.sess стена другого проекта: холст не уходит обратно в тот проект (draw → switchTo во время open), подложка одна
+      const one = await p.evaluate(async () => { const K = MeasureLabSketch.state, all = await dbAll('sess'); return {obj: K.obj, boards: all.filter(o => o.kind === 'board' && !o.del && (o.obj === K.obj || o.labOid === K.pid)).length, all: all.filter(o => o.kind === 'board').length}; });
+      check(one.obj === PRJ && one.boards === 1 && one.all === 1, 'canvas: project opened over another project wall stays, one board', one);
       await p.setInputFiles('#labSketch [data-skf="gal"]', {name: 'red.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(jpg, 'base64')});
       await p.waitForFunction(() => S.sess && S.sess.kind === 'board' && (S.refs || []).length === 1, null, {timeout: 8000}); await p.waitForTimeout(300);
       const bid = await p.evaluate(() => S.refs[0].id);

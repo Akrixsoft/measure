@@ -164,11 +164,15 @@
     const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; wantSnap = 1;
     try { S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; draw(); } finally { wantSnap = 0; Object.assign(S, keep); draw(); } }, 1500); }
   let swAct = null;
-  function switchTo(obj) { if (swAct === obj) return; swAct = obj; setTimeout(() => { open(obj, {fromNative: 1}).finally(() => { swAct = null; }); }, 0); }
+  /* 82.18 fix (qa-v8218-undo): пока идёт open(), S.sess ещё прежняя стена другого проекта — draw() в этом окне (K.on уже true, подложка не активна)
+     уводил холст обратно в прежний проект (switchTo) и создавал ему подложку; фото ложилось туда. Переход — только вне open() и если расхождение осталось. */
+  let opening = 0;
+  const foreignObj = () => { const fo = S.mode === 'plan' ? S.room && S.room.obj : S.sess && S.sess.kind !== 'board' && S.sess.obj; return fo != null && fo !== false && fo !== '' && fo !== K.obj ? fo : null; };
+  function switchTo(obj) { if (opening || swAct === obj) return; swAct = obj; setTimeout(() => { if (opening || !K.on || foreignObj() !== obj || listOn()) { swAct = null; return; } open(obj, {fromNative: 1}).finally(() => { swAct = null; }); }, 0); }
   draw = function () {
     if (!K.on || (window.LABCTX && LABCTX.painting)) return draw81.apply(this, arguments);
-    const fo = S.mode === 'plan' ? S.room && S.room.obj : S.sess && S.sess.kind !== 'board' && S.sess.obj;   // открыто штатно другое (список v81) — переход в его проект, холст не закрывается
-    if (fo != null && fo !== false && fo !== '' && fo !== K.obj && !listOn()) { switchTo(fo); return draw81.apply(this, arguments); }
+    const fo = foreignObj();   // открыто штатно другое (список v81) — переход в его проект, холст не закрывается (во время open() — без перехода)
+    if (fo && !listOn()) { if (!opening) switchTo(fo); return draw81.apply(this, arguments); }
     if (listOn() || nativeOnly()) { const r0 = draw81.apply(this, arguments); ui(); return r0; }
     let act = active();
     if (!act && activeKind()) act = adopt();   // стену / план открыли штатно (из плана, ряд С№) — область появляется на холсте
@@ -605,7 +609,8 @@
     if (!b) { b = MeasureLabBoard.record(pid, obj); await dbPut('sess', b); } else if (obj && b.obj !== obj) { b.obj = obj; await dbPut('sess', b); }
     return b;
   }
-  async function open(arg, opt) {
+  async function open(arg, opt) { opening++; try { return await open1(arg, opt); } finally { opening--; } }
+  async function open1(arg, opt) {
     opt = opt || {}; if (arg == null) arg = K.pid || curObj(); if (!arg) return null;
     const pr0 = await resolve(arg);
     if (K.on && pr0.pid === K.pid) { if (window.MeasureLabProjects && MeasureLabProjects.hide) MeasureLabProjects.hide(); if (listOn()) try { sessList(false); } catch (e) { } draw(); return K; }
