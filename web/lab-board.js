@@ -26,6 +26,7 @@
   const w3m0 = w3Model; w3Model = function () { return isB() ? null : w3m0.apply(this, arguments); };
   const st0 = status; status = function () { if (isB()) { const e = $('st'); if (e) e.innerHTML = `Холст · фото <b>${(S.refs || []).length}</b> · размеров <b>${(S.dms || []).length}</b>`; return; } return st0.apply(this, arguments); };
   const zw0 = zWarn; zWarn = function () { return isB() ? [] : zw0.apply(this, arguments); };
+  const on0 = zOpenN; zOpenN = function () { return isB() ? (S.dms || []).filter(d => !(+d.vm > 0)).length : on0.apply(this, arguments); };   // ✓: на подложке — только размеры без числа (L / H стены нет)
   const ex0 = exportObj; exportObj = function () { if (isB()) throw new Error('подложка холста не выгружается'); return ex0.apply(this, arguments); };   // doSave: у подложки out нет
   const ro0 = openRoom; openRoom = async function (id) { if (id === '~board') return; return ro0.apply(this, arguments); };   // v81 «к плану помещения» с подложки — не помещение
 
