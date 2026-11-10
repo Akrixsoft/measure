@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Measure · Скетч — прототип</title>
+<style>
+/* ═══ [BLOCK SK-CSS] ═══ */
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#E9ECF0;font:14px system-ui,-apple-system,sans-serif;color:#1A2027;touch-action:none;-webkit-user-select:none;user-select:none}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block}
+#top{position:fixed;left:0;right:0;top:0;height:46px;background:#1B1E23;color:#F2F4F7;display:flex;align-items:center;gap:8px;padding:0 10px;z-index:3}
+#top b{font-size:15px}#top .sp{flex:1}
+#flow{display:flex;border:1px solid #3A4048;border-radius:10px;overflow:hidden}
+#flow button{background:none;border:0;color:#C9CED6;padding:6px 10px;font:600 13px system-ui}
+#flow button.on{background:#F6E08A;color:#1B1E23}
+#hint{position:fixed;left:8px;right:8px;top:52px;background:rgba(27,30,35,.88);color:#F2F4F7;border-radius:10px;padding:8px 11px;font-size:13px;line-height:1.35;z-index:3;pointer-events:none}
+#bar{position:fixed;left:6px;right:6px;bottom:8px;background:#2B2F35;border-radius:16px;padding:6px;display:flex;gap:5px;overflow-x:auto;z-index:3;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#bar button{flex:0 0 auto;min-width:46px;height:46px;border-radius:11px;border:1px solid #444B55;background:#353A42;color:#F2F4F7;font:600 12px system-ui;padding:0 8px}
+#bar button.on{background:#F6E08A;color:#1B1E23;border-color:#F6E08A}
+#bar .sep{flex:0 0 1px;background:#444B55;margin:4px 2px}
+#kinds{position:fixed;left:6px;right:6px;bottom:66px;display:none;gap:5px;overflow-x:auto;z-index:3}
+#kinds.on{display:flex}
+#kinds button{flex:0 0 auto;height:38px;border-radius:10px;border:1px solid #C9CED6;background:#fff;font:600 13px system-ui;padding:0 10px}
+#kinds button.on{background:#1F6FD1;color:#fff;border-color:#1F6FD1}
+#val{position:fixed;display:none;width:96px;height:34px;margin:-17px 0 0 -48px;border:2px solid #1F6FD1;border-radius:8px;font:700 16px system-ui;text-align:center;z-index:5;background:#fff}
+#val.on{display:block}
+#panel{position:fixed;right:8px;top:100px;width:212px;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:10px;z-index:3;display:none;font-size:13px}
+#panel.on{display:block}#panel h4{margin:0 0 6px;font-size:14px}#panel .r{display:flex;justify-content:space-between;gap:6px;margin:3px 0}
+#panel .ok{color:#2E9E4F}#panel .wr{color:#D97706}#panel .er{color:#E0442B}
+#toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:#1B1E23;color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;display:none;z-index:6;max-width:90%}
+#file{display:none}
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:8}#dlg.on{display:flex}
+#dlg .bx{background:#fff;border-radius:14px;padding:14px;width:min(360px,92vw);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#dlg h4{margin:0 0 10px}#dlg label{display:block;margin:8px 0 3px;font-size:13px;color:#555}
+#dlg input,#dlg textarea{width:100%;font:600 16px system-ui;padding:8px;border:1px solid #C9CED6;border-radius:8px}#dlg textarea{font:12px ui-monospace,monospace;height:220px}
+#dlg .bt{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}#dlg .bt button{height:40px;padding:0 14px;border-radius:10px;border:1px solid #C9CED6;background:#fff;font:600 14px system-ui}#dlg .bt .pr{background:#1F6FD1;color:#fff;border-color:#1F6FD1}
+</style></head><body>
+<canvas id="cv"></canvas>
+<div id="top"><b>Скетч</b><span style="opacity:.6;font-size:12px">прототип</span><span class="sp"></span>
+  <div id="flow"><button data-f="A" class="on">А: фото→стена</button><button data-f="B">Б: стена→фото</button></div></div>
+<div id="hint"></div>
+<div id="kinds"></div>
+<div id="bar">
+  <button data-t="pan" class="on">✋</button>
+  <button data-t="cor">⌗ Углы</button>
+  <button data-t="dim">↔ Размер</button>
+  <button data-t="obj">▭ Объект</button>
+  <button data-t="pt">◉ Точка</button>
+  <button data-t="txt">Т</button>
+  <span class="sep"></span>
+  <button id="bUndo">↶</button>
+  <button id="bDel">🗑</button>
+  <button id="bAdd">＋ Фото</button>
+  <button id="bJson">JSON</button>
+  <button id="bReset">Пример</button>
+</div>
+<input id="val" inputmode="decimal" autocomplete="off">
+<div id="panel"></div>
+<div id="toast"></div>
+<input id="file" type="file" accept="image/*" multiple>
+<div id="dlg"><div class="bx"></div></div>
+<script>
+'use strict';
+/* ═══ [BLOCK SK-STATE] модель ═══
+   photos: {id, src, x, y, w (мир), iw, ih, cor: [[ix,iy]×4 ЛВ ПВ ПН ЛН] | null,
+            els: [{id, t:'dim'|'obj'|'pt'|'txt', sp:'img'|'mm', a,b (точки), v, k, tx}], L?, H? (ручные)} */
+const SAMPLE = 'data:image/jpeg;base64,__SAMPLE__';
+const KINDS = {kol: ['Колонна', '#6B7785'], rig: ['Ригель', '#8A5A2B'], nis: ['Ниша', '#8A4026'], kor: ['Короб', '#5B6B7A'], okn: ['Проём', '#2E9E4F']};
+const PTK = {roz: ['Розетка', '#D4A300'], vyk: ['Выкл.', '#7B3FC4'], svet: ['Свет', '#E0442B'], vod: ['Вода', '#1F6FD1']};
+const S = {photos: [], view: {ox: 20, oy: 110, s: 0.42}, tool: 'pan', flow: 'A', kind: 'kol', ptk: 'roz', sel: null, und: [], imgs: {}};
+const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d');
+const uid = () => Math.random().toString(36).slice(2, 9);
+const DPR = () => devicePixelRatio || 1;
+function snap() { S.und.push(JSON.stringify(S.photos.map(p => ({...p, rect: undefined})))); if (S.und.length > 60) S.und.shift(); }
+function save() { try { localStorage.setItem('sketch.proto', JSON.stringify({photos: S.photos.map(p => ({...p, rect: undefined, src: p.src.length > 400000 && p.src !== SAMPLE ? '' : p.src})), flow: S.flow})); } catch (e) { } }
+function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = 'none', 2600); }
+
+/* ═══ [BLOCK SK-GEOM] гомография фото → плоскость стены ═══ */
+function solve(A, b) { const n = b.length; for (let i = 0; i < n; i++) { let m = i; for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r; [A[i], A[m]] = [A[m], A[i]]; [b[i], b[m]] = [b[m], b[i]]; for (let r = i + 1; r < n; r++) { const f = A[r][i] / A[i][i]; for (let c = i; c < n; c++) A[r][c] -= f * A[i][c]; b[r] -= f * b[i]; } } const x = Array(n).fill(0); for (let i = n - 1; i >= 0; i--) { let s = b[i]; for (let c = i + 1; c < n; c++) s -= A[i][c] * x[c]; x[i] = s / A[i][i]; } return x; }
+function homog(src, dst) { const A = [], b = []; for (let i = 0; i < 4; i++) { const [x, y] = src[i], [u, v] = dst[i]; A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); } const h = solve(A, b); return [...h, 1]; }
+const hap = (H, [x, y]) => { const w = H[6] * x + H[7] * y + H[8]; return [(H[0] * x + H[1] * y + H[2]) / w, (H[3] * x + H[4] * y + H[5]) / w]; };
+const UNIT = [[0, 0], [1, 0], [1, 1], [0, 1]];
+function geo(p) { if (!p.cor) return null; if (!p._g || p._gk !== JSON.stringify(p.cor)) { p._g = {f: homog(p.cor, UNIT), r: homog(UNIT, p.cor)}; p._gk = JSON.stringify(p.cor); p._rect = null; } return p._g; }
+
+/* ═══ [BLOCK SK-BUILD] построение стены из размеров ═══
+   Все элементы → мм стены (x от левого края, y от пола). Длина/высота — из размеров,
+   охватывающих стену; введённые размеры до объектов задают их положение и габариты. */
+function build(p) {
+  const g = geo(p); if (!g) return null;
+  const toU = (q, sp, LH) => sp === 'img' ? hap(g.f, q) : [q[0] / LH[0], 1 - q[1] / LH[1]];
+  // 1. L и H
+  let L = +p.L || 0, H = +p.H || 0, sl = 0, wl = 0, sh = 0, wh = 0;
+  const ests = [];
+  for (const e of p.els) if (e.t === 'dim' && e.v > 0 && e.sp === 'img') {
+    const a = hap(g.f, e.a), b = hap(g.f, e.b), du = Math.abs(b[0] - a[0]), dv = Math.abs(b[1] - a[1]);
+    if (du > dv && du > 0.05) { const w = du ** 3; sl += e.v / du * w; wl += w; ests.push(['L', e.v / du, du]); }
+    else if (dv > 0.05) { const w = dv ** 3; sh += e.v / dv * w; wh += w; ests.push(['H', e.v / dv, dv]); }
+  }
+  // размер от края до края стены задаёт длину/высоту точно, остальные — только оценка
+  let Lx = 0, Hx = 0; const ed = u => u < 0.06 || u > 0.94;
+  for (const e of p.els) if (e.t === 'dim' && e.v > 0 && e.sp === 'img') { const a = hap(g.f, e.a), b = hap(g.f, e.b);
+    if (Math.abs(b[0] - a[0]) > 0.88 && ed(a[0]) && ed(b[0])) Lx = e.v; if (Math.abs(b[1] - a[1]) > 0.88 && ed(a[1]) && ed(b[1])) Hx = e.v; }
+  if (!L) L = Lx || (wl ? sl / wl : 0); if (!H) H = Hx || (wh ? sh / wh : 0);
+  if (!L && H) L = H * aspect(p); if (!H && L) H = L / aspect(p);
+  if (!L || !H) return {g, L: 0, H: 0, objs: [], dims: [], why: 'нужен хотя бы один размер'};
+  const LH = [L, H], mm = q => { const u = q; return [u[0] * L, (1 - u[1]) * H]; };
+  // 2. объекты и точки по фото
+  const objs = [];
+  for (const e of p.els) {
+    if (e.t === 'obj') { const P = e.sp === 'img' ? [e.a, [e.b[0], e.a[1]], e.b, [e.a[0], e.b[1]]].map(q => mm(hap(g.f, q))) : [e.a, e.b];
+      const xs = P.map(q => q[0]), ys = P.map(q => q[1]);
+      objs.push({id: e.id, k: e.k, pt: 0, x0: clamp(Math.min(...xs), 0, L), x1: clamp(Math.max(...xs), 0, L), y0: clamp(Math.min(...ys), 0, H), y1: clamp(Math.max(...ys), 0, H), fx: {}, fy: {}}); }
+    if (e.t === 'pt') { const q = e.sp === 'img' ? mm(hap(g.f, e.a)) : e.a; objs.push({id: e.id, k: e.k, pt: 1, n: e.n || 1, x0: q[0], x1: q[0], y0: q[1], y1: q[1], fx: {}, fy: {}}); }
+  }
+  // край объекта у края стены (≤3 %) — на краю: колонна во всю высоту, примыкание к углу
+  for (const o of objs) if (!o.pt) { o.sn = []; if (o.x0 < 0.03 * L) { o.x0 = 0; o.sn.push('x0'); } if (o.x1 > 0.97 * L) { o.x1 = L; o.sn.push('x1'); } if (o.y0 < 0.03 * H) { o.y0 = 0; o.sn.push('y0'); } if (o.y1 > 0.97 * H) { o.y1 = H; o.sn.push('y1'); } }
+  // 3. размеры → признаки (край стены / край объекта) и ограничения
+  const tol = 0.07;
+  const feats = ax => { const F = [{o: null, s: 0, v: 0}, {o: null, s: 1, v: ax === 'x' ? L : H}];
+    for (const o of objs) { if (o.pt) F.push({o, s: 'c', v: ax === 'x' ? o.x0 : o.y0}); else { F.push({o, s: 0, v: ax === 'x' ? o.x0 : o.y0}); F.push({o, s: 1, v: ax === 'x' ? o.x1 : o.y1}); } } return F; };
+  const near = (ax, val, excl) => { let b = null, bd = tol * (ax === 'x' ? L : H); for (const f of feats(ax)) { if (excl && f.o === excl.o && f.s === excl.s) continue; const d = Math.abs(f.v - val) * (f.o ? 1 : 0.5); if (d < bd) { bd = d; b = f; } } return b; };
+  const dims = [];
+  for (const e of p.els) if (e.t === 'dim') {
+    const A = e.sp === 'img' ? mm(hap(g.f, e.a)) : e.a, B = e.sp === 'img' ? mm(hap(g.f, e.b)) : e.b;
+    const ax = Math.abs(B[0] - A[0]) >= Math.abs(B[1] - A[1]) ? 'x' : 'y', i = ax === 'x' ? 0 : 1;
+    const fa = near(ax, A[i]), fb = fa ? near(ax, B[i], fa) : null;
+    dims.push({e, ax, A, B, fa, fb, est: Math.abs(B[i] - A[i])});
+  }
+  const keyOf = f => f.o ? f.o.id + ':' + f.s : 'W:' + f.s;
+  const val = (ax, f) => f.o ? (f.s === 'c' ? (ax === 'x' ? f.o.x0 : f.o.y0) : (ax === 'x' ? (f.s ? f.o.x1 : f.o.x0) : (f.s ? f.o.y1 : f.o.y0))) : (f.s ? (ax === 'x' ? L : H) : 0);
+  // pos[ax] — края с закреплённым положением; wlk — габарит задан размером
+  const pos = {x: new Set(['W:0', 'W:1']), y: new Set(['W:0', 'W:1'])}, wlk = new Set();
+  for (const o of objs) for (const k of o.sn || []) pos[k[0]].add(o.id + ':' + k[1]);   // край у края стены
+  const K = ax => ax === 'x' ? ['x0', 'x1'] : ['y0', 'y1'];
+  const setPos = (ax, f, v) => { const o = f.o, [k0, k1] = K(ax), P = pos[ax];
+    if (o.pt) { o[k0] = o[k1] = v; P.add(keyOf(f)); return; }
+    const me = f.s ? k1 : k0, oth = o.id + ':' + (f.s ? 0 : 1);
+    if (wlk.has(o.id + ax) || !P.has(oth)) { const dv = v - o[me]; o[k0] += dv; o[k1] += dv; } else o[me] = v;
+    P.add(keyOf(f)); if (wlk.has(o.id + ax)) P.add(oth); };
+  const valid = dims.filter(d => d.e.v > 0 && d.fa && d.fb && (d.fa.o || d.fb.o));
+  for (const d of valid) if (d.fa.o && d.fa.o === d.fb.o && !d.fa.o.pt) {   // габарит объекта: закреплённый край остаётся
+    const o = d.fa.o, [k0, k1] = K(d.ax); if (pos[d.ax].has(o.id + ':1') && !pos[d.ax].has(o.id + ':0')) o[k0] = o[k1] - d.e.v; else o[k1] = o[k0] + d.e.v; wlk.add(o.id + d.ax); }
+  const offs = valid.filter(d => !(d.fa.o && d.fa.o === d.fb.o)), done = new Set();
+  for (let pass = 0; pass < 4; pass++) for (const d of offs) { if (done.has(d)) continue;
+    const P = pos[d.ax], ka = keyOf(d.fa), kb = keyOf(d.fb); let base, mov;
+    if (P.has(ka) && !P.has(kb)) { base = d.fa; mov = d.fb; } else if (P.has(kb) && !P.has(ka)) { base = d.fb; mov = d.fa; }
+    else if (pass === 3 && !P.has(ka) && !P.has(kb)) { base = d.fa.o ? d.fa : d.fb; mov = base === d.fa ? d.fb : d.fa; } else continue;
+    if (!mov.o) continue;
+    const bv = val(d.ax, base), dir = Math.sign(val(d.ax, mov) - bv) || 1; setPos(d.ax, mov, bv + dir * d.e.v); done.add(d); }
+  for (const d of dims) { if (!(d.e.v > 0)) { d.st = 'nov'; continue; } if (!d.fa || !d.fb) { d.st = 'free'; continue; }
+    const got = Math.abs(val(d.ax, d.fb) - val(d.ax, d.fa)); d.res = got; d.st = Math.abs(got - d.e.v) <= 2 ? 'ok' : 'bad'; }
+  return {g, L, H, objs, dims, ests};
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function aspect(p) { const g = geo(p); if (!g) return 1; const c = p.cor, d = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]); return (d(c[0], c[1]) + d(c[3], c[2])) / (d(c[0], c[3]) + d(c[1], c[2])); }
+
+/* ═══ [BLOCK SK-LAYOUT] размещение: фото и стена под ним в мировых координатах ═══ */
+const photoH = p => p.w * p.ih / p.iw;
+function elev(p) {   // прямоугольник развёртки стены под фото (мир)
+  const m = p._m; if (!m || !m.L) return null; const w = p.w, h = w * m.H / m.L; return {x: p.x, y: p.y + photoH(p) + 70, w, h, k: w / m.L};
+}
+const imgToW = (p, q) => [p.x + q[0] * p.w / p.iw, p.y + q[1] * p.w / p.iw];
+const wToImg = (p, q) => [(q[0] - p.x) * p.iw / p.w, (q[1] - p.y) * p.iw / p.w];
+const mmToW = (E, q) => [E.x + q[0] * E.k, E.y + E.h - q[1] * E.k];
+const wToMm = (E, q) => [(q[0] - E.x) / E.k, (E.y + E.h - q[1]) / E.k];
+const toScr = q => [(q[0] * S.view.s + S.view.ox) * DPR(), (q[1] * S.view.s + S.view.oy) * DPR()];
+const toW = (sx, sy) => [(sx - S.view.ox) / S.view.s, (sy - S.view.oy) / S.view.s];
+
+/* ═══ [BLOCK SK-DRAW] отрисовка ═══ */
+function img(p) { if (!S.imgs[p.id]) { const im = new Image(); im.onload = () => { p.iw = im.naturalWidth; p.ih = im.naturalHeight; draw(); }; im.src = p.src; S.imgs[p.id] = im; } return S.imgs[p.id]; }
+function rectified(p) {   // фото, выпрямленное по 4 углам (подложка варианта Б)
+  const g = geo(p), m = p._m; if (!g || !m || !m.L) return null; if (p._rect && p._rk === m.L + 'x' + m.H) return p._rect;
+  const im = img(p); if (!im.complete || !im.naturalWidth) return null;
+  const W = 420, Hh = Math.round(W * m.H / m.L), src = document.createElement('canvas'); src.width = p.iw; src.height = p.ih; const sc = src.getContext('2d'); sc.drawImage(im, 0, 0);
+  const sd = sc.getImageData(0, 0, p.iw, p.ih).data, out = document.createElement('canvas'); out.width = W; out.height = Hh; const oc = out.getContext('2d'), od = oc.createImageData(W, Hh);
+  for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) { const [ix, iy] = hap(g.r, [(x + .5) / W, (y + .5) / Hh]), X = ix | 0, Y = iy | 0; if (X < 0 || Y < 0 || X >= p.iw || Y >= p.ih) continue; const si = (Y * p.iw + X) * 4, di = (y * W + x) * 4; od.data[di] = sd[si]; od.data[di + 1] = sd[si + 1]; od.data[di + 2] = sd[si + 2]; od.data[di + 3] = 255; }
+  oc.putImageData(od, 0, 0); p._rect = out; p._rk = m.L + 'x' + m.H; return out;
+}
+function draw() {
+  const d = DPR(); cv.width = innerWidth * d; cv.height = innerHeight * d; cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = '#E9ECF0'; cx.fillRect(0, 0, cv.width, cv.height);
+  const s = S.view.s * d; cx.setTransform(s, 0, 0, s, S.view.ox * d, S.view.oy * d); const px = 1 / S.view.s;   // 1 px экрана
+  for (const p of S.photos) {
+    const im = img(p); if (!p.iw) continue; p._m = build(p);
+    cx.drawImage(im, p.x, p.y, p.w, photoH(p));
+    if (S.sel && S.sel.p === p.id && S.sel.photo) { cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 3 * px; cx.strokeRect(p.x, p.y, p.w, photoH(p)); }
+    // углы стены на фото
+    if (p.cor) { const P = p.cor.map(q => imgToW(p, q)); cx.strokeStyle = '#F6B400'; cx.lineWidth = 2.5 * px; cx.setLineDash([8 * px, 5 * px]); cx.beginPath(); P.forEach((q, i) => i ? cx.lineTo(...q) : cx.moveTo(...q)); cx.closePath(); cx.stroke(); cx.setLineDash([]); P.forEach((q, i) => dot(q, '#F6B400', 7 * px, ['ЛВ', 'ПВ', 'ПН', 'ЛН'][i], px)); }
+    else if (S.tool === 'cor' && S.pend && S.pend.p === p.id) S.pend.pts.forEach(q => dot(imgToW(p, q), '#F6B400', 7 * px, '', px));
+    // элементы, нарисованные на фото (А)
+    for (const e of p.els) if (e.sp === 'img') drawEl(p, e, q => imgToW(p, q), px, p.w / p.iw);
+    // стена под фото
+    const E = elev(p), m = p._m;
+    if (E) {
+      const R = S.flow === 'B' ? rectified(p) : null;
+      cx.fillStyle = '#fff'; cx.fillRect(E.x, E.y, E.w, E.h); if (R) { cx.globalAlpha = .55; cx.drawImage(R, E.x, E.y, E.w, E.h); cx.globalAlpha = 1; }
+      cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 3 * px; cx.strokeRect(E.x, E.y, E.w, E.h);
+      for (const o of m.objs) { const A = mmToW(E, [o.x0, o.y1]), B = mmToW(E, [o.x1, o.y0]);
+        if (o.pt) { const K = PTK[o.k] || PTK.roz; for (let j = 0; j < (o.n || 1); j++) { const c = mmToW(E, [o.x0 + (j - ((o.n || 1) - 1) / 2) * 71, o.y0]); cx.fillStyle = K[1]; cx.beginPath(); cx.arc(c[0], c[1], Math.max(35 * E.k, 4 * px), 0, 7); cx.fill(); } continue; }
+        const K = KINDS[o.k] || KINDS.kol; cx.fillStyle = K[1] + '55'; cx.strokeStyle = K[1]; cx.lineWidth = 2 * px; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); }
+      // размеры на развёртке — по признакам
+      const lanes = {x: [], y: []};   // ряды размерных линий: без наложения по длине (подпись — минимум 60 px)
+      const laneOf = (ax, a, b) => { const pad = 60 * px / E.k; for (let i = 0; ; i++) { const L = lanes[ax][i] = lanes[ax][i] || []; if (L.every(([c, d]) => b + pad < c || a - pad > d)) { L.push([a, b]); return i; } } };
+      for (const dm of [...m.dims].sort((p1, p2) => Math.abs(valF(m, p1.ax, p1.fb) - valF(m, p1.ax, p1.fa)) - Math.abs(valF(m, p2.ax, p2.fb) - valF(m, p2.ax, p2.fa)))) { if (!dm.fa || !dm.fb || !(dm.e.v > 0)) continue; const ax = dm.ax, va = valF(m, ax, dm.fa), vb = valF(m, ax, dm.fb);
+        const off = 24 * px * (1 + laneOf(ax, Math.min(va, vb), Math.max(va, vb))), col = dm.st === 'ok' ? '#2E9E4F' : '#E0442B';
+        let P, Q; if (ax === 'x') { const yy = E.y + E.h + off; P = [E.x + va * E.k, yy]; Q = [E.x + vb * E.k, yy]; } else { const xx = E.x - off; P = [xx, E.y + E.h - va * E.k]; Q = [xx, E.y + E.h - vb * E.k]; }
+        dimLine(P, Q, String(Math.round(dm.e.v)) + (dm.st === 'bad' ? ' ≠ ' + Math.round(dm.res) : ''), col, px); }
+      for (const e of p.els) if (e.sp === 'mm') drawEl(p, e, q => mmToW(E, q), px, E.k);
+      label([E.x, E.y - 12 * px], `Стена ${Math.round(m.L)} × ${Math.round(m.H)}`, '#1F6FD1', px, 15);
+    } else if (p.cor && m) label([p.x, p.y + photoH(p) + 40], 'Стена: ' + (m.why || 'нужен размер'), '#E0442B', px, 14);
+  }
+  if (S.drag && S.drag.prev) S.drag.prev(px);
+  status();
+}
+function valF(m, ax, f) { if (!f.o) return f.s ? (ax === 'x' ? m.L : m.H) : 0; if (f.s === 'c') return ax === 'x' ? f.o.x0 : f.o.y0; return ax === 'x' ? (f.s ? f.o.x1 : f.o.x0) : (f.s ? f.o.y1 : f.o.y0); }
+function dot(q, c, r, t, px) { cx.fillStyle = c; cx.beginPath(); cx.arc(q[0], q[1], r, 0, 7); cx.fill(); if (t) label([q[0] + r + 3 * px, q[1] - r], t, c, px, 12); }
+function label(q, t, c, px, sz = 13) { cx.font = `700 ${sz * px}px system-ui`; const w = cx.measureText(t).width; cx.fillStyle = 'rgba(255,255,255,.9)'; cx.fillRect(q[0] - 3 * px, q[1] - sz * px, w + 6 * px, sz * 1.3 * px); cx.fillStyle = c; cx.fillText(t, q[0], q[1]); }
+function dimLine(P, Q, t, c, px) { cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = 2 * px; cx.beginPath(); cx.moveTo(...P); cx.lineTo(...Q); cx.stroke(); for (const [A, B] of [[P, Q], [Q, P]]) { const a = Math.atan2(B[1] - A[1], B[0] - A[0]), h = 9 * px; cx.beginPath(); cx.moveTo(...A); cx.lineTo(A[0] + h * Math.cos(a + .35), A[1] + h * Math.sin(a + .35)); cx.lineTo(A[0] + h * Math.cos(a - .35), A[1] + h * Math.sin(a - .35)); cx.fill(); }
+  const m = [(P[0] + Q[0]) / 2, (P[1] + Q[1]) / 2]; cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width; cx.fillStyle = '#fff'; cx.fillRect(m[0] - w / 2 - 4 * px, m[1] - 9 * px, w + 8 * px, 18 * px); cx.strokeRect(m[0] - w / 2 - 4 * px, m[1] - 9 * px, w + 8 * px, 18 * px); cx.fillStyle = c; cx.fillText(t, m[0] - w / 2, m[1] + 5 * px); return m; }
+function drawEl(p, e, T, px, k) {
+  const sel = S.sel && S.sel.e === e.id;
+  if (e.t === 'dim') { const st = (p._m && p._m.dims.find(d => d.e === e) || {}).st, c = sel ? '#1F6FD1' : st === 'ok' ? '#2E9E4F' : st === 'bad' ? '#E0442B' : '#D97706'; e._lab = dimLine(T(e.a), T(e.b), e.v > 0 ? String(e.v) : '?', c, px); }
+  if (e.t === 'obj') { const A = T(e.a), B = T(e.b), K = KINDS[e.k] || KINDS.kol; cx.strokeStyle = sel ? '#1F6FD1' : K[1]; cx.lineWidth = 2.5 * px; cx.setLineDash([6 * px, 4 * px]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.setLineDash([]); label([Math.min(A[0], B[0]) + 4 * px, Math.min(A[1], B[1]) + 16 * px], K[0], K[1], px, 12); }
+  if (e.t === 'pt') { const c = T(e.a), K = PTK[e.k] || PTK.roz; cx.strokeStyle = sel ? '#1F6FD1' : K[1]; cx.lineWidth = 3 * px; cx.beginPath(); cx.arc(c[0], c[1], 9 * px, 0, 7); cx.stroke(); label([c[0] + 12 * px, c[1] - 6 * px], K[0] + ((e.n || 1) > 1 ? ' ×' + e.n : ''), K[1], px, 12); }
+  if (e.t === 'txt') { label(T(e.a), e.tx || 'заметка', '#1A2027', px, 15); }
+}
+
+/* ═══ [BLOCK SK-HIT] попадание ═══ */
+function photoAt(w) { for (let i = S.photos.length - 1; i >= 0; i--) { const p = S.photos[i]; if (!p.iw) continue; if (w[0] >= p.x && w[0] <= p.x + p.w && w[1] >= p.y && w[1] <= p.y + photoH(p)) return {p, sp: 'img', q: wToImg(p, w)}; const E = elev(p); if (E && w[0] >= E.x - 60 && w[0] <= E.x + E.w + 20 && w[1] >= E.y - 20 && w[1] <= E.y + E.h + 120) return {p, sp: 'mm', q: wToMm(E, w), E}; } return null; }
+function elAt(w) { const r = 16 / S.view.s;
+  for (const p of S.photos) for (const e of p.els) if (e.t === 'dim' && e._lab && Math.hypot(w[0] - e._lab[0], w[1] - e._lab[1]) < r * 1.6) return {p, e, lab: 1};   // подпись размера — первой
+  for (const p of S.photos) { const E = elev(p); for (const e of [...p.els].reverse()) { const T = e.sp === 'img' ? q => imgToW(p, q) : E ? q => mmToW(E, q) : null; if (!T) continue;
+  if (e.t === 'dim' && e._lab && Math.hypot(w[0] - e._lab[0], w[1] - e._lab[1]) < r * 1.6) return {p, e, lab: 1};
+  if ((e.t === 'pt' || e.t === 'txt') && Math.hypot(w[0] - T(e.a)[0], w[1] - T(e.a)[1]) < r) return {p, e};
+  if (e.t === 'obj') { const A = T(e.a), B = T(e.b); if (w[0] > Math.min(A[0], B[0]) && w[0] < Math.max(A[0], B[0]) && w[1] > Math.min(A[1], B[1]) && w[1] < Math.max(A[1], B[1])) return {p, e}; }
+  if (e.t === 'dim') { const A = T(e.a), B = T(e.b), v = [B[0] - A[0], B[1] - A[1]], l2 = v[0] * v[0] + v[1] * v[1] || 1, t = clamp(((w[0] - A[0]) * v[0] + (w[1] - A[1]) * v[1]) / l2, 0, 1); if (Math.hypot(A[0] + v[0] * t - w[0], A[1] + v[1] * t - w[1]) < r * .7) return {p, e}; } } } return null; }
+
+/* ═══ [BLOCK SK-DLG] окно ввода внутри страницы (prompt/alert в рамке артефакта запрещены) ═══ */
+function dlg(title, fields, ok, okText = 'Готово', extra) { const D = $('dlg'), B = D.querySelector('.bx');
+  B.innerHTML = `<h4>${title}</h4>` + fields.map((f, i) => f.area ? `<textarea id="dg${i}" readonly>${f.v || ''}</textarea>` : `<label>${f.l}</label><input id="dg${i}" ${f.num ? 'inputmode="decimal"' : ''} value="${f.v == null ? '' : f.v}">`).join('') + `<div class="bt">${extra ? `<button id="dgX">${extra[0]}</button>` : ''}<button id="dgC">Отмена</button><button id="dgO" class="pr">${okText}</button></div>`;
+  D.classList.add('on'); const close = () => D.classList.remove('on');
+  $('dgC').onclick = close; $('dgO').onclick = () => { const v = fields.map((f, i) => $('dg' + i).value); close(); ok && ok(v); };
+  if (extra) $('dgX').onclick = () => extra[1](); const f0 = $('dg0'); if (f0 && !fields[0].area) setTimeout(() => { f0.focus(); f0.select(); }, 30); }
+/* ═══ [BLOCK SK-INPUT] ввод значения — штатное поле и клавиатура ═══ */
+function ask(e, at) { const i = $('val'), s = toScr(at); i.style.left = s[0] / DPR() + 'px'; i.style.top = s[1] / DPR() + 'px'; i.value = e.v || ''; i.classList.add('on'); i._e = e; setTimeout(() => { i.focus(); i.select(); }, 30); }
+$('val').addEventListener('keydown', ev => { if (ev.key === 'Enter') ev.target.blur(); });
+$('val').addEventListener('blur', () => { const i = $('val'), e = i._e; i.classList.remove('on'); i._e = null; if (!e) return; const n = parseFloat(String(i.value).replace(',', '.')); const v = n > 0 ? Math.round(n) : 0; if (v !== (e.v || 0)) { snap(); e.v = v; save(); } draw(); });
+
+/* ═══ [BLOCK SK-GESTURE] перо/палец: инструмент; два пальца — масштаб и сдвиг ═══ */
+const ptr = new Map();
+cv.addEventListener('pointerdown', ev => { cv.setPointerCapture(ev.pointerId); ptr.set(ev.pointerId, [ev.clientX, ev.clientY]);
+  if (ptr.size === 2) { if (S.drag && S.drag.undo) S.drag.undo(); S.drag = {pinch: pinchState()}; return; }
+  if ($('val').classList.contains('on')) { $('val').blur(); }
+  const w = toW(ev.clientX, ev.clientY); start(w, ev); draw(); });
+cv.addEventListener('pointermove', ev => { if (!ptr.has(ev.pointerId)) return; ptr.set(ev.pointerId, [ev.clientX, ev.clientY]); const g = S.drag; if (!g) return;
+  if (g.pinch) { const n = pinchState(), o = g.pinch, ds = n.d / o.d; S.view.s = clamp(o.s * ds, 0.05, 6); S.view.ox = n.c[0] - (o.c[0] - o.ox) * (S.view.s / o.s); S.view.oy = n.c[1] - (o.c[1] - o.oy) * (S.view.s / o.s); draw(); return; }
+  g.move && g.move(toW(ev.clientX, ev.clientY), [ev.clientX, ev.clientY]); draw(); });
+const end = ev => { ptr.delete(ev.pointerId); const g = S.drag; if (!g) return; if (g.pinch) { if (!ptr.size) S.drag = null; else S.drag = {pinch: pinchState()}; return; } if (ev.type !== 'pointercancel' && g.end) g.end(toW(ev.clientX, ev.clientY)); else if (g.undo) g.undo(); S.drag = null; draw(); };
+cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+cv.addEventListener('wheel', ev => { ev.preventDefault(); const f = Math.exp(-ev.deltaY * 0.0015), w = toW(ev.clientX, ev.clientY); S.view.s = clamp(S.view.s * f, .05, 6); S.view.ox = ev.clientX - w[0] * S.view.s; S.view.oy = ev.clientY - w[1] * S.view.s; draw(); }, {passive: false});
+function pinchState() { const [a, b] = [...ptr.values()]; return {d: Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, c: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], s: S.view.s, ox: S.view.ox, oy: S.view.oy}; }
+function start(w, ev) {
+  const t = S.tool, hit = elAt(w), at = photoAt(w), c0 = [ev.clientX, ev.clientY];
+  const pan = () => { const o = {ox: S.view.ox, oy: S.view.oy}; S.drag = {move: (q, c) => { S.view.ox = o.ox + c[0] - c0[0]; S.view.oy = o.oy + c[1] - c0[1]; }, end: () => { if (Math.hypot(...[0, 1].map(i => [S.view.ox - o.ox, S.view.oy - o.oy][i])) < 4) { S.sel = null; panel(); } }}; };
+  // касание подписи размера — ввод значения (в любом инструменте)
+  if (hit && hit.lab) { S.sel = {p: hit.p.id, e: hit.e.id}; S.drag = {end: () => ask(hit.e, hit.e._lab)}; panel(); return; }
+  if (t === 'pan') {
+    if (hit) { S.sel = {p: hit.p.id, e: hit.e.id}; panel(); const e = hit.e, a0 = e.a.slice(), b0 = e.b ? e.b.slice() : null, w0 = w; let moved = 0;
+      S.drag = {move: q => { const k = e.sp === 'img' ? hit.p.iw / hit.p.w : 1 / (elev(hit.p) || {k: 1}).k, dx = (q[0] - w0[0]) * k, dy = (q[1] - w0[1]) * (e.sp === 'img' ? k : -k); if (!moved) { snap(); moved = 1; } e.a = [a0[0] + dx, a0[1] + dy]; if (b0) e.b = [b0[0] + dx, b0[1] + dy]; }, end: () => { if (moved) save(); }}; return; }
+    if (at && at.sp === 'img') { const p = at.p, x0 = p.x, y0 = p.y; S.sel = {p: p.id, photo: 1}; panel(); let moved = 0; S.drag = {move: (q, c) => { if (!moved) { snap(); moved = 1; } p.x = x0 + (c[0] - c0[0]) / S.view.s; p.y = y0 + (c[1] - c0[1]) / S.view.s; }, end: () => { if (moved) save(); }}; return; }
+    return pan();
+  }
+  if (!at) return pan();
+  const p = at.p, sp = at.sp;
+  // вариант А — рисуем на фото; Б — на стене (нужны углы и масштаб)
+  if (t !== 'cor' && t !== 'txt') { if (S.flow === 'A' && sp !== 'img') return toast('Вариант А: размеры и объекты наносятся на фото'); if (S.flow === 'B' && sp !== 'mm') return toast(elev(p) ? 'Вариант Б: размеры и объекты наносятся на стену под фото' : 'Вариант Б: сначала углы и длина/высота стены'); }
+  if (t === 'cor') { if (sp !== 'img') return; if (!S.pend || S.pend.p !== p.id) S.pend = {p: p.id, pts: []}; S.pend.pts.push(at.q); if (S.pend.pts.length === 4) { snap(); p.cor = S.pend.pts; S.pend = null; save(); toast('Углы стены заданы'); if (S.flow === 'B' && !p.L) wallAsk(p); } return; }
+  if (t === 'txt') { dlg('Заметка', [{l: 'Текст'}], ([tx]) => { if (tx) { snap(); p.els.push({id: uid(), t: 'txt', sp, a: at.q, tx}); save(); draw(); } }); return; }
+  if (t === 'pt') { snap(); const e = {id: uid(), t: 'pt', sp, a: at.q, k: S.ptk, n: S.ptk === 'roz' ? S.posts : 1}; p.els.push(e); S.sel = {p: p.id, e: e.id}; save(); panel(); return; }
+  if (t === 'dim' || t === 'obj') {
+    const a = at.q.slice(); let b = a.slice(), T = sp === 'img' ? q => imgToW(p, q) : q => mmToW(at.E, q);
+    const conv = q => sp === 'img' ? wToImg(p, q) : wToMm(at.E, q);
+    S.drag = {move: q => { b = conv(q); if (t === 'dim' && sp === 'mm') { if (Math.abs(b[0] - a[0]) > Math.abs(b[1] - a[1])) b[1] = a[1]; else b[0] = a[0]; } },
+      prev: px => { if (t === 'dim') dimLine(T(a), T(b), '…', '#1F6FD1', px); else { const A = T(a), B = T(b); cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2 * px; cx.setLineDash([6 * px, 4 * px]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.setLineDash([]); } },
+      end: () => { const A = T(a), B = T(b); if (Math.hypot(B[0] - A[0], B[1] - A[1]) * S.view.s < 14) return; snap(); const e = {id: uid(), t, sp, a, b, v: 0, k: S.kind}; if (t === 'obj' && sp === 'mm') { e.a = [Math.min(a[0], b[0]), Math.min(a[1], b[1])]; e.b = [Math.max(a[0], b[0]), Math.max(a[1], b[1])]; }
+        p.els.push(e); S.sel = {p: p.id, e: e.id}; save(); draw(); panel(); if (t === 'dim') ask(e, e._lab || T(a)); }};
+  }
+}
+function wallAsk(p) { dlg('Стена, мм', [{l: 'Длина (пусто — из размеров на фото)', v: p.L || '', num: 1}, {l: 'Высота (пусто — из размеров на фото)', v: p.H || '', num: 1}], ([a, b]) => { const L = parseFloat(a.replace(',', '.')), H = parseFloat(b.replace(',', '.')); snap(); p.L = L > 0 ? Math.round(L) : 0; p.H = H > 0 ? Math.round(H) : 0; save(); draw(); panel(); }); }
+
+/* ═══ [BLOCK SK-UI] панель, подсказки, кнопки ═══ */
+const HINT = {
+  A: {pan: 'Вариант А. Фото — источник: наносишь размеры прямо на фото, стена строится под ним. Тяни фото/элементы, два пальца — масштаб.', cor: 'Коснись 4 углов стены на фото: левый-верх, правый-верх, правый-низ, левый-низ.', dim: 'Протяни размер по фото от края до края, введи число. Размер от края стены до края объекта ставит объект точно.', obj: 'Обведи на фото колонну / ригель / нишу по диагонали.', pt: 'Коснись розетки/вывода на фото, затем размерами задай высоту и отступ.', txt: 'Коснись, чтобы оставить заметку.'},
+  B: {pan: 'Вариант Б. Сначала стена (углы + длина/высота), фото выпрямляется подложкой; размеры и объекты наносишь на стену.', cor: 'Коснись 4 углов стены на фото, затем введи длину и высоту.', dim: 'Протяни размер по стене (строго гор./верт.), введи число.', obj: 'Обведи объект на выпрямленной подложке стены.', pt: 'Коснись точки на стене.', txt: 'Коснись, чтобы оставить заметку.'}};
+function status() { $('hint').textContent = HINT[S.flow][S.tool] || ''; }
+function panel() {
+  const P = $('panel'), p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) { P.classList.remove('on'); return; } const m = p._m || build(p);
+  const e = S.sel.e && p.els.find(x => x.id === S.sel.e);
+  let h = `<h4>${p.cor ? 'Стена' : 'Фото (общее)'}</h4>`;
+  if (m && m.L) h += `<div class="r"><span>Длина</span><b>${Math.round(m.L)}${p.L ? '' : ' ≈'}</b></div><div class="r"><span>Высота</span><b>${Math.round(m.H)}${p.H ? '' : ' ≈'}</b></div>`;
+  if (m && m.dims) { const ok = m.dims.filter(d => d.st === 'ok').length, bad = m.dims.filter(d => d.st === 'bad').length, fr = m.dims.filter(d => d.st === 'free' || d.st === 'nov').length; h += `<div class="r"><span>Размеры</span><span><span class="ok">✓${ok}</span> <span class="er">≠${bad}</span> <span class="wr">?${fr}</span></span></div>`; }
+  if (p.cor) h += `<div class="r"><button id="pLH">Длина/высота вручную</button></div>`;
+  if (e) { h += `<hr><div class="r"><b>${e.t === 'dim' ? 'Размер' : e.t === 'obj' ? (KINDS[e.k] || [])[0] : e.t === 'pt' ? (PTK[e.k] || [])[0] : 'Заметка'}</b></div>`;
+    if (e.t === 'dim') { const d = m && m.dims && m.dims.find(x => x.e === e); h += `<div class="r"><span>Значение</span><b>${e.v || '—'}</b></div>` + (d ? `<div class="r"><span>По фото ≈</span><span>${Math.round(d.est)}</span></div><div class="r"><span>Привязка</span><span>${d.fa && d.fb ? (d.st === 'ok' ? '<span class="ok">к краям</span>' : '<span class="er">конфликт</span>') : '<span class="wr">нет края рядом</span>'}</span></div>` : ''); }
+    if (e.t === 'pt' && e.k === 'roz') h += `<div class="r"><span>Посты</span><span>${[1, 2, 3, 4, 5].map(n => `<button data-n="${n}" style="${(e.n || 1) === n ? 'background:#F6E08A' : ''}">${n}</button>`).join('')}</span></div>`;
+    if (e.t === 'obj') h += `<div class="r"><span>Глубина Z</span><input id="pD" inputmode="decimal" style="width:70px" value="${e.D || ''}"></div>`;
+    if (e.t === 'obj') h += `<div class="r"><span>Вид</span><select id="pK">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}"${k === e.k ? ' selected' : ''}>${v[0]}</option>`).join('')}</select></div>`; }
+  P.innerHTML = h; P.classList.add('on');
+  const b = $('pLH'); if (b) b.onclick = () => wallAsk(p);
+  P.querySelectorAll('[data-n]').forEach(x => x.onclick = () => { snap(); e.n = +x.dataset.n; S.posts = e.n; save(); draw(); panel(); });
+  const dz = $('pD'); if (dz) dz.onchange = () => { snap(); e.D = Math.round(parseFloat(dz.value.replace(',', '.')) || 0) || ''; save(); draw(); };
+  const k = $('pK'); if (k) k.onchange = () => { snap(); e.k = k.value; save(); draw(); panel(); };
+}
+function kinds() { const K = $('kinds'); const set = S.tool === 'obj' ? KINDS : S.tool === 'pt' ? PTK : null; if (!set) { K.classList.remove('on'); return; } K.innerHTML = Object.entries(set).map(([k, v]) => `<button data-k="${k}" class="${(S.tool === 'obj' ? S.kind : S.ptk) === k ? 'on' : ''}">${v[0]}</button>`).join(''); K.classList.add('on'); K.querySelectorAll('button').forEach(b => b.onclick = () => { if (S.tool === 'obj') S.kind = b.dataset.k; else S.ptk = b.dataset.k; kinds(); }); }
+document.querySelectorAll('#bar [data-t]').forEach(b => b.onclick = () => { S.tool = b.dataset.t; S.pend = null; document.querySelectorAll('#bar [data-t]').forEach(x => x.classList.toggle('on', x === b)); kinds(); draw(); });
+document.querySelectorAll('#flow button').forEach(b => b.onclick = () => { S.flow = b.dataset.f; document.querySelectorAll('#flow button').forEach(x => x.classList.toggle('on', x === b)); save(); draw(); panel(); });
+$('bUndo').onclick = () => { const t = S.und.pop(); if (!t) return toast('Отменять нечего'); const o = JSON.parse(t); for (const q of o) { const p = S.photos.find(x => x.id === q.id); if (p) Object.assign(p, {cor: q.cor, els: q.els, x: q.x, y: q.y, L: q.L, H: q.H}); } S.photos = S.photos.filter(p => o.some(q => q.id === p.id)); save(); draw(); panel(); };
+$('bDel').onclick = () => { const p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) return toast('Выберите элемент или фото'); snap(); if (S.sel.e) p.els = p.els.filter(e => e.id !== S.sel.e); else if (S.sel.photo) S.photos = S.photos.filter(x => x !== p); S.sel = null; save(); draw(); panel(); };
+$('bAdd').onclick = () => $('file').click();
+$('file').onchange = ev => { const fs = [...ev.target.files]; ev.target.value = ''; let x = Math.max(0, ...S.photos.map(p => p.x + p.w + 80)); fs.forEach(f => { const r = new FileReader(); r.onload = () => { snap(); S.photos.push({id: uid(), src: r.result, x, y: 0, w: 860, iw: 0, ih: 0, cor: null, els: []}); x += 940; save(); draw(); }; r.readAsDataURL(f); }); };
+$('bJson').onclick = () => { const out = S.photos.filter(p => p._m && p._m.L).map(p => ({wall: {L: Math.round(p._m.L), H: Math.round(p._m.H)}, objects: p._m.objs.map(o => ({kind: o.k, ...((p.els.find(e => e.id === o.id) || {}).D ? {D: p.els.find(e => e.id === o.id).D} : {}), ...(o.pt ? {x: Math.round(o.x0), y: Math.round(o.y0), posts: o.n} : {x: Math.round(o.x0), y: Math.round(o.y0), W: Math.round(o.x1 - o.x0), H: Math.round(o.y1 - o.y0)})})), dims: p._m.dims.map(d => ({v: d.e.v, axis: d.ax, status: d.st}))}));
+  const t = JSON.stringify(out, null, 1); dlg('JSON стены', [{area: 1, v: t.replace(/</g, '&lt;')}], null, 'Закрыть', ['Копировать', () => { try { navigator.clipboard.writeText(t).then(() => toast('Скопировано'), () => toast('Копирование недоступно')); } catch (e) { toast('Копирование недоступно'); } }]); };
+$('bReset').onclick = () => S.photos.length ? dlg('Загрузить пример?', [], sample, 'Загрузить') : sample();
+function sample() {   // фото владельца (DrawNote, 10.11.2026): углы и часть его размеров
+  S.photos = [{id: 'ex', src: SAMPLE, x: 0, y: 0, w: 857, iw: 857, ih: 1092,
+    cor: [[52, 218], [832, 214], [833, 972], [66, 978]],
+    els: [
+      {id: 'd1', t: 'dim', sp: 'img', a: [68, 975], b: [831, 958], v: 2391},
+      {id: 'd2', t: 'dim', sp: 'img', a: [297, 222], b: [317, 962], v: 2564},
+      {id: 'o1', t: 'obj', sp: 'img', a: [622, 214], b: [806, 965], k: 'kol', D: 305},
+      {id: 'd3', t: 'dim', sp: 'img', a: [624, 704], b: [804, 699], v: 630},
+      {id: 'd4', t: 'dim', sp: 'img', a: [806, 640], b: [832, 640], v: 200},
+      {id: 'o2', t: 'obj', sp: 'img', a: [76, 216], b: [192, 975], k: 'kol', D: 305},
+      {id: 'd5', t: 'dim', sp: 'img', a: [78, 712], b: [191, 711], v: 350},
+      {id: 'p1', t: 'pt', sp: 'img', a: [242, 715], k: 'roz', n: 3},
+      {id: 'd6', t: 'dim', sp: 'img', a: [242, 717], b: [244, 972], v: 857},
+      {id: 'd7', t: 'dim', sp: 'img', a: [193, 715], b: [228, 715], v: 90}]}];
+  S.und = []; S.imgs = {}; S.sel = null; fit(); save(); draw(); panel();
+}
+function fit() { const W = innerWidth, s = Math.min((W - 30) / 900, 0.6); S.view.s = s; S.view.ox = 15 + 40 * s; S.view.oy = 100; }
+addEventListener('resize', draw);
+/* ═══ [BLOCK SK-BOOT] ═══ */
+S.posts = 1;
+try { const o = JSON.parse(localStorage.getItem('sketch.proto') || 'null'); if (o && o.photos && o.photos.length) { S.photos = o.photos.filter(p => p.src); S.flow = o.flow || 'A'; document.querySelectorAll('#flow button').forEach(x => x.classList.toggle('on', x.dataset.f === S.flow)); fit(); } else sample(); } catch (e) { sample(); }
+draw();
+window.SK = {S, build, draw, sample};
+</script></body></html>
