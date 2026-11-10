@@ -16,7 +16,7 @@
         {
           "side": "L",
           "neighbor": 1,
-          "session": "s1794314709290",
+          "session": "s1794345787629",
           "count": 2,
           "spanMm": 1000,
           "flipped": true
@@ -42,14 +42,14 @@
     }
   ],
   "setup": {
-    "rid": "r1794314709116",
+    "rid": "r1794345787469",
     "side": "L",
     "atLeft": false,
-    "neighborSid": "s1794314709290",
+    "neighborSid": "s1794345787629",
     "out": {
       "app": "akrix-photo-measure",
       "v": 2,
-      "date": "2026-11-10T12:45:09.359Z",
+      "date": "2026-11-10T21:23:07.704Z",
       "units": "mm",
       "obj": "QA adjacent",
       "plane": "Room · С2",
@@ -195,7 +195,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794314709290",
+            "session": "s1794345787629",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -226,7 +226,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794314709290",
+            "session": "s1794345787629",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -257,7 +257,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794314709290",
+            "session": "s1794345787629",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -271,7 +271,7 @@
     {
       "side": "L",
       "neighbor": 1,
-      "session": "s1794314709290",
+      "session": "s1794345787629",
       "count": 2,
       "spanMm": 1000,
       "flipped": true
