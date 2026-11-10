@@ -295,6 +295,7 @@
   const draw0 = draw;
   draw = function () {
     const result = draw0.apply(this, arguments);
+    if (window.MeasureLabCtx && MeasureLabCtx.painting && MeasureLabCtx.painting()) return result;   /* 82.18 int: холст рисует неактивную область с подменой S — панель не трогать */
     try { render(); } catch (error) { console.warn('Measure 82.18 prd panel', error); }
     if (!active || panel.hidden || !cur) return result;
     const p = list().find(x => x.id === cur); if (!p) return result;

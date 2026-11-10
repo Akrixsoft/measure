@@ -685,22 +685,24 @@
   draw = function() {
     const result = priorDraw.apply(this, arguments);
     document.body.classList.toggle('lab12-rect', S.mode !== 'plan' && rect({k: S.mk}));
-    if (S.mode === 'plan' && S.room) { znFix(); refreshStale(); }   /* AKX-2026-0010 zn, Д7 */
-    refreshPanel();
-    if (panel.hidden) return result;
+    /* 82.18 int: холст (lab-ctx) рисует неактивные области с подменой S — панель, zn и Д7 только для активной поверхности; зоны неактивного плана — рисуются */
+    const ctxPaint = !!(window.MeasureLabCtx && MeasureLabCtx.painting && MeasureLabCtx.painting());
+    if (!ctxPaint && S.mode === 'plan' && S.room) { znFix(); refreshStale(); }   /* AKX-2026-0010 zn, Д7 */
+    if (!ctxPaint) refreshPanel();
+    if (ctxPaint ? !(S.mode === 'plan' && S.room) : panel.hidden) return result;
     cx.save();
     const avoid = labelBoxes();
     for (const {q} of regions()) {
-      const isSelected = q.id === selected && active, old = staleIds.has(q.id);
+      const isSelected = q.id === selected && active && !ctxPaint, old = staleIds.has(q.id);
       paint(q.pts, old ? '#d9822b' : '#13827c', isSelected ? (old ? '#f0a03040' : '#2ab5ad40') : (old ? '#f0a03019' : '#2ab5ad19'), true, [pixels(5), pixels(3)]);
       zoneText(q, old, avoid);
     }
-    for (const {q} of dividers()) paint(q.pts, q.id === selectedDivider && active ? '#b71a7e' : '#13827c', null, false, [pixels(6), pixels(5)]);
-    if (active && (selection() || mode === 'assign')) {
+    for (const {q} of dividers()) paint(q.pts, q.id === selectedDivider && active && !ctxPaint ? '#b71a7e' : '#13827c', null, false, [pixels(6), pixels(5)]);
+    if (!ctxPaint && active && (selection() || mode === 'assign')) {
       const {q} = selection() || nativeSelection();
       for (const w of walls().filter(w => q.walls.includes(w.id))) paint(w.points, '#b71a7e');
     }
-    if (draft.length) {
+    if (!ctxPaint && draft.length) {
       paint(draft, '#b71a7e', null, false, [pixels(6), pixels(5)]);
       for (const p of draft) {
         cx.fillStyle = '#b71a7e'; cx.beginPath(); cx.arc(...toScr(...p), pixels(4), 0, 2 * Math.PI); cx.fill();
