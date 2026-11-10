@@ -1,4 +1,5 @@
 name: Measure 82 APK
+# Подпись: ключ v81 из Secrets AK_KS_B64/AK_PW (резервная копия у владельца), кэш akrix-ks-v1 — запасной путь.
 on:
   push:
     branches: [measure-lab]
