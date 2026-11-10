@@ -232,13 +232,14 @@ function drawElev(p, m, E, px) {
     for (const x of [...new Set([...pl.pts.map(q => X(q[0])), ...pl.cols.flatMap(c => [X(c.x), X(c.x + c.w)])].map(v => Math.round(v))) ]) { if (x <= .5 || x >= m.L - .5) continue; const A = mmToW(E, [x, m.H]), B = mmToW(E, [x, 0]); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke(); } }
   cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 3 * px; cx.strokeRect(E.x, E.y, E.w, E.h);
   for (const o of m.objs) { const sel = S.sel && S.sel.e === o.id;
-    if (o.pt) { const K = PTK[o.k] || PTK.roz; for (let j = 0; j < (o.n || 1); j++) { const c = mmToW(E, [o.x0 + (j - ((o.n || 1) - 1) / 2) * 71, o.y0]); cx.fillStyle = sel ? '#1F6FD1' : K[1]; cx.beginPath(); cx.arc(c[0], c[1], Math.max(35 * E.k, 4 * px), 0, 7); cx.fill(); } continue; }
+    if (o.pt) { const K = PTK[o.k] || PTK.roz; for (let j = 0; j < (o.n || 1); j++) { const c = mmToW(E, [o.x0 + j * 71, o.y0]);   /* точка розетки — центр первого подрозетника, остальные вправо с шагом 71 */ cx.fillStyle = sel ? '#1F6FD1' : K[1]; cx.beginPath(); cx.arc(c[0], c[1], Math.max(35 * E.k, 4 * px), 0, 7); cx.fill(); } continue; }
     const A = mmToW(E, [o.x0, o.y1]), B = mmToW(E, [o.x1, o.y0]), K = KINDS[o.k] || KINDS.kol; cx.fillStyle = K[1] + '55'; cx.strokeStyle = sel ? '#1F6FD1' : K[1]; cx.lineWidth = (sel ? 3 : 2) * px; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]);
     label([A[0] + 3 * px, A[1] + 15 * px], K[0] + (o.D ? ' · Z ' + o.D : ''), K[1], px, 11);
     if (sel) handles([[A[0], B[1]], [B[0], B[1]], [B[0], A[1]], [A[0], A[1]]], px); }
   // размеры — на самом чертеже, в месте проведения (видны касание и привязка)
   for (const dm of m.dims) { if (dm.pl) continue; const col = dm.st === 'ok' ? '#2E9E4F' : dm.st === 'bad' ? '#E0442B' : '#D97706', sel = S.sel && S.sel.e === dm.e.id; let P, Q;
-    if (dm.fa && dm.fb && dm.e.v > 0) { if (dm.ax === 'x') { const y = clamp((dm.A[1] + dm.B[1]) / 2, m.H * .03, m.H * .97); P = mmToW(E, [dm.va, y]); Q = mmToW(E, [dm.vb, y]); } else { const x = clamp((dm.A[0] + dm.B[0]) / 2, m.L * .03, m.L * .97); P = mmToW(E, [x, dm.va]); Q = mmToW(E, [x, dm.vb]); } }
+    const ptO = [dm.fa, dm.fb].map(f => f && f.o && f.o.pt && !f.o.only ? f.o : null).find(Boolean);   // размер до розетки/вывода — через её центр
+    if (dm.fa && dm.fb && dm.e.v > 0) { if (dm.ax === 'x') { const y = ptO ? ptO.y0 : clamp((dm.A[1] + dm.B[1]) / 2, m.H * .03, m.H * .97); P = mmToW(E, [dm.va, y]); Q = mmToW(E, [dm.vb, y]); } else { const x = ptO ? ptO.x0 : clamp((dm.A[0] + dm.B[0]) / 2, m.L * .03, m.L * .97); P = mmToW(E, [x, dm.va]); Q = mmToW(E, [x, dm.vb]); } }
     else { P = mmToW(E, dm.A); Q = mmToW(E, dm.B); }
     const t = dm.e.v > 0 ? String(dm.e.v) + (dm.st === 'bad' ? ' ≠ ' + Math.round(dm.res) : '') : '?';
     dm.e._labE = dimLine(P, Q, t, sel ? '#1F6FD1' : col, px, dm.st === 'free'); dm.e._segE = [P, Q]; }
@@ -271,9 +272,11 @@ function dimLine(P, Q, t, c, px, dash) {
   for (const [A, B] of [[P, Q], [Q, P]]) { const a = Math.atan2(B[1] - A[1], B[0] - A[0]), h = 10 * px; cx.beginPath(); cx.moveTo(...A); cx.lineTo(A[0] + h * Math.cos(a + .32), A[1] + h * Math.sin(a + .32)); cx.lineTo(A[0] + h * Math.cos(a - .32), A[1] + h * Math.sin(a - .32)); cx.fill(); }
   const m = [(P[0] + Q[0]) / 2, (P[1] + Q[1]) / 2], vert = Math.abs(Q[1] - P[1]) > Math.abs(Q[0] - P[0]);
   let ang = Math.atan2(Q[1] - P[1], Q[0] - P[0]); if (vert) ang = -Math.PI / 2; else if (ang > Math.PI / 2 || ang < -Math.PI / 2) ang += Math.PI;
-  cx.save(); cx.translate(m[0], m[1]); cx.rotate(ang); cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width;
+  cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width, len = Math.hypot(Q[0] - P[0], Q[1] - P[1]);
+  const sh = len < w + 26 * px ? -18 * px : 0;   // короткий размер — подпись над линией, стрелки видны
+  cx.save(); cx.translate(m[0], m[1]); cx.rotate(ang); cx.translate(0, sh);
   cx.fillStyle = '#fff'; cx.fillRect(-w / 2 - 4 * px, -9 * px, w + 8 * px, 18 * px); cx.strokeRect(-w / 2 - 4 * px, -9 * px, w + 8 * px, 18 * px); cx.fillStyle = c; cx.fillText(t, -w / 2, 5 * px); cx.restore();
-  return m;
+  return sh ? [m[0] + Math.sin(ang) * -sh, m[1] + Math.cos(ang) * sh] : m;
 }
 function drawEl(p, e, T, px) {
   const sel = S.sel && S.sel.e === e.id;
@@ -418,7 +421,7 @@ function planTap(p, pl, q, tol) { snap(); const P = pl.pts; let [x, z] = q;
   P.push([Math.round(x), Math.round(z)]); S.sel = {p: p.id, pv: P.length - 1}; save(); panel(); }
 
 /* ═══ [BLOCK SK-UI] подсказки, панель, кнопки ═══ */
-const HINT = {pan: 'Тяни фото, элементы и жёлтые углы. Колесо или два пальца — масштаб. Касание числа — ввод.', cor: 'Ставь 4 угла стены на фото по потолку и полу: левый-верх, правый-верх, правый-низ, левый-низ. Готовый угол можно тянуть.', dim: 'Протяни размер на чертеже стены (или по фото) и введи число. Привязка — к ближайшему краю стены, излому вида сверху или объекту.', obj: 'Обведи ригель, короб, нишу, проём — на фото или на чертеже.', pt: 'Поставь розетку или вывод — на фото или на чертеже; высоту и отступ задай размерами.', plan: 'Ломаная стены (вид сверху): касаниями в рамке под чертежом ставь изломы. Притяжение к прямой и к точкам. Точки тянутся в ✋, касание числа — длина участка.', pcol: 'Колонна (вид сверху): протяни от угла к углу в рамке под чертежом — грань притянется к стене, в углу — две грани. Числа: ширина, глубина, отступ от края стены.', txt: 'Коснись, чтобы оставить заметку.'};
+const HINT = {pan: 'Тяни фото, элементы и жёлтые углы. Колесо или два пальца — масштаб. Касание числа — ввод.', cor: 'Ставь 4 угла стены на фото по потолку и полу: левый-верх, правый-верх, правый-низ, левый-низ. Готовый угол можно тянуть.', dim: 'Протяни размер на чертеже стены (или по фото) и введи число. Привязка — к ближайшему краю стены, излому вида сверху или объекту.', obj: 'Обведи ригель, короб, нишу, проём — на фото или на чертеже.', pt: 'Розетка ставится по центру первого подрозетника (остальные посты — вправо, шаг 71). Высоту и отступ задай размерами до этого центра.', plan: 'Ломаная стены (вид сверху): касаниями в рамке под чертежом ставь изломы. Притяжение к прямой и к точкам. Точки тянутся в ✋, касание числа — длина участка.', pcol: 'Колонна (вид сверху): протяни от угла к углу в рамке под чертежом — грань притянется к стене, в углу — две грани. Числа: ширина, глубина, отступ от края стены.', txt: 'Коснись, чтобы оставить заметку.'};
 function panel() {
   const P = $('panel'), p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) { P.classList.remove('on'); return; } const m = p._m || build(p), e = S.sel.e && p.els.find(x => x.id === S.sel.e);
   let h = `<h4>${p.cor ? 'Стена' : 'Фото (общее)'}</h4>`;
@@ -460,8 +463,8 @@ function sample() {   // фото владельца (замер DrawNote, 10.11
       {id: 'd2', t: 'dim', sp: 'img', a: [297, 222], b: [317, 962], v: 2564},
       {id: 'd3', t: 'dim', sp: 'img', a: [624, 704], b: [804, 699], v: 630},
       {id: 'd5', t: 'dim', sp: 'img', a: [78, 712], b: [191, 711], v: 350},
-      {id: 'p1', t: 'pt', sp: 'img', a: [242, 715], k: 'roz', n: 3},
-      {id: 'd6', t: 'dim', sp: 'img', a: [242, 717], b: [244, 972], v: 857},
+      {id: 'p1', t: 'pt', sp: 'img', a: [233, 715], k: 'roz', n: 3},
+      {id: 'd6', t: 'dim', sp: 'img', a: [233, 717], b: [235, 972], v: 857},
       {id: 'd7', t: 'dim', sp: 'img', a: [193, 715], b: [228, 715], v: 90}]}];
   S.und = []; S.imgs = {}; S.sel = null; S.pend = null; fit(); save(); draw(); panel();
 }
