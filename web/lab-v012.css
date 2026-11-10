@@ -2,14 +2,19 @@
   position: fixed;
   z-index: 12;
   left: 8px;
-  top: max(112px, calc(env(safe-area-inset-top) + 112px));
+  /* AKX-2026-0010 Д9: внизу над полосой #zf (bottom ставит lab-v012.js), не поверх тостов и плашки угла */
+  bottom: 180px;
   max-width: calc(100vw - 16px);
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   pointer-events: none;
 }
-#lab12-plan[hidden], body.kb #lab12-plan { display: none }
+#lab12-plan[hidden] { display: none }
+/* AKX-2026-0010 Д6б: при клавиатуре панель не прячется, а сжимается в один прокручиваемый ряд */
+body.kb #lab12-plan { flex-wrap: nowrap; overflow-x: auto; pointer-events: auto; right: 8px }
+body.kb #lab12-plan > * { flex: none }
+body.kb #lab12-plan small { display: none }
 #lab12-plan :is(button, input, small) {
   pointer-events: auto;
   border: 1px solid var(--ln);
@@ -20,7 +25,8 @@
   padding: 4px 8px;
 }
 #lab12-plan input { width: 145px }
-#lab12-plan small { width: 100% }
+#lab12-plan small { width: 100%; min-height: 0; font-size: 12px; opacity: .9 }
+#lab12-plan [data-lab12="delete-zone"] { color: #c5221f }
 #pp .lab12-fields label { display: flex; flex-direction: column; align-items: flex-start; }
 
 body.rz.lab12-rect #zf:not(.sh) > #zopt.on { display: flex !important }
