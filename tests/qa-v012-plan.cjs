@@ -35,7 +35,7 @@ const {start} = require('./qa-v011-harness.cjs');
     assert.equal(await p.evaluate(() => MeasureLab012.regions().length), 3);
     await button('cancel').click();
     await tap([1000, 1500]);
-    const name = p.getByRole('textbox', {name: 'Имя помещения', exact: true});
+    const name = p.getByRole('textbox', {name: 'Имя зоны', exact: true});   // AKX-2026-0010 Д10: поле зоны переименовано
     await name.fill('Прихожая'); await name.press('Tab');
     await button('assign').click(); await tap([1000, 0]); await tap([0, 800]);
     await button('assigned').click();

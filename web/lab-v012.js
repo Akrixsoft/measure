@@ -216,8 +216,31 @@
   const nativeRegions = () => rooms().filter(r => r.ms.closed && r.ms.pts.length > 2 && !r.ms.labWallBase);
   api.blocksNative = (P, skip) => nativeRegions().some(r => r !== skip && overlaps(P, r.ms.pts))
     || regions().some(({q}) => overlaps(P, q.pts));
-  const clashes = (P, skip) => nativeRegions().some(r => overlaps(P, r.ms.pts))
-    || regions().some(({q}) => q.id !== skip && overlaps(P, q.pts));
+  /* ── AKX-2026-0010 Д3/Д8/Д10: зона — область ВНУТРИ физического помещения.
+     Владелец зоны — замкнутое помещение, в котором лежит её внутренняя точка (иначе активное помещение,
+     даже без стен). Зона не может перекрывать другую зону и заходить в другое (чужое) помещение;
+     собственный контур помещения ей не мешает — кнопка «Разделить исходный контур» для этого больше не нужна. ── */
+  const ZONE = 'Зона';
+  const closedRooms = () => rooms().filter(r => r.ms.closed && r.ms.pts.length > 2);
+  function interior(P) {
+    if (!P || P.length < 3) return null;
+    let a = 0, cx0 = 0, cy0 = 0;
+    for (const [p, q] of edges(P)) { const c = cross(p, q); a += c; cx0 += (p[0] + q[0]) * c; cy0 += (p[1] + q[1]) * c; }
+    if (Math.abs(a) > eps) { const c = [cx0 / (3 * a), cy0 / (3 * a)]; if (inPoly(c, P)) return c; }
+    const Y = P.map(p => p[1]), y0 = Math.min(...Y), y1 = Math.max(...Y);
+    for (const t of [0.5, 0.25, 0.75, 0.1, 0.9, 0.37, 0.63]) {
+      const y = y0 + (y1 - y0) * t, xs = [];
+      for (const [p, q] of edges(P)) if ((p[1] > y) !== (q[1] > y)) xs.push(p[0] + (q[0] - p[0]) * (y - p[1]) / (q[1] - p[1]));
+      xs.sort((u, v) => u - v);
+      for (let i = 0; i + 1 < xs.length; i += 2) if (xs[i + 1] - xs[i] > 1) return [(xs[i] + xs[i + 1]) / 2, y];
+    }
+    return null;
+  }
+  api.interior = interior;
+  const zoneOwner = P => { const c = interior(P); return c && closedRooms().find(r => inPoly(c, r.ms.pts)); };
+  const clashes = (P, owner, skip) => regions().some(({q}) => q.id !== skip && overlaps(P, q.pts)) ? 'zone'
+    : closedRooms().some(r => r !== owner && overlaps(P, r.ms.pts)) ? 'room' : '';
+  const nextName = () => ZONE + ' ' + (Math.max(0, ...regions().map(({q}) => +((/^Зона (\d+)$/.exec(q.name) || [])[1] || 0))) + 1);
   const host = () => S.room.ms.pts.length >= 2 ? S.room : rooms().find(r => r.ms.pts.length >= 2);
   function store(owner) {
     if (owner === S.room) saveRoom();
@@ -234,21 +257,39 @@
   const selection = () => regions().find(({q}) => q.id === selected);
   const nativeSelection = () => ({r: S.room, native: true, q: {walls: S.room.ms.labAssigned || []}});
   const dividerSelection = () => dividers().find(({q}) => q.id === selectedDivider);
-  function region(P, target) {
-    const owner = target?.r || host();
-    if (!owner) return toast('Сначала постройте или распознайте стены');
+  /* AKX-2026-0010 Д3/Д8/Д10: владелец по положению, проверка только зона↔зона и зона↔чужое помещение,
+     имя «Зона N», src — способ построения ('fill' | 'image' | 'manual') для «Перезалить» и контроля Д7. */
+  function region(P, target, src) {
+    const owner = target?.r || zoneOwner(P) || host() || S.room;
     if (!simple(P)) return toast('Нужен контур без пересечений');
-    if (clashes(P, target?.q.id)) return toast('Контур пересекает назначенное помещение');
+    const clash = clashes(P, owner, target?.q.id);
+    if (clash) return toast(clash === 'zone' ? 'Зона перекрывает другую зону' : 'Зона заходит в другое помещение');
     plSnap();
-    if (target) target.q.pts = P;
+    if (target) { target.q.pts = P; if (src) target.q.src = src; }
     else {
-      const q = {id: crypto.randomUUID(), name: 'Помещение ' + (regions().length + 1), pts: P, walls: []};
+      const q = {id: crypto.randomUUID(), name: nextName(), pts: P, walls: [], ...(src ? {src} : {})};
       (owner.ms.labRooms ||= []).push(q);
-      selected = q.id;
+      selected = q.id; selectedDivider = null;   /* AKX-2026-0010: одно выделение в панели */
     }
     mode = 'pick'; draft = []; edit = null; store(owner);
     return true;
   }
+  /* AKX-2026-0010 Д2: удаление зоны (кнопка панели и корзина), один шаг ↶. */
+  function removeZone(z) {
+    if (!z) return;
+    plSnap();
+    z.r.ms.labRooms = (z.r.ms.labRooms || []).filter(q => q !== z.q);
+    if (selected === z.q.id) selected = null;
+    store(z.r); toast('«' + z.q.name + '» удалена · ↶ — вернуть');
+    return true;
+  }
+  function removeDivider(sep) {
+    if (!sep) return;
+    plSnap(); sep.r.ms.labDividers = sep.r.ms.labDividers.filter(q => q !== sep.q);
+    selectedDivider = null; store(sep.r);
+    return true;
+  }
+  api.removeZone = id => removeZone(regions().find(({q}) => q.id === id));
   function divider(A, B, target) {
     const owner = target?.r || host();
     if (!owner || dist(A, B) < 20) return toast('Укажите два конца границы');
@@ -256,7 +297,7 @@
     if (target) target.q.pts = [A, B];
     else {
       const q = {id: crypto.randomUUID(), pts: [A, B]};
-      (owner.ms.labDividers ||= []).push(q); selectedDivider = q.id;
+      (owner.ms.labDividers ||= []).push(q); selectedDivider = q.id; selected = null;
     }
     mode = 'pick'; edit = null; draft = []; store(owner);
     return true;
@@ -298,9 +339,9 @@
   function fill(q, underlay) {
     const D = dividers().map(({q}) => q.pts);
     const W0 = walls().map(w => w.points);
-    let W, H, free, toGrid, toWorld;
+    let W, H, free, toGrid, toWorld, cell;
     if (underlay && ulGet() && UL.c) {
-      const u = ulGet().ul, M = ulMasks();
+      const u = ulGet().ul, M = ulMasks(); cell = u.s;
       ({W, H} = M);
       free = ulFree().slice();
       toGrid = p => [(p[0] - u.x0) / u.s, (u.y0 - p[1]) / u.s];
@@ -309,7 +350,7 @@
       const P = [...W0, ...D].flat();
       if (!P.length) return null;
       const X = P.map(p => p[0]), Y = P.map(p => p[1]);
-      const step = Math.max(2, (Math.max(...X) - Math.min(...X)) / 1000, (Math.max(...Y) - Math.min(...Y)) / 1000);
+      const step = cell = Math.max(2, (Math.max(...X) - Math.min(...X)) / 1000, (Math.max(...Y) - Math.min(...Y)) / 1000);
       const x = Math.min(...X) - step * 5, y = Math.min(...Y) - step * 5;
       W = Math.ceil((Math.max(...X) - x) / step) + 5;
       H = Math.ceil((Math.max(...Y) - y) / step) + 5;
@@ -322,7 +363,10 @@
     for (const [a, b] of D) stRaster(blocked, W, H, {a: toGrid(a), b: toGrid(b), th: 3});
     for (let i = 0; i < free.length; i++) if (blocked[i]) free[i] = 0;
     const mask = rasterRegion(toGrid(q), W, H, free);
-    return mask && ulDP(ulTrace(mask, W, H), 2).map(toWorld);
+    if (!mask) return null;
+    const out = ulDP(ulTrace(mask, W, H), 2).map(toWorld);
+    out.cell = cell;   /* AKX-2026-0010 Д7: размер ячейки — допуск сравнения при контроле устаревших зон */
+    return out;
   }
   api.fill = fill;
   api.region = region;
@@ -333,15 +377,20 @@
   function fillTap(q, underlay, target) {
     const present = regions().find(x => inPoly(q, x.q.pts));
     if (present && !target) { selected = present.q.id; mode = 'pick'; draw(); return; }
+    /* AKX-2026-0010 Д8: без стен и границ — понятный отказ вместо «выходит наружу» */
+    if (!(underlay && ulGet()) && !walls().length && !dividers().length)
+      return toast('Нет стен и границ: постройте стены или задайте зону «Контуром»');
     const P = fill(q, underlay);
     if (!P) return toast('Заливка выходит наружу: добавьте границу от стены до стены');
-    return region(P, target);
+    return region(P, target, underlay ? 'image' : 'fill');
   }
   let nativeFilling = false;
   const oldFill = ulTap;
+  /* AKX-2026-0010 Д1: штатное «⌂ по плану» не перехватывается. Заливка зоны по фото — только пока
+     открыта панель «Зоны» (её режим; выбор ⌂ панель закрывает, см. plPick). */
   ulTap = async function(p) {
     if (nativeFilling) return;
-    if (dividers().length || rooms().some(r => r.ms.labWallBase)) return fillTap(toPl(...p), true, null);
+    if (active && mode && S.mode === 'plan') return fillTap(toPl(...p), true, mode === 'image' ? edit : null);
     try {
       nativeFilling = true;
       return await oldFill.apply(this, arguments);
@@ -352,8 +401,8 @@
     const m = r.ms, next = (k + 1) % m.pts.length;
     const proposed = m.pts.map((p, i) => i === k || i === next ? add(p, delta).map(Math.round) : p);
     if (proposed.some((p, i) => i && dist(p, proposed[i - 1]) < eps)
-      || (m.closed && (!simple(proposed) || (!m.labWallBase && api.blocksNative(proposed, r)))))
-      return toast('Сдвиг пересекает контур или назначенное помещение');
+      || (m.closed && (!simple(proposed) || closedRooms().some(o => o !== r && overlaps(proposed, o.ms.pts)))))
+      return toast('Сдвиг пересекает контур или соседнее помещение');   /* AKX-2026-0010 Д3: зоны внутри помещения сдвигу не мешают (Д7 — отметка) */
     plSnap(); m.pts = proposed; m.labManualWalls = true;
     store(r); return true;
   }
@@ -363,7 +412,7 @@
     if (mode === 'assign') return assign(selection() || nativeSelection(), chooseWall(p));
     if (mode === 'manual' || mode === 'divider') {
       if (mode === 'divider' && draft.length) return divider(draft[0], at, edit);
-      if (mode === 'manual' && draft.length >= 3 && dist(at, draft[0]) < radius()) return region(draft, edit);
+      if (mode === 'manual' && draft.length >= 3 && dist(at, draft[0]) < radius()) return region(draft, edit, 'manual');
       if (!draft.length || dist(draft.at(-1), at) > eps) draft.push(at);
       return draw();
     }
@@ -382,10 +431,14 @@
     if (S.mode === 'plan' && mode) return tapPlan(p);
     return priorTap.apply(this, arguments);
   };
+  /* AKX-2026-0010 Д4: правило пера v81 сохранено — при обнаруженном пере палец двигает вид, касание пальцем —
+     только выбор (zTapSel), ⌂ — касанием пальца (v32). Поэтому пальцем: выбор зоны, выбор стен зоны, заливка
+     (аналог ⌂). Точки «Контура», «Границы», «Сдвига» ставит только перо — касание пальцем даёт подсказку, а не молчит. */
+  const FINGER = {pick: 1, assign: 1, fill: 1, image: 1};
   zTapSel = function(p) {
     if (S.mode === 'plan' && mode) {
-      if (mode === 'pick') return tapPlan(p);
-      return;
+      if (FINGER[mode]) return tapPlan(p);
+      return toast('Точки ставит перо · палец двигает вид');
     }
     return priorFinger.apply(this, arguments);
   };
@@ -395,7 +448,7 @@
   };
   const priorRetrace = ulRetrace;
   ulRetrace = function() {
-    if (S.room?.ms.labManualWalls || dividers().length || S.room?.ms.labWallBase) return Promise.resolve(0);
+    if (S.room?.ms.labManualWalls || dividers().length || S.room?.ms.labWallBase || (S.room?.ms.labRooms || []).length) return Promise.resolve(0);   /* AKX-2026-0010: зоны фиксируют стены */
     return priorRetrace.apply(this, arguments);
   };
   function markWallEdit(fn) {
@@ -418,81 +471,145 @@
   }
   const priorPick = plPick;
   plPick = function(k) {
-    if (k !== 'sel') { mode = ''; draft = []; edit = null; }
+    if (k !== 'sel') { active = false; mode = ''; draft = []; edit = null; shift = null; }   /* AKX-2026-0010 Д12/Д1: другой инструмент закрывает панель «Зоны» */
     return priorPick.apply(this, arguments);
   };
+  /* ── AKX-2026-0010 Д7: контроль устаревших зон. Зона из заливки (src 'fill' | 'image') пересчитывается от своей
+     внутренней точки при каждом изменении стен/границ/подложки; если новый контур не совпадает со
+     сохранённым — зона отмечается оранжевым «⟳» и предлагается «Перезалить». Формат не меняется. ── */
+  let staleKey = '', staleIds = new Set();
+  function sameShape(P, Q, tol) {
+    const near = (A, B) => A.every(a => edges(B).some(([b, c]) => dist(a, projection(a, b, c)) <= tol));
+    return near(P, Q) && near(Q, P);
+  }
+  function refreshStale() {
+    const list = regions().filter(({q}) => q.src === 'fill' || q.src === 'image');
+    const key = list.length ? JSON.stringify([walls().map(w => w.points), dividers().map(d => d.q.pts), !!(ulGet() && UL.c),
+      list.map(({q}) => [q.id, q.src, q.pts])]) : '';
+    if (key === staleKey) return;
+    staleKey = key;
+    const before = staleIds; staleIds = new Set();
+    for (const {q} of list) {
+      const c = interior(q.pts), P = c && fill(c, q.src === 'image');
+      if (!P || !sameShape(P, q.pts, Math.max(30, 4 * (P.cell || 0)))) staleIds.add(q.id);
+    }
+    const fresh = list.filter(({q}) => staleIds.has(q.id) && !before.has(q.id)).map(({q}) => '«' + q.name + '»');
+    if (fresh.length && active) toast('Стены или границы изменились: ' + fresh.join(', ') + ' — выберите и «Перезалить»');
+  }
+  api.stale = () => { refreshStale(); return [...staleIds]; };
+
+  /* ── AKX-2026-0010 Д9: панель внизу, над штатной полосой #zf — не закрывает тосты, плашку угла и кнопки вида.
+     Д6б: при открытой клавиатуре панель не исчезает, а сжимается в один прокручиваемый ряд (см. lab-v012.css). ── */
   const panel = document.createElement('div');
   panel.id = 'lab12-plan'; panel.hidden = true; document.body.append(panel);
+  function place() {
+    const zf = $('zf'), r = zf && getComputedStyle(zf).display !== 'none' ? zf.getBoundingClientRect() : null;
+    const kb = document.body.classList.contains('kb');
+    const bottom = r && r.height ? innerHeight - r.top + 6 : kb ? 208 : 56;
+    panel.style.bottom = Math.max(8, Math.round(bottom)) + 'px';
+  }
+  new MutationObserver(place).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  addEventListener('resize', place);
   let lastPanel = '';
   function refreshPanel() {
     panel.hidden = S.mode !== 'plan' || !S.room || $('ss').classList.contains('on');
     if (panel.hidden) return;
+    place();
     const key = S.room.obj || S.room.id;
-    if (canvasId !== key) { canvasId = key; mode = ''; active = false; draft = []; selected = null; selectedDivider = null; edit = null; }
+    if (canvasId !== key) { canvasId = key; mode = ''; active = false; draft = []; selected = null; selectedDivider = null; edit = null; shift = null; }
     const hit = selection(), sep = dividerSelection(), wall = S.psel?.t === 's' ? S.psel.i : null;
-    const state = JSON.stringify([key, S.room.id, S.room.ms.labAssigned, mode, active, draft.length, hit?.q, sep?.q, wall, S.room.ms.labWallBase, S.room.ms.closed, !!ulGet(), walls().map(w => w.id)]);
+    const state = JSON.stringify([key, S.room.id, S.room.ms.labAssigned, mode, active, draft.length, hit?.q, sep?.q, wall, S.room.ms.labWallBase,
+      S.room.ms.labManualWalls, S.room.ms.ul, S.room.ms.closed, !!ulGet(), walls().map(w => w.id), [...staleIds], edit?.q.id]);
     if (state === lastPanel) return;
     lastPanel = state; panel.replaceChildren();
-    const button = (label, fn, name) => {
+    const button = (label, fn, name, title) => {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.onclick = fn;
       if (name) b.dataset.lab12 = name;
+      if (title) b.title = title;
       panel.append(b);
+      return b;
     };
-    button(active ? 'Закрыть помещения' : 'Помещения', () => {
+    /* Д10: сущность панели — «Зоны» (штатные помещения ⌂ называются «Помещение N») */
+    button(active ? 'Закрыть зоны' : 'Зоны', () => {
       active = !active; switchMode(active ? 'pick' : '');
-    }, 'toggle');
+    }, 'toggle', 'Зоны внутри помещения: прихожая, кухня, ТВ-зона… — каждая уходит в конструктор отдельным листом');
     if (!active) return;
-    button('Контур', () => switchMode('manual'), 'manual');
-    button('Граница', () => switchMode('divider'), 'divider');
-    button('Заливка стен', () => switchMode('fill'), 'fill');
-    if (ulGet()) button('Заливка фото', () => switchMode('image'), 'image');
-    if (mode === 'manual' && draft.length >= 3) button('Готово', () => region(draft, edit), 'commit');
-    if (mode && mode !== 'pick') button('Отмена', () => switchMode('pick'), 'cancel');
-    if (mode === 'pick' && S.room.ms.closed && !S.room.ms.labWallBase) button('Разделить исходный контур', () => {
+    if (!mode) {
+      /* Д5: режим правки стен — явный возврат к зонам */
+      button('← Зоны', () => switchMode('pick'), 'back');
+      if (wall != null) {
+        button('Сдвиг стены', () => {
+          const r = S.room, [a, b] = plSeg(r.ms, wall);
+          shift = {r, k: wall, from: mix(a, b, 0.5)}; switchMode('shift');
+        }, 'shift');
+        /* Д6а: после разбиения выбран первый из двух новых участков, а не узел */
+        button('Разбить стену', () => { ctAddNode(wall); S.psel = {t: 's', i: wall}; mkPanel(); status(); draw(); }, 'split-wall');
+        button('Удалить участок', () => zDelSel(), 'delete-wall');
+      }
+    } else if (mode !== 'shift' && mode !== 'assign') {
+      button('Контур', () => switchMode('manual'), 'manual');
+      button('Граница', () => switchMode('divider'), 'divider');
+      button('Заливка стен', () => switchMode('fill'), 'fill');
+      if (ulGet()) button('Заливка фото', () => switchMode('image'), 'image');
+    }
+    if (mode === 'manual' && draft.length >= 3) button('Готово', () => region(draft, edit, 'manual'), 'commit');
+    /* Д11: «Отмена» в «Сдвиге» — обратно к выбранной стене */
+    if (mode && mode !== 'pick' && mode !== 'assign') button('Отмена', () => {
+      if (mode === 'shift') { shift = null; switchMode(''); } else switchMode('pick');
+    }, 'cancel');
+    /* Д3: зоны строятся в замкнутой комнате сразу. Кнопка осталась только для распознанного по фото контура
+       и делает то, что написано: запрещает перестройку стен по фото (labWallBase). */
+    if (mode === 'pick' && S.room.ms.closed && S.room.ms.ul && !S.room.ms.labWallBase && !S.room.ms.labManualWalls) button('Зафиксировать стены', () => {
       plSnap(); S.room.ms.labWallBase = true; store(S.room);
-      toast('Стены сохранены. Укажите границы и выполните заливку');
-    }, 'base');
+      toast('Стены зафиксированы: распознавание по фото их не перестроит');
+    }, 'base', 'Запретить перестройку стен этого помещения по фото');
     if (hit && mode === 'pick') {
       const field = document.createElement('input');
-      field.type = 'text'; field.value = hit.q.name; field.setAttribute('aria-label', 'Имя помещения');
+      field.type = 'text'; field.value = hit.q.name; field.placeholder = 'Имя зоны';
+      field.setAttribute('aria-label', 'Имя зоны'); field.title = 'Имя зоны · Enter — сохранить';
       field.onchange = () => {
         if (!field.value.trim()) { field.value = hit.q.name; return; }
         plSnap(); hit.q.name = field.value.trim(); store(hit.r);
       };
       panel.append(field);
-      button('Изменить контур', () => { switchMode('manual'); edit = hit; }, 'edit');
-      button('Перезалить', () => { switchMode(ulGet() ? 'image' : 'fill'); edit = hit; }, 'refill');
+      button('Изменить контур', () => { switchMode('manual'); edit = hit; draw(); }, 'edit');
+      /* Т11: перезаливка тем же способом, каким зона построена */
+      button(staleIds.has(hit.q.id) ? 'Перезалить ⟳' : 'Перезалить', () => {
+        switchMode(hit.q.src === 'fill' || !ulGet() ? 'fill' : 'image'); edit = hit; draw();
+      }, 'refill');
       const count = walls().filter(w => hit.q.walls.includes(w.id)).length;
-      button('Назначить стены · ' + count, () => switchMode('assign'), 'assign');
+      button('Стены зоны · ' + count, () => switchMode('assign'), 'assign', 'Назначить стены этой зоне касаниями');
+      button('Удалить зону', () => removeZone(hit), 'delete-zone');   /* Д2 */
     }
     if (!hit && mode === 'pick' && S.room.ms.pts.length >= 2 && !S.room.ms.labWallBase) {
       const count = walls().filter(w => nativeSelection().q.walls.includes(w.id)).length;
-      button('Назначить стены текущему · ' + count, () => switchMode('assign'), 'assign-native');
+      button('Стены помещения · ' + count, () => switchMode('assign'), 'assign-native', 'Назначить стены самому помещению «' + (S.room.name || '') + '»');
     }
     if (mode === 'assign') button('Готово · стены', () => switchMode('pick'), 'assigned');
     if (sep && mode === 'pick') {
-      button('Править границу', () => { switchMode('divider'); edit = sep; }, 'edit-divider');
-      button('Удалить границу', () => {
-        plSnap(); sep.r.ms.labDividers = sep.r.ms.labDividers.filter(q => q !== sep.q);
-        selectedDivider = null; store(sep.r);
-      }, 'delete-divider');
+      button('Править границу', () => { switchMode('divider'); edit = sep; draw(); }, 'edit-divider');
+      button('Удалить границу', () => removeDivider(sep), 'delete-divider');
     }
     if (mode === 'pick') button('Выбирать стены', () => switchMode(''), 'walls');
-    if (wall != null && !mode) {
-      button('Сдвиг стены', () => {
-        const r = S.room, [a, b] = plSeg(r.ms, wall);
-        shift = {r, k: wall, from: mix(a, b, 0.5)}; switchMode('shift');
-      }, 'shift');
-      button('Разбить стену', () => ctAddNode(wall), 'split-wall');
-      button('Удалить участок', () => zDelSel(), 'delete-wall');
-    }
-    const notes = {manual: 'Касайтесь углов по порядку', divider: 'Укажите два конца границы',
-      fill: 'Коснитесь внутри контура стен', image: 'Коснитесь внутри области на фото',
-      assign: 'Касайтесь стен, чтобы назначить или снять их', shift: 'Коснитесь нового положения середины стены'};
+    const name = edit?.q.name ? '«' + edit.q.name + '»: ' : '';
+    const notes = {manual: name + 'касайтесь углов по порядку (пером)', divider: 'Укажите пером два конца границы',
+      fill: name + 'коснитесь внутри контура стен', image: name + 'коснитесь внутри области на фото',
+      assign: 'Касайтесь стен, чтобы назначить или снять их', shift: 'Коснитесь пером нового положения середины стены',
+      '': wall == null ? 'Коснитесь стены' : ''};
+    if (hit && mode === 'pick' && staleIds.has(hit.q.id)) notes.pick = 'Стены изменились — контур зоны устарел: «Перезалить»';
     if (notes[mode]) {
       const note = document.createElement('small'); note.textContent = notes[mode]; panel.append(note);
     }
   }
+  /* AKX-2026-0010 Д2: корзина удаляет выбранную зону / границу, пока открыта панель «Зоны» */
+  const priorDelete = zDelSel;
+  zDelSel = async function() {
+    if (S.mode === 'plan' && active && mode === 'pick') {
+      if (selection()) return removeZone(selection());
+      if (dividerSelection()) return removeDivider(dividerSelection());
+    }
+    return priorDelete.apply(this, arguments);
+  };
   function paint(P, line, fillColor, closed = false, dash = []) {
     if (P.length < 2) return;
     cx.strokeStyle = line; cx.lineWidth = pixels(2); cx.setLineDash(dash);
@@ -505,15 +622,16 @@
   draw = function() {
     const result = priorDraw.apply(this, arguments);
     document.body.classList.toggle('lab12-rect', S.mode !== 'plan' && rect({k: S.mk}));
+    if (S.mode === 'plan' && S.room) refreshStale();   /* AKX-2026-0010 Д7 */
     refreshPanel();
     if (panel.hidden) return result;
     cx.save();
     for (const {q} of regions()) {
-      const isSelected = q.id === selected && active;
-      paint(q.pts, '#13827c', isSelected ? '#2ab5ad40' : '#2ab5ad19', true, [pixels(5), pixels(3)]);
+      const isSelected = q.id === selected && active, old = staleIds.has(q.id);
+      paint(q.pts, old ? '#d9822b' : '#13827c', isSelected ? (old ? '#f0a03040' : '#2ab5ad40') : (old ? '#f0a03019' : '#2ab5ad19'), true, [pixels(5), pixels(3)]);
       const p = zCen(q.pts);
-      cx.fillStyle = '#11766c'; cx.font = 'bold ' + pixels(13) + 'px system-ui';
-      cx.textAlign = 'center'; cx.fillText(q.name, ...toScr(...p));
+      cx.fillStyle = old ? '#b4610f' : '#11766c'; cx.font = 'bold ' + pixels(13) + 'px system-ui';
+      cx.textAlign = 'center'; cx.fillText(q.name + (old ? ' ⟳' : ''), ...toScr(...p));
     }
     for (const {q} of dividers()) paint(q.pts, q.id === selectedDivider && active ? '#b71a7e' : '#13827c', null, false, [pixels(6), pixels(5)]);
     if (active && (selection() || mode === 'assign')) {
@@ -530,7 +648,9 @@
     return result;
   };
   api.planMeta = (m, flip) => {
-    const transform = q => ({...q, pts: q.pts.map(([x, y]) => [x, flip ? -y : y])});
+    /* AKX-2026-0010: формат выгрузки не меняется — служебное поле зоны src (способ построения) остаётся только
+       в локальном сохранении и в JSON не уходит. */
+    const transform = ({src, ...q}) => ({...q, pts: q.pts.map(([x, y]) => [x, flip ? -y : y])});
     return {
       ...(m.labRooms?.length ? {labRooms: m.labRooms.map(transform)} : {}),
       ...(m.labDividers?.length ? {labDividers: m.labDividers.map(transform)} : {}),
