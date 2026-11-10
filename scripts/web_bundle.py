@@ -90,7 +90,7 @@ def validate_manifest(m, published=True):
     e = []
     if not isinstance(m, dict):
         return ['manifest is not an object']
-    if m.get('format') != FORMAT or m.get('v') != 1:
+    if m.get('format') != FORMAT or m.get('v') != 1 or isinstance(m.get('v'), bool):
         e.append('format/v')
     ver = m.get('version')
     if not isinstance(ver, str) or not VERSION_RE.match(ver):

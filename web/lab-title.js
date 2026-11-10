@@ -1,12 +1,16 @@
-/* Measure 82.17 — титул и список замеров.
-   ═══ [BLOCK TITLE-VER] актуальная версия на титуле: список замеров («Measure v81» → «Measure 82.17»), настройки, значок версии.
+/* Measure — титул и список замеров.
+   ═══ [BLOCK TITLE-VER] актуальная версия на титуле: список замеров («Measure v81» → «Measure 82.xx»), настройки, значок версии.
+       AKX-2026-0014: показывается реально загруженная веб-версия — window.MeasureVersion из lab-version.js того же бандла
+       (встроенного или скачанного; единственный источник номера). Запасной путь — AkrixLab.version() (натив: версия отданного бандла).
    ═══ [BLOCK LIST-ROWS] объект + «✎ Скетч» в одной строке.
    ═══ [BLOCK LIST-NOPLANE] «＋ Плоскость» убрана (владелец 10.11.2026: любая плоскость — часть помещения); старые плоскости в списке открываются как прежде. */
 (() => {
   'use strict';
   /* ═══ [BLOCK TITLE-VER] ═══ */
-  let v = '82.17';
-  try { const s = window.AkrixLab && AkrixLab.version && String(AkrixLab.version()); const m = s && s.match(/\d+\.\d+/); if (m) v = m[0]; } catch (e) { }
+  const full = s => { const m = s && String(s).match(/\d+(?:\.\d+)+/); return m ? m[0] : ''; };
+  let v = full(window.MeasureVersion);
+  if (!v) try { v = full(window.AkrixLab && AkrixLab.version && AkrixLab.version()); } catch (e) { }
+  if (!v) v = '82';
   const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
   set('zVer', 'Measure ' + v); set('zVer2', 'Measure ' + v); set('zVerB', v);
   /* ═══ [BLOCK LIST-NOPLANE] ═══ */

@@ -286,5 +286,18 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);if(activeVersion!=null)state.putString("activeVersion",activeVersion);}
     @Override protected void onPause(){if(web!=null&&trustedPage())web.evaluateJavascript("window.PM&&PM.flushAll&&PM.flushAll()",null);super.onPause();}
     @Override protected void onDestroy(){if(ble!=null)ble.close();if(web!=null){web.destroy();web=null;}super.onDestroy();}
-    @Override public void onBackPressed(){if(activeVersion!=null)requestChooser();else super.onBackPressed();}
+    /* ═══ [BLOCK BACK-BRIDGE] AKX-2026-0014 (решение владельца): системная «назад» сначала спрашивает страницу —
+       window.AkrixBack() === true → обработано страницей (клавиатура / отмена действия / выделение / выход в список — цепочка в web/lab-sketch*);
+       false / нет функции / исключение / нет ответа → прежнее поведение (сохранить и выйти: requestChooser).
+       Activity без androidx → OnBackPressedCallback недоступен; targetSdk 34 без android:enableOnBackInvokedCallback — система вызывает onBackPressed. */
+    boolean backAsked; int backSeq;
+    static final String BACK_JS="(function(){try{return !!(window.AkrixBack&&window.AkrixBack()===true)}catch(e){return false}})()";
+    @Override public void onBackPressed(){
+        if(activeVersion==null){super.onBackPressed();return;}
+        if(web==null||!trustedPage()||switching){requestChooser();return;}
+        if(backAsked)return;   // предыдущий запрос ещё без ответа
+        backAsked=true;final int seq=++backSeq;
+        web.evaluateJavascript(BACK_JS,result->{if(seq!=backSeq||!backAsked)return;backAsked=false;if(!"true".equals(result))requestChooser();});
+        web.postDelayed(()->{if(seq==backSeq&&backAsked)backAsked=false;},2000);   // страница зависла — следующее нажатие снова спросит
+    }
 }

@@ -261,7 +261,8 @@ final class Updater {
 
     void cleanup(State s) {
         Set<String> keep = new HashSet<>();
-        for (String v : new String[]{s.active, s.previous, s.pending, s.trial}) if (v != null) keep.add("web-" + v);
+        // versions not newer than the built-in assets (e.g. after an APK update) are never served again — free the space
+        for (String v : new String[]{s.active, s.previous, s.pending, s.trial}) if (v != null && vcmp(v, builtinVersion) > 0) keep.add("web-" + v);
         File[] list = files.listFiles();
         if (list == null) return;
         for (File f : list) {
