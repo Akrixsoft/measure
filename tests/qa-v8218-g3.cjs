@@ -152,6 +152,22 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(dlg.r === true && !dlg.open && d.list && d.r.every(x => x === true) && e2.r1 === true && /Ещё раз — выход/.test(e2.t) && e2.r2 === false, 'Д10: окно поверх списка — закрывается; холст → «Ещё раз — к проектам» → список → «Ещё раз — выход» → false', {dlg, d, e2});
       check(errors.length === 0, 'Д10: нет ошибок страницы', errors);
     }
+    /* ════ Д18: в меню холста нет старого диалога «Помещения / группы стен» и «Отдельной плоскости»; новое помещение — плитка футляра ════ */
+    if (run('d18')) {
+      await fresh(); errors = [];
+      await project('Меню', 'Д18');
+      await tapSel('touch', '#bMore'); await wait(300); await shot('d18-menu');
+      const m = await p.evaluate(() => ({items: [...document.querySelectorAll('#zMenu.on button')].filter(b => b.getClientRects().length).map(b => b.textContent.trim()),
+        plane: [...document.querySelectorAll('button')].filter(b => b.getClientRects().length && /Отдельная плоскость|Помещения \/ группы/.test(b.textContent)).length}));
+      check(m.items.length > 0 && !m.items.some(t => /Помещения \/ группы стен|плоскость/i.test(t)) && m.plane === 0, 'Д18: ⋮ холста — без «Помещения / группы стен» и «Отдельная плоскость»', m);
+      await p.evaluate(() => document.getElementById('zMenu').classList.remove('on'));
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(200);
+      const n0 = await p.evaluate(async () => (await dbAll('sess')).filter(r => r.kind === 'room' && !r.del).length);
+      await caseTool('[data-lab-tb="room"]'); await wait(400); await shot('d18-room-dlg'); await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(800);
+      const n1 = await p.evaluate(async () => (await dbAll('sess')).filter(r => r.kind === 'room' && !r.del).length);
+      check(n1 === n0 + 1, 'Д18: плитка «Новое помещение» футляра — помещение создано', {n0, n1});
+      check(errors.length === 0, 'Д18: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
