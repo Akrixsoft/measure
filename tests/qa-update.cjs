@@ -30,6 +30,13 @@ const MOCK = () => {
     chk(t.zVer === 'Measure ' + version && t.zVerB === version && t.zVer2 === 'Measure ' + version, 'title shows loaded web version (lab-version.js)', t);
     chk(t.ready.length === 1 && t.ready[0][1] === version, 'ready signal sent once with MeasureVersion after IndexedDB opened', t.ready);
     chk(await p.evaluate(() => typeof DB !== 'undefined' && !!DB.db), 'ready only after DB.db is open');
+    chk(await p.evaluate(async () => ['MeasureLabStore', 'MeasureLabSketch', 'MeasureLabProjects', 'MeasureLabHistory', 'MeasureLabBoard', 'MeasureLabCtx'].every(n => window[n]) && !((await MeasureLabStore.migrate()) || {}).error), 'ready only after Lab modules are up and the 82.18 migration finished (audit m6)');
+    { // модуль lab-* бросает исключение при загрузке — ready не уходит (натив откатит бандл)
+      const pe = await ctx.newPage(); await pe.addInitScript(MOCK);
+      await pe.route('**/web/lab-prd.js', r => r.fulfill({status: 200, contentType: 'application/javascript', body: "throw new Error('qa: broken lab module');"}));
+      await pe.goto(url); await pe.waitForFunction(() => window.MeasureLabUpdate); await pe.waitForTimeout(4000);
+      chk(await pe.evaluate(() => !__upd.calls.some(c => c[0] === 'ready')), 'broken lab-*.js at startup: ready is NOT sent (audit m6)'); await pe.close();
+    }
 
     await p.click('#bMore');
     const btn = p.locator('#zMenu #bLabUpd');

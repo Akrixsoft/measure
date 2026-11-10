@@ -19,10 +19,11 @@
   const noop = () => { };
   const getG = n => { try { return (0, eval)(n); } catch (e) { return undefined; } };   // глобальная привязка (function / let) по имени
   const setG = n => { try { (0, eval)(n + ' = window.__labCtxF'); } catch (e) { return false; } return true; };
-  function swapStubs() {
-    const old = {};
-    for (const n of STUBS) { const f = getG(n); if (typeof f !== 'function') continue; window.__labCtxF = noop; if (setG(n)) old[n] = f; }
-    delete window.__labCtxF; return old;
+  function swapStubs(old) {   // old — заполняется по ходу: при исключении на середине finally ctxPaint вернёт уже подменённые (аудит m2)
+    old = old || {};
+    try { for (const n of STUBS) { const f = getG(n); if (typeof f !== 'function') continue; window.__labCtxF = noop; if (setG(n)) old[n] = f; } }
+    finally { delete window.__labCtxF; }
+    return old;
   }
   function restoreStubs(old) { for (const n in old) { window.__labCtxF = old[n]; setG(n); } delete window.__labCtxF; }
   /* кэши попаданий, которые заполняет отрисовка: копия до подмены → возврат после */
@@ -58,10 +59,10 @@
     const st = stateOf(rec, view); if (opt.refs === false) st.refs = []; if (opt.rsel) st.rsel = opt.rsel;
     let skip = !!opt.noBg; const own = Object.prototype.hasOwnProperty.call(cx, 'fillRect'), fr = cx.fillRect;
     if (skip) cx.fillRect = function (x, y, w, h) { if (skip && x === 0 && y === 0 && w === cv.width && h === cv.height) { skip = false; return; } return fr.apply(this, arguments); };
-    const stubs = swapStubs(), cache = cacheKeep(); LABCTX.painting++;
-    try { Object.assign(S, st); paint(); return true; }
+    const stubs = {}; let cache = null; LABCTX.painting++;
+    try { cache = cacheKeep(); swapStubs(stubs); Object.assign(S, st); paint(); return true; }   /* 82.18 fix (аудит m2): подмена и кэши — внутри try */
     catch (e) { console.error('ctxPaint', e); return false; }
-    finally { LABCTX.painting--; for (const k of KEYS) S[k] = keep[k]; restoreStubs(stubs); cacheBack(cache); if (opt.noBg) { if (own) cx.fillRect = fr; else delete cx.fillRect; } }
+    finally { LABCTX.painting--; for (const k of KEYS) S[k] = keep[k]; restoreStubs(stubs); if (cache) cacheBack(cache); if (opt.noBg) { if (own) cx.fillRect = fr; else delete cx.fillRect; } }
   }
   api.paint = ctxPaint;
   api.painting = () => LABCTX.painting > 0;

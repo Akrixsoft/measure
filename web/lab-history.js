@@ -195,8 +195,7 @@
   bind();
   const zLay0 = zLay; zLay = function () { const r = zLay0.apply(this, arguments);
     try { if (canvasOn()) { sync(); const u = document.getElementById('bUnd'), d = document.getElementById('bRed'); if (u && H.j.length) u.classList.remove('dis'); if (d && H.r.length) d.classList.remove('dis'); } } catch (e) { } return r; };
-  if (typeof flushAll === 'function') { const fa0 = flushAll; flushAll = async function () { persistNow(); return fa0.apply(this, arguments); }; }   // Android onPause → PM.flushAll: см. ниже
-  if (PM.flushAll) { const pf0 = PM.flushAll; PM.flushAll = function () { persistNow(); return pf0.apply(this, arguments); }; }
+  if (typeof flushAll === 'function') { const fa0 = flushAll; flushAll = async function () { persistNow(); return fa0.apply(this, arguments); }; }   // Android onPause → PM.flushAll (= flushAll v81) — одна обёртка (аудит m9)
   addEventListener('pagehide', persistNow); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistNow(); });
   PM.labHistory = api;
 })();

@@ -320,7 +320,12 @@
     const mo = new MutationObserver(() => { if (!sh.classList.contains('on') && !dg.classList.contains('on')) { mo.disconnect(); setTimeout(back, 0); } });
     mo.observe(sh, {attributes: true}); mo.observe(dg, {attributes: true});
   };
-  new MutationObserver(() => titleUpd()).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  /* 82.18 fix (аудит m9): заголовок — не на каждое изменение класса body (lab-tb/lab-prd/lab-v012 меняют их при отрисовке, titleUpd читает IndexedDB),
+     а только при смене «холст открыт» / «список открыт» и при переходе холста (measure-lab-activate); один раз за кадр. */
+  let tuR = 0, tuK = '';
+  const titleSoon = () => { if (tuR) return; tuR = requestAnimationFrame(() => { tuR = 0; titleUpd(); }); };
+  new MutationObserver(() => { const b = document.body.classList, k = (b.contains('lab-sketch') ? 1 : 0) + ',' + (b.contains('lab-prj-on') ? 1 : 0); if (k !== tuK) { tuK = k; titleSoon(); } }).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  addEventListener('measure-lab-activate', titleSoon);
   addEventListener('measure-lab-project', e => { const d = e.detail || {}; if (d.pid && d.pid === V.cur) titleUpd(); if (d.op === 'purge' && d.pid === V.cur) V.cur = null; });
 
   // старт: если штатный старт успел показать #ss или открыть помещение до загрузки модуля — взять под список / холст

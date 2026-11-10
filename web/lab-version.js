@@ -6,3 +6,8 @@
        подходит этой веб-части. Повышать только при изменении нативного моста; веб-обновление не ставится на более старый APK. */
 window.MeasureVersion = '82.17';
 window.MeasureMinApk = 82017;
+/* ═══ [BLOCK BOOT-ERR] 82.18 (аудит m6): исключения web/lab-*.js при старте — первым скриптом Lab, чтобы lab-update.js не отправил ready
+       (натив откатит бандл). Только запись первой ошибки; поведение страницы не меняется. */
+window.MeasureLabBootErr = null;
+(() => { const on = e => { const f = String((e && (e.filename || (e.reason && e.reason.stack))) || ''); if (!window.MeasureLabBootErr && /\/lab-[\w-]+\.js/.test(f)) window.MeasureLabBootErr = f; };
+  addEventListener('error', on); addEventListener('unhandledrejection', on); window.MeasureLabBootErrOff = () => { removeEventListener('error', on); removeEventListener('unhandledrejection', on); }; })();

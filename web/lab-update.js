@@ -37,6 +37,7 @@
     if (a && a.matches && a.matches('input,textarea,select')) { a.blur(); await new Promise(r => setTimeout(r, 0)); }
     if (window.PM && PM.flushAll) await PM.flushAll();
     if (window.PM && PM.saveNow) await PM.saveNow();
+    if (window.MeasureLabSketch && MeasureLabSketch.saveNow) await MeasureLabSketch.saveNow();   // раскладка холста (аудит m1)
   }
   async function restart() {
     const n = native(); if (!n) return;
@@ -78,12 +79,27 @@
     menu.appendChild(b);
   }
 
-  /* ═══ [BLOCK UPD-READY] ═══ */
-  let tries = 0;
+  /* ═══ [BLOCK UPD-READY] ═══ 82.18 fix (аудит m6): ready — не по DB.db, а когда модули Lab поднялись: v81 DB открыта, есть MeasureLabStore,
+     MeasureLabSketch, MeasureLabProjects, MeasureLabHistory, MeasureLabBoard, MeasureLabCtx, миграция 82.18 завершилась без ошибки, список проектов
+     или холст на экране (?nolist — режим тестов: без этого условия) и за время старта не было исключений из web/lab-*.js. Иначе ready не уходит — натив откатит бандл. */
+  let tries = 0, labErr = null, mig = null;
+  const onErr = e => { const f = String((e && (e.filename || (e.reason && e.reason.stack))) || ''); if (/\/lab-[\w-]+\.js/.test(f)) labErr = labErr || f; };
+  addEventListener('error', onErr); addEventListener('unhandledrejection', onErr);
+  const MODS = ['MeasureLabStore', 'MeasureLabSketch', 'MeasureLabProjects', 'MeasureLabHistory', 'MeasureLabBoard', 'MeasureLabCtx'];
+  function labUp() {
+    if (!(typeof DB !== 'undefined' && DB && DB.db)) return false;   // global DB (inline v81)
+    if (!MODS.every(n => window[n])) return false;
+    if (!mig) { mig = Promise.resolve().then(() => MeasureLabStore.migrate()).then(r => (mig.ok = !(r && r.error)), () => (mig.ok = false)); return false; }
+    if (mig.ok !== true) return false;
+    const shown = (MeasureLabProjects.isOpen && MeasureLabProjects.isOpen()) || (MeasureLabSketch.isOpen && MeasureLabSketch.isOpen()) || /[?&]nolist/.test(location.search);
+    return !!shown;
+  }
   (function ready() {
     const n = window.AkrixUpdate;
     if (!n || typeof n.ready !== 'function') return;
-    if (typeof DB !== 'undefined' && DB && DB.db) { n.ready(ver()); return; }   // global DB (inline v81)
+    labErr = labErr || window.MeasureLabBootErr || null;
+    if (labErr) { console.error('Measure: ошибка модуля Lab при старте — ready не отправлен', labErr); return; }
+    if (labUp()) { removeEventListener('error', onErr); removeEventListener('unhandledrejection', onErr); if (window.MeasureLabBootErrOff) MeasureLabBootErrOff(); n.ready(ver()); return; }
     if (++tries < 150) setTimeout(ready, 100);   // ≤15 с; дальше молчим — натив откатит
   })();
   window.MeasureLabUpdate = {ver, saveAll, card, hide};

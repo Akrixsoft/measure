@@ -168,6 +168,9 @@
      уводил холст обратно в прежний проект (switchTo) и создавал ему подложку; фото ложилось туда. Переход — только вне open() и если расхождение осталось. */
   let opening = 0;
   const foreignObj = () => { const fo = S.mode === 'plan' ? S.room && S.room.obj : S.sess && S.sess.kind !== 'board' && S.sess.obj; return fo != null && fo !== false && fo !== '' && fo !== K.obj ? fo : null; };
+  /* 82.18 fix (аудит m1): раскладка холста (cv) — в базу сразу при flushAll v81: сворачивание (visibilitychange hidden), pagehide,
+     Android onPause (PM.flushAll → flushAll), «Перезапустить» (lab-update saveAll). Во время open() — нет (K ещё собирается). */
+  const flush0 = flushAll; flushAll = async function () { const r = await flush0.apply(this, arguments); if (K.on && !opening) { try { await saveNowSk(); } catch (e) { } } return r; };
   function switchTo(obj) { if (opening || swAct === obj) return; swAct = obj; setTimeout(() => { if (opening || !K.on || foreignObj() !== obj || listOn()) { swAct = null; return; } open(obj, {fromNative: 1}).finally(() => { swAct = null; }); }, 0); }
   draw = function () {
     if (!K.on || (window.LABCTX && LABCTX.painting)) return draw81.apply(this, arguments);

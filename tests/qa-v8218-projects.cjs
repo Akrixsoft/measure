@@ -247,6 +247,11 @@ const BASE = '51923bf';   // Measure 82.17 + запись плана до отк
     await tap('touch', ...center(await box('#labPrj .lp-to button'))); await p.waitForTimeout(300);
     const un = await p.evaluate(async () => { const P = (await MeasureLabStore.projects()).find(x => x.client === 'Сидоров'), R = await MeasureLabStore.records(P.id); return {del: P.del, any: R.all.some(o => o.del || o.delP)}; });
     check(!un.del && !un.any, '↶ Вернуть в тосте — проект и записи восстановлены', un);
+    // процесс убит между меткой проекта и записями: P.op → при старте (resumeOps) операция догоняется; записи — одной транзакцией
+    const rs = await p.evaluate(async () => { const ST = MeasureLabStore, P = (await ST.projects()).find(x => x.client === 'Сидоров'), t = Date.now();
+      await ST.put({...P, del: t, op: {k: 'trash', t}}); await ST.resumeOps(); let Q = await ST.get(P.id), R = await ST.records(P.id); const a = {del: !!Q.del, op: !!Q.op, allDel: R.all.every(o => o.del === t && o.delP === P.id)};
+      await ST.put({...Q, del: null, op: {k: 'restore', d: t}}); await ST.resumeOps(); Q = await ST.get(P.id); R = await ST.records(P.id); return {a, b: {del: !!Q.del, op: !!Q.op, any: R.all.some(o => o.del || o.delP)}}; });
+    check(rs.a.del && !rs.a.op && rs.a.allDel && !rs.b.del && !rs.b.op && !rs.b.any, 'корзина: незавершённые «В корзину» / «Вернуть» (P.op) догоняются при старте', rs);
     r = await rowSel('Сидоров'); await tap('touch', ...center(r.more)); await tapItem('touch', 'del'); await tapItem('touch', 'del'); await p.waitForTimeout(250);
     await tap('touch', ...center((await rowSel('▸ Корзина')).row));
     r = await rowSel('Сидоров'); await shot('09-trash');

@@ -62,6 +62,14 @@
     return res;
   }
   api.zEdit = zEdit;
+  async function zEditMany(ids, fn) {   // 82.18 fix (аудит m5): несколько записей — одной транзакцией sess (всё или ничего)
+    await zdb(); const done = []; ids = [...new Set(ids)]; if (!ids.length) return done;
+    await new Promise((ok, no) => { const t = DB.db.transaction('sess', 'readwrite'), s = t.objectStore('sess');
+      for (const id of ids) { const q = s.get(id); q.onsuccess = () => { const o = q.result; if (o && fn(o) !== false) { s.put(o); done.push(id); } }; }
+      t.oncomplete = ok; t.onerror = () => no(t.error); t.onabort = () => no(t.error); });
+    for (const m of mem()) if (done.includes(m.id)) fn(m);
+    return done;
+  }
 
   /* ═══ [BLOCK ST-PRJ] ═══ */
   const objOf = (client, name) => { const c = String(client || '').trim(), n = String(name || '').trim(); return c && n ? c + ' — ' + n : c || n; };   // « — », не « · »: hdIn режет по последнему « · »
@@ -124,18 +132,32 @@
     return {rooms, walls, boards, planes, all: [...rooms, ...walls, ...boards, ...planes]};
   }
   api.records = async pid => { const P = await get(pid); return P ? owns(P, await zAll()) : null; };
+  /* 82.18 fix (аудит m5): сначала метка проекта (P.del + P.op — незавершённая операция), затем все записи одной транзакцией, затем P.op снимается.
+     Процесс убит посередине — при старте (migrate → resumeOps) операция догоняется по P.op. */
+  const trashRecs = (R, pid, t) => zEditMany(R.all.filter(o => !o.del).map(o => o.id), x => { if (x.del) return false; x.del = t; x.delP = pid; });
+  const restoreRecs = (R, pid, d) => zEditMany(R.all.filter(o => o.delP === pid || (o.del && o.del === d)).map(o => o.id), x => { if (!(x.delP === pid || (x.del && x.del === d))) return false; delete x.del; delete x.delP; });
   async function trash(pid) {   // в корзину: P.del + штатный o.del у всех записей проекта (метка delP — что вернуть)
-    const P = await get(pid); if (!P) return null; const t = now(), R = owns(P, await zAll());
-    for (const o of R.all) if (!o.del) await zEdit(o.id, x => { if (x.del) return false; x.del = t; x.delP = pid; });
-    P.del = t; await put(P);
+    const P = await get(pid); if (!P) return null; const t = now();
+    P.del = t; P.op = {k: 'trash', t}; await put(P);
+    const R = owns(P, await zAll()); await trashRecs(R, pid, t);
+    delete P.op; await put(P);
     if ((S.room && R.all.some(o => o.id === S.room.id)) || (S.sess && R.all.some(o => o.id === S.sess.id))) { try { if (S.mode === 'plan') leavePlan(); clearAll(); } catch (e) { } }
     emit('trash', {pid}); return P;
   }
   async function restore(pid) {
-    const P = await get(pid); if (!P) return null; const R = owns(P, await zAll());
-    for (const o of R.all) if (o.delP === pid || (o.del && o.del === P.del)) await zEdit(o.id, x => { delete x.del; delete x.delP; });
-    P.del = null; await put(P); emit('restore', {pid}); return P;
+    const P = await get(pid); if (!P) return null; const d = P.del;
+    P.op = {k: 'restore', d}; P.del = null; await put(P);
+    await restoreRecs(owns(P, await zAll()), pid, d);
+    delete P.op; await put(P); emit('restore', {pid}); return P;
   }
+  async function resumeOps() {   // незавершённые «В корзину» / «Вернуть» (процесс убит между меткой проекта и записями)
+    for (const P of await projects()) {
+      if (!P || !P.op) continue; const R = owns(P, await zAll());
+      if (P.op.k === 'trash') await trashRecs(R, P.id, P.op.t); else if (P.op.k === 'restore') await restoreRecs(R, P.id, P.op.d);
+      delete P.op; await put(P);
+    }
+  }
+  api.resumeOps = resumeOps;
   async function imgKeys(R, P) {   // картинки проекта, которые штатный sessPurge не удаляет: фото-справки ref:*, P.bin
     const k = new Set(P.bin || []); for (const o of R.all) for (const r of o.refs || []) if (r && r.id) k.add('ref:' + r.id);
     return [...k];
@@ -304,7 +326,7 @@
     const at = now(); await lPut('meta', {k: 'mig', v: '82.18', at, n: made.length});
     emit('migrate', {n: made.length}); return {done: true, at, n: made.length};
   }
-  api.migrate = () => migP || (migP = mig82_18().catch(e => { console.error('Measure 82.18 migration', e); migP = null; return {error: String(e && e.message || e)}; }));
+  api.migrate = () => migP || (migP = mig82_18().then(async r => { try { await resumeOps(); } catch (e) { console.error('Measure 82.18 resumeOps', e); } return r; }).catch(e => { console.error('Measure 82.18 migration', e); migP = null; return {error: String(e && e.message || e)}; }));
   api.ready = () => api.migrate();
 
   /* ═══ [BLOCK ST-NUM] ═══ */
