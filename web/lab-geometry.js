@@ -72,7 +72,7 @@
     const d=dpi(),cfg=settings();cx.save();cx.font=`bold ${12*d}px system-ui`;const tw=cx.measureText(text).width;cx.restore();
     return {center:[(A[0]+B[0])/2,(A[1]+B[1])/2],angle,width:Math.max(tw+8*d*annotationScale(),(appearance()?.fieldPx()||cfg.fieldPx||10)*d),height:(appearance()?.fieldPx()||Math.max(cfg.fieldPx||16,(cfg.textPx||12)+2))*d,text};
   }
-  function labelLayout(q){return labelGeometry(lab.projectEndpoint(q.a,q,'a'),lab.projectEndpoint(q.b,q,'b'),q.k==='arr'?((q.vm??q.v)>0?String(q.vm??q.v):'мм'):String(dmVal(q)));}
+  function labelLayout(q){return labelGeometry(lab.projectEndpoint(q.a,q,'a'),lab.projectEndpoint(q.b,q,'b'),q.k==='arr'?((q.vm??q.v)>0?String(q.vm??q.v):'мм'):(dmVal(q)==null?'?':String(dmVal(q))));}   /* 82.18: подложка холста — без масштаба «?» до ввода (undo-patch: dmGeo = null) */
   function labelRect(g){
     if(!g)return null;const d=5*dpi(),c=Math.abs(Math.cos(g.angle)),s=Math.abs(Math.sin(g.angle)),w=c*g.width/2+s*g.height/2+d,h=s*g.width/2+c*g.height/2+d,r=[g.center[0]-w,g.center[1]-h,g.center[0]+w,g.center[1]+h,...g.center];r.layout=g;return r;
   }

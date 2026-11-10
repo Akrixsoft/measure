@@ -1236,7 +1236,7 @@ async function saveNow() { clearTimeout(saveT); if (S.sess) await doSave() }   /
 async function doSave() {
   {
     if (S.recomp) return saveSess(); anchorAll();   /* v5 */
-    const o = S.sess; if (!o) return; o.wsh = S.wsh; o.q4 = S.q4 || null;   /* v34 */   /* v33: замер уже закрыт — отложенное сохранение не нужно */ if (S.sol || (S.q4 && S.q4.ok && S.mosaic)) try { o.out = exportObj() } catch (e) { }   /* v6: снимок для выгрузки помещения; v37: и фото без маркеров */ Object.assign(o, { upd: Date.now(), frames: S.frames.filter(f => f.key).map(f => ({ key: f.key, name: f.name, ...(f.pool ? { pool: 1 } : {}), W: f.W, H: f.H, det: f.det }))   /* v27: + кэш маркеров */,   /* v13: pool — кадр из пула */ lines: S.lines, la: S.la, man: S.man, els: S.els, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys, rulers: S.rulers, und: S.und.slice(S.und.map(t => t.startsWith('ZA:')).lastIndexOf(true) + 1).slice(-40),   /* v79 ревью: шаги до несохраняемого ZA — нет */ set: { a4: $('sA4').value, a5: $('sA5').value, max: $('sMax').value, dist: $('sDist').value }, q: S.sol ? { rms: S.sol.rms, mk: S.sol.mks.length } : null });
+    const o = S.sess; if (!o) return; o.wsh = S.wsh; o.q4 = S.q4 || null;   /* v34 */   /* v33: замер уже закрыт — отложенное сохранение не нужно */ if (S.sol || (S.q4 && S.q4.ok && S.mosaic)) try { o.out = exportObj() } catch (e) { }   /* v6: снимок для выгрузки помещения; v37: и фото без маркеров */ Object.assign(o, { upd: Date.now(), frames: S.frames.filter(f => f.key).map(f => ({ key: f.key, name: f.name, ...(f.pool ? { pool: 1 } : {}), W: f.W, H: f.H, det: f.det }))   /* v27: + кэш маркеров */,   /* v13: pool — кадр из пула */ lines: S.lines, la: S.la, man: S.man, els: S.els, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys, rulers: S.rulers, und: S.und.filter(t => !t.startsWith('ZA:')).slice(-40), /* AKX-2026-0012 undo */   /* v79 ревью: шаги до несохраняемого ZA — нет */ set: { a4: $('sA4').value, a5: $('sA5').value, max: $('sMax').value, dist: $('sDist').value }, q: S.sol ? { rms: S.sol.rms, mk: S.sol.mks.length } : null });
     await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { });
   }
 }
@@ -1582,9 +1582,9 @@ function zColDrag(row) {
   const end = () => { if (!g) return; clearTimeout(g.t); const d = g.on; g.b.classList.remove('dr'); if (d) { g.b.dataset.drag = 1; PREF.cl = [...row.querySelectorAll('[data-tc]')].map(x => x.dataset.tc); prefSave(); zpbDraw(); setTimeout(() => { delete g0.dataset.drag }, 300) } const g0 = g.b; g = null };
   row.onpointerup = end; row.onpointercancel = end;
 }
-function snap() { S.red = [];   /* v42: новое действие — ↷ не повторяет старое */ S.und.push(JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys })); if (S.und.length > 60) S.und.shift() }
-function unsnap() { const t = S.und[S.und.length - 1]; if (t && t === JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys })) S.und.pop() }   /* правка без изменений — не шаг истории */
-function undo() { const t = S.und.pop(); if (!t) return; if (t.startsWith('ZA:')) { const a = ZA.get(t); if (a) a.u(); return }   /* v23 */ const o = JSON.parse(t); S.lines = o.lines; S.els = o.els; S.man = o.man; S.notes = o.notes || S.notes; if (o.dms) S.dms = o.dms; if (o.drw) S.drw = o.drw; if (o.rts) S.rts = o.rts; if (o.polys) S.polys = o.polys; if (S.dsel && !zdGet(S.dsel)) S.dsel = null;   /* v24 */ if (S.nsel && !S.notes.some(n => n.id === S.nsel)) S.nsel = null; S.msel = S.msel.filter(id => S.els.some(e => e.id === id) || zdGet(id));   /* v78.2: и рисунки */ if (S.sel && !S.els.find(e => e.id === S.sel)) S.sel = null; mkChips(); mkPanel(); status(); if (Math.abs(viewRot() - (S.view.rot || 0)) > 1e-9) fit(); else draw(); saveSess(); refreshDisp() }
+function snap() { S.red = [];   /* v42: новое действие — ↷ не повторяет старое */ S.und.push(JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys, refs: S.refs || [] })); /* AKX-2026-0012 undo */ if (S.und.length > 60) S.und.shift() }
+function unsnap() { const t = S.und[S.und.length - 1]; if (t && t === JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys, refs: S.refs || [] })) S.und.pop() }   /* правка без изменений — не шаг истории */
+function undo() { const t = S.und.pop(); if (!t) return; if (t.startsWith('ZA:')) { const a = ZA.get(t); if (a) a.u(); return }   /* v23 */ const o = JSON.parse(t); S.lines = o.lines; S.els = o.els; S.man = o.man; S.notes = o.notes || S.notes; if (o.dms) S.dms = o.dms; if (o.drw) S.drw = o.drw; if (o.rts) S.rts = o.rts; if (o.polys) S.polys = o.polys; if (o.refs) { S.refs = o.refs; if (S.rsel && !(S.refs || []).some(r => r.id === S.rsel)) S.rsel = null } /* AKX-2026-0012 undo */ if (S.dsel && !zdGet(S.dsel)) S.dsel = null;   /* v24 */ if (S.nsel && !S.notes.some(n => n.id === S.nsel)) S.nsel = null; S.msel = S.msel.filter(id => S.els.some(e => e.id === id) || zdGet(id));   /* v78.2: и рисунки */ if (S.sel && !S.els.find(e => e.id === S.sel)) S.sel = null; mkChips(); mkPanel(); status(); if (Math.abs(viewRot() - (S.view.rot || 0)) > 1e-9) fit(); else draw(); saveSess(); refreshDisp() }
 addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); zUndo() } if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y' && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); zRedo() } });   /* v23 */
 function elRect(e, W) {                        // углы элемента в плоскости (с поворотом стены)
   W = W || wf(); const w = (+e.W || +e.D || 60), h = (+e.H || +e.D || 60), N = Math.max(1, Math.round(+e.N || 1)), st = +e.st || w;
@@ -3374,7 +3374,7 @@ async function exportRoomObj(rIn) {   /* v12: rIn — помещение объ�
     for (const e of out.els) {
       if (e.t === 'pt') W.pts.push({ id: e.id, t: AK_PT[e.kind] || 'ot', x: r1(xs(e.x)), y: e.y, D: e.D, N: e.N, st: e.st, note: e.note || '', ...(ptApx(e.apx) ? { apx: ptApx(e.apx) } : {}),   /* v81 (D1): точечный — без W / H */ ...(e.src ? { src: e.src, rf: e.rf } : {}) });   /* v79 */
       else if (ZN_K.includes(e.kind)) W.zn.push({ id: e.id, ...(e.kind !== 'zon' ? { t: e.kind } : {}), x: r1(Math.min(xs(e.x), xs(e.x + (e.W || 0)))), y: e.y, W: e.W, H: e.H, ...(e.D != null ? { D: e.D } : {}), ...(e.labEdges ? { labEdges: MeasureLab012.flipEdges(e.labEdges, flip) } : {}), note: e.note || '' });
-      else { const a = xs(e.x), b = xs(e.x + (e.W || 0)); W.els.push({ id: e.id || 'p' + k + '_' + W.els.length, t: AK_RC[e.kind] || 'box', x0: r1(Math.min(a, b)), x1: r1(Math.max(a, b)), y0: e.y, y1: r1(e.y + (e.H || 0)), note: e.note || '', ...(e.apx ? { apx: e.apx } : {}), ...(e.src ? { src: e.src, rf: e.rf } : {}) }) }   /* v79 */
+      else { const a = xs(e.x), b = xs(e.x + (e.W || 0)); W.els.push({ id: e.id || 'p' + k + '_' + W.els.length, t: AK_RC[e.kind] || 'box', x0: r1(Math.min(a, b)), x1: r1(Math.max(a, b)), y0: e.y, y1: r1(e.y + (e.H || 0)), note: e.note || '', ...(['kol', 'rig', 'kor', 'vys'].includes(e.kind) ? { d: Math.abs(+e.D || W3VK[e.kind][2]) } : {}) /* AKX-2026-0013 D */, ...(e.apx ? { apx: e.apx } : {}), ...(e.src ? { src: e.src, rf: e.rf } : {}) }) }   /* v79 */
     }
     wl[k] = W;
   }
@@ -3518,7 +3518,7 @@ function zSnap(q, p) { const d = devicePixelRatio || 1; let best = null, bd = 16
 function dmInShow(id) {   /* v39: поле числа нового размера (лево-верх холста); лазер — сюда */
   const q = S.dms.find(x => x.id === id), el = $('dmIn'); if (!q) return el.classList.remove('on'); const r = cv.getBoundingClientRect();
   el.style.left = '8px'; el.style.top = (r.top + 8) + 'px';   /* у края холста: касания по стене не перекрывает */
-  el.value = q.vm || ''; el.placeholder = '≈' + dmGeo(q); el.dataset.id = id; el.classList.add('on'); btField = el;
+  el.value = q.vm || ''; el.placeholder = dmGeo(q) == null ? '?' : '≈' + dmGeo(q); el.dataset.id = id; el.classList.add('on'); btField = el;
 }
 $('dmIn').onchange = () => { const el = $('dmIn'), q = S.dms.find(x => x.id === el.dataset.id); if (!q) return; const v = el.value.trim(), n = v ? evalN(v) : null; snap(); if (n > 0) q.vm = r1(n); else delete q.vm; unsnap(); saveSess(); el.classList.remove('on'); mkPanel(); draw() };
 $('dmIn').onkeydown = e => { if (e.key === 'Enter') $('dmIn').blur() };
@@ -3540,7 +3540,7 @@ function dmTap(q, p) {
 function zLW(w) {   /* толщина в px устройства: от масштаба «всё» — мягко (^0,35), в пределах ×0,6…×2 */
   const d = devicePixelRatio || 1, z = S.fitS ? S.view.s / S.fitS : 1; return Math.max(w * 0.6, Math.min(w * 2, w * Math.pow(z, 0.35))) * d;
 }
-const dmGeo = q => { const W = wf(), C = corrH(), a = toWc(q.a, W, C), b = toWc(q.b, W, C); return Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])) }, dmVal = q => q.vm > 0 ? +q.vm : dmGeo(q);   /* v39: vm — замер (лазер / клавиатура) */
+const dmGeo = q => { if (S.sess && S.sess.kind === 'board') return null; /* AKX-2026-0012 undo */ const W = wf(), C = corrH(), a = toWc(q.a, W, C), b = toWc(q.b, W, C); return Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])) }, dmVal = q => q.vm > 0 ? +q.vm : dmGeo(q);   /* v39: vm — замер (лазер / клавиатура) */
 function rectPts(q) { const W = wf(), A = toW(q.a, W), B = toW(q.b, W); return [[A[0], A[1]], [B[0], A[1]], [B[0], B[1]], [A[0], B[1]]].map(w => toScr(...fromW(w, W))) }
 function dmDraw() {
   const d = devicePixelRatio || 1; zwDraw();   /* v25 */
@@ -3575,7 +3575,7 @@ function dmPanel(pp) {
   if (ZD2[(zdGet(S.dsel) || {}).k]) return zdPanel(pp);   /* v26 */
   if (S.rts.includes(zdGet(S.dsel)) || S.polys.includes(zdGet(S.dsel))) return zwPanel(pp);   /* v25 */
   const q = zdGet(S.dsel), dm = !!S.dms.includes(q), tg = (o, v) => `<button data-zd="${o}"${v ? ' style="background:var(--ac);border-color:var(--ac)"' : ''} title="${ZO[o][1]}">${o === 't' ? (q.t === 'from' ? '→' : '↔') : ZO[o][0]}</button>`;
-  pp.innerHTML = `<div class="row"><span class="t">${dm ? 'Размер' : q.k === 'ln' ? 'Линия' : 'Прямоугольник'}</span>${dm ? `<input data-dmv inputmode="decimal" value="${q.vm || ''}" placeholder="≈${dmGeo(q)}" title="Замер, мм (лазер / клавиатура); пусто — по фото"><span class="mu">мм</span>${tg('t', 0)}` : tg('dash', q.dash) + (q.k === 'rect' ? tg('rnd', q.rnd) + tg('fill', q.fill) : '')}<span style="flex:1"></span>${dm ? '' : '<button id="bDmC" title="Копия">⧉</button>'}<button id="bUn" title="Отменить">↶</button><button id="bDmX" title="Удалить (↶ — вернуть)">✕</button></div>
+  pp.innerHTML = `<div class="row"><span class="t">${dm ? 'Размер' : q.k === 'ln' ? 'Линия' : 'Прямоугольник'}</span>${dm ? `<input data-dmv inputmode="decimal" value="${q.vm || ''}" placeholder="${dmGeo(q) == null ? '?' : '≈' + dmGeo(q)}" title="Замер, мм (лазер / клавиатура); пусто — по фото"><span class="mu">мм</span>${tg('t', 0)}` : tg('dash', q.dash) + (q.k === 'rect' ? tg('rnd', q.rnd) + tg('fill', q.fill) : '')}<span style="flex:1"></span>${dm ? '' : '<button id="bDmC" title="Копия">⧉</button>'}<button id="bUn" title="Отменить">↶</button><button id="bDmX" title="Удалить (↶ — вернуть)">✕</button></div>
     <div class="row mu">${dm ? 'в выгрузку: от левого края и пола, мм' : 'пометка: в выгрузку — как рисунок (drw)'}</div>`;
   { const vi = pp.querySelector('[data-dmv]'); if (vi) vi.onchange = () => { const v = vi.value.trim(), n = v ? evalN(v) : null; snap(); if (n > 0) q.vm = r1(n); else delete q.vm; saveSess(); mkPanel(); draw() } }   /* v39 */
   $('bUn').onclick = zUndo; const bc = $('bDmC'); if (bc) bc.onclick = () => zdCopy(q);   /* v26 */
@@ -4142,7 +4142,7 @@ function zExp() {   /* выгрузка: строка статуса целик�
   x.querySelectorAll('[data-zx]').forEach(b => b.onclick = () => { const k = b.dataset.zx; { const w = zWarn(); if (w.length && k !== 'p') toast('⚠ ' + w[0] + (w.length > 1 ? ` (+${w.length - 1})` : '')) }   /* v41: как ⇪ в шапке */ if (k === 'r') exportRoom(); else if (k === 'o') exportObj2(); else if (k === 'w') exportJson(); else zmSet('plan') });
 }
 /* ↶ ↷ в шапке: план — снимки помещения (S.pund / S.pred), стена — разметки (S.und / S.red) */
-const zState = () => JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys });
+const zState = () => JSON.stringify({ lines: S.lines, els: S.els, man: S.man, notes: S.notes, dms: S.dms, drw: S.drw, rts: S.rts, polys: S.polys, refs: S.refs || [] });   /* AKX-2026-0012 undo */
 async function zUndo() {
   if (q4Need()) { const e = q4E(q4F()); if (e && e.pts.length) { e.pts.pop(); draw(); mkPanel(); return toast('↶ точка снята') } }   /* v44 аудит */
   if (S.mode === 'plan') { const pa = t => typeof t === 'string' && t.startsWith('PA:'); while (S.pund.length && pa(S.pund[S.pund.length - 1]) && !PA.get(S.pund[S.pund.length - 1])) S.pund.pop();   /* v81: составное после перезапуска — не держит историю */
@@ -4352,6 +4352,7 @@ function w3Draw(top) {
     const fk = ['M', 'L', 'R', 'floor'].find(k => fv[k] && fv[k].vis && fv[k].ks.includes(a) && fv[k].ks.includes(b));
     LQ.push({ A2: w3S(P[a]), B2: w3S(P[b]), t: (meas === 'apx' ? '≈ ' : '') + nf(v), meas, rec: { a, b, man }, inn: spl ? (() => { const A2 = w3S(P[a]), B2 = w3S(P[b]); return [A2[0] + B2[0] - cen[0], A2[1] + B2[1] - cen[1]] })() : fk ? ctr(fv[fk].ks.map(q => w3S(P[q]))) : cen, pri: -1, out: spl });
   }
+  if (window.MeasureLabAutodim) try { MeasureLabAutodim.chain(LQ, { Md, VV, P, F, fv, cen, nf, d }) } catch (e) { console.error(e) }   /* AKX-2026-0012 autodim */
   /* v71: раскладка полей — рёбра стены первыми; не налезают на уже поставленные поля и на кольца видимых углов */
   const RO = S.w3RO = [], OB = []; fwRO(RO, P, d);   /* v79: поля — не на средних точках ≈ */
   if (PTS) { for (const k of Object.keys(P)) if (vk(k)) RO.push([w3S(P[k]), (ring.includes(k) || W3.sel === k ? 13 : /^[LR]/.test(k) ? 6 : 8) * d]);
@@ -8183,5 +8184,10 @@ dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]
 <script src="lab-sketch.js"></script>
 <script src="lab-icons.js"></script>
 <script src="lab-title.js"></script>
+<script src="lab-history.js"></script>
+<link rel="stylesheet" href="lab-tb.css">
+<script src="lab-tb.js"></script>
+<script src="lab-obj.js"></script>
+<script src="lab-autodim.js"></script>
 </body>
 </html>

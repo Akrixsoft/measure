@@ -44,7 +44,7 @@ const {start} = require('./qa-v011-harness.cjs');
     assert.deepEqual([v3.x0, v3.x1], [2000, 2500], 'undo');
     await p.evaluate(() => $('zur').querySelectorAll('button')[1].click()); assert.deepEqual(await p.evaluate(() => { const v = w3Vols(w3Model()).find(x => x.id === 'p0'); return [v.x0, v.x1]; }), [2300, 2800], 'redo');
     // высота колонны плана — сообщение, не ввод
-    assert.equal(await set('H', null, 1000), 'closed');
+    assert.ok(['closed', 'nofield'].includes(await set('H', null, 1000)));   // 82.18 авторазмеры: высота колонны от пола до потолка = H стены — не повторяется (поля нет)
     // сохранено в базе
     const saved = await p.evaluate(async () => (await dbGet('sess', S.room0.id)).ms.shp[0].pts);
     assert(saved.every(x => x[1] === 0 || x[1] === 350));

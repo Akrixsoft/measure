@@ -30,7 +30,9 @@
           const controls=document.createElement('div');controls.id='labRouteModifiers';for(const [key,title,icon] of [['L','Под прямым углом','L'],['P','Параллельно предыдущему сегменту','∥'],['dash','Дополнительный пунктир','┅'],['sn','Привязка','🧲']]){const b=document.createElement('button');b.type='button';b.dataset.labRouteMod=key;b.title=title;b.setAttribute('aria-label',title);const enabled=key==='dash'&&q?.dash!=null?!!q.dash:!!o[key];b.className=enabled?'on':'';b.textContent=icon;b.onclick=()=>{o[key]=enabled?0:1;if(key==='dash'&&q){if(isFloor())plSnap();else snap();q.dash=!!o.dash;if(isFloor())saveRoom();else{unsnap();saveSess();}}prefSave();render();draw();};controls.appendChild(b);}row.appendChild(controls);
         }
         row.classList.add('on');
-      }else{delete row.dataset.labRoute;}
+      }else if(row.dataset.labRoute){   /* 82.18 F1: выход из трассы — содержимое и класс сняты, кэш штатных plMods / zOpt0 сброшен, L / 🧲 и опции рисуются заново */
+        delete row.dataset.labRoute;delete row.dataset.h;row.replaceChildren();row.classList.remove('on');try{options(zCur());}catch(e){}
+      }
       let floor=byId('labFloorTools');if(!floor){floor=document.createElement('div');floor.id='labFloorTools';floor.innerHTML=`<button type="button" data-lab-floor="route">${kIcoD('wrt')}<span>Трасса пола</span></button><button type="button" data-lab-floor="dimension">${kIcoD('dim')}<span>Размер пола</span></button>`;byId('zf').insertBefore(floor,byId('zb'));floor.querySelector('[data-lab-floor=route]').onclick=()=>{window.MeasureLabFloorRoutes?.setRouteTool();render();};floor.querySelector('[data-lab-floor=dimension]').onclick=()=>{window.MeasureLabFloorRoutes?.setDimensionTool();render();};}
       floor.hidden=!(S.mode==='plan'&&S.room&&window.MeasureLabFloorRoutes);
       floor.querySelector('[data-lab-floor=route]').classList.toggle('on',PL.tool==='prt');floor.querySelector('[data-lab-floor=dimension]').classList.toggle('on',PL.tool==='labFloorDim');

@@ -4,11 +4,14 @@
   'use strict';
   const api=window.MeasureLabPlacement={version:4};
   const objectTool=()=>S.mode!=='plan'&&S.tool==='mk'&&S.show<0&&S.mosaic&&!q4Need()&&KD[S.mk]&&!KD[S.mk].line&&!(rzOk()&&RZT[RZ.t]);
-  const snapshot=()=>JSON.stringify({lines:S.lines,els:S.els,man:S.man,notes:S.notes,dms:S.dms,drw:S.drw,rts:S.rts,polys:S.polys});
+  const snapshot=()=>JSON.stringify({lines:S.lines,els:S.els,man:S.man,notes:S.notes,dms:S.dms,drw:S.drw,rts:S.rts,polys:S.polys,refs:S.refs||[]});   /* 82.18: снимок как у snap() (undo-patch: + refs) */
   api.begin=function(p,event){
     if(!objectTool()||!gest||ptr.size!==1)return false;
     const hit=mkHit(p);let current=S.els.find(e=>e.id===S.sel);
     if(!current&&hit){current=S.els.find(e=>e.id===hit.id);S.sel=current?.id||null;S.dsel=null;}
+    /* 82.18 F2 (AKX-2026-0009): поля (w3FHit) и ручки размера выбранного объекта — при любом инструменте; перенос — только протяжкой тела */
+    {const f=typeof w3FHit==='function'?w3FHit(p):null;if(f){gest.labField=f;if(!current)return false;gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:false,field:1};return true;}}   /* рамка поля — точнее ручки (24 px); ничего не выбрано — протяжка ставит объект, касание открывает поле (tap) */
+    if(current){const hd=hHit(p);if(hd){gest.hdrag=hd;gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:false,handle:1};return true;}}
     if(!current)return false;
     const same=!!hit&&hit.id===current.id;
     gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:!same,before:snapshot(),undo:S.und.slice(),redo:S.red?S.red.slice():[]};
@@ -32,6 +35,10 @@
   const nativeTap=tap;
   tap=function(p){
     const state=gest?.labPlacement;
+    if(gest&&gest.labField&&!gest.moved&&(!state||state.field)){const f=gest.labField;return w3FOpen(f);}
+    if(state&&state.field)return;   /* 82.18 F2: поле размера открывается при любом инструменте */
+    if(state&&state.handle){return;}
+    if(!state&&S.mode!=='plan'&&S.tool==='mk'&&S.show<0&&S.mosaic&&!q4Need()&&typeof w3FHit==='function'){const f=w3FHit(p);if(f)return w3FOpen(f);}   /* 82.18 F2: и в «выборе» — поле поверх объекта открывается (v81: только вне объекта) */
     if(state){if(state.clearOnTap)S.sel=null;S.pend=null;mkPanel();draw();return;}
     return nativeTap.apply(this,arguments);
   };
