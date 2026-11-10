@@ -51,7 +51,7 @@ def main():
     run([gradle,'-p',ROOT/'android','-g',ROOT/'.gradle','assembleRelease','--no-daemon','--console=plain'],env=env)
     source_apk=ROOT/'android/app/build/outputs/apk/release/app-release.apk'
     output=ROOT/'artifacts';output.mkdir(exist_ok=True)
-    apk=output/'measure-82.14.apk';shutil.copy2(source_apk,apk)
+    apk=output/'measure-82.15.apk';shutil.copy2(source_apk,apk)
     manifest={}
     with zipfile.ZipFile(apk) as archive:
         for file in assets.rglob('*'):
@@ -63,7 +63,7 @@ def main():
     if manifest.get('v81/index.html')!=BASELINE:raise SystemExit('Packaged v81 baseline integrity failure.')
     (output/'asset-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     digest=hashlib.sha256(apk.read_bytes()).hexdigest()
-    (output/'measure-82.14.apk.sha256').write_text(digest+'  '+apk.name+'\n')
+    (output/'measure-82.15.apk.sha256').write_text(digest+'  '+apk.name+'\n')
     run([sdk/'build-tools/34.0.0/apksigner','verify','--verbose','--print-certs',apk],env=env)
     print('APK:',apk,'\nSHA256:',digest)
 if __name__=='__main__':main()

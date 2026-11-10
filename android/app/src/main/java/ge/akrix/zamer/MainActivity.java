@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
         if (web != null) { web.removeJavascriptInterface("AkrixBT"); web.removeJavascriptInterface("AkrixApp"); web.removeJavascriptInterface("AkrixLab"); web.stopLoading(); web.destroy(); web = null; }
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(26), dp(42), dp(26), dp(28)); root.setBackgroundColor(Color.rgb(246,247,249));
-        TextView brand = text("Measure 82.14", 29, Color.rgb(32,42,54)); root.addView(brand);
+        TextView brand = text("Measure 82.15", 29, Color.rgb(32,42,54)); root.addView(brand);
         TextView sub = text("Выберите версию для работы и сравнения", 15, Color.rgb(111,123,138));
         sub.setPadding(0, dp(13), 0, dp(30)); root.addView(sub);
         Button original = new Button(this); original.setText("Исходная v81"); original.setAllCaps(false);
@@ -215,7 +215,7 @@ public class MainActivity extends Activity {
     }
     class App{
         @JavascriptInterface public void save(String name,String mime,String contents){runOnUiThread(()->{if(trustedPage())saveFile(name,mime,contents);});}
-        @JavascriptInterface public String version(){return "Measure 82.14";}
+        @JavascriptInterface public String version(){return "Measure 82.15";}
     }
     void saveFile(String name,String mime,String contents){
         try{
