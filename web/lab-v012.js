@@ -639,8 +639,8 @@
       for (let k = 0; k < n; k++) {
         const [A, B] = plSeg(m, k).map(v => toScr(...v)), M = mix(A, B, 0.5), l = dist(A, B) || 1;
         const N = [-(B[1] - A[1]) / l, (B[0] - A[0]) / l], in1 = add(M, N, 25 * d), in2 = add(M, N, -25 * d);
-        const c = m.closed && m.pts.length > 2 && !inPoly(toPl(...in1), m.pts) ? in2 : in1;
-        out.push([c[0] - 22 * d, c[1] - 14 * d, c[0] + 22 * d, c[1] + 14 * d]);
+        const shut = m.closed && m.pts.length > 2, c = shut && !inPoly(toPl(...in1), m.pts) ? in2 : in1;
+        for (const e of shut ? [c] : [in1, in2]) out.push([e[0] - 22 * d, e[1] - 14 * d, e[0] + 22 * d, e[1] + 14 * d]);   /* 82.18 fix: незамкнутый контур — сторона С№ неизвестна, заняты обе */
       }
       if (m.closed && m.pts.length > 2 && r.name) {
         const c = toScr(...plCen(m.pts)), w = cx.measureText('⌂ ' + r.name).width / 2;
@@ -650,28 +650,37 @@
     cx.restore();
     return out;
   }
-  function zoneText(q, old, avoid) {
+  function zoneText(q, old, avoid, sel) {
     const d = devicePixelRatio || 1, P = q.pts.map(v => toScr(...v)), xs = P.map(v => v[0]), ys = P.map(v => v[1]);
     const custom = !/^Зона \d+$/.test(q.name) && q.zn, top = custom ? ZONE + ' ' + q.zn : '', text = q.name + (old ? ' ⟳' : '');
     const span = (Math.max(...xs) - Math.min(...xs)) * 0.9;
     let size = 13; cx.font = 'bold ' + size * d + 'px system-ui';
     while (size > 9 && cx.measureText(text).width > span) cx.font = 'bold ' + --size * d + 'px system-ui';
-    const w = Math.max(cx.measureText(text).width, custom ? cx.measureText(top).width * 0.8 : 0) / 2;
-    const h0 = (custom ? 28 : 12) * d, h1 = 5 * d;
-    const box = c => [c[0] - w, c[1] - h0, c[0] + w, c[1] + h1];
-    const hits = c => { const b = box(c); return avoid.filter(x => x[0] < b[2] && x[2] > b[0] && x[1] < b[3] && x[3] > b[1]).length; };
     const c0 = toScr(...zCen(q.pts));
-    let best = c0, score = hits(c0);
-    if (score) for (let i = 1; i < 12; i++) for (let j = 1; j < 12; j++) {
-      const c = [Math.min(...xs) + (Math.max(...xs) - Math.min(...xs)) * i / 12, Math.min(...ys) + (Math.max(...ys) - Math.min(...ys)) * j / 12 + h0 / 2];
-      if (!inPoly(toPl(...c), q.pts)) continue;
-      const v = hits(c) + dist(c, c0) / 1e5;
-      if (v < score) { score = v; best = c; }
-    }
+    let w, h0, box, best, score, hk = 1;
+    const place = () => {   // свободная точка зоны ближе к центру для текущего размера шрифта
+      w = Math.max(cx.measureText(text).width, custom ? cx.measureText(top).width * 0.8 : 0) / 2;
+      h0 = (custom ? 28 : 12) * d * hk; const h1 = 5 * d;
+      box = c => [c[0] - w, c[1] - h0, c[0] + w, c[1] + h1];
+      const hits = c => { const b = box(c); return avoid.filter(x => x[0] < b[2] && x[2] > b[0] && x[1] < b[3] && x[3] > b[1]).length; };
+      best = c0; score = hits(c0);
+      if (score) for (let i = 1; i < 12; i++) for (let j = 1; j < 12; j++) {
+        const c = [Math.min(...xs) + (Math.max(...xs) - Math.min(...xs)) * i / 12, Math.min(...ys) + (Math.max(...ys) - Math.min(...ys)) * j / 12 + h0 / 2];
+        if (!inPoly(toPl(...c), q.pts)) continue;
+        const v = hits(c) + dist(c, c0) / 1e5;
+        if (v < score) { score = v; best = c; }
+      }
+    };
+    place();
+    /* 82.18 fix: места нет (крошечный план — подпись ложится на С№ / «⌂») — сначала мельче (9), затем без подписи;
+       выбранная зона подписывается всегда (её видно по заливке и панели «Зоны»). */
+    if (score >= 1 && size > 9) { size = 9; hk = 9 / 13; cx.font = 'bold ' + size * d + 'px system-ui'; place(); }
+    if (score >= 1 && !sel) return false;
     avoid.push(box(best));
     cx.fillStyle = old ? '#b4610f' : '#11766c'; cx.textAlign = 'center';
     cx.fillText(text, best[0], best[1]);
     if (custom) { cx.font = 'bold ' + Math.max(9, size - 3) * d + 'px system-ui'; cx.globalAlpha = 0.8; cx.fillText(top, best[0], best[1] - (size + 4) * d); cx.globalAlpha = 1; }
+    return true;
   }
   function paint(P, line, fillColor, closed = false, dash = []) {
     if (P.length < 2) return;
@@ -691,12 +700,13 @@
     if (!ctxPaint) refreshPanel();
     if (ctxPaint ? !(S.mode === 'plan' && S.room) : panel.hidden) return result;
     cx.save();
-    const avoid = labelBoxes();
+    const avoid = labelBoxes(); const shown = {};
     for (const {q} of regions()) {
       const isSelected = q.id === selected && active && !ctxPaint, old = staleIds.has(q.id);
       paint(q.pts, old ? '#d9822b' : '#13827c', isSelected ? (old ? '#f0a03040' : '#2ab5ad40') : (old ? '#f0a03019' : '#2ab5ad19'), true, [pixels(5), pixels(3)]);
-      zoneText(q, old, avoid);
+      shown[q.id] = zoneText(q, old, avoid, isSelected);
     }
+    if (!ctxPaint) api.labels = shown;   /* 82.18 fix: подписаны ли зоны (тесты) */
     for (const {q} of dividers()) paint(q.pts, q.id === selectedDivider && active && !ctxPaint ? '#b71a7e' : '#13827c', null, false, [pixels(6), pixels(5)]);
     if (!ctxPaint && active && (selection() || mode === 'assign')) {
       const {q} = selection() || nativeSelection();

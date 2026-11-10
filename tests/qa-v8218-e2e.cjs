@@ -157,6 +157,9 @@ fs.mkdirSync(SHOT, {recursive: true});
     const zn2 = await p.evaluate(() => MeasureLab012.regions().map(({q}) => ({name: q.name, zn: q.zn})));
     check(zn2.length === 1 && zn2[0].zn === 1, 'зона: «Зона 1» (zn 1) контуром пером', {zn2, retry: info.zoneRetry});
     await shot('zone'); await layoutOk('зона');
+    // подпись «Зона 1» на крошечном плане: нет места рядом с С№ — мельче или без подписи; не перекрывает подписи стен
+    const zl = await p.evaluate(() => { draw(); const id = MeasureLab012.regions()[0].q.id; return {shown: (MeasureLab012.labels || {})[id]}; });
+    info.zoneLabel = zl; check(zl.shown !== undefined, 'зона: подпись рассчитана (на крошечном плане без наложения на С№ — мельче или без подписи)', zl);
     await tapSel('touch', '[data-lab12="toggle"]').catch(() => p.evaluate(() => MeasureLab012.close()));
     // ════ 8б. изделие: футляр плана → «Изделие» → ＋ Конструкция → «Кухня» → стена С1 пером
     await caseTool('[data-lab-tb="prd"]');
