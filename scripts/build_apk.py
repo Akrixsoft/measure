@@ -13,6 +13,7 @@ def run(cmd,**kw):
 def main():
     source=ROOT/'web/v81.html'
     if hashlib.sha256(source.read_bytes()).hexdigest()!=BASELINE:raise SystemExit('Original v81 changed; refusing to package.')
+    run([sys.executable,ROOT/'scripts/build-experimental.py','--check'])  # experimental.html = пересборка от v81 всеми патч-скриптами (иначе — отказ)
     assets=ROOT/'android/app/src/main/assets'
     version,version_code,_=web_bundle.read_version(ROOT)
     web_bundle.stage(assets/'experimental',ROOT)  # index.html + lab-* + shared + built-in version.json

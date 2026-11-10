@@ -28,6 +28,8 @@ jobs:
         if: steps.sec.outputs.ok != '1'
         uses: actions/cache/restore@v4
         with: { path: ~/ks, key: akrix-ks-v1, fail-on-cache-miss: true }
+      - name: experimental.html = rebuild from v81 by scripts/build-experimental.py (fail on mismatch)
+        run: python3 scripts/build-experimental.py --check
       - name: Update manifest/bundle + Updater state-machine tests (AKX-2026-0014)
         run: |
           python3 tests/test_update_manifest.py
