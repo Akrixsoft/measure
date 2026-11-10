@@ -27,6 +27,8 @@ const {start} = require('./qa-v011-harness.cjs');
   try {
     // ── вход и холст объекта
     const ent = await p.evaluate(() => ({ss: !!document.querySelector('#ss .nw [data-sk-open]'), menu: !!document.querySelector('#zMenu [data-sk-open]'), api: !!window.MeasureLabSketch}));
+    const ic = await p.evaluate(() => { const b = document.querySelector('#mdT [data-rz]'); return {svg: !!b.querySelector('svg circle'), emoji: b.textContent.includes('📐'), aria: b.getAttribute('aria-label')}; });
+    check(ic.svg && !ic.emoji && ic.aria === 'Коммуникации и размеры', 'icon: кнопка режима «Коммуникации и размеры» — вариант 2 (точка + два направления), без угольника', ic);
     check(ent.ss && ent.menu && ent.api, 'entry: «✎ Скетч» в списке замеров и в меню «Ещё»', ent);
     await p.evaluate(() => MeasureLabSketch.open('QA8214'));
     const op = await p.evaluate(async () => ({vis: !$('labSketch').hidden && getComputedStyle($('labSketch')).display !== 'none', obj: MeasureLabSketch.state.obj, rec: !!(await MeasureLabSketch.db.get('sk', 'QA8214')), cam: document.querySelector('#labSketch [data-skf="cam"]').getAttribute('capture'), gal: document.querySelector('#labSketch [data-skf="gal"]').multiple}));
