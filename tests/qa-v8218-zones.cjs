@@ -13,6 +13,23 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
   const btn = name => p.locator('[data-lab12="' + name + '"]');
   const has = async name => (await btn(name).count()) > 0;
   const press = async name => { await btn(name).tap(); await p.waitForTimeout(60); };
+  /* 82.18 (integration): закрытые зоны строкой не показываются — вход плиткой «Зона» футляра плана (🖍 #labPlF → [data-lab-tb=zone]);
+     открытая панель закрывается своей кнопкой «Закрыть зоны», если она видна, иначе MeasureLab012.close(). Поведение не меняется. */
+  /* 82.18: инструмент плана — видимая кнопка строки, иначе из футляра плана (🖍 #labPlF → #tb [data-pk]) */
+  const pickPl = async k => {
+    const vis = p.locator('[data-pk="' + k + '"]:visible');
+    if (await vis.count()) await vis.first().tap();
+    else { await p.locator('#labPlF').tap(); await p.waitForTimeout(150); await p.locator('#tb [data-pk="' + k + '"]').tap(); }
+    await p.waitForTimeout(100);
+  };
+  const toggleZones = async () => {
+    if (await p.evaluate(() => MeasureLab012.isOpen())) {
+      if (await btn('toggle').isVisible()) return press('toggle');
+      await p.evaluate(() => MeasureLab012.close()); await p.waitForTimeout(60); return;
+    }
+    await p.locator('#labPlF').tap(); await p.waitForTimeout(150);
+    await p.locator('#tb [data-lab-tb=zone]').tap(); await p.waitForTimeout(150);
+  };
   async function tap(type, w) { const a = await h.xy(w); await h.down(type, a); await h.up(type, a); await p.waitForTimeout(40); }
   const pen = w => tap('pen', w), finger = w => tap('touch', w);
   const shot = name => p.screenshot({path: SHOTS + '/' + name + '.png'});
@@ -33,7 +50,7 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
   try {
     /* ── 1. Обычная замкнутая комната: Д3, Д10, Д9 ── */
     await room('Кухня-гостиная', box);
-    await press('toggle');
+    await toggleZones();
     let s = await st();
     check(s.toggle === 'Закрыть зоны' && !s.buttons.includes('base'), 'Д10/Д3: панель «Зоны», в обычной комнате нет «Разделить исходный контур»', s.buttons);
     await press('divider'); await pen([2500, 0]); await pen([2500, 3000]);
@@ -58,10 +75,10 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
       const r = el => el && el.getClientRects().length ? el.getBoundingClientRect() : null, pan = r(document.getElementById('lab12-plan'));
       const cut = (a, b) => !!(a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom);
       toast('Проверка тоста'); const t = r(document.getElementById('toast'));
-      return {panel: pan.toJSON(), zfTop: r(document.getElementById('zf'))?.top, toast: cut(pan, t),
+      return {panel: pan.toJSON(), zfTop: r(document.getElementById('zf'))?.top, zfBottom: r(document.getElementById('zf'))?.bottom, inZf: document.getElementById('lab12-plan').parentElement.id === 'zf', toast: cut(pan, t),
         fit: cut(pan, r(document.getElementById('bFit'))), md: cut(pan, r(document.getElementById('mdT'))), vh: innerHeight, dpr: devicePixelRatio};
     });
-    check(!ui.toast && !ui.fit && !ui.md && ui.panel.bottom <= ui.zfTop + 1 && ui.panel.top > ui.vh / 2,
+    check(!ui.toast && !ui.fit && !ui.md && (ui.inZf ? ui.panel.top >= ui.zfTop - 1 && ui.panel.bottom <= ui.zfBottom + 1 : ui.panel.bottom <= ui.zfTop + 1) && ui.panel.top > ui.vh / 2,   // 82.18: панель — строка стека #zf (lab-tb)
       'Д9: панель внизу над полосой, не перекрывает тост и кнопки вида', ui);
     await shot('1-zones');
 
@@ -82,9 +99,9 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
 
     /* ── 3. Д2: удалить зону кнопкой, ↶, корзиной ── */
     await pen([3700, 1500]);
-    await press('delete-zone');
+    await p.locator('#bDelS').tap(); await p.waitForTimeout(100);   // 82.18: одна 🗑 — кнопки «Удалить …» панели скрыты (lab-tb), тот же zDelSel
     s = await st();
-    check(s.zones.length === 1 && /удалена/.test(s.toast), 'Д2: «Удалить зону» удаляет выбранную зону', {zones: s.zones.map(z => z.name), toast: s.toast});
+    check(s.zones.length === 1 && /удалена/.test(s.toast), 'Д2: 🗑 удаляет выбранную зону', {zones: s.zones.map(z => z.name), toast: s.toast});
     await p.locator('#zur button').first().tap(); await p.waitForTimeout(150);
     s = await st();
     check(s.zones.length === 2, 'Д2: ↶ возвращает удалённую зону', s.zones.map(z => z.name));
@@ -96,7 +113,7 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
     await press('fill'); await pen([3700, 1500]);
     let zn = await p.evaluate(() => MeasureLab012.regions().map(({q}) => [q.name, q.zn]));
     check(JSON.stringify(zn) === JSON.stringify([['Прихожая', 1], ['Зона 3', 3]]), 'zn: номера зон постоянные, удалённый номер не переиспользуется', zn);
-    await press('delete-zone');
+    await p.locator('#bDelS').tap(); await p.waitForTimeout(100);
 
     /* ── 4. Правка стен: Д5, Д11, Д6, Д12 ── */
     await press('walls');
@@ -136,7 +153,7 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
 
     /* ── 5. Д8: помещение без стен ── */
     await room('Пусто', {pts: [], closed: false});
-    await press('toggle'); await press('fill'); await pen([1000, 1000]);
+    await toggleZones(); await press('fill'); await pen([1000, 1000]);
     s = await st();
     check(s.zones.length === 0 && /Нет стен и границ/.test(s.toast), 'Д8: «Заливка» без стен — понятный отказ', s.toast);
     await press('manual');
@@ -147,7 +164,7 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
 
     /* ── 6. Д4: перо обнаружено (PEN.mode auto) — правило v81 и палец в панели ── */
     await room('Перо', box);
-    await press('toggle');
+    await toggleZones();
     await pen([2500, 1500]);   // перо обнаружено
     check(await p.evaluate(() => PEN.on()), 'Д4: перо обнаружено, PEN.on()');
     await press('manual'); await finger([500, 500]);
@@ -188,18 +205,18 @@ const SHOTS = process.env.QA_SHOTS || '/tmp/qa-v8218';
       return {A: w(190, 180), A1: w(120, 180), B: w(450, 265),   // B — ниже подписи стены-заготовки С5
         cut: [w(190, 65), w(190, 300)]};
     });
-    await p.locator('[data-pk="rm"]').first().tap(); await p.waitForTimeout(100);
+    await pickPl('rm');
     await pen(W.A); await p.waitForTimeout(400);
     s = await st();
     check(s.rooms === 1, 'Д1: штатный ⌂ по A создаёт помещение A', {rooms: s.rooms, toast: s.toast});
-    await press('toggle');
+    await toggleZones();
     await press('divider'); await pen(W.cut[0]); await pen(W.cut[1]);
-    await press('toggle');
-    await p.locator('[data-pk="rm"]').first().tap(); await p.waitForTimeout(100);
+    await toggleZones();
+    await pickPl('rm');
     await pen(W.B); await p.waitForTimeout(400);
     s = await st();
     check(s.rooms === 2 && s.zones.length === 0, 'Д1: после границы штатный ⌂ по B создаёт помещение со стенами, а не зону', {rooms: s.rooms, zones: s.zones, toast: s.toast});
-    await press('toggle'); await press('image'); await pen(W.A1); await p.waitForTimeout(200);
+    await toggleZones(); await press('image'); await pen(W.A1); await p.waitForTimeout(200);
     s = await st();
     check(s.zones.length === 1 && s.zones[0].src === 'image' && s.zones[0].name === 'Зона 1', 'Д1: «Заливка фото» из панели «Зоны» создаёт зону', {zones: s.zones, toast: s.toast});
     await shot('5-underlay');
