@@ -4166,7 +4166,7 @@ $('ptx').onkeydown = e => { if (e.key === 'Enter') $('ptx').blur() };
 $('ptx').onblur = () => { const i = $('ptx'), t = i.value.trim(); i.classList.remove('on'); if (t && i._q && S.mode === 'plan') pdAdd('txt', [i._q], t); i._q = null };   /* v52: текст на плане */
 $('plUl').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f && S.mode === 'plan') ulAdd(f) };   /* v51: «фото» плана */
 document.body.insertAdjacentHTML('beforeend', '<div id="wrow"><div id="wrowC"></div></div><div id="mdT"></div><div id="w3p"></div><div id="w3sl"><div class="v"></div><input type="range"><div class="t"><span></span><span></span><span></span></div></div><div id="w3x"><div class="h"></div><div class="r"><b style="color:#E0442B">X</b><input data-w3="0" inputmode="decimal"><b style="color:#2BB673">Y</b><input data-w3="1" inputmode="decimal"></div><div class="r"><b style="color:#4DA3FF">Z</b><input data-w3="2" inputmode="decimal"><span class="m">смещение от плоскости</span></div><div class="r" id="w3an"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none"><path d="M4 3v17h17" fill="none" stroke="#7B3FC4" stroke-width="2.6" stroke-linejoin="round"/><path d="M4 9h5v11" fill="none" stroke="#B48CF0" stroke-width="1.6"/><path d="M8 3l4 1" stroke="#F2C200" stroke-width="2" stroke-linecap="round"/></svg><span class="lv" style="font-size:10px;color:#8B93A1;width:34px">низ</span><input data-w3a="at" inputmode="decimal" title="от стыка, мм" style="width:44px"><input data-w3a="mm" inputmode="decimal" title="зазор угольника, мм (+ — угол больше 90°)" style="width:40px"><b class="an" style="width:auto;font-size:12px;color:#B48CF0;white-space:nowrap"></b></div></div>');
-$('mdT').innerHTML = MD + '<button data-w3s="a" title="Раскрытие боковых стен">∠°</button><button data-w3s="f" title="Размер полей">Aa</button>';
+$('mdT').innerHTML = MD + '<button data-w3s="a" title="Угол вида">∠°</button><button data-w3s="f" title="Размер полей">Aa</button>';
 async function mdGo(m) {
   if (m === 'plan') { const j = S.mode !== 'plan' && S.sess ? S.sess.seg : null; if (S.mode !== 'plan') await zmSet('plan'); if (j != null && S.mode === 'plan' && !S.stubSel) { S.psel = { t: 's', i: j }; mkPanel(); draw() } return lay05() }   /* v81: из вида второй стороны — выбрана она */   /* v50: стена выделена */
   if (S.mode === 'plan') { if (!S.room) return; if (!(await cvWallGo())) return }   /* v81 (c4): стена активного, выбранная вторая сторона или стена другого помещения; тост — только если стен на холсте нет */
@@ -4233,8 +4233,8 @@ function w3Model() {
   for (const [s1, T, B2, key] of [[-1, 'A', 'D', 'L'], [1, 'B', 'C', 'R']]) {
     const j = w3Nb(m, k, s1); if (j == null) continue; const [p, q] = plSeg(m, j), Cn = s1 < 0 ? ax.Lp : ax.Rp, o = Math.hypot(p[0] - Cn[0], p[1] - Cn[1]) < Math.hypot(q[0] - Cn[0], q[1] - Cn[1]) ? q : p;
     const dv = [o[0] - Cn[0], o[1] - Cn[1]], l = Math.hypot(...dv) || 1, D = Math.min(1000, l), sx = (dv[0] * ax.u[0] + dv[1] * ax.u[1]) / l, sz = (dv[0] * ax.n[0] + dv[1] * ax.n[1]) / l;
-    const va = Math.max(0, Math.min(180, Number(W3.a) || 0)) * Math.PI / 180, clean = n => Math.abs(n) < 1e-12 ? 0 : n;
-    const dT = [s1 < 0 ? clean(Math.cos(va)) : -clean(Math.cos(va)), clean(Math.sin(va))], dB = dT; /* Measure Lab: display-only opening; no ms/angles/measurements are written. */
+    const node = m.pts.findIndex(p0 => p0[0] === Cn[0] && p0[1] === Cn[1]), aq = node >= 0 ? (m.angs || {})[node] || {} : {}, dirA = q0 => { const a = w3AnDeg(q0); if (a == null) return null; const dl = (a - 90) * Math.PI / 180; return [s1 < 0 ? -Math.sin(dl) : Math.sin(dl), Math.cos(dl)] };   /* v71: разворот угла — по угольнику */
+    const dT = dirA(aq.u) || dirA(aq.d), dB = dirA(aq.d) || dirA(aq.u);
     const add3 = (Pt, e, dd) => [Pt[0] + (dd ? dd[0] : sx) * D + ((e && e[0]) || 0), Pt[1] + ((e && e[1]) || 0), Pt[2] + (dd ? dd[1] : sz) * D + ((e && e[2]) || 0)];
     P[key + 'T'] = add3(P[T], ex[key + 'T'], dT); P[key + 'B'] = add3(P[B2], ex[key + 'B'], dB);
     { const dd = dB || [sx, sz]; sd[key] = { j, n: s1 < 0 ? [dd[1], 0, -dd[0]] : [-dd[1], 0, dd[0]] } } nm[key] = 'С' + wN(S.room0, j);   /* v71: нормаль — по развороту */
@@ -4272,12 +4272,12 @@ function w3VFaces(v, H) {   /* грани объёма: передняя, бок
 }
 const W3KP = 0.6;   /* v71: взгляд сверху — глубина к зрителю вниз */
 const w3Al = () => 0;   /* v81 (w1): передняя грань не поворачивается */
-const W3KX = 0.6, w3T = () => 0 /* Measure Lab: fixed view while sidewalls open */, w3Lc = () => W3.Lc > 0 ? W3.Lc : 3000;   /* v81 (w1): сдвиг глубины по x — от середины стены наружу (макет B: боковые под 45°); ∠° — смещение взгляда */
+const W3KX = 0.6, w3Ar = () => { const a = +W3.a; return (Number.isFinite(a) ? Math.max(0, Math.min(180, a)) : 90) * Math.PI / 180 }, w3T = () => { const c = Math.cos(w3Ar()); return Math.abs(c) < 1e-12 ? 0 : c } /* Measure Lab AKX-2026-0009: ∠° = true screen angle of the depth axis */, w3Ky = () => { const s = Math.sin(w3Ar()); return W3KP * (Math.abs(s) < 1e-12 ? 0 : s) }, w3Lc = () => W3.Lc > 0 ? W3.Lc : 3000;   /* v81 (w1): сдвиг глубины по x — от середины стены наружу (макет B: боковые под 45°); ∠° — смещение взгляда */
 const w3Dx = x => W3KX * ((2 * x / w3Lc() - 1) + w3T());   /* сдвиг по x на 1 мм глубины: левая боковая — влево, правая — вправо */
-const w3PlD = p => fromW([p[0] + p[2] * w3Dx(p[0]), p[1] - W3KP * p[2]]);   /* v81 (w1): передняя грань (z = 0) — как есть, прямо */
+const w3PlD = p => fromW([p[0] + p[2] * w3Dx(p[0]), p[1] - w3Ky() * p[2]]);   /* v81 (w1): передняя грань (z = 0) — как есть, прямо */
 const w3Pl = w3PlD;   /* v81 (w1): одна проекция — передняя грань без скоса */
 const w3S = p => toScr(...w3Pl(p));
-function w3Vis(n, x) { return n[0] * -w3Dx(x == null ? w3Lc() / 2 : x) + n[1] * W3KP + n[2] > 0.02 }   /* v81 (w1): грань к зрителю — по сдвигу глубины в её месте */   /* грань к зрителю; v71: по повороту */
+function w3Vis(n, x) { return n[0] * -w3Dx(x == null ? w3Lc() / 2 : x) + n[1] * w3Ky() + n[2] > 0.02 }   /* v81 (w1): грань к зрителю — по сдвигу глубины в её месте */   /* грань к зрителю; v71: по повороту */
 function w3Faces(Md) {
   const P = Md.P, f = [{ k: 'floor', ks: ['FL', 'D', 'C', 'FR'].filter(x => P[x]), vis: true }];
   if (Md.sd.L) f.push({ k: 'L', ks: ['A', 'LT', 'LB', 'D'], vis: w3Vis(Md.sd.L.n, 0) }); if (Md.sd.R) f.push({ k: 'R', ks: ['B', 'RT', 'RB', 'C'], vis: w3Vis(Md.sd.R.n, Md.L) });
@@ -4404,7 +4404,7 @@ function w3PV(Md) {   /* v71: видимые точки {ключ}: стены �
   return o;
 }
 function w3Occ(VV, p, own) {   /* v71: точка закрыта другим объёмом — луч от неё к зрителю проходит сквозь колонну / короб (кроме своего) */
-  const dr = [-w3Dx(p[0]), W3KP, 1];   /* v81 (w1): луч к зрителю — по проекции */
+  const dr = [-w3Dx(p[0]), w3Ky(), 1];   /* v81 (w1): луч к зрителю — по проекции */
   for (const u of VV) { if (u.id === own || !(u.D > 0)) continue; const lo = [u.x0 + 1, u.y0 + 1, 1], hi = [u.x1 - 1, u.y1 - 1, u.D - 1]; let t0 = 0, t1 = 1e9;
     for (let i = 0; i < 3 && t0 < t1; i++) { if (Math.abs(dr[i]) < 1e-9) { if (p[i] < lo[i] || p[i] > hi[i]) t1 = -1; continue } let a = (lo[i] - p[i]) / dr[i], b = (hi[i] - p[i]) / dr[i]; if (a > b) [a, b] = [b, a]; t0 = Math.max(t0, a); t1 = Math.min(t1, b) }
     if (t1 > t0) return true }
@@ -4676,15 +4676,15 @@ function w3Pick(k) {
     if (W3.pl === 'obj' && n) { const vi = Math.min(W3.vi || 0, n - 1), L = w3VFaces(VV[vi], Md0.H).filter(f => f.vis).map(f => f.k), j = L.indexOf(W3.vf || 'F');
       if (j < 0) { W3.vi = vi; W3.vf = L[0] || 'F' } else if (j < L.length - 1) { W3.vi = vi; W3.vf = L[j + 1] } else { W3.vi = (vi + 1) % n; W3.vf = 'F' } }
     else { W3.vi = Math.min(W3.vi || 0, Math.max(0, n - 1)); W3.vf = 'F' } }
-  W3.pl = k; const Md = w3Model(); if (Md && (k === 'L' || k === 'R')) { const f = w3Faces(Md).find(x => x.k === k); if (f && !f.vis) { W3.a = 90; w3Sv(); setTimeout(fit, 0) } }   /* скрытая боковая — помещение поворачивается к ней; v50: в кадре */
+  W3.pl = k; const Md = w3Model(); if (Md && (k === 'L' || k === 'R')) { const f = w3Faces(Md).find(x => x.k === k); if (f && !f.vis) { W3.a = k === 'L' ? 135 : 45; w3Sv(); setTimeout(fit, 0) } }   /* скрытая боковая — помещение поворачивается к ней; v50: в кадре */
   w3Row(); draw();
 }
 function w3Slider(t) {
   const sl = $('w3sl'), i = sl.querySelector('input'), on = !sl.classList.contains('on') || sl.dataset.t !== t; sl.dataset.t = t; sl.classList.toggle('on', on);
   $('mdT').querySelectorAll('[data-w3s]').forEach(b => b.classList.toggle('on', on && b.dataset.w3s === t)); if (!on) return;
-  i.setAttribute('aria-label', t === 'a' ? 'Раскрытие боковых стен' : 'Размер полей и текста');
-  const sp = sl.querySelectorAll('.t span'), up = () => { sl.querySelector('.v').textContent = t === 'a' ? 'Раскрытие боковых стен · ' + W3.a + '°' : Math.round(W3.f * 100) + ' %' };
-  if (t === 'a') { i.min = 0; i.max = 180; i.step = 1; i.value = W3.a; [sp[0].textContent, sp[1].textContent, sp[2].textContent] = ['0° · сложены', '90° · прямой угол', '180° · развёрнуты'] }
+  i.setAttribute('aria-label', t === 'a' ? 'Угол вида' : 'Размер полей и текста');
+  const sp = sl.querySelectorAll('.t span'), up = () => { sl.querySelector('.v').textContent = t === 'a' ? W3.a + '°' : Math.round(W3.f * 100) + ' %' };
+  if (t === 'a') { i.min = 0; i.max = 180; i.step = 1; i.value = W3.a; [sp[0].textContent, sp[1].textContent, sp[2].textContent] = ['0° · слева', '90° · прямо', '180° · справа'] }
   else { i.min = 30; i.max = 160; i.step = 1; i.value = Math.round(W3.f * 100); [sp[0].textContent, sp[1].textContent, sp[2].textContent] = ['30 %', '100 %', '160 %'] }   /* v54: поля можно уменьшить до 30 % */
   i.oninput = () => { if (t === 'a') W3.a = +i.value; else W3.f = i.value / 100; up(); draw(); w3Win() }; i.onchange = () => { w3Sv(); if (t === 'a') fit() }; up();   /* v50: отпустил — всё в кадре */
 }
@@ -4724,7 +4724,7 @@ const tap71 = tap; tap = function (p) {   /* касание объекта (не
 const draw71 = draw; draw = function () { const r = draw71.apply(this, arguments); try { otipUpd() } catch (e) { } return r };
 /* поворот: палец по свободному месту (не угол, не поле, не объект, не пометка) влево-вправо → ∠° (как бегунок); вверх-вниз — сдвиг вида; отпустил — всё в кадре */
 const W3RD = 0.7;   /* ° на px */
-function w3SlUpd() { const sl = $('w3sl'); if (sl && sl.classList.contains('on') && sl.dataset.t === 'a') { sl.querySelector('input').value = W3.a; sl.querySelector('.v').textContent = 'Раскрытие боковых стен · ' + W3.a + '°' } }
+function w3SlUpd() { const sl = $('w3sl'); if (sl && sl.classList.contains('on') && sl.dataset.t === 'a') { sl.querySelector('input').value = W3.a; sl.querySelector('.v').textContent = W3.a + '°' } }
 cv.addEventListener('pointerdown', e => {
   const g = gest; if (!g || ptr.size !== 1 || g.view || g.pinch || S.mode === 'plan' || S.show >= 0 || !S.mosaic || q4Need() || !w3On()) return;
   if (g.drag || g.gdrag || g.rs || g.pen || g.er || g.ddrag || g.vdrag || g.hdrag || g.ldrag || g.edrag || g.q4d != null || g.zdr || g.znp || g.dhd) return;   /* v78.2: рисование — без поворота */
@@ -7165,7 +7165,7 @@ function w3VolHd(e, p) { const o = w3VolOf(e); if (!o) return null; const d = de
 { const hd = hDrag; hDrag = function (g, p) { if (!g.hdrag || !g.hdrag.vz) { const r = hd.apply(this, arguments); try { const e = S.els.find(x => x.id === S.sel); if (e) { if (+e.W) e.W = Math.round(+e.W); if (+e.H) e.H = Math.round(+e.H) } elFollow(S.sel) } catch (x) { } return r }   /* ручкой — целые мм */
     const e = S.els.find(x => x.id === S.sel); if (!e) return; if (!g.hsnap) { snap(); g.hsnap = true }
     const W = wf(), R = elRect(e, W), o = toW(R[(g.hdrag.i + 2) % 4], W), sp = add(p, g.hdrag.off), Q = toW(toPl(...sp), W), z = g.hdrag.vz > 0.01 ? g.hdrag.vz : 0;
-    const x = (Q[0] - W3KX * z * (w3T() - 1)) / (1 + 2 * W3KX * z / w3Lc()), y = Q[1] + W3KP * z, tw = Math.max(20, Math.abs(x - o[0])), h = Math.max(20, Math.abs(y - o[1]));   /* точка лицевой грани → стена */
+    const x = (Q[0] - W3KX * z * (w3T() - 1)) / (1 + 2 * W3KX * z / w3Lc()), y = Q[1] + w3Ky() * z, tw = Math.max(20, Math.abs(x - o[0])), h = Math.max(20, Math.abs(y - o[1]));   /* точка лицевой грани → стена */
     e.W = Math.round(tw); e.H = Math.round(h); e.c = fromW([(x + o[0]) / 2, (y + o[1]) / 2], W); delete e.cand; if (e.apx) { delete e.apx.W; delete e.apx.H; if (!Object.keys(e.apx).length) delete e.apx } S.loupe = sp; try { elFollow(e.id) } catch (x2) { } draw() } }
 { const mh = mkHit; mkHit = function (p) { const h = mh.apply(this, arguments); if (h || S.mode === 'plan') return h; const q = toPl(...p);
     { const z = w3IcZ() * 0.62, W = wf(); for (let i = S.els.length - 1; i >= 0; i--) { const e = S.els[i], K = KD[e.k]; if (!K || !K.pt || !layOn(e)) continue; const s0 = f81gIcS(e), N = Math.max(1, Math.round(+e.N || 1)), st = +e.st || 71, c = toW(e.c, W), sp = N > 1 ? Math.hypot(...sub(toScr(...fromW([c[0] + st, c[1]], W)), s0)) : 0, gap = sp >= z / 0.62 ? sp : z / 0.62 * 0.84;   /* w11: точечный — по значкам постов */
@@ -7340,7 +7340,7 @@ const W8 = { pend: null };
 /* w4 / w8: «Готово» своей клавиатуры — клавиатура ушла, и «призрачный» click того же касания не жмёт кнопку под ней (🗑 строки элемента) */
 { let ghost = 0; document.querySelectorAll('#zkb [data-kk="ok"]').forEach(b => b.addEventListener('pointerdown', () => { ghost = performance.now() }, true));
   addEventListener('click', e => { if (ghost && performance.now() - ghost < 700 && !(e.target && e.target.closest && e.target.closest('#zkb'))) { e.stopImmediatePropagation(); e.preventDefault(); ghost = 0 } }, true) }
-Object.assign(window.PM, { hHit: (...a) => hHit(...a), mkHit: (...a) => mkHit(...a), elRect: (...a) => elRect(...a), w8Open, W8, fwRigDet, FWH, fwSelF, fwKindSet, fwSelGeo, fwOpen: (...a) => fwOpen(...a), fwDetect: (...a) => fwDetect(...a), fwKinds: () => fwKinds(), elBar81, adimRefs, adimTargets, adimApply, adimSet, elFollow, w3VolPts, w3VolOf, w3AOn, w3AOff, w3T, w3Dx, w3DimOk, W3D, zArrL, w3Pl: p => w3Pl(p), w3FS: () => w3FS() });
+Object.assign(window.PM, { hHit: (...a) => hHit(...a), mkHit: (...a) => mkHit(...a), elRect: (...a) => elRect(...a), w8Open, W8, fwRigDet, FWH, fwSelF, fwKindSet, fwSelGeo, fwOpen: (...a) => fwOpen(...a), fwDetect: (...a) => fwDetect(...a), fwKinds: () => fwKinds(), elBar81, adimRefs, adimTargets, adimApply, adimSet, elFollow, w3VolPts, w3VolOf, w3AOn, w3AOff, w3T, w3Ky, w3Dx, w3DimOk, W3D, zArrL, w3Pl: p => w3Pl(p), w3FS: () => w3FS() });
 
 /* ═══ [BLOCK] ВВОД РАЗМЕРОВ, ВЫГРУЗКА ВСЕГО ХОЛСТА, ТОЧЕЧНЫЕ БЕЗ W / H (v81 D1, Дмитрий 05.11) ═══ */
 /* 1a. объём стены: рамка пересекает стену — объём (поля на рёбрах); целиком за краем — обычная рамка объекта (подвинуть / удалить) */

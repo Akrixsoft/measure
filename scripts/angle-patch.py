@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
-"""Display-only sidewall opening. No room/measurement/export coordinates change.
+"""∠° view tilt (AKX-2026-0009): the v81 isometric view shift with a true screen angle.
 
-The main wall stays on the unchanged v81 front projection. W3.a is now the
-schematic opening alpha, not a camera shift: left=(cos a,0,sin a),
-right=(-cos a,0,sin a). Existing saved side displacements are added afterwards.
-The floor remains its independent local extrusion. Projection can make a true
-3D right angle appear oblique on the screen; the control is not a protractor.
+Owner decision 11.11.2026: the slider tilts the whole wall view as in v81 —
+side walls, floor, volumes (w3Vols) and labels move together through the one
+shared projection w3PlD; nothing is opened/folded per wall (the 0.11
+"display-only opening" by cos/sin is withdrawn). Side walls are again built by
+native v81 w3Model from the plan/measured angles; the local floor of 0.6
+(geometry-patch.py) is kept and is projected by the same function.
+
+v81 projection of wall point (x, y, z) [z = depth toward the viewer, mm]:
+    X = x + z * KX * ((2x/L - 1) + T),   Y = y - KP * z,   KX = KP = 0.6
+with T = (90 - a) / 45. The depth axis at the wall middle (x = L/2) is then
+(KX*T, -KP) per mm: 90 deg at a = 90 and 45/135 deg at a = 45/135, but only
+~153/27 deg at a = 180/0, and a true 0/180 is unreachable with a constant KP.
+
+Here the middle depth axis is rotated with constant length 0.6:
+    T(a) = cos a,   Ky(a) = KP * sin a,   Y = y - Ky(a) * z
+so on screen the angle from the front wall's floor line (+x) to the depth
+direction at the wall middle (and the local floor centre line) equals a:
+    atan2(KP sin a, KX cos a) = a          (KX = KP)
+a = 90 is bit-identical to the v81 default; 45/135 give the same angles as v81.
+The v81 fan around the middle stays: left/right edges at 90 + a/2 and a/2.
+Only display/hit/inverse helpers change; room plan, measured angles, photo
+transform, saved data and export are untouched.
 """
 from pathlib import Path
 import sys
@@ -15,19 +32,18 @@ def replace(old,new):
  count=text.count(old)
  if count!=1:raise SystemExit(f'angle: expected one exact match, found {count}: {old[:110]}')
  text=text.replace(old,new)
-# Keep the original neighborhood lookup, span and correction offsets, but do not
-# let measured/planned neighbor angles decide a purely visual fold control.
-replace("    const node = m.pts.findIndex(p0 => p0[0] === Cn[0] && p0[1] === Cn[1]), aq = node >= 0 ? (m.angs || {})[node] || {} : {}, dirA = q0 => { const a = w3AnDeg(q0); if (a == null) return null; const dl = (a - 90) * Math.PI / 180; return [s1 < 0 ? -Math.sin(dl) : Math.sin(dl), Math.cos(dl)] };   /* v71: разворот угла — по угольнику */\n    const dT = dirA(aq.u) || dirA(aq.d), dB = dirA(aq.d) || dirA(aq.u);",
-"    const va = Math.max(0, Math.min(180, Number(W3.a) || 0)) * Math.PI / 180, clean = n => Math.abs(n) < 1e-12 ? 0 : n;\n    const dT = [s1 < 0 ? clean(Math.cos(va)) : -clean(Math.cos(va)), clean(Math.sin(va))], dB = dT; /* Measure Lab: display-only opening; no ms/angles/measurements are written. */")
-# A fold is not a camera yaw. Leave the fixed front/photo projection and inverse
-# untouched and retain their existing shared use for all hits/annotations.
-replace("w3T = () => Math.max(-2, Math.min(2, (90 - W3.a) / 45))", "w3T = () => 0 /* Measure Lab: fixed view while sidewalls open */")
-# Selecting an invisible folded side should open both wings to a visible right
-# angle; the old L135/R45 automatic camera shift no longer has valid semantics.
-replace("W3.a = k === 'L' ? 135 : 45;", "W3.a = 90;")
-replace('data-w3s="a" title="Угол вида"', 'data-w3s="a" title="Раскрытие боковых стен"')
-replace("const sp = sl.querySelectorAll('.t span'), up = () => { sl.querySelector('.v').textContent = t === 'a' ? W3.a + '°' : Math.round(W3.f * 100) + ' %' };", "i.setAttribute('aria-label', t === 'a' ? 'Раскрытие боковых стен' : 'Размер полей и текста');\n  const sp = sl.querySelectorAll('.t span'), up = () => { sl.querySelector('.v').textContent = t === 'a' ? 'Раскрытие боковых стен · ' + W3.a + '°' : Math.round(W3.f * 100) + ' %' };")
-replace("['0° · слева', '90° · прямо', '180° · справа']", "['0° · сложены', '90° · прямой угол', '180° · развёрнуты']")
-replace("sl.querySelector('.v').textContent = W3.a + '°'", "sl.querySelector('.v').textContent = 'Раскрытие боковых стен · ' + W3.a + '°'")
+# Depth shift at the wall middle = cos a; vertical depth factor = KP * sin a.
+replace("w3T = () => Math.max(-2, Math.min(2, (90 - W3.a) / 45))",
+"w3Ar = () => { const a = +W3.a; return (Number.isFinite(a) ? Math.max(0, Math.min(180, a)) : 90) * Math.PI / 180 }, w3T = () => { const c = Math.cos(w3Ar()); return Math.abs(c) < 1e-12 ? 0 : c } /* Measure Lab AKX-2026-0009: ∠° = true screen angle of the depth axis */, w3Ky = () => { const s = Math.sin(w3Ar()); return W3KP * (Math.abs(s) < 1e-12 ? 0 : s) }")
+# Every consumer of the projection uses the same vertical factor: drawing,
+# face visibility, the hit ray and the face-point -> wall inverse.
+replace("p[1] - W3KP * p[2]", "p[1] - w3Ky() * p[2]")
+replace("n[1] * W3KP + n[2] > 0.02", "n[1] * w3Ky() + n[2] > 0.02")
+replace("const dr = [-w3Dx(p[0]), W3KP, 1];", "const dr = [-w3Dx(p[0]), w3Ky(), 1];")
+replace("y = Q[1] + W3KP * z", "y = Q[1] + w3Ky() * z")
+replace("w3T, w3Dx, w3DimOk", "w3T, w3Ky, w3Dx, w3DimOk")
+# Native v81 slider (title, 0..180 step 1, labels, value) is kept; only an
+# accessible name is added.
+replace("const sp = sl.querySelectorAll('.t span'), up = () =>", "i.setAttribute('aria-label', t === 'a' ? 'Угол вида' : 'Размер полей и текста');\n  const sp = sl.querySelectorAll('.t span'), up = () =>")
 path.write_text(text)
-print('Applied display-only sidewall opening alpha; room geometry and fixed front/photo projection preserved')
+print('Applied ∠° view tilt: v81 shared projection, screen angle of depth axis = slider value')
