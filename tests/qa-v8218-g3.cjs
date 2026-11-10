@@ -125,6 +125,33 @@ fs.mkdirSync(SHOT, {recursive: true});
       fs.writeFileSync(path.join(SHOT, 'd2-export.json'), JSON.stringify(P, null, 1));
       check(errors.length === 0, 'Д2: нет ошибок страницы', errors);
     }
+    /* ════ Д10: системная «назад» — двойное нажатие для выхода и в корне списка проектов ════ */
+    if (run('d10')) {
+      await fresh(); errors = [];
+      // чистый старт: список проектов без холста
+      await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+      const a = await p.evaluate(() => ({r1: AkrixBack(), t: (document.querySelector('#labPrj .lp-to.on span') || {}).textContent || ''}));
+      await shot('d10-exit-toast');
+      const vis = await p.evaluate(() => { const e = document.querySelector('#labPrj .lp-to.on'); if (!e) return null; const r = e.getBoundingClientRect(), c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return {top: Math.round(r.top), bottom: Math.round(r.bottom), vh: innerHeight, front: !!(c && e.contains(c))}; });
+      const b = await p.evaluate(() => AkrixBack());
+      check(a.r1 === true && /Ещё раз — выход/.test(a.t) && vis && vis.front && vis.bottom <= vis.vh && b === false, 'Д10: корень списка (без холста): 1-е «назад» — тост «Ещё раз — выход» (виден), 2-е — false (оболочка)', {a, vis, b});
+      // через > 2 с — снова первое нажатие
+      await p.evaluate(() => AkrixBack()); await wait(2300); const c = await p.evaluate(() => AkrixBack());
+      check(c === true, 'Д10: пауза > 2 с — снова тост, а не выход', c);
+      // проект → холст → «назад» ×2 → список → «назад» ×2 → false; окно поверх списка закрывается первым
+      info.d10fab = await p.evaluate(() => { const e = document.querySelector('#labPrj .lp-fab'), r = e.getBoundingClientRect(), c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return {r: r.toJSON(), at: c && (c.className || c.tagName), on: document.getElementById('labPrj').className}; });
+      await tapSel('touch', '#labPrj .lp-fab'); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 5000});
+      const dlg = await p.evaluate(() => ({r: AkrixBack(), open: document.querySelector('#labPrj .lp-dg.on') !== null}));
+      await wait(600); info.d10fab2 = await p.evaluate(() => { const e = document.querySelector('#labPrj .lp-fab'), r = e.getBoundingClientRect(), c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return {at: c && (c.className || c.tagName), dg: document.querySelector('#labPrj .lp-dg').className}; });
+      await tapSel('touch', '#labPrj .lp-fab'); await p.waitForSelector('#labPrj .lp-dg.on');
+      await tapSel('touch', '#labPrj [data-c]'); await p.keyboard.type('Назад'); await tapSel('pen', '#labPrj .lp-bt .lp-pr');
+      await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(400);
+      const d = await p.evaluate(() => { document.activeElement && document.activeElement.blur(); const r = []; for (let i = 0; i < 6 && !document.getElementById('toast').textContent.includes('Ещё раз'); i++) r.push(AkrixBack()); r.push(AkrixBack()); return {r}; });
+      await wait(600); d.list = await p.evaluate(() => MeasureLabProjects.isOpen() && MeasureLabSketch.isOpen());
+      const e2 = await p.evaluate(() => ({r1: AkrixBack(), t: (document.querySelector('#labPrj .lp-to.on span') || {}).textContent || '', r2: AkrixBack()}));
+      check(dlg.r === true && !dlg.open && d.list && d.r.every(x => x === true) && e2.r1 === true && /Ещё раз — выход/.test(e2.t) && e2.r2 === false, 'Д10: окно поверх списка — закрывается; холст → «Ещё раз — к проектам» → список → «Ещё раз — выход» → false', {dlg, d, e2});
+      check(errors.length === 0, 'Д10: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
