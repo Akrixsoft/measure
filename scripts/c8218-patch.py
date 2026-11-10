@@ -2,7 +2,7 @@
 """Measure 82.18 (AKX-2026-0012, инженер C): подключение модулей «инструменты, отмена, размеры» после lab-title.js.
 Порядок: lab-history.js (журнал ↶ ↷, фото в снимке) → lab-tb.css / lab-tb.js (футляр, нижняя строка, одна 🗑, без 📐)
 → lab-obj.js (поля объектов: ручки и поля при любом инструменте, Z, длины плана) → lab-autodim.js (авторазмеры до граней).
-Перед этим скриптом: scripts/undo-patch.py, scripts/autodim-patch.py (точные замены inline v81; web/v81.html не меняется).
+Перед этим скриптом: scripts/undo-patch.py, scripts/autodim-patch.py, scripts/objz-patch.py (точные замены inline v81; web/v81.html не меняется).
 Если модуль холста (инженер A, s8218-patch.py) подключает теги сам — этот скрипт не нужен: порядок тот же, после lab-title.js."""
 from pathlib import Path
 import sys
