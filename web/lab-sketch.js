@@ -25,7 +25,7 @@
   const pr = () => Math.max(3, cfg().pointPx * 1.8);                    // точка
   const ver = () => String(window.MeasureVersion || '82.18');
   const PLAN_K = 0.12, GAP = 40;                                       // масштаб плана (ед. холста на мм), зазор
-  const WM = {x: 1300, b: 800, t: 300};                                // поля области стены, мм: развёртка боковых стен, пол, подписи сверху
+  const WM = {x: 1300, b: 800, t: 600};                                // поля области стены, мм: развёртка боковых стен, пол, подписи сверху (82.18 int: 300 → 600 — цепочка авторазмеров над ригелем у потолка не обрезается рамкой)
   api.metrics = () => ({text: fsz(13), point: pr()});
 
   /* ═══ [BLOCK SK-STATE] модель холста проекта ═══
@@ -189,7 +189,12 @@
   // «вписать» в холсте: подложка — весь холст; стена / план — область; во время открытия вид держит холст
   const fit81 = fit, plFit81 = plFit;
   const freeH = () => (typeof zFreeH === 'function' ? zFreeH() : cv.height) / DPR();
-  function fitRect(x0, y0, x1, y1) { const W = cv.width / DPR(), H = freeH(), s = clamp(Math.min(W / Math.max(1, x1 - x0), H / Math.max(1, y1 - y0)) * .94, .01, 20); K.view = {s, ox: (W - (x1 - x0) * s) / 2 - x0 * s, oy: (H - (y1 - y0) * s) / 2 - y0 * s}; }
+  function topInset() {   // 82.18 int: штатные плашки вида сверху (#w3p переключатель стен, #mdT вид/∠°/Aa) — вписывать ниже них, заголовок области не закрыт
+    const c = cv.getBoundingClientRect(); let t = 0;
+    for (const id of ['w3p', 'mdT']) { const e = document.getElementById(id); if (!e || !e.getClientRects().length || getComputedStyle(e).display === 'none') continue; const r = e.getBoundingClientRect(); if (r.height && r.top < c.top + 120) t = Math.max(t, r.bottom - c.top + 4); }
+    return Math.max(0, Math.min(t, 120));
+  }
+  function fitRect(x0, y0, x1, y1) { const W = cv.width / DPR(), T = topInset(), H = freeH() - T, s = clamp(Math.min(W / Math.max(1, x1 - x0), H / Math.max(1, y1 - y0)) * .94, .01, 20); K.view = {s, ox: (W - (x1 - x0) * s) / 2 - x0 * s, oy: T + (H - (y1 - y0) * s) / 2 - y0 * s}; }
   function fitRegion(it) { if (!it) return; if (it === BOARD) return fitAll(); const r = region(it), f = fsz(15) * 2 / K.view.s; fitRect(r.x, r.y - f, r.x + r.w, r.y + r.h); if (active() === it) syncToS(it); }
   function boardBox() { const P = []; for (const r of boardRefs()) { const R = refR(r); P.push([R.x, R.y], [R.x + R.w, R.y + R.h]); } const B = activeKind() === 'board' ? S : K.boardRec || {};
     for (const k of ['dms', 'drw']) for (const q of B[k] || []) for (const p of [q.a, q.b, ...(q.pts || [])]) if (Array.isArray(p) && typeof p[0] === 'number') P.push([p[0], -p[1]]); return P; }
@@ -314,10 +319,10 @@
   function corNear(w) { const ref = S.refs.find(x => x.id === S.rsel); if (!ref || !(ref.qUser || ref.labCor) || !ref.q) return null; const P = corPts(ref), i = P.findIndex(q => Math.hypot(q[0] - w[0], q[1] - w[1]) < Math.max(18, pr() * 2) / K.view.s); return i >= 0 ? {ref, i} : null; }
   function down(w, ev, tt, corHit) {
     if (corHit) { const {ref, i} = corHit, R = refR(ref), k = ref.iw / R.w, q0 = JSON.stringify(ref.q);   // угол тянется (выбор)
-      G = {move: q => { const c = q2c(ref.q); c[i] = [(q[0] - R.x) * k, (q[1] - R.y) * k]; ref.q = c2q(c); }, end: () => { const q1 = JSON.stringify(ref.q); if (q1 !== q0) { zaAdd(() => { ref.q = JSON.parse(q0); saveSess(); draw(); }, () => { ref.q = JSON.parse(q1); saveSess(); draw(); }); saveSess(); } }}; return; }
+      G = {move: q => { const c = q2c(ref.q); c[i] = [(q[0] - R.x) * k, (q[1] - R.y) * k]; ref.q = c2q(c); }, end: () => { const q1 = JSON.stringify(ref.q); if (q1 !== q0) { ref.q = JSON.parse(q0); snap(); ref.q = JSON.parse(q1); saveSess(); } }}; return; }   /* 82.18 int: шаг-снимок (refs в снимке) вместо ZA — ↶ переживает перезапуск */
     if (K.cor && !tt) { const ref = S.refs.find(x => x.id === K.cor.id), R = refR(ref), k = ref.iw / R.w, q = [(w[0] - R.x) * k, (w[1] - R.y) * k];   // 4 угла на фото: ЛВ ПВ ПН ЛН
-      G = {end: () => { K.cor.pts.push(q); if (K.cor.pts.length === 4) { const q0 = ref.q ? JSON.stringify(ref.q) : null, u0 = ref.qUser, q1 = c2q(K.cor.pts); ref.q = q1; ref.qUser = 1; ref.labCor = 1; K.cor = null;
-        zaAdd(() => { ref.q = q0 ? JSON.parse(q0) : null; ref.qUser = u0; if (!u0) delete ref.labCor; saveSess(); draw(); }, () => { ref.q = q1; ref.qUser = 1; ref.labCor = 1; saveSess(); draw(); }); saveSess(); say('Углы стены заданы · ▣ — стена по фото'); } ui(); }}; return; }
+      G = {end: () => { K.cor.pts.push(q); if (K.cor.pts.length === 4) { const q1 = c2q(K.cor.pts); snap(); ref.q = q1; ref.qUser = 1; ref.labCor = 1; K.cor = null;   /* 82.18 int: шаг-снимок вместо ZA */
+        saveSess(); say('Углы стены заданы · ▣ — стена по фото'); } ui(); }}; return; }
     const it = tt, o0 = [it.ax, it.ay], sn = K.snaps[it.id], s0 = sn ? [sn.x, sn.y] : null; let moved = 0;   // заголовок области: перенос / выбор
     const moveIt = (dx, dy) => { it.ax = o0[0] + dx; it.ay = o0[1] + dy; if (s0) { sn.x = s0[0] + dx; sn.y = s0[1] + dy; if (it.snap) { it.snap.x = sn.x; it.snap.y = sn.y; } } };
     G = {move: q => { const dx = q[0] - w[0], dy = q[1] - w[1]; if (!moved && Math.hypot(dx, dy) * K.view.s < 6) return; moved = 1; moveIt(dx, dy); if (active() === it) syncToS(it); },
@@ -361,7 +366,7 @@
     const rm = async () => { K.items = K.items.filter(x => x !== it); if (o) { o.del = Date.now(); o.delWhy = 'холст: область удалена'; await dbPut('sess', clone(o)).catch(() => { }); } refs.forEach(r => { delete r.labWall; }); K.sel = null; saveSess(); save(); draw(); };
     const back = async () => { if (!K.items.includes(it)) K.items.splice(Math.min(i, K.items.length), 0, it); if (o) { delete o.del; delete o.delWhy; await dbPut('sess', clone(o)).catch(() => { }); } refs.forEach(r => { r.labWall = it.wid || it.sid; }); saveSess(); save(); draw(); };
     await rm(); zaAdd(() => { back(); }, () => { rm(); });
-    dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'del', a: clone(it), b: null, sid}}));
+    dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'del', a: clone(it), b: null, sid: sid || it.sid || null, refs: refs.map(r => r.id)}}));   /* 82.18 int: sid до удаления и фото с labWall — для журнала lab-history */
     say('Область удалена · ↶ — вернуть');
   }
   api.delRegion = id => delRegion(typeof id === 'string' ? byId(id) : id);
@@ -556,7 +561,7 @@
     }
     let n0 = Math.max(0, ...S.refs.map(r => r.n || 0)); refs.forEach(r => { r.n = ++n0; });
     const add = () => { S.refs.push(...refs); S.dms.push(...dms); S.drw.push(...drw); }, rm = () => { S.refs = S.refs.filter(x => !refs.includes(x)); S.dms = S.dms.filter(x => !dms.includes(x)); S.drw = S.drw.filter(x => !drw.includes(x)); };
-    add(); zaAdd(() => { rm(); saveSess(); draw(); }, () => { add(); saveSess(); draw(); }); saveSess(); draw();
+    snap(); add(); saveSess(); draw();   /* 82.18 int: импорт — шаг-снимок (refs, dms, drw в снимке) вместо ZA */
     say(`Загружено: фото ${refs.length}, рисунков ${dms.length + drw.length}` + (o.obj && o.obj !== K.obj ? ` (из «${o.obj}»)` : ''));
     return {refs: refs.length, drw: dms.length + drw.length};
   }

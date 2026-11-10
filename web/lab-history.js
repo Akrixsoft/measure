@@ -120,13 +120,13 @@
   });
   api.register('C', {
     undo: async e => {
-      if (e.op === 'del') { await areaPut(e.a, true); const o = await sessDel(e.sid || e.a.sid, false); const ph = o && o.labSketch && o.labSketch.photo, w = e.a.wid || e.a.sid; if (ph) await boardRefs(R => { const r = R.find(x => x.id === ph); if (r) r.labWall = w; }); }
+      if (e.op === 'del') { await areaPut(e.a, true); const o = await sessDel(e.sid || e.a.sid, false); const ph = o && o.labSketch && o.labSketch.photo, w = e.a.wid || e.a.sid, ids = new Set([...(e.refs || []), ...(ph ? [ph] : [])]); if (ids.size) await boardRefs(R => { for (const r of R) if (ids.has(r.id)) r.labWall = w; }); }
       if (e.op === 'wall') { await areaPut(e.it || e.b, false); await sessDel(e.b.sid, true, 'холст: ↶ стена по фото'); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && r.segs) { for (const k of Object.keys(r.segs)) if (r.segs[k] === e.b.sid) delete r.segs[k]; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
         if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) delete q.labWall; }); }
       fin();
     },
     redo: async e => {
-      if (e.op === 'del') { await areaPut(e.a, false); await sessDel(e.sid || e.a.sid, true, 'холст: область удалена'); const o = await dbGet('sess', e.sid || e.a.sid).catch(() => null), ph = o && o.labSketch && o.labSketch.photo; if (ph) await boardRefs(R => { const r = R.find(x => x.id === ph); if (r) delete r.labWall; }); }
+      if (e.op === 'del') { await areaPut(e.a, false); await sessDel(e.sid || e.a.sid, true, 'холст: область удалена'); const o = await dbGet('sess', e.sid || e.a.sid).catch(() => null), ph = o && o.labSketch && o.labSketch.photo, ids = new Set([...(e.refs || []), ...(ph ? [ph] : [])]); if (ids.size) await boardRefs(R => { for (const r of R) if (ids.has(r.id)) delete r.labWall; }); }
       if (e.op === 'wall') { await areaPut(e.it || e.b, true); const o = await sessDel(e.b.sid, false); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && o && o.seg != null) { r.segs = r.segs || {}; r.segs[o.seg] = e.b.sid; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
         if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) q.labWall = e.b.wid || e.b.sid; }); }
       fin();
@@ -136,7 +136,7 @@
     const d = ev.detail || {}; if (H.busy) return;
     try {
       if (d.op === 'move' && d.id && d.a && d.b) return rec({t: 'K', id: d.id, a: d.a, b: d.b});
-      if (d.op === 'del' && d.a) { const top = S.und[S.und.length - 1]; if (top && String(top).startsWith('ZA:')) { S.und.pop(); const t = H.j[H.j.length - 1]; if (t && t.t === 'N' && t.n > S.und.length) H.j.pop(); } const a = JSON.parse(JSON.stringify(d.a)); delete a.snap; return rec({t: 'C', op: 'del', a, sid: d.sid || null}); }
+      if (d.op === 'del' && d.a) { const top = S.und[S.und.length - 1]; if (top && String(top).startsWith('ZA:')) { S.und.pop(); const t = H.j[H.j.length - 1]; if (t && t.t === 'N' && t.n > S.und.length) H.j.pop(); } const a = JSON.parse(JSON.stringify(d.a)); delete a.snap; return rec({t: 'C', op: 'del', a, sid: d.sid || null, refs: Array.isArray(d.refs) ? d.refs.slice() : undefined}); }
       if (d.op === 'wall' && d.b && d.b.id) { const it = (itemsOf() || []).find(x => x.id === d.b.id); const c = it ? JSON.parse(JSON.stringify(it)) : {id: d.b.id}; delete c.snap; return rec({t: 'C', op: 'wall', b: d.b, it: c}); }
     } catch (e) { console.error(e); }
   });
