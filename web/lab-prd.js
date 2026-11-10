@@ -14,7 +14,7 @@
    Формат v3 не меняется. Импорт своей выгрузки (♻ → zImpExp) восстанавливает r.prd.
 
    Интерфейс: панель внизу над полосой инструментов (как «Зоны» lab-v012), вход — MeasureLabPrd.open/close/isOpen;
-   временный вход — кнопка «Изделия» в панели зон. Удаление — штатной 🗑, отмена — ↶ (plSnap). ═══ */
+   вход — плитка «Изделие» футляра плана (lab-tb). Удаление — штатной 🗑, отмена — ↶ (plSnap). ═══ */
 (() => {
   'use strict';
   if (!window.PM || window.MeasureLabPrd) return;
@@ -253,7 +253,6 @@
     const show = S.mode === 'plan' && !!S.room && !$('ss').classList.contains('on');
     if (active && (!show || canvasId !== (S.room.obj || S.room.id) || PL.tool !== 'sel')) return close();   // другой объект / не план / другой инструмент — панель закрыта
     panel.hidden = !show || !active;
-    tempEntry(show);
     if (panel.hidden) { lastPanel = ''; return; }
     place();
     const L = list();
@@ -290,13 +289,7 @@
     el('small', {textContent: choosing ? 'Тип новой конструкции' : p ? 'Стены и С№ — касанием · 🗑 — удалить'
       : mine.length ? 'Выберите конструкцию или ＋' : '＋ — новая конструкция' + (roomSel ? ' в комнате' : '')}, panel);
   }
-  /* временный вход: кнопка «Изделия» в панели зон (плитку «Изделие» футляра плана добавит lab-tb) */
-  function tempEntry(show) {
-    const zp = $('lab12-plan'); if (!zp) return;
-    let b = zp.querySelector('[data-labprd="open"]');
-    if (!show || active) { if (b) b.remove(); return; }
-    if (!b) { b = el('button', {type: 'button', textContent: 'Изделия', title: 'Мебельные конструкции: стены → изделие, каждое — своей вкладкой в конструкторе', onclick: () => open()}, zp); b.dataset.labprd = 'open'; }
-  }
+  /* вход — плитка «Изделие» футляра плана (lab-tb → MeasureLabPrd.open()); временная кнопка «Изделия» в панели зон убрана (82.18 int) */
 
   /* ── [SUB PRD-DRAW] стены текущей конструкции на плане ── */
   const draw0 = draw;

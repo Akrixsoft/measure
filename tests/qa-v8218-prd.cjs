@@ -18,6 +18,8 @@ const IMP = path.join(__dirname, 'akrix-imp-v898.cjs');
   const {p, check} = h;
   const z = name => p.locator('[data-lab12="' + name + '"]');
   const d = (name, extra = '') => p.locator('[data-labprd="' + name + '"]' + extra);
+  /* 82.18 (integration): вход плитками футляра плана (🖍 #labPlF → [data-lab-tb=zone|prd]); строки «Зоны»/«Изделия» в закрытом виде нет */
+  const tile = async k => { await p.locator('#labPlF').tap(); await p.waitForTimeout(150); await p.locator('#tb [data-lab-tb="' + k + '"]').tap(); await p.waitForTimeout(150); };
   const press = async loc => { await loc.first().tap(); await p.waitForTimeout(80); };
   async function tap(type, w) { const a = await h.xy(w); await h.down(type, a); await h.up(type, a); await p.waitForTimeout(50); }
   const pen = w => tap('pen', w), finger = w => tap('touch', w);
@@ -41,7 +43,7 @@ const IMP = path.join(__dirname, 'akrix-imp-v898.cjs');
         dims: [4000, 3000, 4000, 3000].map((v, i) => ({id: 'ql' + i, a: {p: i}, b: {p: (i + 1) % 4}, v}))});
       gnFix(); PEN.mode = 'auto'; PEN.seen = false; WS.mag = 1; document.body.classList.remove('tz'); fit(); draw();
     });
-    await press(z('toggle'));
+    await tile('zone');
     await press(z('divider')); await pen([0, 1800]); await pen([4000, 1800]);
     await press(z('fill')); await pen([2000, 900]);
     await press(z('fill')); await pen([2000, 2400]);
@@ -54,15 +56,15 @@ const IMP = path.join(__dirname, 'akrix-imp-v898.cjs');
     check(s.zones.length === 2 && s.zones[0].name === 'Кухня' && s.zones[1].name === 'Прихожая' && s.zones[0].walls === 2 && s.zones[1].walls === 3,
       'Подготовка: две комнаты-зоны, стены назначены', s.zones);
 
-    /* ── 1. вход: временная кнопка «Изделия» в панели зон ── */
-    check(await d('open').count() === 1, 'Вход: кнопка «Изделия» в панели зон');
-    await press(d('open'));
+    /* ── 1. вход: плитка «Изделие» футляра плана (временная кнопка в панели зон убрана) ── */
+    check(await d('open').count() === 0, 'Вход: временной кнопки «Изделия» в панели зон нет');
+    await tile('prd');
     s = await st();
     const vis = await p.evaluate(() => ({zones: getComputedStyle(document.getElementById('lab12-plan')).display, prd: !document.getElementById('labprd-plan').hidden,
-      r: document.getElementById('labprd-plan').getBoundingClientRect().toJSON(), zf: document.getElementById('zf').getBoundingClientRect().top, vh: innerHeight}));
+      r: document.getElementById('labprd-plan').getBoundingClientRect().toJSON(), zf: document.getElementById('zf').getBoundingClientRect().top, zb: document.getElementById('zb').getBoundingClientRect().top, inZf: document.getElementById('labprd-plan').parentElement.id === 'zf', vh: innerHeight}));
     check(s.open && vis.prd && vis.zones === 'none' && s.rooms[0] === 'Кухня *' && s.rooms.length === 2,
       'Панель «Изделия» вместо панели зон; выбрана первая комната', {rooms: s.rooms, vis});
-    check(vis.r.bottom <= vis.zf + 1 && vis.r.top > vis.vh / 2, 'Панель внизу над полосой инструментов', vis);
+    check(vis.r.bottom <= (vis.inZf ? vis.zb : vis.zf) + 1 && vis.r.top > vis.vh / 2, 'Панель внизу над полосой инструментов (82.18: строка стека #zf над рядом #zb)', vis);
 
     /* ── 2. Кухня: тип «Кухня» — С1 пером, С2 касанием подписи С№ (пером) ── */
     const addType = async t => { await press(d('add')); await press(d('type', '[data-type="' + t + '"]')); };

@@ -150,6 +150,8 @@
       const z = z12(), closed = !!(z && typeof z.isOpen === 'function' && !z.isOpen());
       p12.classList.toggle('lab-tb-off', closed);
     }
+    const pp = $i('labprd-plan');   // «Изделия» (AKX-2026-0013, lab-prd) — так же строкой стека над рядом инструментов, не плавающей
+    if (pp) { const ref = opt.parentNode === zf ? opt : zb; if (pp.parentNode !== zf || pp.nextElementSibling !== ref) zf.insertBefore(pp, ref); }
   }
   api.layout = layout;
   const zl0 = zLay; zLay = function () { const r = zl0.apply(this, arguments); try { layout(); } catch (e) { } return r; };
