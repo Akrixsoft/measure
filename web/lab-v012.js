@@ -608,12 +608,14 @@
       button('Править границу', () => { switchMode('divider'); edit = sep; draw(); }, 'edit-divider');
       button('Удалить границу', () => removeDivider(sep), 'delete-divider');
     }
-    if (mode === 'pick') button('Выбирать стены', () => switchMode(''), 'walls');
+    /* AKX-2026-0012 Д16 (QA, g3): «Выбирать стены» открывала правку стен плана и путалась с назначением стен зоне.
+       Назначение стен зоне — только «Стены зоны · N» (у выбранной зоны); правка геометрии — «Правка стен» и только без выбранной зоны. */
+    if (mode === 'pick' && !hit) button('Правка стен', () => switchMode(''), 'walls', 'Сдвиг, разбиение и удаление стен плана (стены зоне — выберите зону → «Стены зоны»)');
     const name = edit?.q.name ? '«' + edit.q.name + '»: ' : '';
     const notes = {manual: name + 'касайтесь углов по порядку (пером)', divider: 'Укажите пером два конца границы',
       fill: name + 'коснитесь внутри контура стен', image: name + 'коснитесь внутри области на фото',
       assign: 'Касайтесь стен, чтобы назначить или снять их', shift: 'Коснитесь пером нового положения середины стены',
-      '': wall == null ? 'Коснитесь стены' : ''};
+      '': wall == null ? 'Правка стен: коснитесь стены плана' : ''};
     if (hit && mode === 'pick' && staleIds.has(hit.q.id)) notes.pick = 'Стены изменились — контур зоны устарел: «Перезалить»';
     if (notes[mode]) {
       const note = document.createElement('small'); note.textContent = notes[mode]; panel.append(note);

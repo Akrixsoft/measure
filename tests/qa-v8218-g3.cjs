@@ -168,6 +168,31 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(n1 === n0 + 1, 'Д18: плитка «Новое помещение» футляра — помещение создано', {n0, n1});
       check(errors.length === 0, 'Д18: нет ошибок страницы', errors);
     }
+    /* ════ Д16: в зонах один способ назначить стены — «Стены зоны · N»; «Выбирать стены» (правка стен плана) не путается с ним ════ */
+    if (run('d16')) {
+      await fresh(); errors = [];
+      const F = await project('Зоны', 'Д16');
+      await p.evaluate(async () => { const r = S.room; r.ms.labRooms[0].walls = []; saveRoom(); await flushAll(); });
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300);
+      await p.evaluate(() => { const it = MeasureLabSketch.state.items.find(i => i.t === 'plan'); MeasureLabSketch.fitRegion(it); MeasureLabSketch.map.syncToS(it); draw(); });
+      await caseTool('[data-lab-tb="zone"]'); await wait(300);
+      const btn = () => p.evaluate(() => [...document.querySelectorAll('#lab12-plan [data-lab12]')].filter(b => b.getClientRects().length).map(b => b.dataset.lab12 + ':' + b.textContent.trim()));
+      const b0 = await btn();
+      await tap('pen', await plPt([1182, -750])); await wait(300);
+      const b1 = await btn(); await shot('d16-zone-selected');
+      check(b1.some(t => t.startsWith('assign:Стены зоны · 0')) && !b1.some(t => /Выбирать стены|^walls:/.test(t)), 'Д16: выбрана зона — для стен одна кнопка «Стены зоны · 0», «Выбирать стены» нет', {b0, b1});
+      await tapSel('touch', '[data-lab12="assign"]'); await wait(200);
+      await tap('touch', await plPt([1182, 0])); await tap('touch', await plPt([2364, -750])); await wait(200); await shot('d16-assign');
+      await tapSel('touch', '[data-lab12="assigned"]'); await wait(200);
+      const z = await p.evaluate(w => { const q = S.room.ms.labRooms.find(q => q.id === 'zA'); return {walls: q.walls, ok: q.walls.includes(w[0]) && q.walls.includes(w[1]) && q.walls.length === 2}; }, [F.wid[0], F.wid[1]]);
+      const b2 = await btn();
+      check(z.ok && b2.some(t => t.startsWith('assign:Стены зоны · 2')), 'Д16: «Стены зоны» → касания стен пальцем → «Готово» — стены назначены зоне (2)', {z, b2});
+      // без выбранной зоны: «Правка стен» — правка геометрии (Сдвиг / Разбить), зоне стены не назначает
+      await tap('pen', await plPt([1182, 600])); await wait(300);
+      const b3 = await btn();
+      check(b3.some(t => t === 'walls:Правка стен') && !b3.some(t => /Выбирать стены/.test(t)), 'Д16: без выбранной зоны — «Правка стен» (понятное название правки геометрии)', b3);
+      check(errors.length === 0, 'Д16: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
