@@ -7,6 +7,8 @@ import copy, hashlib, json, re, shutil, sys, tempfile, unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import web_bundle as wb  # noqa: E402
+import sign_manifest, publish_guard  # noqa: E402  (82.18 аудит M3, M2)
+import subprocess  # noqa: E402
 
 
 class Bundle(unittest.TestCase):
@@ -141,6 +143,64 @@ class Bundle(unittest.TestCase):
         self.assertIn('scripts/web_bundle.py verify /tmp/pub', wf)
         self.assertIn('tests/test_update_manifest.py', wf)
         self.assertIn('measure-lab-apk', wf)
+
+        # 82.18 M2: публикация только по тегу measure-v* / вручную, перед ней — publish_guard; подпись рядом с манифестом
+        self.assertIn("tags: ['measure-v*']", wf)
+        self.assertEqual(wf.count("if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/measure-v')"), 2)
+        self.assertIn('scripts/publish_guard.py artifacts/update/version.json', wf)
+        self.assertIn('version.json.sig /tmp/pub/', wf)
+        self.assertIn('scripts/web_bundle.py verify /tmp/pub --signed', wf)
+        self.assertIn('scripts/build-experimental.py --check', wf)
+        self.assertLess(wf.index('Publish guard'), wf.index('git push'))
+
+    # ── 82.18 M3: CI-скрипт подписи (scripts/sign_manifest.py → ManifestSign.java) с тестовым keystore
+    def test_ci_signature_script(self):
+        ks, pw = self.tmp / 'ci-test.jks', 'ci-test-pass'
+        if not ks.exists():
+            subprocess.run(['keytool', '-genkeypair', '-keystore', str(ks), '-storetype', 'JKS', '-alias', 'akrix', '-keyalg', 'RSA', '-keysize', '2048',
+                            '-validity', '30', '-storepass', pw, '-keypass', pw, '-dname', 'CN=CI test'], check=True, capture_output=True)
+        out = self.tmp / 'signed'; shutil.rmtree(out, ignore_errors=True); shutil.copytree(self.out, out)
+        self.assertIn('missing version.json.sig', wb.verify(out, require_sig=True))
+        sig = sign_manifest.sign(out / 'version.json', str(ks), pw, 'akrix')
+        self.assertTrue(sig.is_file() and len(sig.read_bytes()) > 300)
+        self.assertEqual(wb.verify(out, require_sig=True), [])
+        self.assertTrue(sign_manifest.verify(out / 'version.json', str(ks), pw, 'akrix'))
+        raw = (out / 'version.json').read_bytes()
+        (out / 'version.json').write_bytes(raw.replace(b'"minApk": ', b'"minApk":  '))   # одна лишняя пробельная литера — подпись уже неверна
+        self.assertFalse(sign_manifest.verify(out / 'version.json', str(ks), pw, 'akrix'))
+        (out / 'version.json').write_bytes(raw); (out / 'version.json.sig').unlink()
+        self.assertFalse(sign_manifest.verify(out / 'version.json', str(ks), pw, 'akrix'))
+        # пароль из окружения (CI: env:AK_PW), alias по умолчанию akrix при AK_KS
+        import os
+        old = {k: os.environ.get(k) for k in ('AK_KS', 'AK_PW')}
+        try:
+            os.environ['AK_KS'], os.environ['AK_PW'] = str(ks), pw
+            sign_manifest.sign(out / 'version.json'); self.assertTrue(sign_manifest.verify(out / 'version.json'))
+        finally:
+            for k, v in old.items():
+                if v is None: os.environ.pop(k, None)
+                else: os.environ[k] = v
+
+    # ── 82.18 M2: publish_guard
+    def test_publish_guard(self):
+        m = copy.deepcopy(self.pub); v = m['version']
+        self.assertIsNone(publish_guard.check(m, None))
+        self.assertIsNone(publish_guard.check(m, copy.deepcopy(m)))
+        changed = copy.deepcopy(m); changed['files'][0]['sha256'] = 'f' * 64
+        self.assertIn('другим содержимым', publish_guard.check(changed, m))
+        apk = copy.deepcopy(m); apk['apk']['sha256'] = 'e' * 64
+        self.assertIn('другим содержимым', publish_guard.check(apk, m))
+        higher = copy.deepcopy(m); higher['version'] = v + '.1'
+        self.assertIsNone(publish_guard.check(changed | {'version': v + '.1'}, m))
+        self.assertIn('ниже', publish_guard.check(m, higher))
+        self.assertIsNone(publish_guard.check(m, None, 'refs/tags/measure-v' + v))
+        self.assertIn('тег', publish_guard.check(m, None, 'refs/tags/measure-v0.1'))
+        self.assertIsNone(publish_guard.check(m, None, 'refs/heads/measure-lab'))
+        p = self.tmp / 'guard'; p.mkdir(exist_ok=True); (p / 'new.json').write_text(json.dumps(changed)); (p / 'cur.json').write_text(json.dumps(m))
+        r = subprocess.run([sys.executable, str(ROOT / 'scripts/publish_guard.py'), str(p / 'new.json'), str(p / 'cur.json')], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1); self.assertIn('::error::', r.stderr)
+        r = subprocess.run([sys.executable, str(ROOT / 'scripts/publish_guard.py'), str(p / 'new.json'), str(p / 'missing.json')], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0)
 
 
 if __name__ == '__main__':

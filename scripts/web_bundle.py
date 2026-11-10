@@ -6,7 +6,7 @@ Single version source: web/lab-version.js (MeasureVersion, MeasureMinApk).
   web_bundle.py version                       -> prints version, versionCode, minApk
   web_bundle.py stage <dir>                   -> experimental bundle (index.html, lab-*, shared) + built-in version.json
   web_bundle.py publish <assets> <apk> <out>  -> <out>/version.json + <out>/web/<ver>/... (for branch measure-lab-apk)
-  web_bundle.py verify <out>                  -> validate published manifest and SHA-256/size of every file
+  web_bundle.py verify <out> [--signed]       -> validate published manifest and SHA-256/size of every file (+ version.json.sig present)
 
 The validation rules here mirror android/.../Updater.java (validManifest)."""
 from pathlib import Path
@@ -171,10 +171,12 @@ def publish(assets, apk, out, root=ROOT):
     return manifest
 
 
-def verify(out):
+def verify(out, require_sig=False):
     out = Path(out)
     m = json.loads((out / 'version.json').read_text())
     errors = validate_manifest(m)
+    if require_sig and not (out / 'version.json.sig').is_file():   # 82.18 (аудит M3): без подписи Updater обновление игнорирует
+        errors.append('missing version.json.sig')
     for f in m.get('files') or []:
         p = out / m.get('base', '') / str(f.get('path'))
         if not p.is_file():
@@ -196,8 +198,8 @@ def main(argv):
         m = stage(argv[1]); print('staged', m['version'], len(m['files']), 'files')
     elif argv[:1] == ['publish'] and len(argv) == 4:
         m = publish(*argv[1:]); print('published', m['version'], 'apk', m['apk']['versionCode'])
-    elif argv[:1] == ['verify'] and len(argv) == 2:
-        errors = verify(argv[1])
+    elif argv[:1] == ['verify'] and len(argv) in (2, 3) and argv[2:] in ([], ['--signed']):
+        errors = verify(argv[1], require_sig=argv[2:] == ['--signed'])
         if errors:
             raise SystemExit('Manifest verification failed: %s' % errors)
         print('verified', argv[1])

@@ -1,8 +1,12 @@
 name: Measure 82 APK
 # Подпись: ключ v81 из Secrets AK_KS_B64/AK_PW (резервная копия у владельца), кэш akrix-ks-v1 — запасной путь.
+# Сборка APK-артефакта — на каждый push в measure-lab (как раньше). ПУБЛИКАЦИЯ обновления на телефоны (version.json + .sig, web/<ver>/, APK
+# в ветку measure-lab-apk) — только push тега measure-v<версия> или ручной запуск (workflow_dispatch); перед публикацией — scripts/publish_guard.py
+# (та же версия с другим содержимым или версия ниже опубликованной → ошибка). Аудит 82.18 M2.
 on:
   push:
     branches: [measure-lab]
+    tags: ['measure-v*']
     paths-ignore: ['prototypes/**', 'docs/**', 'tests/**', '*.md']
   workflow_dispatch:
 permissions:
@@ -55,13 +59,22 @@ jobs:
             artifacts/measure-*.apk.sha256
             artifacts/asset-manifest.json
             artifacts/update/version.json
-      - name: Publish APK + web bundle + version.json to branch measure-lab-apk
+            artifacts/update/version.json.sig
+      - name: Publish guard — same version must have the same content (fail → bump web/lab-version.js)
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/measure-v')
+        run: |
+          rm -f /tmp/cur-version.json
+          if git fetch -q --depth 1 origin measure-lab-apk 2>/dev/null; then git show FETCH_HEAD:version.json > /tmp/cur-version.json 2>/dev/null || rm -f /tmp/cur-version.json; fi
+          python3 scripts/publish_guard.py artifacts/update/version.json /tmp/cur-version.json "$GITHUB_REF"
+      - name: Publish APK + web bundle + version.json (+ .sig) to branch measure-lab-apk
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/measure-v')
         # Автообновление (AKX-2026-0014): приложение читает https://raw.githubusercontent.com/Akrixsoft/measure/measure-lab-apk/version.json
         # и файлы web/<версия>/ (SHA-256 каждого — в манифесте), APK — по apk.url/apk.sha256.
         run: |
           mkdir -p /tmp/pub && cp artifacts/measure-82*.apk artifacts/measure-82*.apk.sha256 artifacts/asset-manifest.json /tmp/pub/
-          cp -r artifacts/update/web /tmp/pub/ && cp artifacts/update/version.json /tmp/pub/
-          python3 scripts/web_bundle.py verify /tmp/pub
+          cp -r artifacts/update/web /tmp/pub/ && cp artifacts/update/version.json artifacts/update/version.json.sig /tmp/pub/
+          python3 scripts/web_bundle.py verify /tmp/pub --signed
+          AK_KS=$HOME/ks/release.jks AK_PW="$(cat ~/ks/pw)" python3 scripts/sign_manifest.py verify /tmp/pub/version.json
           cd /tmp/pub && git init -q && git checkout -q -b measure-lab-apk
           git config user.name "akrix-build" && git config user.email "build@akrix.local"
           git add -A && git commit -qm "Measure 82 APK from ${GITHUB_SHA::7} (run ${GITHUB_RUN_ID})"

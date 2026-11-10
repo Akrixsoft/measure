@@ -3,7 +3,10 @@ package ge.akrix.zamer;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.content.pm.SigningInfo;
 import android.os.Build;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +18,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +45,10 @@ import org.json.JSONObject;
  *     Состояние: active (работает), previous (откат), pending (скачано, применится при запуске), trial (запущено, ждёт ready).
  * ═══ [BLOCK UPD-SERVE] страница всегда открывается с https://experimental.measure-lab.local/ — тот же origin, IndexedDB/localStorage те же;
  *     меняется только источник файлов: проверенная папка или встроенные assets/experimental/.
+ * ═══ [BLOCK UPD-SIGN] 82.18 (аудит M3): version.json.sig — подпись точных байтов version.json ключом подписи APK (CI: scripts/sign_manifest.py,
+ *     тот же keystore). Проверка — открытым ключом сертификата подписи установленного приложения (GET_SIGNING_CERTIFICATES / GET_SIGNATURES)
+ *     ДО разбора манифеста; нет подписи или неверна → обновление игнорируется. В папке бундла хранятся исходные байты (version.json.src) и подпись —
+ *     verified() проверяет подпись при каждом использовании и берёт список файлов из подписанного манифеста.
  * ═══ [BLOCK UPD-ROLLBACK] trial без ready за READY_TIMEOUT_MS → failed; при следующем запуске — previous/встроенная.
  */
 final class Updater {
@@ -50,6 +62,8 @@ final class Updater {
     static final Pattern SHA = Pattern.compile("^[0-9a-f]{64}$");
     static final Pattern APK_NAME = Pattern.compile("^measure-\\d{1,4}(\\.\\d{1,4}){1,3}\\.apk$");
     static final String ASSET_DIR = "experimental";
+    static final long MAX_SIG = 8 * 1024;
+    static final String SRC = "version.json.src", SIG = "version.json.sig";
 
     interface Events { void event(JSONObject event); }
 
@@ -101,6 +115,42 @@ final class Updater {
     }
     String installedName() {
         try { return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName; } catch (Exception e) { return "?"; }
+    }
+
+    // ───────────────────────── [BLOCK UPD-SIGN]
+    /** Открытые ключи текущих сертификатов подписи установленного приложения. */
+    List<PublicKey> appKeys() {
+        List<PublicKey> out = new ArrayList<>();
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            Signature[] sigs;
+            if (Build.VERSION.SDK_INT >= 28) {
+                SigningInfo si = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES).signingInfo;
+                sigs = si == null ? null : si.getApkContentsSigners();
+            } else {
+                //noinspection deprecation
+                sigs = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
+            }
+            if (sigs == null) return out;
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            for (Signature sg : sigs) out.add(cf.generateCertificate(new ByteArrayInputStream(sg.toByteArray())).getPublicKey());
+        } catch (Exception ignored) { }
+        return out;
+    }
+    static String sigAlg(PublicKey k) {
+        switch (k.getAlgorithm()) { case "RSA": return "SHA256withRSA"; case "EC": return "SHA256withECDSA"; case "DSA": return "SHA256withDSA"; default: return null; }
+    }
+    /** true — sigB64 (Base64) верна для raw хотя бы одним ключом подписи приложения. Тот же формат, что scripts/ManifestSign.java. */
+    boolean verifyManifest(byte[] raw, byte[] sigB64) {
+        if (raw == null || sigB64 == null || sigB64.length == 0 || sigB64.length > MAX_SIG) return false;
+        byte[] sig;
+        try { sig = Base64.getDecoder().decode(new String(sigB64, StandardCharsets.US_ASCII).trim()); } catch (IllegalArgumentException e) { return false; }
+        for (PublicKey k : appKeys()) {
+            String alg = sigAlg(k);
+            if (alg == null) continue;
+            try { java.security.Signature v = java.security.Signature.getInstance(alg); v.initVerify(k); v.update(raw); if (v.verify(sig)) return true; } catch (Exception ignored) { }
+        }
+        return false;
     }
 
     // ───────────────────────── [BLOCK UPD-MANIFEST] validation (mirror of scripts/web_bundle.py)
@@ -182,8 +232,10 @@ final class Updater {
     Bundle verified(String version, boolean trial) {
         if (version == null) return null;
         File dir = dirOf(version);
-        try (InputStream in = new FileInputStream(new File(dir, "version.json"))) {
-            JSONObject m = new JSONObject(new String(readAll(in, MAX_MANIFEST), StandardCharsets.UTF_8));
+        try (InputStream in = new FileInputStream(new File(dir, SRC)); InputStream sin = new FileInputStream(new File(dir, SIG))) {
+            byte[] raw = readAll(in, MAX_MANIFEST);
+            if (!verifyManifest(raw, readAll(sin, MAX_SIG))) return null;   // [UPD-SIGN] подпись подписанного манифеста — при каждом использовании
+            JSONObject m = new JSONObject(new String(raw, StandardCharsets.UTF_8));
             if (validManifest(m, true) != null || !version.equals(m.getString("version"))) return null;
             if (m.getLong("minApk") > installedCode()) return null;
             Map<String, File> map = new HashMap<>();
@@ -234,7 +286,7 @@ final class Updater {
     }
     void persist(State s, boolean dirty) { if (dirty) try { save(s); } catch (IOException ignored) { } }
 
-    /** JS bridge "ready": the page loaded its scripts and opened IndexedDB. */
+    /** JS bridge "ready": web/lab-update.js — модули Lab поднялись, миграция завершена, список/холст на экране (82.18, аудит m6). */
     synchronized boolean ready(String version) {
         Bundle b = served;
         if (b == null || !b.version.equals(version)) return false;
@@ -348,11 +400,15 @@ final class Updater {
     void check(boolean manual) {
         emit("checking", manual);
         JSONObject m;
+        byte[] raw, sig;
         try {
-            ByteArrayOutputStream raw = new ByteArrayOutputStream();
-            fetch(BASE + "version.json?t=" + (System.currentTimeMillis() / 60000), raw, MAX_MANIFEST, null);
-            m = new JSONObject(new String(raw.toByteArray(), StandardCharsets.UTF_8));
+            String t = "?t=" + (System.currentTimeMillis() / 60000);
+            ByteArrayOutputStream r = new ByteArrayOutputStream(), g = new ByteArrayOutputStream();
+            fetch(BASE + "version.json" + t, r, MAX_MANIFEST, null); raw = r.toByteArray();
+            try { fetch(BASE + SIG + t, g, MAX_SIG, null); sig = g.toByteArray(); } catch (IOException e) { sig = null; }   // нет подписи → ниже: игнор
         } catch (Exception e) { emit("offline", manual, "reason", String.valueOf(e.getMessage())); return; }
+        if (!verifyManifest(raw, sig)) { emit("error", manual, "reason", sig == null ? "нет подписи манифеста" : "подпись манифеста неверна"); return; }   // [UPD-SIGN] до разбора
+        try { m = new JSONObject(new String(raw, StandardCharsets.UTF_8)); } catch (Exception e) { emit("error", manual, "reason", "манифест: parse"); return; }
         String bad = validManifest(m, true);
         if (bad != null) { emit("error", manual, "reason", "манифест: " + bad); return; }
         boolean found = false;
@@ -367,7 +423,7 @@ final class Updater {
                 if (m.getLong("minApk") <= installed) {
                     found = true;
                     emit("web-downloading", manual, "version", v);
-                    downloadWeb(m);
+                    downloadWeb(m, raw, sig);
                     emit("web-ready", manual, "version", v);
                 } else emit("web-needs-apk", manual, "version", v, "minApk", m.getLong("minApk"));
             }
@@ -379,7 +435,11 @@ final class Updater {
             if (!found) emit("none", manual, "version", cur == null ? builtinVersion : cur.version, "apk", installedName());
         } catch (Exception e) { emit("web-failed", manual, "reason", String.valueOf(e.getMessage())); }
     }
-    void downloadWeb(JSONObject m) throws Exception {
+    /** raw / sig — подписанные байты манифеста и подпись (проверены в check); сохраняются в папке бундла для verified(). */
+    void downloadWeb(JSONObject m, byte[] raw, byte[] sig) throws Exception {
+        if (!verifyManifest(raw, sig)) throw new IOException("подпись манифеста");
+        JSONObject signed = new JSONObject(new String(raw, StandardCharsets.UTF_8));
+        if (!signed.toString().equals(m.toString())) throw new IOException("манифест не совпадает с подписанным");
         String v = m.getString("version"), base = m.getString("base");
         File tmp = new File(files, "web-tmp-" + v + "-" + System.nanoTime());
         if (!tmp.mkdirs()) throw new IOException("mkdir");
@@ -402,6 +462,8 @@ final class Updater {
             }
             JSONObject local = new JSONObject(m.toString()); local.remove("apk");
             try (FileOutputStream o = new FileOutputStream(new File(tmp, "version.json"))) { o.write(local.toString().getBytes(StandardCharsets.UTF_8)); o.getFD().sync(); }
+            try (FileOutputStream o = new FileOutputStream(new File(tmp, SRC))) { o.write(raw); o.getFD().sync(); }
+            try (FileOutputStream o = new FileOutputStream(new File(tmp, SIG))) { o.write(sig); o.getFD().sync(); }
             synchronized (this) {
                 File dst = dirOf(v);
                 State s = load();

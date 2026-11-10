@@ -2,6 +2,8 @@ package ge.akrix.zamer;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.content.pm.SigningInfo;
 import android.content.res.AssetManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,7 +12,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.Consumer;
 import org.json.JSONArray;
@@ -21,7 +27,9 @@ import org.json.JSONObject;
  * Covers: built-in fallback, pending → trial → ready → active, SHA tamper fallback, unready-trial rollback,
  * ready-timeout rollback to previous, minApk gate, cleanup of versions ≤ built-in, downloadWeb (local copy path and
  * offline failure), manifest validation, URL allow-list, version compare, corrupt pointer.
- * Args: <staged assets root containing experimental/> <published dir with version.json + web/<ver>/>
+ * 82.18 (аудит M3): подпись манифеста — валидная / подменённая / отсутствующая / чужим ключом; подпись CI-скрипта (scripts/sign_manifest.py)
+ * проверяется Updater.verifyManifest сертификатом «установленного приложения» (stub PackageManager: GET_SIGNING_CERTIFICATES / GET_SIGNATURES).
+ * Args: <staged assets root containing experimental/> <published dir with version.json + version.json.sig + web/<ver>/> <test keystore> <password> <cert DER>
  */
 public class UpdaterTest {
     static int pass, fail;
@@ -31,6 +39,12 @@ public class UpdaterTest {
     static JSONObject pub;
     static String builtin;
     static int run;
+    static byte[] certDer; static PrivateKey key;
+    static byte[] sign(byte[] raw) { return sign(raw, key); }
+    static byte[] sign(byte[] raw, PrivateKey k) {
+        try { java.security.Signature s = java.security.Signature.getInstance("SHA256withRSA"); s.initSign(k); s.update(raw); return Base64.getEncoder().encode(s.sign()); }
+        catch (Exception e) { throw new RuntimeException(e); }
+    }
 
     static Context ctx(long installedCode) throws IOException {
         Context c = new Context();
@@ -39,6 +53,7 @@ public class UpdaterTest {
         c.filesDir.mkdirs(); c.cacheDir.mkdirs();
         c.assets = new AssetManager(assets.toFile());
         c.pm = new PackageManager(); c.pm.installed.versionCode = (int) installedCode; c.pm.installed.versionName = builtin; c.pm.installed.packageName = c.pkg;
+        Signature[] app = {new Signature(certDer)}; c.pm.installed.signingInfo = new SigningInfo(app); c.pm.installed.signatures = app;   // сертификат подписи «APK»
         return c;
     }
     /** Same device (filesDir) — new process. */
@@ -55,6 +70,8 @@ public class UpdaterTest {
         JSONObject m = new JSONObject(pub.toString()); m.remove("apk"); m.put("version", v); m.put("base", "web/" + v + "/"); m.put("minApk", minApk);
         if (mutate != null) mutate.accept(m);
         Files.writeString(new File(dir, "version.json").toPath(), m.toString());
+        byte[] raw = m.toString().getBytes(StandardCharsets.UTF_8);   // [UPD-SIGN] подписанные байты + подпись рядом
+        Files.write(new File(dir, Updater.SRC).toPath(), raw); Files.write(new File(dir, Updater.SIG).toPath(), sign(raw));
     }
     static void pointer(Context c, String active, String previous, String pending) throws IOException {
         JSONObject o = new JSONObject();
@@ -67,6 +84,8 @@ public class UpdaterTest {
 
     public static void main(String[] a) throws Exception {
         assets = Path.of(a[0]); published = Path.of(a[1]);
+        KeyStore ks = KeyStore.getInstance("PKCS12"); try (InputStream in = Files.newInputStream(Path.of(a[2]))) { ks.load(in, a[3].toCharArray()); }
+        key = (PrivateKey) ks.getKey("akrix", a[3].toCharArray()); certDer = Files.readAllBytes(Path.of(a[4]));
         work = Files.createTempDirectory("akx14-jvm");
         pub = new JSONObject(Files.readString(published.resolve("version.json")));
         builtin = new JSONObject(Files.readString(assets.resolve("experimental/version.json"))).getString("version");
@@ -126,8 +145,10 @@ public class UpdaterTest {
         // T8 downloadWeb: every file identical to built-in → copied locally (no network), verified, pending
         run = 8; c = ctx(code); u = relaunch(c); u.resolve();
         JSONObject m = new JSONObject(pub.toString()); m.put("version", "82.99"); m.put("base", "web/82.99/");
-        u.downloadWeb(m);
+        byte[] mraw = m.toString().getBytes(StandardCharsets.UTF_8);
+        u.downloadWeb(m, mraw, sign(mraw));
         p = ptr(c); check("82.99".equals(p.optString("pending", "")), "downloadWeb → pending=82.99");
+        check(new File(c.filesDir, "web-82.99/" + Updater.SRC).isFile() && new File(c.filesDir, "web-82.99/" + Updater.SIG).isFile(), "downloadWeb stores signed manifest bytes + signature");
         String[] tmp = c.filesDir.list((d, n) -> n.startsWith("web-tmp-"));
         check(tmp != null && tmp.length == 0 && new File(c.filesDir, "web-82.99/version.json").isFile(), "atomic: tmp renamed to web-82.99, no leftovers");
         check(!Files.readString(new File(c.filesDir, "web-82.99/version.json").toPath()).contains("\"apk\""), "local manifest stores no apk section");
@@ -137,7 +158,7 @@ public class UpdaterTest {
         run = 9; c = ctx(code); u = relaunch(c); u.resolve();
         m = new JSONObject(pub.toString()); m.put("version", "82.99"); m.put("base", "web/82.99/");
         m.getJSONArray("files").getJSONObject(0).put("sha256", "0".repeat(64));
-        boolean threw = false; try { u.downloadWeb(m); } catch (Exception e) { threw = true; }
+        boolean threw = false; try { byte[] r9 = m.toString().getBytes(StandardCharsets.UTF_8); u.downloadWeb(m, r9, sign(r9)); } catch (Exception e) { threw = true; }
         tmp = c.filesDir.list((d, n) -> n.startsWith("web-"));
         check(threw && (tmp == null || tmp.length == 0) && !new File(c.filesDir, "web-current.json").exists(), "offline/failed download leaves no state and no files");
         check(relaunch(c).resolve().dir == null, "after failed download: built-in still served");
@@ -171,6 +192,37 @@ public class UpdaterTest {
 
         // T12 version compare
         check(Updater.vcmp("82.18.1", "82.18") > 0 && Updater.vcmp("82.9", "82.10") < 0 && Updater.vcmp("82.18", "82.18.0") == 0 && Updater.vcmp("82.18", "0") > 0, "vcmp numeric segments");
+
+        // T13 [UPD-SIGN] подпись манифеста (аудит M3)
+        run = 13; c = ctx(code); u = relaunch(c);
+        byte[] praw = Files.readAllBytes(published.resolve("version.json")), psig = Files.readAllBytes(published.resolve("version.json.sig"));
+        check(u.verifyManifest(praw, psig), "sig: version.json signed by CI script (scripts/sign_manifest.py) verifies with the app signing certificate");
+        check((c.pm.lastFlags & PackageManager.GET_SIGNING_CERTIFICATES) != 0, "sig: API ≥ 28 reads GET_SIGNING_CERTIFICATES");
+        byte[] tam = praw.clone(); tam[tam.length / 2] ^= 1;
+        check(!u.verifyManifest(tam, psig), "sig: tampered manifest (1 bit) rejected");
+        check(!u.verifyManifest(praw, null) && !u.verifyManifest(praw, new byte[0]), "sig: missing signature rejected");
+        check(!u.verifyManifest(praw, "not base64 !!".getBytes(StandardCharsets.US_ASCII)), "sig: garbage signature rejected");
+        KeyPairGenerator kg = KeyPairGenerator.getInstance("RSA"); kg.initialize(2048);
+        check(!u.verifyManifest(praw, sign(praw, kg.generateKeyPair().getPrivate())), "sig: signature by another key rejected");
+        c.pm.installed.signingInfo = null; c.pm.installed.signatures = null;
+        check(!u.verifyManifest(praw, psig), "sig: no app signing certificate → rejected");
+        android.os.Build.VERSION.SDK_INT = 27; c = ctx(code); c.pm.installed.signingInfo = null; u = relaunch(c);
+        check(u.verifyManifest(praw, psig) && (c.pm.lastFlags & PackageManager.GET_SIGNATURES) != 0, "sig: API < 28 → GET_SIGNATURES");
+        android.os.Build.VERSION.SDK_INT = 34;
+        // бундл в папке: подпись проверяется при каждом использовании
+        run = 14; c = ctx(code); installBundle(c, "82.99", code, null); pointer(c, "82.99", null, null);
+        check(relaunch(c).resolve().dir != null, "sig: signed bundle served");
+        Path src = c.filesDir.toPath().resolve("web-82.99/" + Updater.SRC); String good = Files.readString(src);
+        Files.writeString(src, good.replace("\"minApk\":" + code, "\"minApk\":1"));
+        check(!good.equals(Files.readString(src)) && relaunch(c).resolve().dir == null, "sig: signed manifest changed on device → built-in");
+        run = 15; c = ctx(code); installBundle(c, "82.99", code, null); pointer(c, "82.99", null, null);
+        Files.delete(c.filesDir.toPath().resolve("web-82.99/" + Updater.SIG));
+        check(relaunch(c).resolve().dir == null, "sig: bundle without signature → built-in");
+        run = 16; c = ctx(code); u = relaunch(c); u.resolve();
+        m = new JSONObject(pub.toString()); m.put("version", "82.99"); m.put("base", "web/82.99/");
+        byte[] r16 = m.toString().getBytes(StandardCharsets.UTF_8); threw = false;
+        try { u.downloadWeb(m, r16, sign(r16, kg.generateKeyPair().getPrivate())); } catch (Exception e) { threw = true; }
+        check(threw && !new File(c.filesDir, "web-82.99").exists() && !new File(c.filesDir, "web-current.json").exists(), "sig: downloadWeb with foreign signature refused, nothing stored");
 
         System.out.println(pass + " passed, " + fail + " failed");
         System.exit(fail == 0 ? 0 : 1);

@@ -4,6 +4,7 @@ from pathlib import Path
 import glob, hashlib, json, os, secrets, shutil, subprocess, sys, zipfile
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import web_bundle  # AKX-2026-0014: one version source (web/lab-version.js), bundle + update manifest
+import sign_manifest  # 82.18 (аудит M3): version.json.sig ключом подписи APK
 from urllib.parse import urlsplit
 ROOT=Path(__file__).resolve().parents[1]
 TOOLS=ROOT/'tools'
@@ -71,7 +72,9 @@ def main():
     if update.exists():shutil.rmtree(update)
     web_bundle.publish(assets/'experimental',apk,update,ROOT)  # version.json + web/<ver>/ for branch measure-lab-apk
     shutil.copy2(apk,update/apk.name)
-    errors=web_bundle.verify(update)
+    sign_manifest.sign(update/'version.json')  # version.json.sig — тот же keystore, что signingConfig APK (AK_KS/AK_PW, иначе .signing)
+    if not sign_manifest.verify(update/'version.json'):raise SystemExit('version.json.sig: self-check failed')
+    errors=web_bundle.verify(update,require_sig=True)
     if errors:raise SystemExit('Update manifest verification failed: '+str(errors))
     print('APK:',apk,'\nSHA256:',digest)
 if __name__=='__main__':main()
