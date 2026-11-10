@@ -70,6 +70,31 @@ const {start} = require('./qa-v011-harness.cjs');
     check(bin.kept1 && bin.inBin && bin.k2, 'note photo replaced: old image kept in sess.labBin', bin);
     check(bin.keptU && bin.inRoomBin && bin.u2, 'plan underlay replaced: old image kept in room.bin', bin);
     check(bin.purged && bin.n >= 2, 'sessPurge deletes binned images', bin);
+    // ── холст проекта (82.18, инженер B): фото подложки и область стены — ↶ после перезапуска (журнал проекта) ──
+    if (await p.evaluate(() => !!(window.MeasureLabSketch && MeasureLabSketch.state && 'board' in MeasureLabSketch.state))) {
+      const PRJ = 'QA8218 C — Undo';
+      const reopenK = async () => { await p.evaluate(async () => { await PM.flushAll(); await MeasureLabSketch.saveNow(); MeasureLabHistory.flush(); }); await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && window.MeasureLabHistory);
+        await p.evaluate(async n => { document.body.classList.remove('tz'); PM.PEN.mode = 'off'; if (!MeasureLabSketch.isOpen()) await MeasureLabSketch.open(n); }, PRJ); await p.waitForTimeout(500); };
+      await p.evaluate(async n => { document.body.classList.remove('tz'); PM.PEN.mode = 'off'; await MeasureLabSketch.open(n); }, PRJ); await p.waitForTimeout(300);
+      await p.setInputFiles('#labSketch [data-skf="gal"]', {name: 'red.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(jpg, 'base64')});
+      await p.waitForFunction(() => S.sess && S.sess.kind === 'board' && (S.refs || []).length === 1, null, {timeout: 8000}); await p.waitForTimeout(300);
+      const bid = await p.evaluate(() => S.refs[0].id);
+      await p.evaluate(id => { S.rsel = id; draw(); zLay(); }, bid); await click('#bDelS');
+      check(await p.evaluate(() => (S.refs || []).length === 0), 'canvas: board photo deleted by 🗑');
+      await reopenK(); await p.evaluate(() => MeasureLabSketch.activate('board')); await p.waitForTimeout(300);
+      await click('#bUnd');
+      const bb = await p.evaluate(async id => ({kind: S.sess && S.sess.kind, back: (S.refs || []).some(r => r.id === id), blob: (await dbGet('img', 'ref:' + id)) instanceof Blob}), bid);
+      check(bb.kind === 'board' && bb.back && bb.blob, 'canvas: board photo back after reload (↶), image in db', bb);
+      // область стены: 🗑 → перезапуск → ↶
+      const w = await p.evaluate(async () => { const K = MeasureLabSketch.state; await newRoom(K.obj, 'Кухня', true); S.room.oid = K.pid; Object.assign(S.room.ms, {pts: [[0, 0], [3000, 0], [3000, 2500], [0, 2500]], closed: true, H: 2700, dims: []}); gnFix(); saveRoom(); await flushAll();
+        await MeasureLabSketch.goWall(S.room, 0); await new Promise(z => setTimeout(z, 400)); const it = K.items.find(i => i.t === 'wall'); K.sel = it.id; await zDelSel(); await new Promise(z => setTimeout(z, 300)); return {id: it.id, left: K.items.some(i => i.id === it.id)}; });
+      check(w.id && !w.left, 'canvas: wall area deleted by 🗑', w);
+      await reopenK(); await click('#bUnd'); await p.waitForTimeout(400);
+      check(await p.evaluate(id => MeasureLabSketch.state.items.some(i => i.id === id), w.id), 'canvas: wall area back after reload (↶)');
+      await click('#bRed'); await p.waitForTimeout(300);
+      check(await p.evaluate(id => !MeasureLabSketch.state.items.some(i => i.id === id), w.id), 'canvas: ↷ deletes area again');
+      await p.screenshot({path: `/tmp/cq/undo-canvas-${tag}.png`});
+    }
     check(h.errors.length === 0, 'no page errors', h.errors);
   } finally { await h.close(); }
   const bad = h.checks.filter(c => !c.ok); console.log(`${bad.length ? 'FAIL' : 'PASS'} qa-v8218-undo ${tag}: ${h.checks.length - bad.length}/${h.checks.length}`); if (bad.length) process.exitCode = 1;

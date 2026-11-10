@@ -10,7 +10,7 @@
     const hit=mkHit(p);let current=S.els.find(e=>e.id===S.sel);
     if(!current&&hit){current=S.els.find(e=>e.id===hit.id);S.sel=current?.id||null;S.dsel=null;}
     /* 82.18 F2 (AKX-2026-0009): поля (w3FHit) и ручки размера выбранного объекта — при любом инструменте; перенос — только протяжкой тела */
-    {const f=typeof w3FHit==='function'?w3FHit(p):null;if(f){gest.labField=f;gest.labPlacement={id:current?current.id:null,tool:S.mk,clearOnTap:false,field:1};return true;}}   /* рамка поля — точнее ручки (24 px) */
+    {const f=typeof w3FHit==='function'?w3FHit(p):null;if(f){gest.labField=f;if(!current)return false;gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:false,field:1};return true;}}   /* рамка поля — точнее ручки (24 px); ничего не выбрано — протяжка ставит объект, касание открывает поле (tap) */
     if(current){const hd=hHit(p);if(hd){gest.hdrag=hd;gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:false,handle:1};return true;}}
     if(!current)return false;
     const same=!!hit&&hit.id===current.id;
@@ -35,7 +35,8 @@
   const nativeTap=tap;
   tap=function(p){
     const state=gest?.labPlacement;
-    if(state&&state.field){const f=gest.labField;if(f&&!gest.moved)w3FOpen(f);return;}   /* 82.18 F2: поле размера открывается при любом инструменте */
+    if(gest&&gest.labField&&!gest.moved&&(!state||state.field)){const f=gest.labField;return w3FOpen(f);}
+    if(state&&state.field)return;   /* 82.18 F2: поле размера открывается при любом инструменте */
     if(state&&state.handle){return;}
     if(!state&&S.mode!=='plan'&&S.tool==='mk'&&S.show<0&&S.mosaic&&!q4Need()&&typeof w3FHit==='function'){const f=w3FHit(p);if(f)return w3FOpen(f);}   /* 82.18 F2: и в «выборе» — поле поверх объекта открывается (v81: только вне объекта) */
     if(state){if(state.clearOnTap)S.sel=null;S.pend=null;mkPanel();draw();return;}

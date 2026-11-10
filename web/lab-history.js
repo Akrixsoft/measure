@@ -58,11 +58,13 @@
   const pls0 = plSnap; plSnap = function () { const r = pls0.apply(this, arguments); try { recPlan(); } catch (e) { } return r; };
 
   /* ═══ [BLOCK HJ-PHOTO] фото — шаг-снимок (с refs), не ZA: переживает перезапуск ═══ */
+  function dropZA(n0) { let k = 0; while (S.und.length > n0 && String(S.und[S.und.length - 1]).startsWith('ZA:')) { S.und.pop(); k++; } if (k) { const t = H.j[H.j.length - 1]; if (t && t.t === 'N' && t.n > S.und.length) { H.j.pop(); persist(); } } }
   const rfAdd0 = rfAdd; rfAdd = async function () {
     const n0 = (S.refs || []).length; let snapped = false;
     if (S.mosaic) { snap(); snapped = true; }
-    zaMute++; let res;
+    const u0 = S.und.length; zaMute++; let res;
     try { res = await rfAdd0.apply(this, arguments); } finally { zaMute--; }
+    dropZA(u0);   // шаги-замыкания модулей поверх (подложка холста) — уже в снимке
     if (snapped && (S.refs || []).length === n0) unsnap();   // фото не добавлено — шага нет
     try { zLay(); } catch (e) { }
     return res;
@@ -70,8 +72,9 @@
   const rfDel0 = rfDel; rfDel = function (id) {
     const r = (S.refs || []).find(x => x.id === id); if (!r) return rfDel0.apply(this, arguments);
     if (S.wsh && S.wsh.gaRf === id && S.wsh.ga) r.labGa = {ga: S.wsh.ga, gr: S.wsh.gaRf};   // выравнивание по фото — вернётся вместе с фото
-    snap(); zaMute++; let res;
+    snap(); const u0 = S.und.length; zaMute++; let res;
     try { res = rfDel0.apply(this, arguments); } finally { zaMute--; }
+    dropZA(u0);
     try { if (S.sess) { const k = 'ref:' + id, b = S.sess.labBin = S.sess.labBin || []; if (!b.includes(k)) b.push(k); } saveSess(); zLay(); } catch (e) { }
     return res;
   };
@@ -98,6 +101,45 @@
     return purge0.apply(this, arguments);
   };
   api.binKeys = o => [...((o && o.labBin) || []), ...((o && o.bin) || []), ...((o && o.refs) || []).map(r => 'ref:' + r.id)];
+
+  /* ═══ [BLOCK HJ-CANVAS] операции холста (событие 'measure-lab-canvas-op' модуля холста): данные в журнале — ↶ ↷ и после перезапуска.
+     move — перенос области; del — удаление области (вид стены — в «Удалённые»); wall — «▣ Стена по фото». Замыкание ZA холста снимается. ═══ */
+  const SKh = () => window.MeasureLabSketch;
+  async function boardRefs(fn) {   // фото подложки: живые (подложка активна) или запись в базе
+    const sk = SKh(), K = sk && sk.state; if (!K || !K.board) return;
+    if (S.sess && S.sess.id === K.board) { fn(S.refs || []); saveSess(); return; }
+    const o = await dbGet('sess', K.board).catch(() => null); if (!o) return; fn(o.refs || []); await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { }); K.boardRec = o;
+  }
+  async function sessDel(sid, on, why) { if (!sid) return null; const o = await dbGet('sess', sid).catch(() => null); if (!o) return null; if (on) { o.del = Date.now(); o.delWhy = why; } else { delete o.del; delete o.delWhy; } await dbPut('sess', o).catch(() => { }); return o; }
+  const itemsOf = () => { const sk = SKh(); return sk && sk.state && sk.state.items; };
+  const fin = () => { const sk = SKh(); try { sk && sk.saveNow && sk.saveNow(); } catch (e) { } try { draw(); zLay(); } catch (e) { } };
+  async function areaPut(it, on) { const L = itemsOf(); if (!L) return; const i = L.findIndex(x => x.id === it.id); if (on && i < 0) L.push(JSON.parse(JSON.stringify(it))); if (!on && i >= 0) L.splice(i, 1); }
+  api.register('K', {
+    undo: async e => { const it = (itemsOf() || []).find(x => x.id === e.id); if (it) Object.assign(it, e.a); fin(); },
+    redo: async e => { const it = (itemsOf() || []).find(x => x.id === e.id); if (it) Object.assign(it, e.b); fin(); }
+  });
+  api.register('C', {
+    undo: async e => {
+      if (e.op === 'del') { await areaPut(e.a, true); const o = await sessDel(e.sid || e.a.sid, false); const ph = o && o.labSketch && o.labSketch.photo, w = e.a.wid || e.a.sid; if (ph) await boardRefs(R => { const r = R.find(x => x.id === ph); if (r) r.labWall = w; }); }
+      if (e.op === 'wall') { await areaPut(e.it || e.b, false); await sessDel(e.b.sid, true, 'холст: ↶ стена по фото'); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && r.segs) { for (const k of Object.keys(r.segs)) if (r.segs[k] === e.b.sid) delete r.segs[k]; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
+        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) delete q.labWall; }); }
+      fin();
+    },
+    redo: async e => {
+      if (e.op === 'del') { await areaPut(e.a, false); await sessDel(e.sid || e.a.sid, true, 'холст: область удалена'); const o = await dbGet('sess', e.sid || e.a.sid).catch(() => null), ph = o && o.labSketch && o.labSketch.photo; if (ph) await boardRefs(R => { const r = R.find(x => x.id === ph); if (r) delete r.labWall; }); }
+      if (e.op === 'wall') { await areaPut(e.it || e.b, true); const o = await sessDel(e.b.sid, false); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && o && o.seg != null) { r.segs = r.segs || {}; r.segs[o.seg] = e.b.sid; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
+        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) q.labWall = e.b.wid || e.b.sid; }); }
+      fin();
+    }
+  });
+  addEventListener('measure-lab-canvas-op', ev => {
+    const d = ev.detail || {}; if (H.busy) return;
+    try {
+      if (d.op === 'move' && d.id && d.a && d.b) return rec({t: 'K', id: d.id, a: d.a, b: d.b});
+      if (d.op === 'del' && d.a) { const top = S.und[S.und.length - 1]; if (top && String(top).startsWith('ZA:')) { S.und.pop(); const t = H.j[H.j.length - 1]; if (t && t.t === 'N' && t.n > S.und.length) H.j.pop(); } const a = JSON.parse(JSON.stringify(d.a)); delete a.snap; return rec({t: 'C', op: 'del', a, sid: d.sid || null}); }
+      if (d.op === 'wall' && d.b && d.b.id) { const it = (itemsOf() || []).find(x => x.id === d.b.id); const c = it ? JSON.parse(JSON.stringify(it)) : {id: d.b.id}; delete c.snap; return rec({t: 'C', op: 'wall', b: d.b, it: c}); }
+    } catch (e) { console.error(e); }
+  });
 
   /* ═══ [BLOCK HJ-UNDO] ↶ ↷ по журналу ═══ */
   const here = e => e.t === 'N' ? (S.mode !== 'plan' && !!S.sess && S.sess.id === e.sid) : e.t === 'P' ? (S.mode === 'plan' && !!S.room && (S.room.id === e.rid || (S.objRooms || []).some(o => o.id === e.rid))) : false;

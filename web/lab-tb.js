@@ -92,7 +92,8 @@
     layout(); return r; };
 
   /* ═══ [BLOCK TB-PHOTO] блок выбранного фото — в самой нижней строке #zpb ═══ */
-  const phSel = () => { try { return S.mode !== 'plan' && !!S.rsel && !!rfGet(S.rsel) && rfOn(); } catch (e) { return false; } };
+  const phSel = () => { try { const sk = SK(); if (sk && typeof sk.block === 'function' && sk.block()) return false;   // фото подложки холста — блок модуля холста (⌗ ▣), без второго блока
+    return S.mode !== 'plan' && !!S.rsel && !!rfGet(S.rsel) && rfOn(); } catch (e) { return false; } };
   api.photo = phSel;
   let phKey = '';
   function phButtons() {

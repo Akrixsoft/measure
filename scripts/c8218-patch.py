@@ -17,9 +17,12 @@ if 'src="lab-history.js"' in html:
 for f in ('lab-history.js', 'lab-tb.css', 'lab-tb.js', 'lab-obj.js', 'lab-autodim.js'):
     if not (path.parent / f).exists():
         raise SystemExit('c8218: missing ' + f)
-old = '<script src="lab-title.js"></script>\n'
-if html.count(old) != 1:
-    raise SystemExit('c8218: expected exactly one match: ' + old)
+# после lab-title.js; если подключены модули холста (инженер B: lab-ctx.js, lab-board.js) — после последнего из них:
+# lab-history оборачивает rfAdd / rfDel подложки (lab-board) и должен грузиться позже.
+cands = [t for t in ('<script src="lab-title.js"></script>\n', '<script src="lab-ctx.js"></script>\n', '<script src="lab-board.js"></script>\n') if html.count(t) == 1]
+if not cands:
+    raise SystemExit('c8218: lab-title.js tag not found')
+old = max(cands, key=html.index)
 html = html.replace(old, old + TAGS)
 path.write_text(html)
 print('c8218: lab-history, lab-tb, lab-obj, lab-autodim attached after lab-title.js')
