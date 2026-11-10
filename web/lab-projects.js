@@ -14,7 +14,8 @@
   if (!window.PM || !window.MeasureLabStore || window.MeasureLabProjects) return;
   const ST = MeasureLabStore, api = window.MeasureLabProjects = {};
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
-  const say = t => { try { toast(t); } catch (e) { } };
+  // сообщения: при открытом списке — в свой тост снизу (штатный тост v81 сверху закрыл бы первую строку), иначе — штатный
+  const say = t => { if (root && root.classList.contains('on')) return note(t); try { toast(t); } catch (e) { } };
   const norm = s => String(s || '').toLowerCase().replace(/ё/g, 'е');
   const MON = ['янв.', 'февр.', 'марта', 'апр.', 'мая', 'июня', 'июля', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
   function fdate(t) {   // сегодня — «16:58», в этом году — «9 нояб.», раньше — «27.02.2024»
@@ -105,14 +106,16 @@
     ls.innerHTML = h;
   }
   api.refresh = () => V.on ? render() : Promise.resolve();
-  function go(view, fid) { V.view = view; V.fid = fid || null; V.q = null; ls.scrollTop = 0; return render(false); }
+  function go(view, fid) { V.view = view; V.fid = fid || null; V.q = null; ls.scrollTop = 0; $p('.lp-to').classList.remove('on'); last = null; return render(false); }
 
   /* ═══ [BLOCK LP-INPUT] ═══ */
-  let lp = null, fired = 0;
+  let lp = null, swallow = false;   // swallow — тот click, которым кончается долгое нажатие (приходит на фон листа)
+  root.addEventListener('pointerdown', () => { swallow = false; }, true);
+  root.addEventListener('click', ev => { if (swallow) { swallow = false; ev.stopPropagation(); ev.preventDefault(); } }, true);
   const rowOf = t => t && t.closest && t.closest('.lp-row');
   ls.addEventListener('pointerdown', ev => {
     const r = rowOf(ev.target); if (!r || ev.target.closest('[data-more]') || r.dataset.view || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
-    clearTimeout(lp && lp.t); lp = {r, x: ev.clientX, y: ev.clientY, id: ev.pointerId, t: setTimeout(() => { r.classList.remove('lp-hold'); fired = Date.now(); lp = null; try { navigator.vibrate && navigator.vibrate(18); } catch (e) { } menuFor(r); }, 450)};
+    clearTimeout(lp && lp.t); lp = {r, x: ev.clientX, y: ev.clientY, id: ev.pointerId, t: setTimeout(() => { r.classList.remove('lp-hold'); swallow = true; lp = null; try { navigator.vibrate && navigator.vibrate(18); } catch (e) { } menuFor(r); }, 450)};
     r.classList.add('lp-hold');
   });
   const lpEnd = () => { if (lp) { clearTimeout(lp.t); lp.r.classList.remove('lp-hold'); lp = null; } };
@@ -122,7 +125,6 @@
   root.addEventListener('contextmenu', ev => { if (!ev.target.closest('input')) ev.preventDefault(); });
   ls.addEventListener('click', ev => {
     const r = rowOf(ev.target); if (!r) return;
-    if (Date.now() - fired < 700) { ev.preventDefault(); return; }   // долгое нажатие уже открыло меню
     if (ev.target.closest('[data-more]')) { ev.stopPropagation(); return menuFor(r); }
     if (r.dataset.view) return go(r.dataset.view);
     if (r.dataset.fid) return go('folder', r.dataset.fid);
@@ -201,15 +203,18 @@
   }
   let last = null, toT = 0;
   async function act(p, msg, undo) {
-    try { await p; } catch (e) { console.error(e); say('Не выполнено: ' + (e && e.message || e)); }
+    try { await p; } catch (e) { console.error(e); return note('Не выполнено: ' + (e && e.message || e)); }
     await render(); if (!msg) return;
+    note(msg, undo);
+  }
+  function note(msg, undo) {
     const to = $p('.lp-to'); to.querySelector('span').textContent = msg; to.querySelector('button').hidden = !undo; last = undo || null; to.classList.add('on');
     clearTimeout(toT); toT = setTimeout(() => { to.classList.remove('on'); last = null; }, undo ? 6000 : 2500);
   }
   async function undoLast() {
     const u = last; last = null; $p('.lp-to').classList.remove('on'); if (!u) return;
     if (u.t === 'trash') await ST.restore(u.pid); else if (u.t === 'arch') await ST.archive(u.pid, false);
-    await render(); say('Возвращено');
+    await render(); note('Возвращено');
   }
   function fields(c, n) { return `<label>Клиент</label><input data-c value="${esc(c || '')}" placeholder="Имя клиента" autocomplete="off"><label>Проект (необязательно)</label><input data-n value="${esc(n || '')}" placeholder="Кухня, квартира, адрес…" autocomplete="off">`; }
   const val = (bx, q) => bx.querySelector(q).value.trim();
@@ -280,7 +285,7 @@
 
   /* ═══ [BLOCK LP-TITLE] ═══ */
   const top = document.getElementById('top'), hd = document.getElementById('hdIn');
-  const tb = document.createElement('button'); tb.id = 'labPrjT'; tb.type = 'button'; tb.title = 'Проект: переименовать, в папку, перенос';
+  const tb = document.createElement('div'); tb.id = 'labPrjT'; tb.setAttribute('role', 'button'); tb.tabIndex = 0; tb.title = 'Проект: переименовать, в папку, перенос';
   if (top && hd) hd.before(tb);
   async function titleUpd() {
     const B = SK(); let pid = (B && typeof B.pid === 'function' && B.pid()) || V.cur;

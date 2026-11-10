@@ -72,6 +72,6 @@ body.lab-prj-on #toast,body.lab-prj-on #set,body.lab-prj-on #busy,body.lab-prj-o
 #labPrj .lp-to span{flex:1;min-width:0;font-size:15px}
 #labPrj .lp-to button{height:44px;padding:0 12px;color:#4FA3FF;font-weight:700}
 /* ═══ [BLOCK LP-TITLE] заголовок проекта в шапке холста вместо #hdIn ═══ */
-#labPrjT{display:none;flex:1 1 auto;min-width:0;height:32px;margin:0 6px;padding:0 9px;border-radius:8px;border:1px solid #3A4150;background:#23272E;color:#E8EBEF;font:600 13px/30px system-ui;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#labPrjT{display:none;flex:0 1 auto;min-width:48px;max-width:58vw;height:32px;margin:0 6px;padding:0 9px;border-radius:8px;border:1px solid #3A4150;background:#23272E;color:#E8EBEF;font:600 13px/30px system-ui;text-align:left;cursor:pointer;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.lab-prj-t #labPrjT{display:block}
 body.lab-prj-t #hdIn{display:none!important}

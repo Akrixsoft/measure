@@ -7,6 +7,10 @@ before lab-ui.js); lab-update.css/.js — right after lab-title.js.  Tags alread
 moved into these slots, so the two scripts can run in either order (update-patch.py is a no-op once lab-update.js is connected).  Tags are emitted only for files that exist in web/; a missing module of engineer B/C
 leaves a marker comment in its slot, so re-running the script after B/C add their files connects them in place.
 
+Inline (exact, verified): [S8218-BOOT] the v81 start line (lastOpen / sessList(true)) waits for DOMContentLoaded, i.e. until
+every lab-* module is loaded — otherwise the IndexedDB open could resolve between external script loads and the original
+lastOpen/sessList would run before lab-projects.js replaces them.  Behaviour otherwise unchanged.
+
 Idempotent: the first run replaces the exact 82.17 tag block (verified, must occur once); later runs rebuild the block
 between the S8218 markers.  web/v81.html is never touched.  Usage: python3 scripts/s8218-patch.py [--check]
 """
@@ -63,9 +67,18 @@ VER_TAG = '<script src="lab-version.js"></script>\n'
 MOVED = ['<script src="lab-version.js"></script>\n', '<link rel="stylesheet" href="lab-update.css">\n', '<script src="lab-update.js"></script>\n']
 
 
+BOOT_OLD = "dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });"
+BOOT_NEW = ("dbOpen().then(() => new Promise(r => document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r, { once: true }) : r()))   /* 82.18 [S8218-BOOT]: старт — после загрузки модулей Lab */"
+            ".then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });")
+
+
 def main():
     src = HTML.read_text(encoding='utf-8')
     work = src
+    if BOOT_NEW not in work:
+        if work.count(BOOT_OLD) != 1:
+            sys.exit(f'boot anchor found {work.count(BOOT_OLD)} times, expected 1')
+        work = work.replace(BOOT_OLD, BOOT_NEW)
     if BEGIN not in work:   # tags of update-patch.py (if it ran first) -> into our slots
         for t in MOVED:
             if work.count(t) > 1:

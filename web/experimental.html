@@ -8163,7 +8163,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 window.addEventListener('pagehide', () => { lastPut(); flushAll() });
 async function lastOpen() { let o = null; try { o = JSON.parse(localStorage.getItem('measure.last') || 'null') } catch (e) { } if (!o || !o.id) return false; const r = await dbGet('sess', o.id).catch(() => null); if (!r || r.del) return false;
   try { if (o.t === 'room' && r.kind === 'room') { await openRoom(r.id); return true } if (o.t === 'sess' && r.kind !== 'room') { await f81iLastWall(r); return true }   /* v81 [I-VERIFY] 1: как касание С№ — полоса макета */ } catch (e) { } return false }
-dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });   /* v74: последнее — сразу; v75: ?list — список */
+dbOpen().then(() => new Promise(r => document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r, { once: true }) : r()))   /* 82.18 [S8218-BOOT]: старт — после загрузки модулей Lab */.then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });   /* v74: последнее — сразу; v75: ?list — список */
 </script>
 <!-- slot U: lab-version.js -->
 <script src="lab-ui.js"></script>

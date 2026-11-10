@@ -309,6 +309,8 @@
     for (const o of [...R.walls, ...R.planes]) if (!order.includes(o)) order.push(o);
     for (const o of order) { const m = live(o.id), els = elsOf(o, m); if (!els.some(e => !e.id || !(e.no > 0))) continue;
       for (const e of els) { if (!e.id) e.id = 'e' + now().toString(36) + Math.random().toString(36).slice(2, 6); if (!(e.no > 0)) e.no = ++el; }
+      const x = m || o, out = x.out && Array.isArray(x.out.els) ? x.out.els : null;   // снимок выгрузки (out) закрытой стены: id — тем же элементам (n = индекс + 1)
+      if (out && m !== S.sess) { const L = els.filter(e => !e.cand); out.forEach((q, i) => { if (q && !q.id && L[i] && q.n === i + 1) q.id = L[i].id; }); }
       await keep(o, m); }
     if (el !== +P.elHi || zn !== +P.znHi) { const Q = await get(pid); Q.elHi = Math.max(+Q.elHi || 0, el); Q.znHi = Math.max(+Q.znHi || 0, zn); await put(Q); }
     return {elHi: el, znHi: zn, changed: ch};
