@@ -15,7 +15,7 @@ if 'src="lab-history.js"' in html:
     print('c8218: already integrated')
     raise SystemExit(0)
 for f in ('lab-history.js', 'lab-tb.css', 'lab-tb.js', 'lab-obj.js', 'lab-autodim.js'):
-    if not (path.parent / f).exists():
+    if not (Path(__file__).resolve().parents[1] / 'web' / f).exists():
         raise SystemExit('c8218: missing ' + f)
 # после lab-title.js; если подключены модули холста (инженер B: lab-ctx.js, lab-board.js) — после последнего из них:
 # lab-history оборачивает rfAdd / rfDel подложки (lab-board) и должен грузиться позже.
