@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Measure 82.18 (AKX-2026-0012, engineer A): script/style tags in web/experimental.html.
 
-Order (architect.md §8.1): lab-store -> lab-ctx -> lab-board -> lab-sketch -> lab-history -> lab-tb -> (lab-icons, lab-title)
--> lab-projects -> lab-autodim.  AKX-2026-0014 (auto-update): lab-version.js — before every lab-* script (own one-line slot
+Order (architect.md §8.1, adjusted to engineer B's tested order): lab-store -> lab-sketch -> lab-history -> lab-tb ->
+(lab-icons, lab-title) -> lab-ctx -> lab-board -> lab-projects -> lab-autodim.  Replaces scripts/canvas-patch.py (B) — tags of
+canvas-patch.py / update-patch.py already in the file are moved into these slots, so the scripts may run in any order;
+canvas-patch.py after this script refuses (exit 1, «Already integrated») — expected, nothing changes.  AKX-2026-0014 (auto-update): lab-version.js — before every lab-* script (own one-line slot
 before lab-ui.js); lab-update.css/.js — right after lab-title.js.  Tags already inserted by scripts/update-patch.py are
 moved into these slots, so the two scripts can run in either order (update-patch.py is a no-op once lab-update.js is connected).  Tags are emitted only for files that exist in web/; a missing module of engineer B/C
 leaves a marker comment in its slot, so re-running the script after B/C add their files connects them in place.
@@ -29,8 +31,6 @@ BEGIN, END = '<!-- [BLOCK S8218-TAGS] begin -->\n', '<!-- [BLOCK S8218-TAGS] end
 # (owner, file) in load order; css before its js
 SLOTS = [
     ('A', 'lab-store.js'),
-    ('B', 'lab-ctx.js'),
-    ('B', 'lab-board.js'),
     ('B', 'lab-sketch.css'),
     ('B', 'lab-sketch.js'),
     ('C', 'lab-history.js'),
@@ -38,6 +38,8 @@ SLOTS = [
     ('C', 'lab-tb.js'),
     ('-', 'lab-icons.js'),
     ('A', 'lab-title.js'),
+    ('B', 'lab-ctx.js'),     # B: после lab-title (порядок проверен инженером B, scripts/canvas-patch.py)
+    ('B', 'lab-board.js'),
     ('U', 'lab-update.css'),
     ('U', 'lab-update.js'),
     ('A', 'lab-projects.css'),
@@ -64,7 +66,8 @@ def block():
 
 VER_ANCHOR = '<script src="lab-ui.js"></script>\n'
 VER_TAG = '<script src="lab-version.js"></script>\n'
-MOVED = ['<script src="lab-version.js"></script>\n', '<link rel="stylesheet" href="lab-update.css">\n', '<script src="lab-update.js"></script>\n']
+MOVED = ['<script src="lab-version.js"></script>\n', '<link rel="stylesheet" href="lab-update.css">\n', '<script src="lab-update.js"></script>\n',
+         '<script src="lab-ctx.js"></script>\n', '<script src="lab-board.js"></script>\n']   # update-patch.py, canvas-patch.py
 
 
 BOOT_OLD = "dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });"

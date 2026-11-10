@@ -9,7 +9,7 @@
       "name": "route dropdown appears to the left of modifiers",
       "detail": {
         "type": 38.859375,
-        "mods": 266
+        "mods": 214
       }
     },
     {
@@ -18,17 +18,17 @@
       "detail": {
         "routes": [
           {
-            "id": "wmwau14b53knt",
+            "id": "wmwb77lebfi11",
             "t": "el",
             "d": "",
             "pts": [
               [
-                600.0000227383175,
-                700.0001736380599
+                600.0000413998152,
+                699.9998501720971
               ],
               [
-                1800.0000992217488,
-                1299.9998759728137
+                1799.9998777719738,
+                1299.9999605716046
               ]
             ],
             "dash": true,
@@ -36,7 +36,7 @@
           }
         ],
         "pending": [],
-        "selected": "wmwau14b53knt"
+        "selected": "wmwb77lebfi11"
       }
     },
     {
@@ -45,17 +45,17 @@
       "detail": {
         "routes": [
           {
-            "id": "wmwau14b53knt",
+            "id": "wmwb77lebfi11",
             "t": "el",
             "d": "",
             "pts": [
               [
-                600.0000227383175,
-                700.0001736380599
+                600.0000413998152,
+                699.9998501720971
               ],
               [
-                1800.0000992217488,
-                1299.9998759728137
+                1799.9998777719738,
+                1299.9999605716046
               ]
             ],
             "dash": true,
@@ -63,7 +63,7 @@
           }
         ],
         "pending": [],
-        "selected": "wmwau14b53knt"
+        "selected": "wmwb77lebfi11"
       }
     },
     {
@@ -74,17 +74,17 @@
       "ok": true,
       "name": "selected endpoint touch edit moves existing route without clone",
       "detail": {
-        "id": "wmwau14b53knt",
+        "id": "wmwb77lebfi11",
         "t": "el",
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            700.0001736380599
+            600.0000413998152,
+            699.9998501720971
           ],
           [
-            2049.999975194563,
-            1550.0001998215769
+            2050.0000946281493,
+            1549.999921143209
           ]
         ],
         "dash": true,
@@ -104,14 +104,14 @@
       "name": "dropdown el updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected el actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#e07a00",
           "dash": [
-            40,
-            8
+            60,
+            12
           ]
         },
         {
@@ -126,8 +126,8 @@
         {
           "color": "#e07a00",
           "dash": [
-            40,
-            8
+            60,
+            12
           ]
         },
         {
@@ -140,14 +140,14 @@
       "name": "dropdown lo updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected lo actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#7b3fc4",
           "dash": [
-            16,
-            8
+            24,
+            12
           ]
         },
         {
@@ -162,8 +162,8 @@
         {
           "color": "#7b3fc4",
           "dash": [
-            16,
-            8
+            24,
+            12
           ]
         },
         {
@@ -176,14 +176,14 @@
       "name": "dropdown wa updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected wa actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#3d9bff",
           "dash": [
-            28,
-            8
+            42,
+            12
           ]
         },
         {
@@ -198,8 +198,8 @@
         {
           "color": "#3d9bff",
           "dash": [
-            28,
-            8
+            42,
+            12
           ]
         },
         {
@@ -212,16 +212,16 @@
       "name": "dropdown wh updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected wh actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#ff5c5c",
           "dash": [
-            28,
+            42,
+            9,
             6,
-            4,
-            6
+            9
           ]
         },
         {
@@ -236,10 +236,10 @@
         {
           "color": "#ff5c5c",
           "dash": [
-            28,
+            42,
+            9,
             6,
-            4,
-            6
+            9
           ]
         },
         {
@@ -252,14 +252,14 @@
       "name": "dropdown dr updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected dr actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#8d6e63",
           "dash": [
-            6,
-            8
+            9,
+            12
           ]
         },
         {
@@ -274,8 +274,8 @@
         {
           "color": "#8d6e63",
           "dash": [
-            6,
-            8
+            9,
+            12
           ]
         },
         {
@@ -288,18 +288,18 @@
       "name": "dropdown ht updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected ht actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#d455b0",
           "dash": [
-            28,
+            42,
+            9,
             6,
-            4,
+            9,
             6,
-            4,
-            6
+            9
           ]
         },
         {
@@ -314,12 +314,12 @@
         {
           "color": "#d455b0",
           "dash": [
-            28,
+            42,
+            9,
             6,
-            4,
+            9,
             6,
-            4,
-            6
+            9
           ]
         },
         {
@@ -332,16 +332,16 @@
       "name": "dropdown ufh updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected ufh actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#d93263",
           "dash": [
-            16,
-            6,
-            16,
-            14
+            24,
+            9,
+            24,
+            21
           ]
         },
         {
@@ -356,10 +356,10 @@
         {
           "color": "#d93263",
           "dash": [
-            16,
-            6,
-            16,
-            14
+            24,
+            9,
+            24,
+            21
           ]
         },
         {
@@ -372,16 +372,16 @@
       "name": "dropdown ga updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected ga actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#c98a00",
           "dash": [
-            36,
-            8,
-            6,
-            8
+            54,
+            12,
+            9,
+            12
           ]
         },
         {
@@ -396,10 +396,10 @@
         {
           "color": "#c98a00",
           "dash": [
-            36,
-            8,
-            6,
-            8
+            54,
+            12,
+            9,
+            12
           ]
         },
         {
@@ -412,16 +412,16 @@
       "name": "dropdown ve updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected ve actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#1fa98f",
           "dash": [
-            4,
             6,
-            4,
-            14
+            9,
+            6,
+            21
           ]
         },
         {
@@ -436,10 +436,10 @@
         {
           "color": "#1fa98f",
           "dash": [
-            4,
             6,
-            4,
-            14
+            9,
+            6,
+            21
           ]
         },
         {
@@ -452,14 +452,14 @@
       "name": "dropdown ot updates selected route and next-route preference"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "selected ot actual stroke retains type color and distinct pattern",
       "detail": [
         {
           "color": "#7b8795",
           "dash": [
-            12,
-            12
+            18,
+            18
           ]
         },
         {
@@ -474,8 +474,8 @@
         {
           "color": "#7b8795",
           "dash": [
-            12,
-            12
+            18,
+            18
           ]
         },
         {
@@ -499,12 +499,12 @@
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            700.0001736380599
+            600.0000413998152,
+            699.9998501720971
           ],
           [
-            1800.0000992217488,
-            700.0001736380599
+            1799.9998777719738,
+            699.9998501720971
           ]
         ],
         "dash": true,
@@ -522,17 +522,17 @@
       "ok": true,
       "name": "horizontal modifier constrains stored route",
       "detail": {
-        "id": "wmwau152gwr8t",
+        "id": "wmwb77m58z7o0",
         "t": "ot",
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            700.0001736380599
+            600.0000413998152,
+            699.9998501720971
           ],
           [
-            1800.0000992217488,
-            700.0001736380599
+            1799.9998777719738,
+            699.9998501720971
           ]
         ],
         "dash": true,
@@ -554,12 +554,12 @@
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            600.0002232489343
+            600.0000413998152,
+            600.0001734849403
           ],
           [
-            600.0000227383175,
-            1800.0000757943908
+            600.0000413998152,
+            1799.9998817148135
           ]
         ],
         "dash": true,
@@ -577,17 +577,17 @@
       "ok": true,
       "name": "vertical modifier constrains stored route",
       "detail": {
-        "id": "wmwau159wlkoe",
+        "id": "wmwb77mcml7s2",
         "t": "ot",
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            600.0002232489343
+            600.0000413998152,
+            600.0001734849403
           ],
           [
-            600.0000227383175,
-            1800.0000757943908
+            600.0000413998152,
+            1799.9998817148135
           ]
         ],
         "dash": true,
@@ -610,12 +610,12 @@
           "d": "",
           "pts": [
             [
-              499.99996038020464,
-              1800.000075794391
+              499.9999802858022,
+              1799.9998817148135
             ],
             [
-              1652.000188769347,
-              2375.9998675182355
+              1652.0000728242392,
+              2376.000112508963
             ]
           ],
           "dash": true,
@@ -623,23 +623,23 @@
           "labConstraint": {
             "v": 1,
             "kind": "parallel",
-            "dx": 0.894427291148005,
-            "dy": 0.4472133952037235,
+            "dx": 0.8944271336929324,
+            "dy": 0.44721371011390704,
             "fixed": "a"
           }
         },
         "parallel": {
-          "id": "wmwau15q1vgr0",
+          "id": "wmwb77msayou5",
           "t": "ot",
           "d": "",
           "pts": [
             [
-              499.99996038020464,
-              1800.000075794391
+              499.9999802858022,
+              1799.9998817148135
             ],
             [
-              1780.0001046651732,
-              2439.9997896360983
+              1779.9998552977804,
+              2440.000024248467
             ]
           ],
           "dash": true,
@@ -647,8 +647,8 @@
           "labConstraint": {
             "v": 1,
             "kind": "parallel",
-            "dx": 0.894427291148005,
-            "dy": 0.4472133952037235,
+            "dx": 0.8944271336929324,
+            "dy": 0.44721371011390704,
             "fixed": "a"
           }
         }
@@ -659,12 +659,12 @@
       "name": "magnet follows actual packed post while active L stays horizontal in preview/final",
       "detail": {
         "bound": {
-          "id": "wmwau15xgmw6f",
+          "id": "wmwb77mzsptq3",
           "t": "ot",
           "d": "",
           "pts": [
             [
-              499.9999603802048,
+              499.9999802858024,
               913.61
             ],
             [
@@ -696,7 +696,7 @@
           "d": "",
           "pts": [
             [
-              499.9999603802048,
+              499.9999802858024,
               913.61
             ],
             [
@@ -763,17 +763,17 @@
   "first": {
     "routes": [
       {
-        "id": "wmwau14b53knt",
+        "id": "wmwb77lebfi11",
         "t": "el",
         "d": "",
         "pts": [
           [
-            600.0000227383175,
-            700.0001736380599
+            600.0000413998152,
+            699.9998501720971
           ],
           [
-            1800.0000992217488,
-            1299.9998759728137
+            1799.9998777719738,
+            1299.9999605716046
           ]
         ],
         "dash": true,
@@ -781,6 +781,6 @@
       }
     ],
     "pending": [],
-    "selected": "wmwau14b53knt"
+    "selected": "wmwb77lebfi11"
   }
 }

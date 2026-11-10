@@ -106,8 +106,8 @@ const BASE = '51923bf';   // Measure 82.17 + запись плана до отк
       const old = await new Promise(res => { const q = indexedDB.open('akrix-sketch'); q.onsuccess = () => { const d = q.result, t = d.transaction('sk').objectStore('sk').getAll(); t.onsuccess = () => { res({ver: d.version, n: t.result.length}); d.close(); }; }; });
       return {n: L.length, clients: L.map(x => [x.client, x.name, x.obj]), oidAll: rooms.every(r => r.oid && L.some(x => x.id === r.oid)), oidKeep: iv.id === o.exp.oid,
         roomOid: rooms.map(r => [r.obj, r.oid === (byC(r.obj) || {}).id]), planeOid: plane.labOid === sd.id, boards: boards.length, boardHidden: boards.every(b => b.room === '~board'),
-        refI: bI.refs.map(r => ({id: r.id, q: r.q, x: r.x, y: r.y, w: r.w, labWall: r.labWall})), refIimg: await b64(await PM.dbGet('img', 'ref:' + o.photo)),
-        txtI: bI.drw.filter(d => d.k === 'txt').map(d => d.tx), refP: bP.refs.map(r => ({id: r.id, labWall: r.labWall})), refPimg: await b64(await PM.dbGet('img', 'ref:pv1')), txtP: bP.drw.filter(d => d.k === 'txt').map(d => d.tx),
+        refI: bI.refs.map(r => ({id: r.id, from: r.labFrom || r.id, q: r.q, x: r.x, y: r.y, w: r.w, labWall: r.labWall})), refIimg: await b64(await PM.dbGet('img', 'ref:' + ((bI.refs.find(r => (r.labFrom || r.id) === o.photo) || {}).id))),
+        txtI: bI.drw.filter(d => d.k === 'txt').map(d => d.tx), refP: bP.refs.map(r => ({id: r.labFrom || r.id, labWall: r.labWall})), refPimg: await b64(await PM.dbGet('img', 'ref:' + ((bP.refs.find(r => (r.labFrom || r.id) === 'pv1') || {}).id))), txtP: bP.drw.filter(d => d.k === 'txt').map(d => d.tx),
         cvI: cI.items.map(i => ({id: i.id, t: i.t, room: i.room, wid: i.wid, sid: i.sid})), cvP: cP.items.map(i => ({t: i.t, room: i.room, wid: i.wid})), cvS: cS.items.map(i => ({t: i.t, room: i.room, sid: i.sid})),
         wallsI: wI.map(w => ({sid: w.id, ...wallOf(w.id)})), wallP: wallOf(o.w2),
         els: (all.find(x => x.room === o.r1 && x.seg === 1) || {}).els, elHi: iv.elHi, old, mig: await MeasureLabStore.db.get('meta', 'mig')};
@@ -118,7 +118,7 @@ const BASE = '51923bf';   // Measure 82.17 + запись плана до отк
     check(mig.boards === 3 && mig.boardHidden, 'миграция: подложка холста kind:board у каждого проекта, room:~board (не видна в списке v81/82.17)', mig.boards);
     const C = old.cor, qExp = [C[3], C[2], C[1], C[0]];
     const rI = mig.refI[0] || {}, wPhoto = mig.wallsI.find(w => w.sid === old.photoWallSid);
-    check(mig.refI.length === 1 && rI.id === old.photo && JSON.stringify(rI.q) === JSON.stringify(qExp) && mig.refIimg === old.img[old.photo], 'миграция v2: фото → ref подложки (тот же id, те же байты картинки, 4 угла в порядке v81)', {q: rI.q, bytes: mig.refIimg.length});
+    check(mig.refI.length === 1 && rI.from === old.photo && JSON.stringify(rI.q) === JSON.stringify(qExp) && mig.refIimg === old.img[old.photo], 'миграция v2: фото → ref подложки (id или labFrom = id фото 82.17, те же байты картинки, 4 угла в порядке v81)', {q: rI.q, bytes: mig.refIimg.length});
     check(wPhoto && rI.labWall === wPhoto.wid, 'миграция v2: связь фото со стеной → ref.labWall = wid', {labWall: rI.labWall, wid: wPhoto && wPhoto.wid});
     check(JSON.stringify(mig.txtI) === JSON.stringify(['узел ригеля']) && JSON.stringify(mig.txtP) === JSON.stringify(['заметка 82.14']), 'миграция: заметки v1/v2 → текст (drw txt) подложки', {I: mig.txtI, P: mig.txtP});
     const wI = mig.cvI.filter(i => i.t === 'wall');

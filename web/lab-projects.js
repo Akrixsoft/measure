@@ -265,7 +265,17 @@
   // body.lab-prj-on и событие window 'measure-lab-projects' {on}
   function vis(on) { try { $('ss').classList.toggle('on', on); } catch (e) { } try { dispatchEvent(new CustomEvent('measure-lab-projects', {detail: {on}})); } catch (e) { } try { draw(); } catch (e) { } }
   function hide() { const was = V.on || root.classList.contains('on'); V.on = false; closeSheet(); closeDlg(); root.classList.remove('on'); document.body.classList.remove('lab-prj-on'); $p('.lp-to').classList.remove('on'); if (was || $('ss').classList.contains('on')) vis(false); }
-  Object.assign(api, {show, hide, isOpen: () => V.on, root});
+  // системная «назад» при открытом списке (вызывает window.AkrixBack холста): окно ввода → лист → поиск → папка/архив/корзина → true;
+  // на верхнем уровне — false (оболочка: выбор версии, как прежде). Синхронно.
+  function back() {
+    if (!V.on) return false;
+    if (dg.classList.contains('on')) { closeDlg(); return true; }
+    if (sh.classList.contains('on')) { closeSheet(); return true; }
+    if (V.q != null) { V.q = null; qIn.value = ''; render(false); return true; }
+    if (V.view !== 'root') { go('root'); return true; }
+    return false;
+  }
+  Object.assign(api, {show, hide, back, isOpen: () => V.on, root});
 
   /* ═══ [BLOCK LP-WRAP] ═══ */
   const list81 = sessList;
@@ -275,8 +285,8 @@
   const last81 = lastOpen;
   lastOpen = async function () {
     await ST.migrate();
-    let pid = null; try { pid = localStorage.getItem('measure.lastPrj'); } catch (e) { }
-    const P = pid && await ST.get(pid);
+    let pid = null; try { pid = (JSON.parse(localStorage.getItem('measure.lab.canvas') || 'null') || {}).pid || localStorage.getItem('measure.lastPrj'); } catch (e) { }   // последний открытый холст (запись инженера B), иначе — свой ключ
+    let P = pid && await ST.get(pid); if (!P || P.del || P.arch) { try { pid = localStorage.getItem('measure.lastPrj'); } catch (e) { } P = pid && await ST.get(pid); }
     if (P && !P.del && !P.arch) return open(pid);
     return false;   // иначе — список (штатный старт вызывает sessList(true))
   };

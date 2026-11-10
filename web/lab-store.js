@@ -167,6 +167,7 @@
   /* ═══ [BLOCK ST-BOARD] ═══ */
   async function ensureBoard(P) {
     const all = await zAll(); let b = all.find(o => o.kind === 'board' && o.labOid === P.id);
+    if (!b && window.MeasureLabBoard && typeof MeasureLabBoard.record === 'function') { b = MeasureLabBoard.record(P.id, P.obj); await dbPut('sess', clone(b)); }   // форма записи — инженера B
     if (!b) { const t = now(); b = {id: rid('b'), kind: 'board', room: '~board', labOid: P.id, obj: P.obj, name: 'Холст', created: t, upd: t,
       q4: {L: 1, H: 1, ok: 1, blank: 1, board: 1}, frames: [], lines: {}, la: {}, man: {}, wsh: {}, els: [], notes: [], und: [], dms: [], drw: [], rts: [], polys: [], rulers: [], refs: []};
       await dbPut('sess', clone(b)); }
@@ -270,19 +271,34 @@
     return c;
   }
   api.convertSk = convertSk;
+  async function canvasFrom(P, sk, sdb) {   // перенос холста — по контракту инженера B (MeasureLabSketch.migrateCanvas → запись cv); без модуля B — свой convertSk
+    const B = window.MeasureLabSketch;
+    if (B && typeof B.migrateCanvas === 'function') { const rec = await B.migrateCanvas(P.id, sk); if (rec && !(await api.cv(P.id))) await api.putCv({...cv0(P.id), ...rec, pid: P.id, ...(rec.view ? {} : {view: cv0(P.id).view})});
+      if (sk.v !== 2) await v1Links(P, sk); return; }
+    await convertSk(P, sk, sdb);
+  }
+  async function v1Links(P, sk) {   // 82.14: фото со стеной {wall:{sid}} → ref.labWall = wid (перенос B связь v1 не переносит)
+    const all = await zAll(), b = all.find(o => o.kind === 'board' && o.labOid === P.id); if (!b) return; let ch = 0;
+    for (const ph of sk.photos || []) { const sid = ph.wall && ph.wall.sid, o = sid && all.find(x => x.id === sid); if (!o) continue;
+      const r = o.room ? all.find(x => x.id === o.room) : null, lw = r ? (r.wid || {})[o.seg] || o.id : o.id;
+      for (const ref of b.refs || []) if ((ref.labFrom === ph.id || ref.id === ph.id) && !ref.labWall) { ref.labWall = lw; ch++; } }
+    if (ch) await zEdit(b.id, x => { x.refs = b.refs; });
+  }
   let migP = null;
   async function mig82_18() {
     await ldb(); const m = await lGet('meta', 'mig'); if (m && m.v === '82.18') { await sync(); return {done: false, at: m.at}; }
     const made = await sync({mig: true}), L = await projects(), sdb = await oldSketch();
-    const sks = sdb ? ((await sReq(sdb, 'sk', s => s.getAll())) || []) : [];
+    const all0 = sdb ? ((await sReq(sdb, 'sk', s => s.getAll())) || []) : [];
+    const tmp = all0.filter(x => String(x.obj || '').startsWith('~cv:')), sks = all0.filter(x => !String(x.obj || '').startsWith('~cv:'));
+    for (const t of tmp) { const pid = t.obj.slice(4); if (t.cv && L.some(p => p.id === pid) && !(await api.cv(pid))) await api.putCv({...t.cv, pid}); }   // раскладка холста B без Store ('~cv:'+pid) — в cv
     for (const P of L) {
       if (await api.cv(P.id)) continue;   // повторный запуск: холст уже есть
       const sk = sks.find(x => x.obj === P.obj);
-      if (sk) { const B = window.MeasureLabSketch; if (B && typeof B.migrateCanvas === 'function') await B.migrateCanvas(P.id, sk); else await convertSk(P, sk, sdb); }
-      if (!(await api.cv(P.id))) await api.layout(P.id);
+      if (sk) await canvasFrom(P, sk, sdb);
+      await api.layout(P.id);   // нет холста — авто; есть — недостающие стены проекта добавляются
     }
     for (const sk of sks) if (sk.obj && !L.some(p => p.obj === sk.obj) && ((sk.items || []).length || (sk.photos || []).length || (sk.notes || []).length)) {   // холст без замеров — свой проект
-      const P = await create({client: sk.obj}); const B = window.MeasureLabSketch; if (B && typeof B.migrateCanvas === 'function') await B.migrateCanvas(P.id, sk); else await convertSk(P, sk, sdb); }
+      const P = await create({client: sk.obj}); await lDel('cv', P.id); await canvasFrom(P, sk, sdb); if (!(await api.cv(P.id))) await api.layout(P.id); }
     if (sdb) sdb.close();
     for (const P of await projects()) await number(P.id);
     const at = now(); await lPut('meta', {k: 'mig', v: '82.18', at, n: made.length});
