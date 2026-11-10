@@ -44,6 +44,7 @@ import org.json.JSONObject;
 /** Isolated, offline test harness. Original Measure remains a different application. */
 @SuppressLint("MissingPermission")
 public class MainActivity extends Activity {
+    static final boolean SINGLE = true;   /* Measure 82: преемник v81, без выбора версий */
     static final String V81_HOST = "v81.measure-lab.local";
     static final String LAB_HOST = "experimental.measure-lab.local";
     WebView web;
@@ -64,7 +65,9 @@ public class MainActivity extends Activity {
             public void pkt(String hex) { js("window.akrixBtPkt&&akrixBtPkt(" + q(hex) + ")"); }
             public void msg(String t) { js("window.akrixBtMsg&&akrixBtMsg(" + q(t) + ")"); }
         });
-        if (state != null && state.getString("activeVersion") != null) openVersion(state.getString("activeVersion"));
+        /* Measure 82: одно приложение — сразу рабочая версия, без экрана выбора */
+        if (SINGLE) openVersion("experimental");
+        else if (state != null && state.getString("activeVersion") != null) openVersion(state.getString("activeVersion"));
         else showChooser();
     }
 
@@ -79,7 +82,7 @@ public class MainActivity extends Activity {
         if (web != null) { web.removeJavascriptInterface("AkrixBT"); web.removeJavascriptInterface("AkrixApp"); web.removeJavascriptInterface("AkrixLab"); web.stopLoading(); web.destroy(); web = null; }
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(26), dp(42), dp(26), dp(28)); root.setBackgroundColor(Color.rgb(246,247,249));
-        TextView brand = text("Measure Lab 0.13", 29, Color.rgb(32,42,54)); root.addView(brand);
+        TextView brand = text("Measure 82.13", 29, Color.rgb(32,42,54)); root.addView(brand);
         TextView sub = text("Выберите версию для работы и сравнения", 15, Color.rgb(111,123,138));
         sub.setPadding(0, dp(13), 0, dp(30)); root.addView(sub);
         Button original = new Button(this); original.setText("Исходная v81"); original.setAllCaps(false);
@@ -104,7 +107,7 @@ public class MainActivity extends Activity {
         TextView name = text("Measure Lab · " + ("v81".equals(version)?"v81":"тестовая"),12,Color.rgb(100,112,128));
         bar.addView(name,new LinearLayout.LayoutParams(0,dp(39),1)); name.setGravity(Gravity.CENTER_VERTICAL);
         Button choose = new Button(this); choose.setText("Версии"); choose.setTextSize(12); choose.setAllCaps(false); choose.setOnClickListener(v->requestChooser());
-        bar.addView(choose,new LinearLayout.LayoutParams(dp(90),dp(39))); root.addView(bar);
+        bar.addView(choose,new LinearLayout.LayoutParams(dp(90),dp(39))); if (!SINGLE) root.addView(bar);
         web = new WebView(this); WebSettings settings = web.getSettings();
         settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(false);settings.setAllowContentAccess(true);
@@ -165,7 +168,7 @@ public class MainActivity extends Activity {
     }
     class Lab {
         @JavascriptInterface public void chooseVersion(){runOnUiThread(()->{if(trustedPage())requestChooser();});}
-        @JavascriptInterface public void readyToChoose(){runOnUiThread(()->{if(switching&&trustedPage())showChooser();});}
+        @JavascriptInterface public void readyToChoose(){runOnUiThread(()->{if(switching&&trustedPage()){if(SINGLE)finish();else showChooser();}});}
         @JavascriptInterface public void saveFailed(String message){runOnUiThread(()->{switching=false;toast("Не переключено: "+message);});}
     }
     void js(String code){runOnUiThread(()->{if(trustedPage())web.evaluateJavascript(code,null);});}
@@ -212,7 +215,7 @@ public class MainActivity extends Activity {
     }
     class App{
         @JavascriptInterface public void save(String name,String mime,String contents){runOnUiThread(()->{if(trustedPage())saveFile(name,mime,contents);});}
-        @JavascriptInterface public String version(){return "Measure Lab 0.13 · "+("v81".equals(activeVersion)?"v81":"experimental");}
+        @JavascriptInterface public String version(){return "Measure 82.13";}
     }
     void saveFile(String name,String mime,String contents){
         try{

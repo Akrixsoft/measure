@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
-    <application android:label="Measure Lab 0.13" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:usesCleartextTraffic="false"
+    <application android:label="Measure" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:usesCleartextTraffic="false"
         android:theme="@style/AppTheme" android:allowBackup="false">
         <provider android:name=".LabFileProvider" android:authorities="${applicationId}.files" android:exported="false" android:grantUriPermissions="true"/>
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask"

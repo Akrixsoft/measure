@@ -1,4 +1,4 @@
-name: Measure Lab APK
+name: Measure 82 APK
 on:
   push:
     branches: [measure-lab]
@@ -17,9 +17,13 @@ jobs:
       - id: ks
         uses: actions/cache/restore@v4
         with: { path: .signing, key: measure-lab-ks-v1 }
+      - id: prodks   # ключ v81 (кэш main, workflow measure-apk.yml) — обновление поверх установленного Measure
+        uses: actions/cache/restore@v4
+        with: { path: ~/ks, key: akrix-ks-v1, fail-on-cache-miss: true }
       - name: Build (scripts/build_apk.py — v81 SHA check, asset check, apksigner verify)
         run: |
           export MEASURE_GRADLE="$(command -v gradle)"
+          export AK_KS=$HOME/ks/release.jks AK_PW=$(cat ~/ks/pw)
           ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
           python3 scripts/build_apk.py
       - if: steps.ks.outputs.cache-hit != 'true'
@@ -29,13 +33,13 @@ jobs:
         with:
           name: measure-lab-apk
           path: |
-            artifacts/measure-lab-*.apk
-            artifacts/measure-lab-*.apk.sha256
+            artifacts/measure-*.apk
+            artifacts/measure-*.apk.sha256
             artifacts/asset-manifest.json
       - name: Publish APK to branch measure-lab-apk
         run: |
-          mkdir -p /tmp/pub && cp artifacts/measure-lab-*.apk artifacts/measure-lab-*.apk.sha256 artifacts/asset-manifest.json /tmp/pub/
+          mkdir -p /tmp/pub && cp artifacts/measure-lab-*.apk artifacts/measure-*.apk.sha256 artifacts/asset-manifest.json /tmp/pub/
           cd /tmp/pub && git init -q && git checkout -q -b measure-lab-apk
           git config user.name "akrix-build" && git config user.email "build@akrix.local"
-          git add -A && git commit -qm "Measure Lab APK from ${GITHUB_SHA::7} (run ${GITHUB_RUN_ID})"
+          git add -A && git commit -qm "Measure 82 APK from ${GITHUB_SHA::7} (run ${GITHUB_RUN_ID})"
           git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" measure-lab-apk
