@@ -182,5 +182,15 @@
   if (typeof rzMenu === 'function') { const rm0 = rzMenu; rzMenu = function () { const r = rm0.apply(this, arguments); try { scrub($i('rzM'), RZN); } catch (e) { } return r; }; }
   new MutationObserver(() => { try { for (const id of ['pp', 'ss', 'tb']) { const e = $i(id); if (e && (e.textContent.includes(NO) || e.querySelector(`[title*="${NO}"]`))) scrub(e); } } catch (e) { } }).observe(document.body, {childList: true, subtree: true});
   try { scrub($i('pp')); scrub($i('rzT'), RZN); scrub($i('ss')); } catch (e) { }
+  /* ═══ [BLOCK TB-W3] 82.18 g2 (QA Д7): ∠° / Aa и строка стен (#w3p) в виде стены на холсте.
+     w3Row() вызывается из каждого draw(), в том числе из отрисовки подложки и снимков других областей (MeasureLabCtx.paint
+     подменяет S: стены там нет) — класс body.w3 и бегунок #w3sl снимались через ~1,3 с (снимок по простою) и сразу после
+     активации стены касанием области. Во время подмены S строка не трогается; после — пересчёт по настоящему S. ═══ */
+  if (typeof w3Row === 'function') {
+    const wr0 = w3Row;
+    const swapped = () => { try { return !!(window.MeasureLabCtx && MeasureLabCtx.painting && MeasureLabCtx.painting()); } catch (e) { return false; } };
+    w3Row = function () { if (swapped()) return; return wr0.apply(this, arguments); };
+    api.w3Row = () => w3Row();
+  }
   PM.labTb = api;
 })();
