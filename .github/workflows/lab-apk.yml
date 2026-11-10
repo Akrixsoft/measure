@@ -18,7 +18,13 @@ jobs:
       - id: ks
         uses: actions/cache/restore@v4
         with: { path: .signing, key: measure-lab-ks-v1 }
-      - id: prodks   # ключ v81 (кэш main, workflow measure-apk.yml) — обновление поверх установленного Measure
+      - name: Signing key v81 from Secrets (AK_KS_B64, AK_PW)
+        id: sec
+        env: { KS: "${{ secrets.AK_KS_B64 }}", PW: "${{ secrets.AK_PW }}" }
+        run: |
+          if [ -n "$KS" ] && [ -n "$PW" ]; then mkdir -p ~/ks && printf '%s' "$KS" | tr -d ' \r\n' | base64 -d > ~/ks/release.jks && printf '%s' "$PW" | tr -d '\r\n' > ~/ks/pw && echo "ok=1" >> "$GITHUB_OUTPUT"; else echo "::warning::Secrets AK_KS_B64/AK_PW не заданы — ключ из кэша"; fi
+      - id: prodks   # запасной путь — ключ v81 из кэша main (workflow measure-apk.yml)
+        if: steps.sec.outputs.ok != '1'
         uses: actions/cache/restore@v4
         with: { path: ~/ks, key: akrix-ks-v1, fail-on-cache-miss: true }
       - name: Build (scripts/build_apk.py — v81 SHA check, asset check, apksigner verify)
@@ -28,6 +34,9 @@ jobs:
           export AK_KS=$HOME/ks/release.jks AK_PW=$(cat ~/ks/pw)
           ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
           python3 scripts/build_apk.py
+      - name: Signer must be the v81 certificate (4f15e141...)
+        run: |
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs artifacts/measure-82*.apk | grep -q 'SHA-256 digest: 4f15e1417c9c7107d4a118061782edac3835dfef55396f303d8c637c8e083361' || { echo '::error::Подпись не совпадает с v81'; exit 1; }
       - if: steps.ks.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with: { path: .signing, key: measure-lab-ks-v1 }
