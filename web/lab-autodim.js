@@ -6,8 +6,8 @@
    2. Объём, не касающийся краёв, — цепочка «до грани» по каждой оси (колонна в середине: слева, ширина, справа).
    3. Без повторов: одна подпись на отрезок по длине (верх / низ одного объёма, ширина объёма = длина стены, одинаковые цепочки
       у пола и потолка); по высоте — цепочки обоих боковых рёбер стены остаются (разные углы), высота объёма с тем же отрезком — нет.
-   4. Правка: отрезок «объём» — Ш / В объёма (штатно); от ребра стены до грани — положение объёма; от объёма до противоположного
-      ребра по высоте — высота стены H при неизменных объёмах (объёмы у потолка остаются у потолка).
+   4. Правка (82.18 g2, QA Д4 — решение Master: H стены только своим полем): отрезок «объём» — Ш / В объёма (В у потолка растёт вниз);
+      от ребра стены / соседа до грани — положение объёма; под объёмом у потолка — его низ (верх у потолка); над объёмом у пола — его верх.
    Общий габарит стены — стрелками на фото (холст), здесь не дублируется. Поверх неизменной v81 (обёртки): w3FKind, w3FSet. */
 (() => {
   'use strict';
@@ -53,12 +53,12 @@
       for (let i = LQ.length - 1; i >= 0; i--) { const a = info(LQ[i], VV, Md); if (a && a.kind === 'wall' && a.edge === edge) LQ.splice(i, 1); }   // разрезанное ребро — без общего габарита
       let y = 0; const hm = hMeas();
       for (const v of cut) {
-        if (v.y0 > y + E) { const k = y < E && touch(v).c ? {t: 'adH', mode: 'below', y0: v.y0, H, v: v.y0} : {t: 'adY', id: v.id, side: 0, gap: y, v: v.y0 - y};   // под объёмом у потолка — правит H; иначе — положение объёма
+        if (v.y0 > y + E) { const k = touch(v).c ? {t: 'adB', id: v.id, gap: y, v: v.y0 - y} : {t: 'adY', id: v.id, side: 0, gap: y, v: v.y0 - y};   // под объёмом у потолка — его низ (верх у потолка); иначе — положение объёма
           add(X, y, X, v.y0, v.y0 - y, {ax: 'y', i0: y, i1: v.y0, line: X, kind: 'chain', edge}, v.plan ? {t: 'ref'} : k, hm); }
         if (v.y1 > y + E) { const e0 = elOf(v), a0 = Math.max(y, v.y0); add(X, a0, X, v.y1, v.y1 - a0, {ax: 'y', i0: a0, i1: v.y1, line: X, kind: 'chain', edge, vol: v.id}, v.plan ? {t: 'ref'} : {t: 'el', id: v.id, ax: 'H', v: v.y1 - v.y0}, fwVM(e0, 'H')); }
         y = Math.max(y, v.y1);
       }
-      if (H > y + E) { const lowTop = cut[cut.length - 1]; add(X, y, X, H, H - y, {ax: 'y', i0: y, i1: H, line: X, kind: 'chain', edge}, lowTop.plan ? {t: 'ref'} : {t: 'adH', mode: 'above', y1: y, H, v: H - y}, hm); }
+      if (H > y + E) { const hi = cut.reduce((a, b) => b.y1 > a.y1 ? b : a); add(X, y, X, H, H - y, {ax: 'y', i0: y, i1: H, line: X, kind: 'chain', edge}, hi.plan ? {t: 'ref'} : touch(hi).f ? {t: 'adT', id: hi.id, v: H - y} : {t: 'adY', id: hi.id, side: 1, v: H - y}, hm); }   // над объёмом у пола — его верх; иначе — положение
     }
     /* 2. объёмы, не касающиеся краёв: «до грани» по каждой оси */
     for (const v of vols) {
@@ -69,8 +69,8 @@
       }
       if (!t.l && !t.r) {   // по высоте: боковые рёбра его не режут
         const hm = hMeas();
-        if (!t.f) add(v.x0, 0, v.x0, v.y0, v.y0, {ax: 'y', i0: 0, i1: v.y0, line: v.x0, kind: 'chain', edge: 'F'}, v.plan ? {t: 'ref'} : t.c ? {t: 'adH', mode: 'below', y0: v.y0, H, v: v.y0} : {t: 'adY', id: v.id, side: 0, v: v.y0}, hm);
-        if (!t.c) add(v.x0, v.y1, v.x0, H, H - v.y1, {ax: 'y', i0: v.y1, i1: H, line: v.x0, kind: 'chain', edge: 'F'}, v.plan ? {t: 'ref'} : t.f ? {t: 'adH', mode: 'above', y1: v.y1, H, v: H - v.y1} : {t: 'adY', id: v.id, side: 1, v: H - v.y1}, hm);
+        if (!t.f) add(v.x0, 0, v.x0, v.y0, v.y0, {ax: 'y', i0: 0, i1: v.y0, line: v.x0, kind: 'chain', edge: 'F'}, v.plan ? {t: 'ref'} : t.c ? {t: 'adB', id: v.id, gap: 0, v: v.y0} : {t: 'adY', id: v.id, side: 0, v: v.y0}, hm);
+        if (!t.c) add(v.x0, v.y1, v.x0, H, H - v.y1, {ax: 'y', i0: v.y1, i1: H, line: v.x0, kind: 'chain', edge: 'F'}, v.plan ? {t: 'ref'} : t.f ? {t: 'adT', id: v.id, v: H - v.y1} : {t: 'adY', id: v.id, side: 1, v: H - v.y1}, hm);
       }
     }
     /* верх / низ стены разрезаны — общий габарит не выводится (v81 ставил его снаружи) */
@@ -81,7 +81,7 @@
     for (const ax of ['x', 'y']) {
       const G = A.filter(x => x.a.ax === ax);
       for (const x of G) { if (drop.has(x.q)) continue;
-        const grp = G.filter(y => !drop.has(y.q) && same(x.a, y.a) && y.q.t === x.q.t);   // одинаковый отрезок и одинаковое значение if (grp.length < 2) continue;
+        const grp = G.filter(y => !drop.has(y.q) && same(x.a, y.a) && y.q.t === x.q.t); if (grp.length < 2) continue;   // одинаковый отрезок и одинаковое значение
         if (ax === 'x') { grp.sort((p, q) => rank(p.a) - rank(q.a)); grp.slice(1).forEach(y => drop.add(y.q)); continue; }
         const side = y => (y.a.kind === 'wall' || y.a.kind === 'chain') && (y.a.edge === 'L' || y.a.edge === 'R');   // по высоте: боковые рёбра стены — по одной на ребро
         const S2 = grp.filter(side), seen = new Set();
@@ -93,17 +93,48 @@
     for (let i = LQ.length - 1; i >= 0; i--) if (drop.has(LQ[i])) LQ.splice(i, 1);
   };
 
-  /* ═══ [BLOCK AD-EDIT] правка отрезков цепочки ═══ */
+  /* ═══ [BLOCK AD-EDIT] правка отрезков цепочки и высоты объёма (82.18 g2, QA Д4) ═══
+     Высота стены H правится только своим полем (ребро / угол стены, ▣ Стена); отрезки цепочки — элементом:
+     adY — положение объёма (от ребра / соседа до грани); adB — низ объёма у потолка (верх у потолка, высота = верх − низ);
+     adT — верх объёма у пола (низ у пола). Поле высоты объёма (el H): у потолка растёт вниз, у пола — вверх.
+     Грань у потолка / пола ставится точно в H / 0 (без дрейфа на округлениях toW/fromW). */
   const fk0 = w3FKind; w3FKind = function (l) { if (l && l.adk) return {...l.adk}; return fk0.apply(this, arguments); };
-  function shiftY(ids, dy) { const W = wf(); for (const id of ids) { const e = S.els.find(x => x.id === id); if (!e) continue; const c = toW(e.c, W); e.c = fromW([c[0], c[1] + dy], W); delete e.fy; delete e.fyr; } }
+  const nm = e => { const s = (W3VK[e.k] || [])[1] || 'объём'; return s[0].toUpperCase() + s.slice(1); };
+  function place(e, y0, h) {   // объём e: низ y0, высота h (мм стены); x и остальное — как были
+    const W = wf(), c = toW(e.c, W); e.H = r1(h); e.c = fromW([c[0], y0 + e.H / 2], W);
+  }
+  function setY(k, n) {   // → true: обработано
+    const Md = w3Model(); if (!Md) return true; const H = Md.H, v = w3Vols(Md).find(o => o.id === k.id), e = S.els.find(x => x.id === k.id);
+    if (!v || v.plan || !e) return true;
+    const h = v.y1 - v.y0, cTop = v.y1 > H - E, cBot = v.y0 < E, top = cTop ? H : v.y1, bot = cBot ? 0 : v.y0;
+    let y0, hh;
+    if (k.t === 'el') {   // высота объёма
+      if (!(n > 0)) return true;
+      if (n > H + 0.05) { toast(nm(e) + ': высота больше высоты стены ' + Math.round(H)); return true; }
+      if (cTop && !cBot) { y0 = top - n; hh = n; } else { y0 = bot; hh = n; if (y0 + hh > H) y0 = H - hh; }
+    } else if (k.t === 'adB') {
+      y0 = (k.gap || 0) + n; hh = top - y0;
+      if (!(hh > 0)) { toast(nm(e) + ': низ выше потолка — не принято'); return true; }
+    } else if (k.t === 'adT') {
+      hh = (H - n) - bot; y0 = bot;
+      if (!(hh > 0)) { toast(nm(e) + ': верх ниже пола — не принято'); return true; }
+    } else {   // adY
+      y0 = k.side ? (H - n) - h : (k.gap || 0) + n; hh = h;
+      if (y0 < -0.05 || y0 + hh > H + 0.05) { toast(nm(e) + ' за краем стены — не принято'); return true; }
+    }
+    y0 = Math.max(0, Math.min(H - hh, y0));
+    const W = wf(), c0 = toW(e.c, W);
+    if (Math.abs(y0 - v.y0) < 0.05 && Math.abs(hh - (+e.H || h)) < 0.05 && Math.abs(c0[1] - (y0 + hh / 2)) < 0.05) return true;
+    snap(); place(e, y0, hh);
+    if (k.t === 'el') { delete e.cand; if (e.apx) { delete e.apx.H; if (!Object.keys(e.apx).length) delete e.apx; } }
+    delete e.fy; delete e.fyr; unsnap(); saveSess(); mkPanel(); draw();
+    return true;
+  }
+  api.setY = setY;
   const fs0 = w3FSet; w3FSet = function (k, n) {
-    if (!k || (k.t !== 'adH' && k.t !== 'adY')) return fs0.apply(this, arguments);
-    const Md = w3Model(); if (!Md) return; const H = Md.H, VV = w3Vols(Md);
-    if (k.t === 'adY') { const v = VV.find(o => o.id === k.id); if (!v || v.plan) return; const dy = k.side ? (H - n) - v.y1 : (n + (k.gap || 0)) - v.y0; if (Math.abs(dy) < 0.05) return; snap(); shiftY([v.id], dy); unsnap(); saveSess(); mkPanel(); draw(); return; }
-    const nH = k.mode === 'below' ? n + (H - k.y0) : k.y1 + n; if (!(nH > 0) || Math.abs(nH - H) < 0.05) return;
-    const up = VV.filter(v => !v.plan && v.y1 > H - E).map(v => v.id), dH = nH - H;
-    if (S.q4 && S.q4.blank && typeof w3BaseSet === 'function') w3BaseSet('Hl', nH); else fs0.call(this, {t: 'man', k: 'Hl', v: H}, nH);   // высота стены — штатно (чистая стена — размер стены, свой шаг ↶)
-    const M2 = w3Model(); if (M2 && Math.abs(M2.H - nH) < 1 && up.length) { snap(); shiftY(up, dH); unsnap(); saveSess(); mkPanel(); draw(); }   // объёмы у потолка — у потолка
+    if (k && (k.t === 'adY' || k.t === 'adB' || k.t === 'adT')) { setY(k, n); return; }
+    if (k && k.t === 'el' && k.ax === 'H') { const e = S.els.find(x => x.id === k.id); if (e && W3VK[e.k]) { setY(k, n); return; } }
+    return fs0.apply(this, arguments);
   };
   PM.labAutodim = api;
 })();
