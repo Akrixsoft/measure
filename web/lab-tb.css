@@ -33,5 +33,5 @@ body.lab-ph #zf>#zpb#zpb>#zur{display:flex!important;margin-left:0}
 body.rz.lab12-rect #zf:not(.sh) #zb>#zopt.on{display:flex!important}   /* зона / щит в rz: модификаторы (как lab-v012.css для #zf>#zopt) */
 body:not(.tz) #labFloorTools{display:none!important}   /* «Трасса пола» — штатный инструмент плана, «Размер пола» — плитка футляра плана (режим тестов tz — прежние кнопки) */
 #zf>#lab12-plan{position:static!important;inset:auto!important;bottom:auto!important;left:auto!important;align-self:stretch;max-width:none;width:auto;box-sizing:border-box;padding:3px 6px;background:var(--pn);border:1px solid var(--ln);border-radius:14px;box-shadow:0 3px 12px rgba(26,32,39,.16);pointer-events:auto;flex-wrap:wrap}
-#zf>#lab12-plan.lab-tb-off,#zf>#lab12-plan:empty{display:none!important}
+body:not(.tz) #zf>#lab12-plan.lab-tb-off,#zf>#lab12-plan:empty{display:none!important}   /* зоны закрыты — вход плиткой «Зона» футляра плана (режим тестов tz — прежняя кнопка «Зоны») */
 body.rz #zpb#zpb #rzT{position:static!important;right:auto;bottom:auto}   /* F7: в потоке нижней строки, не поверх ряда коммуникаций */
