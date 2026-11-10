@@ -710,8 +710,8 @@
     return result;
   };
   api.planMeta = (m, flip) => {
-    /* AKX-2026-0010: формат выгрузки не меняется — служебное поле зоны src (способ построения) остаётся только
-       в локальном сохранении и в JSON не уходит. */
+    /* AKX-2026-0010: v3 не ломается — к labRooms {id,name,pts,walls:[wid]} добавлено только необязательное zn (AKX-2026-0012 §7);
+       служебные src (способ построения) и ms.labZnHi в JSON не уходят. */
     const transform = ({src, ...q}) => ({...q, pts: q.pts.map(([x, y]) => [x, flip ? -y : y])});
     return {
       ...(m.labRooms?.length ? {labRooms: m.labRooms.map(transform)} : {}),
