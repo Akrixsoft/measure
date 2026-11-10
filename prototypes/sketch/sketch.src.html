@@ -140,17 +140,17 @@ function build(p) {
   const objs = [];
   for (const e of p.els) {
     if (e.t === 'obj') { const Q = e.sp === 'mm' ? [P2(e, e.a), P2(e, e.b)] : [e.a, [e.b[0], e.a[1]], e.b, [e.a[0], e.b[1]]].map(q => P2(e, q)), xs = Q.map(q => q[0]), ys = Q.map(q => q[1]);
-      const o = {id: e.id, k: e.k, D: e.D, x0: clamp(Math.min(...xs), 0, L), x1: clamp(Math.max(...xs), 0, L), y0: clamp(Math.min(...ys), 0, H), y1: clamp(Math.max(...ys), 0, H), sn: []};
-      if (o.x0 < .03 * L) { o.x0 = 0; o.sn.push('x0'); } if (o.x1 > .97 * L) { o.x1 = L; o.sn.push('x1'); } if (o.y0 < .03 * H) { o.y0 = 0; o.sn.push('y0'); } if (o.y1 > .97 * H) { o.y1 = H; o.sn.push('y1'); } objs.push(o); }
-    if (e.t === 'pt') { const q = P2(e, e.a); objs.push({id: e.id, k: e.k, pt: 1, n: e.n || 1, x0: q[0], x1: q[0], y0: q[1], y1: q[1]}); }
+      const o = {id: e.id, k: e.k, D: e.D, man: e.man, mm: e.sp === 'mm', x0: clamp(Math.min(...xs), 0, L), x1: clamp(Math.max(...xs), 0, L), y0: clamp(Math.min(...ys), 0, H), y1: clamp(Math.max(...ys), 0, H), sn: []};
+      if (!o.man) { if (o.x0 < .03 * L) { o.x0 = 0; o.sn.push('x0'); } if (o.x1 > .97 * L) { o.x1 = L; o.sn.push('x1'); } if (o.y0 < .03 * H) { o.y0 = 0; o.sn.push('y0'); } if (o.y1 > .97 * H) { o.y1 = H; o.sn.push('y1'); } } else o.sn.push('x0', 'x1', 'y0', 'y1'); objs.push(o); }   // поставлен руками на чертеже — размеры его не двигают, только проверяют
+    if (e.t === 'pt') { const q = P2(e, e.a); objs.push({id: e.id, k: e.k, pt: 1, man: e.man, n: e.n || 1, x0: q[0], x1: q[0], y0: q[1], y1: q[1]}); }
   }
   const pfe = [], kpl = hasPl && Lp > 0 ? L / Lp : 1, px2 = X => (X - pe[0]) * kpl;   // изломы и колонны вида сверху — закреплённые признаки по x
-  if (hasPl) { [...new Set(pl.pts.map(q => Math.round(q[0] * 10) / 10))].forEach((X, i) => pfe.push({id: 'pv' + i, only: 'x', pt: 1, x0: px2(X), x1: px2(X), y0: 0, y1: 0}));
+  if (hasPl) { [...new Set(pl.pts.map(q => Math.round(q[0] * 10) / 10))].forEach((X, i) => pfe.push({id: 'pv' + Math.round(X), only: 'x', pt: 1, x0: px2(X), x1: px2(X), y0: 0, y1: 0}));
     for (const c of pl.cols) pfe.push({id: 'pc' + c.id, only: 'x', x0: px2(c.x), x1: px2(c.x + c.w), y0: 0, y1: H, col: c}); }
   const all = [...objs, ...pfe];
   // край объекта у излома/колонны вида сверху (≤1,5 % L) — на нём и закреплён
   const pX = pfe.flatMap(f => f.pt ? [f.x0] : [f.x0, f.x1]);
-  for (const o of objs) if (!o.pt) for (const [k, s2] of [['x0', 'x0'], ['x1', 'x1']]) { const v = pX.find(x => Math.abs(x - o[k]) < .015 * L); if (v != null) { o[k] = v; o.sn.push(s2); } }
+  for (const o of objs) if (!o.pt && !o.man) for (const [k, s2] of [['x0', 'x0'], ['x1', 'x1']]) { const v = pX.find(x => Math.abs(x - o[k]) < .015 * L); if (v != null) { o[k] = v; o.sn.push(s2); } }
   const keyOf = f => f.o ? f.o.id + ':' + f.s : 'W:' + f.s;
   const feats = (ax, cr) => { const F = [{o: null, s: 0, v: 0}, {o: null, s: 1, v: ax === 'x' ? L : H}], ct = .05 * (ax === 'x' ? H : L);
     for (const o of all) { if (o.only && o.only !== ax) continue; if (cr != null && !o.only && !o.pt && (ax === 'x' ? (cr < o.y0 - ct || cr > o.y1 + ct) : (cr < o.x0 - ct || cr > o.x1 + ct))) continue; /* край объекта — только там, где объект есть по другой оси */ if (o.pt) F.push({o, s: 'c', v: ax === 'x' ? o.x0 : o.y0}); else { F.push({o, s: 0, v: ax === 'x' ? o.x0 : o.y0}); F.push({o, s: 1, v: ax === 'x' ? o.x1 : o.y1}); } } return F; };
@@ -162,10 +162,13 @@ function build(p) {
   const val = (ax, f) => f.o ? (f.s === 'c' ? (ax === 'x' ? f.o.x0 : f.o.y0) : (ax === 'x' ? (f.s ? f.o.x1 : f.o.x0) : (f.s ? f.o.y1 : f.o.y0))) : (f.s ? (ax === 'x' ? L : H) : 0);
   const dims = [];
   for (const e of p.els) if (e.t === 'dim') { const A = P2(e, e.a), B = P2(e, e.b), ax = Math.abs(B[0] - A[0]) >= Math.abs(B[1] - A[1]) ? 'x' : 'y', i = ax === 'x' ? 0 : 1, tight = e.sp === 'mm';
-    const {fa, fb} = pair(ax, A[i], B[i], ax === 'x' ? (A[1] + B[1]) / 2 : (A[0] + B[0]) / 2, tight); dims.push({e, ax, A, B, fa, fb, est: Math.abs(B[i] - A[i])}); }
+    // привязка размера к краям запоминается и дальше держится за них (объект двигают — размер идёт с ним)
+    let fa = null, fb = null; if (e.bind && e.bind.ax === ax) { const F = feats(ax); fa = F.find(f => keyOf(f) === e.bind.a) || null; fb = F.find(f => keyOf(f) === e.bind.b) || null; const held = f => f && f.o && (f.o.man || f.o.mm); if (!(held(fa) || held(fb))) fa = fb = null; }   // держим старую привязку, если объект правили на чертеже
+    if (!fa || !fb) { ({fa, fb} = pair(ax, A[i], B[i], ax === 'x' ? (A[1] + B[1]) / 2 : (A[0] + B[0]) / 2, tight)); if (fa && fb) e.bind = {ax, a: keyOf(fa), b: keyOf(fb)}; }
+    dims.push({e, ax, A, B, fa, fb, est: Math.abs(B[i] - A[i])}); }
   const pos = {x: new Set(['W:0', 'W:1']), y: new Set(['W:0', 'W:1'])}, wlk = new Set();
   for (const f of pfe) { if (f.pt) pos.x.add(f.id + ':c'); else { pos.x.add(f.id + ':0'); pos.x.add(f.id + ':1'); } }
-  for (const o of objs) for (const k of o.sn || []) pos[k[0]].add(o.id + ':' + k[1]);
+  for (const o of objs) { for (const k of o.sn || []) pos[k[0]].add(o.id + ':' + k[1]); if (o.pt && o.man) { pos.x.add(o.id + ':c'); pos.y.add(o.id + ':c'); } }
   const KK = ax => ax === 'x' ? ['x0', 'x1'] : ['y0', 'y1'];
   const setPos = (ax, f, v) => { const o = f.o, [k0, k1] = KK(ax), P = pos[ax];
     if (o.pt) { o[k0] = o[k1] = v; P.add(keyOf(f)); return; }
@@ -173,14 +176,14 @@ function build(p) {
     if (wlk.has(o.id + ax) || !P.has(oth)) { const dv = v - o[me]; o[k0] += dv; o[k1] += dv; } else o[me] = v;
     P.add(keyOf(f)); if (wlk.has(o.id + ax)) P.add(oth); };
   const valid = dims.filter(d => d.e.v > 0 && d.fa && d.fb && (d.fa.o || d.fb.o));
-  for (const d of valid) if (d.fa.o && d.fa.o === d.fb.o && !d.fa.o.pt) { const o = d.fa.o, [k0, k1] = KK(d.ax); if (o.col) { if (o.col.wx) continue; o.col.w = d.e.v / kpl; }   // размер на колонне вида сверху — её ширина, если не введена там
+  for (const d of valid) if (d.fa.o && d.fa.o === d.fb.o && !d.fa.o.pt) { const o = d.fa.o, [k0, k1] = KK(d.ax); if (o.col) { if (o.col.wx) continue; o.col.w = d.e.v / kpl; } if (o.man) continue;   // размер на колонне вида сверху — её ширина, если не введена там
     if (pos[d.ax].has(o.id + ':1') && !pos[d.ax].has(o.id + ':0')) o[k0] = o[k1] - d.e.v; else o[k1] = o[k0] + d.e.v; wlk.add(o.id + d.ax); }
   const offs = valid.filter(d => !(d.fa.o && d.fa.o === d.fb.o)), done = new Set();
   for (let pass = 0; pass < 6; pass++) for (const d of offs) { if (done.has(d)) continue;
     const P = pos[d.ax], ka = keyOf(d.fa), kb = keyOf(d.fb); let base, mov;
     if (P.has(ka) && !P.has(kb)) { base = d.fa; mov = d.fb; } else if (P.has(kb) && !P.has(ka)) { base = d.fb; mov = d.fa; }
     else if (pass === 5 && !P.has(ka) && !P.has(kb)) { base = d.fa.o ? d.fa : d.fb; mov = base === d.fa ? d.fb : d.fa; } else continue;
-    if (!mov.o) continue; const bv = val(d.ax, base), dir = Math.sign(val(d.ax, mov) - bv) || 1; setPos(d.ax, mov, bv + dir * d.e.v); done.add(d); }
+    if (!mov.o || mov.o.man) continue; const bv = val(d.ax, base), dir = Math.sign(val(d.ax, mov) - bv) || 1; setPos(d.ax, mov, bv + dir * d.e.v); done.add(d); }
   for (const d of dims) { if (!(d.e.v > 0)) { d.st = 'nov'; continue; } if (!d.fa || !d.fb) { d.st = 'free'; continue; }
     const got = Math.abs(val(d.ax, d.fb) - val(d.ax, d.fa)); d.res = got; d.st = Math.abs(got - d.e.v) <= 2 ? 'ok' : 'bad'; d.va = val(d.ax, d.fa); d.vb = val(d.ax, d.fb); }
   const plan = hasPl ? {pl, mn: pe[0], k: kpl, Lp} : null;
@@ -223,6 +226,7 @@ function draw() {
   const n = S.pend ? S.pend.pts.length : 0; $('hint').textContent = S.tool === 'cor' && S.pend ? `Угол ${n + 1} из 4: ${['левый-верх', 'правый-верх', 'правый-низ', 'левый-низ'][n]}` : HINT[S.tool] || '';
 }
 function drawElev(p, m, E, px) {
+  p._zlab = [];
   cx.fillStyle = '#fff'; cx.fillRect(E.x, E.y, E.w, E.h);
   if (m.plan) { const {pl, mn, k} = m.plan, X = x => (x - mn) * k, zs = pl.pts.map(q => q[1]), zb = zs.length ? Math.min(...zs) : 0;
     const band = (x0, x1, a, t) => { const A = mmToW(E, [x0, m.H]), B = mmToW(E, [x1, 0]); cx.fillStyle = `rgba(107,119,133,${a})`; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); label([A[0] + 4 * px, A[1] + 18 * px], t, '#3E4954', px, 12); };
@@ -234,7 +238,8 @@ function drawElev(p, m, E, px) {
   for (const o of m.objs) { const sel = S.sel && S.sel.e === o.id;
     if (o.pt) { const K = PTK[o.k] || PTK.roz; for (let j = 0; j < (o.n || 1); j++) { const c = mmToW(E, [o.x0 + j * 71, o.y0]);   /* точка розетки — центр первого подрозетника, остальные вправо с шагом 71 */ cx.fillStyle = sel ? '#1F6FD1' : K[1]; cx.beginPath(); cx.arc(c[0], c[1], Math.max(35 * E.k, 4 * px), 0, 7); cx.fill(); } continue; }
     const A = mmToW(E, [o.x0, o.y1]), B = mmToW(E, [o.x1, o.y0]), K = KINDS[o.k] || KINDS.kol; cx.fillStyle = K[1] + '55'; cx.strokeStyle = sel ? '#1F6FD1' : K[1]; cx.lineWidth = (sel ? 3 : 2) * px; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]);
-    label([A[0] + 3 * px, A[1] + 15 * px], K[0] + (o.D ? ' · Z ' + o.D : ''), K[1], px, 11);
+    label([A[0] + 3 * px, A[1] + 15 * px], K[0], K[1], px, 11);
+    { const zt = zTxt(o.D), c = [A[0] + 26 * px, Math.min(B[1] - 12 * px, A[1] + 34 * px)]; cx.font = `700 ${12 * px}px system-ui`; const zw = cx.measureText(zt).width; cx.fillStyle = '#fff'; cx.fillRect(c[0] - zw / 2 - 4 * px, c[1] - 9 * px, zw + 8 * px, 18 * px); cx.strokeStyle = o.D ? K[1] : '#E0442B'; cx.lineWidth = 1.5 * px; if (!o.D) cx.setLineDash([3 * px, 2 * px]); cx.strokeRect(c[0] - zw / 2 - 4 * px, c[1] - 9 * px, zw + 8 * px, 18 * px); cx.setLineDash([]); cx.fillStyle = o.D ? K[1] : '#E0442B'; cx.fillText(zt, c[0] - zw / 2, c[1] + 4 * px); (p._zlab = p._zlab || []).push({c, id: o.id}); }
     if (sel) handles([[A[0], B[1]], [B[0], B[1]], [B[0], A[1]], [A[0], A[1]]], px); }
   // размеры — на самом чертеже, в месте проведения (видны касание и привязка)
   for (const dm of m.dims) { if (dm.pl) continue; const col = dm.st === 'ok' ? '#2E9E4F' : dm.st === 'bad' ? '#E0442B' : '#D97706', sel = S.sel && S.sel.e === dm.e.id; let P, Q;
@@ -293,7 +298,8 @@ function photoAt(w) { for (let i = S.photos.length - 1; i >= 0; i--) { const p =
   const B = planBox(p); if (B && w[0] >= B.x - 40 && w[0] <= B.x + B.w + 40 && w[1] >= B.y - 20 && w[1] <= B.y + B.h + 20) return {p, sp: 'plan', q: wToPl(B, w), B}; } return null; }
 function elAt(w) { const r = 16 / S.view.s;
   for (const p of S.photos) { for (const e of p.els) if (e.t === 'dim') for (const L of [e._labE, e.sp !== 'mm' && e._lab]) if (L && Math.hypot(w[0] - L[0], w[1] - L[1]) < r * 1.6) return {p, e, lab: L};
-    for (const L of p._plab || []) if (Math.hypot(w[0] - L.c[0], w[1] - L.c[1]) < r * 1.6) return {p, plab: L}; }
+    for (const L of p._plab || []) if (Math.hypot(w[0] - L.c[0], w[1] - L.c[1]) < r * 1.6) return {p, plab: L};
+    for (const L of p._zlab || []) if (Math.hypot(w[0] - L.c[0], w[1] - L.c[1]) < r * 1.4) return {p, zlab: L}; }
   for (const p of S.photos) { const E = elev(p);
     for (const e of [...p.els].reverse()) { const onPhoto = e.sp !== 'mm', T = onPhoto ? q => imgToW(p, q) : E ? q => mmToW(E, emm(p, e, q)) : null; if (!T) continue;
       if ((e.t === 'pt' || e.t === 'txt') && Math.hypot(w[0] - T(e.a)[0], w[1] - T(e.a)[1]) < r) return {p, e};
@@ -310,10 +316,13 @@ function dlg(title, fields, ok, okText = 'Готово', extra) { const D = $('d
   $('dgC').onclick = close; $('dgO').onclick = () => { const v = fields.map((f, i) => $('dg' + i).value); close(); ok && ok(v); };
   if (extra) $('dgX').onclick = () => extra[1](); const f0 = $('dg0'); if (f0 && !fields[0].area) setTimeout(() => { f0.focus(); f0.select(); }, 30); }
 
+/* глубина Z: выступ — плюс, ниша — минус (знак по виду объекта) */
+const zSign = (e, v) => !v ? '' : e.k === 'nis' ? -Math.abs(v) : Math.abs(v);
+const zTxt = v => v === '' || v == null ? 'Z ?' : 'Z ' + (v < 0 ? '−' + Math.abs(v) : v);
 /* ═══ [BLOCK SK-INPUT] ввод значения — поле над подписью, родная клавиатура ═══ */
-function ask(get, set, at) { const i = $('val'), s = toScr(at); i.style.left = s[0] / DPR() + 'px'; i.style.top = s[1] / DPR() + 'px'; i.value = get() || ''; i.classList.add('on'); i._t = {get, set, force: arguments[3]}; setTimeout(() => { i.focus(); i.select(); }, 30); }
+function ask(get, set, at, force, neg) { const i = $('val'), s = toScr(at); i.style.left = s[0] / DPR() + 'px'; i.style.top = s[1] / DPR() + 'px'; i.value = get() || ''; i.classList.add('on'); i._t = {get, set, force, neg}; setTimeout(() => { i.focus(); i.select(); }, 30); }
 $('val').addEventListener('keydown', ev => { if (ev.key === 'Enter') ev.target.blur(); });
-$('val').addEventListener('blur', () => { const i = $('val'), t = i._t; i.classList.remove('on'); i._t = null; if (!t) return; const n = parseFloat(String(i.value).replace(',', '.')), v = n > 0 ? Math.round(n) : 0; if (v && (t.force || v !== (+t.get() || 0))) { snap(); t.set(v); save(); } else if (!v && !t.force && (+t.get() || 0)) { snap(); t.set(0); save(); } draw(); panel(); });
+$('val').addEventListener('blur', () => { const i = $('val'), t = i._t; i.classList.remove('on'); i._t = null; if (!t) return; const n = parseFloat(String(i.value).replace(',', '.').replace('−', '-')), v = Number.isFinite(n) && (t.neg ? n !== 0 : n > 0) ? Math.round(n) : 0; if (v && (t.force || v !== (+t.get() || 0))) { snap(); t.set(v); save(); } else if (!v && !t.force && (+t.get() || 0)) { snap(); t.set(0); save(); } draw(); panel(); });
 
 /* ═══ [BLOCK SK-GESTURE] перо/палец/мышь — инструмент; два пальца или колесо — масштаб ═══ */
 const ptr = new Map();
@@ -339,7 +348,9 @@ function start(w, ev) {
     if (ci >= 0) { cornerDrag(p, ci); const g = S.drag, e0 = g.end; let mv = 0; const m0 = g.move; g.move = q => { mv = 1; m0(q); }; g.end = q => mv ? e0(q) : add(); return; }   // тянуть — правка угла, касание — новый набор
     add(); return; }
   const hit = elAt(w);
-  if (hit && hit.lab) { S.sel = {p: hit.p.id, e: hit.e.id}; panel(); S.drag = {end: () => ask(() => hit.e.v, v => hit.e.v = v, hit.lab)}; return; }
+  if (hit && hit.lab) { S.sel = {p: hit.p.id, e: hit.e.id}; panel(); const rel = () => { const d = (hit.p._m.dims || []).find(x => x.e === hit.e); if (d) for (const f of [d.fa, d.fb]) { const el = f && f.o && hit.p.els.find(x => x.id === f.o.id); if (el) delete el.man; } };   // новое число — снова задаёт положение
+    S.drag = {end: () => ask(() => hit.e.v, v => { hit.e.v = v; rel(); }, hit.lab)}; return; }
+  if (hit && hit.zlab) { const e = hit.p.els.find(x => x.id === hit.zlab.id); S.sel = {p: hit.p.id, e: e.id}; panel(); S.drag = {end: () => ask(() => e.D, v => e.D = zSign(e, v), hit.zlab.c, 1, 1)}; return; }
   if (hit && hit.plab) { const L = hit.plab, pl = planNorm(hit.p.plan), c = pl.cols.find(x => x.id === L.id), we = wallExt(pl); let get, set;
     if (L.kind === 'seg') { const [a, b] = planSegs(pl)[L.i]; get = () => pl.len[L.i] || Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])); set = v => setSegLen(pl, L.i, v); }
     else if (L.kind === 'cw') { get = () => Math.round(c.w); set = v => { c.w = v; c.wx = 1; }; }
@@ -354,7 +365,7 @@ function start(w, ev) {
     if (at && at.sp === 'mm') { const r = elevObjDrag(at.p, at.E, w); if (r) return; }
     if (hit && hit.e) { const p = hit.p, e = hit.e; S.sel = {p: p.id, e: e.id}; panel(); const a0 = e.a.slice(), b0 = e.b ? e.b.slice() : null, w0 = w; let moved = 0;
       const E = elev(p), conv = e.sp === 'mm' ? (dx, dy) => { const d = emmInv(p, e, [dx / E.k, -dy / E.k]); return d; } : (dx, dy) => [dx * p.iw / p.w, dy * p.iw / p.w];
-      S.drag = {move: q => { if (!moved) { snap(); moved = 1; } const [dx, dy] = conv(q[0] - w0[0], q[1] - w0[1]); e.a = [a0[0] + dx, a0[1] + dy]; if (b0) e.b = [b0[0] + dx, b0[1] + dy]; }, end: () => { if (moved) save(); }}; return; }
+      S.drag = {move: q => { if (!moved) { snap(); moved = 1; delete e.bind; } const [dx, dy] = conv(q[0] - w0[0], q[1] - w0[1]); e.a = [a0[0] + dx, a0[1] + dy]; if (b0) e.b = [b0[0] + dx, b0[1] + dy]; }, end: () => { if (moved) save(); }}; return; }
     if (at && at.sp === 'plan' && at.p.plan) { const p = at.p, B = at.B, pl = planNorm(p.plan), tol = 18 / (S.view.s * B.k), q0 = at.q;
       const vi = pl.pts.findIndex(q => Math.hypot(q[0] - q0[0], q[1] - q0[1]) < tol);
       if (vi >= 0) { S.sel = {p: p.id, pv: vi}; panel(); const o = pl.pts[vi].slice(); let moved = 0;
@@ -402,14 +413,13 @@ function elevObjDrag(p, E, w) {
   const sn = (v, F) => { for (const f of F) if (Math.abs(f - v) < tol) return f; return v; };
   const r0 = [o.x0, o.y0, o.x1, o.y1]; let moved = 0;
   S.drag = {move: w2 => { const q = wToMm(E, w2), dx = q[0] - q0[0], dy = q[1] - q0[1];
-    if (!moved) { snap(); moved = 1; Object.assign(e, {sp: 'mm', L0: m.L, H0: m.H}); }
+    if (!moved) { snap(); moved = 1; Object.assign(e, {sp: 'mm', L0: m.L, H0: m.H, man: 1}); }
     if (o.pt) { e.a = [sn(r0[0] + dx, fx), sn(r0[1] + dy, fy)]; return; }
     let [x0, y0, x1, y1] = r0;
     if (hi < 0) { const w0 = x1 - x0, h0 = y1 - y0; x0 = sn(x0 + dx, fx); if (x0 === r0[0] + dx) { const x1s = sn(x1 + dx, fx); x0 = x1s - w0; } y0 = sn(y0 + dy, fy); if (y0 === r0[1] + dy) { const y1s = sn(y1 + dy, fy); y0 = y1s - h0; } x1 = x0 + w0; y1 = y0 + h0; }
     else { if (hi === 0 || hi === 3) x0 = sn(x0 + dx, fx); else x1 = sn(x1 + dx, fx); if (hi < 2) y0 = sn(y0 + dy, fy); else y1 = sn(y1 + dy, fy); }
     e.a = [Math.min(x0, x1), Math.min(y0, y1)]; e.b = [Math.max(x0, x1), Math.max(y0, y1)]; },
-    end: () => { if (!moved) return; save(); const m2 = build(p), o2 = m2.objs.find(x => x.id === e.id);
-      if (o2 && !o.pt && (Math.abs(o2.x1 - o2.x0 - (e.b[0] - e.a[0])) > 2 || Math.abs(o2.x0 - e.a[0]) > 2)) toast('Положение или ширину держит введённый размер — измени число'); }};
+    end: () => { if (!moved) return; save(); const m2 = build(p), bad = m2.dims.filter(d => d.st === 'bad' && [d.fa, d.fb].some(f => f && f.o && f.o.id === e.id)); if (bad.length) toast('Не сходится с размером ' + bad.map(d => d.e.v).join(', ') + ' — поправь число или объект'); }};
   return true; }
 
 // ломаная: касание — следующий излом; к прямой (≤12°) и к существующим точкам притягивается
@@ -434,13 +444,13 @@ function panel() {
   if (e) { h += `<hr><div class="r"><b>${e.t === 'dim' ? 'Размер' : e.t === 'obj' ? (KINDS[e.k] || [])[0] : e.t === 'pt' ? (PTK[e.k] || [])[0] : 'Заметка'}</b><span style="color:#777">${e.sp === 'mm' ? 'на чертеже' : 'на фото'}</span></div>`;
     if (e.t === 'dim') { const d = m && m.dims && m.dims.find(x => x.e === e); h += `<div class="r"><span>Значение</span><b>${e.v || '—'}</b></div>` + (d ? `<div class="r"><span>По месту ≈</span><span>${Math.round(d.est)}</span></div><div class="r"><span>Привязка</span><span>${d.fa && d.fb ? (d.st === 'ok' ? '<span class="ok">к краям</span>' : '<span class="er">конфликт</span>') : '<span class="wr">нет края рядом</span>'}</span></div>` : ''); }
     if (e.t === 'pt' && e.k === 'roz') h += `<div class="r"><span>Посты</span><span>${[1, 2, 3, 4, 5].map(n => `<button data-n="${n}" style="width:28px;${(e.n || 1) === n ? 'background:#F6E08A' : ''}">${n}</button>`).join('')}</span></div>`;
-    if (e.t === 'obj') h += `<div class="r"><span>Глубина Z</span><input id="pD" inputmode="decimal" style="width:70px" value="${e.D || ''}"></div><div class="r"><span>Вид</span><select id="pK">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}"${k === e.k ? ' selected' : ''}>${v[0]}</option>`).join('')}</select></div>`; }
+    if (e.t === 'obj') h += `<div class="r"><span>Глубина Z${e.k === 'nis' ? ' (ниша −)' : ''}</span><input id="pD" inputmode="decimal" style="width:70px" value="${e.D || ''}"></div>${e.man ? '<div class="r" style="color:#777">Поставлен руками — размеры только проверяют</div>' : ''}<div class="r"><span>Вид</span><select id="pK">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}"${k === e.k ? ' selected' : ''}>${v[0]}</option>`).join('')}</select></div>`; }
   P.innerHTML = h; P.classList.add('on');
   const b = $('pLH'); if (b) b.onclick = () => dlg('Стена, мм', [{l: 'Длина (пусто — из размеров)', v: p.L || '', num: 1}, {l: 'Высота (пусто — из размеров)', v: p.H || '', num: 1}], ([a, c]) => { const L = parseFloat(a.replace(',', '.')), H = parseFloat(c.replace(',', '.')); snap(); p.L = L > 0 ? Math.round(L) : 0; p.H = H > 0 ? Math.round(H) : 0; save(); draw(); panel(); });
   const bp = $('pPl'); if (bp) bp.onclick = () => { snap(); p.plan = null; save(); draw(); panel(); };
   P.querySelectorAll('[data-n]').forEach(x => x.onclick = () => { snap(); e.n = +x.dataset.n; S.posts = e.n; save(); draw(); panel(); });
-  const dz = $('pD'); if (dz) dz.onchange = () => { snap(); e.D = Math.round(parseFloat(dz.value.replace(',', '.')) || 0) || ''; save(); draw(); };
-  const k = $('pK'); if (k) k.onchange = () => { snap(); e.k = k.value; save(); draw(); panel(); };
+  const dz = $('pD'); if (dz) dz.onchange = () => { snap(); e.D = zSign(e, Math.round(parseFloat(dz.value.replace(',', '.').replace('−', '-')) || 0)); save(); draw(); panel(); };
+  const k = $('pK'); if (k) k.onchange = () => { snap(); e.k = k.value; if (e.D) e.D = zSign(e, e.D); save(); draw(); panel(); };
 }
 function kinds() { const K = $('kinds'), set = S.tool === 'obj' ? KINDS : S.tool === 'pt' ? PTK : null; if (!set) { K.classList.remove('on'); return; } K.innerHTML = Object.entries(set).map(([k, v]) => `<button data-k="${k}" class="${(S.tool === 'obj' ? S.kind : S.ptk) === k ? 'on' : ''}">${v[0]}</button>`).join(''); K.classList.add('on'); K.querySelectorAll('button').forEach(b => b.onclick = () => { if (S.tool === 'obj') S.kind = b.dataset.k; else S.ptk = b.dataset.k; kinds(); }); }
 document.querySelectorAll('#bar [data-t]').forEach(b => b.onclick = () => { S.tool = b.dataset.t; S.pend = null; document.querySelectorAll('#bar [data-t]').forEach(x => x.classList.toggle('on', x === b)); kinds(); draw(); });
