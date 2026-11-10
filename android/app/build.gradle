@@ -6,8 +6,8 @@ android {
         applicationId 'ge.akrix.measure'   // Measure 82: обновление поверх v81 (ключ v81)
         minSdk 26
         targetSdk 34
-        versionCode 82013   // v81 на телефоне — 100+номер сборки; 82.13 → 82013
-        versionName '82.13'
+        versionCode 82014   // v81 на телефоне — 100+номер сборки; 82.14 → 82014
+        versionName '82.14'
     }
     signingConfigs {
         prod {   // ключ v81 из GitHub Actions (AK_KS / AK_PW), иначе — локальный тестовый
