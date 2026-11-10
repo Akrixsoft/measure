@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -53,6 +54,11 @@ public class MainActivity extends Activity {
     boolean pendingBt, switching;
     volatile String activeVersion;
     ValueCallback<Uri[]> fileCb;
+    /* ═══ [BLOCK UPD-ACTIVITY] AKX-2026-0014: автообновление — Updater (веб-бандл + APK), таймер ready, установщик */
+    Updater upd;
+    Runnable readyTimer;
+    File pendingApk;
+    boolean awaitingInstallPermission;
     Uri camUri;
     static final int RQ_FILE = 11, RQ_CAM = 12, RQ_PERM = 21, RQ_BT = 22;
 
@@ -65,6 +71,8 @@ public class MainActivity extends Activity {
             public void pkt(String hex) { js("window.akrixBtPkt&&akrixBtPkt(" + q(hex) + ")"); }
             public void msg(String t) { js("window.akrixBtMsg&&akrixBtMsg(" + q(t) + ")"); }
         });
+        upd = new Updater(this);
+        upd.events = e -> js("window.akrixUpdateEvent&&akrixUpdateEvent(" + q(e.toString()) + ")");
         /* Measure 82: одно приложение — сразу рабочая версия, без экрана выбора */
         if (SINGLE) openVersion("experimental");
         else if (state != null && state.getString("activeVersion") != null) openVersion(state.getString("activeVersion"));
@@ -79,10 +87,10 @@ public class MainActivity extends Activity {
         activeVersion = null; switching = false;
         if (fileCb != null) { fileCb.onReceiveValue(null); fileCb = null; }
         if (ble != null) { ble.disconnect(); ble.close(); }
-        if (web != null) { web.removeJavascriptInterface("AkrixBT"); web.removeJavascriptInterface("AkrixApp"); web.removeJavascriptInterface("AkrixLab"); web.stopLoading(); web.destroy(); web = null; }
+        if (web != null) { web.removeJavascriptInterface("AkrixBT"); web.removeJavascriptInterface("AkrixApp"); web.removeJavascriptInterface("AkrixLab"); web.removeJavascriptInterface("AkrixUpdate"); web.stopLoading(); web.destroy(); web = null; }
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(26), dp(42), dp(26), dp(28)); root.setBackgroundColor(Color.rgb(246,247,249));
-        TextView brand = text("Measure 82.17", 29, Color.rgb(32,42,54)); root.addView(brand);
+        TextView brand = text("Measure " + upd.installedName(), 29, Color.rgb(32,42,54)); root.addView(brand);
         TextView sub = text("Выберите версию для работы и сравнения", 15, Color.rgb(111,123,138));
         sub.setPadding(0, dp(13), 0, dp(30)); root.addView(sub);
         Button original = new Button(this); original.setText("Исходная v81"); original.setAllCaps(false);
@@ -115,10 +123,21 @@ public class MainActivity extends Activity {
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);settings.setSupportMultipleWindows(false);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        web.addJavascriptInterface(new Bt(),"AkrixBT");web.addJavascriptInterface(new App(),"AkrixApp");web.addJavascriptInterface(new Lab(),"AkrixLab");
+        web.addJavascriptInterface(new Bt(),"AkrixBT");web.addJavascriptInterface(new App(),"AkrixApp");web.addJavascriptInterface(new Lab(),"AkrixLab");web.addJavascriptInterface(new Upd(),"AkrixUpdate");
         web.setWebViewClient(new Client());web.setWebChromeClient(new Chrome());
         root.addView(web,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
-        web.loadUrl("https://" + ("v81".equals(version)?V81_HOST:LAB_HOST) + "/index.html");
+        if ("v81".equals(version)) web.loadUrl("https://" + V81_HOST + "/index.html"); else loadLab();
+    }
+    /* ═══ [BLOCK UPD-LOAD] тот же origin https://experimental.measure-lab.local/ — меняется только источник файлов (Updater.resolve) */
+    void loadLab() {
+        if (web == null) return;
+        if (readyTimer != null) web.removeCallbacks(readyTimer);
+        Updater.Bundle b = upd.resolve();
+        if (b.trial) {
+            readyTimer = () -> { if (upd.trialTimedOut()) toast("Обновление " + b.version + " не запустилось — при следующем запуске будет предыдущая версия"); };
+            web.postDelayed(readyTimer, Updater.READY_TIMEOUT_MS);
+        }
+        web.loadUrl("https://" + LAB_HOST + "/index.html");
     }
 
     boolean trusted(Uri u) {
@@ -140,9 +159,10 @@ public class MainActivity extends Activity {
             if (!"GET".equals(request.getMethod())) return blocked(405,"Method Not Allowed");
             String path = u.getPath();if(path == null || "/".equals(path))path="/index.html";
             if(path.contains("..") || path.contains("\\") || path.contains("\u0000"))return blocked(403,"Forbidden");
-            String directory=V81_HOST.equals(u.getHost())?"v81":"experimental";
+            boolean lab=LAB_HOST.equals(u.getHost());
             try {
-                InputStream stream=getAssets().open(directory+path);
+                InputStream stream=lab?upd.open(path):getAssets().open("v81"+path);   /* [BLOCK UPD-SERVE] проверенная папка или встроенные assets */
+                if(stream==null)return blocked(404,"Not Found");
                 String mime=path.endsWith(".html")?"text/html":path.endsWith(".js")?"text/javascript":path.endsWith(".css")?"text/css":path.endsWith(".svg")?"image/svg+xml":path.endsWith(".png")?"image/png":path.endsWith(".jpg")?"image/jpeg":path.endsWith(".pdf")?"application/pdf":"application/octet-stream";
                 Map<String,String> headers=new HashMap<>();headers.put("Cache-Control","no-store");headers.put("X-Content-Type-Options","nosniff");
                 headers.put("Content-Security-Policy","frame-src 'none'; object-src 'none'; base-uri 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https:; img-src 'self' data: blob: content:; style-src 'self' 'unsafe-inline';");
@@ -170,6 +190,38 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void chooseVersion(){runOnUiThread(()->{if(trustedPage())requestChooser();});}
         @JavascriptInterface public void readyToChoose(){runOnUiThread(()->{if(switching&&trustedPage()){if(SINGLE)finish();else showChooser();}});}
         @JavascriptInterface public void saveFailed(String message){runOnUiThread(()->{switching=false;toast("Не переключено: "+message);});}
+        /** Реально загруженная веб-версия (Updater.served). */
+        @JavascriptInterface public String version(){Updater.Bundle b=upd.served;return "Measure "+(b==null?upd.builtinVersion:b.version);}
+    }
+    /* ═══ [BLOCK UPD-BRIDGE] AkrixUpdate: ready / check / restart / downloadApk / state — только со страницы своего origin */
+    class Upd {
+        @JavascriptInterface public void ready(String version){runOnUiThread(()->{if(!trustedPage())return;
+            if(upd.ready(version)){if(readyTimer!=null&&web!=null)web.removeCallbacks(readyTimer);readyTimer=null;upd.checkAsync(false);}});}
+        @JavascriptInterface public void check(){runOnUiThread(()->{if(trustedPage())upd.checkAsync(true);});}
+        @JavascriptInterface public void restart(){runOnUiThread(()->{if(!trustedPage())return;if(upd.hasPending())loadLab();else toast("Нет загруженного обновления");});}
+        @JavascriptInterface public void downloadApk(){runOnUiThread(()->{if(trustedPage())upd.downloadApkAsync(apk->runOnUiThread(()->installApk(apk)));});}
+        @JavascriptInterface public String state(){return upd.state().toString();}
+    }
+    /* ═══ [BLOCK UPD-INSTALL] системный установщик через LabFileProvider (content://<pkg>.files/apk/…); подпись проверяет Android */
+    void installApk(File apk){
+        if(apk==null||!apk.isFile())return;
+        if(!getPackageManager().canRequestPackageInstalls()){
+            pendingApk=apk;awaitingInstallPermission=true;
+            toast("Разрешите установку из этого источника и вернитесь в Measure");
+            try{startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,Uri.parse("package:"+getPackageName())));}
+            catch(ActivityNotFoundException error){awaitingInstallPermission=false;toast("Откройте настройки → Приложения → Measure → Установка неизвестных приложений");}
+            return;
+        }
+        pendingApk=null;
+        Uri uri=new Uri.Builder().scheme("content").authority(getPackageName()+".files").appendPath("apk").appendPath(apk.getName()).build();
+        Intent intent=new Intent(Intent.ACTION_VIEW).setDataAndType(uri,"application/vnd.android.package-archive").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try{if(web!=null&&trustedPage())web.evaluateJavascript("window.PM&&PM.flushAll&&PM.flushAll()",null);startActivity(intent);}
+        catch(ActivityNotFoundException error){toast("Нет системного установщика");}
+    }
+    @Override protected void onResume(){super.onResume();
+        if(awaitingInstallPermission){awaitingInstallPermission=false;File apk=pendingApk;
+            if(apk!=null&&getPackageManager().canRequestPackageInstalls())installApk(apk);
+            else if(apk!=null){pendingApk=null;js("window.akrixUpdateEvent&&akrixUpdateEvent("+q("{\"type\":\"apk-denied\",\"manual\":true}")+")");}}
     }
     void js(String code){runOnUiThread(()->{if(trustedPage())web.evaluateJavascript(code,null);});}
     static String q(String value){return JSONObject.quote(value);}
@@ -215,7 +267,7 @@ public class MainActivity extends Activity {
     }
     class App{
         @JavascriptInterface public void save(String name,String mime,String contents){runOnUiThread(()->{if(trustedPage())saveFile(name,mime,contents);});}
-        @JavascriptInterface public String version(){return "Measure 82.17";}
+        @JavascriptInterface public String version(){return "Measure "+upd.installedName();}   /* версия APK (versionName из web/lab-version.js) */
     }
     void saveFile(String name,String mime,String contents){
         try{
