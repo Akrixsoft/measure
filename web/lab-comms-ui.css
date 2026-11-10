@@ -1,6 +1,6 @@
 /* Scoped to actual communications dimension mode. Ordinary tools keep v81 layout. */
 body.rz #zf>#zpb{display:flex!important;align-self:stretch;max-width:100%;width:100%;overflow:hidden;box-sizing:border-box;gap:3px}
-body.rz:not(.lab-sk-ph):not(.lab-sk-nt) #zpb> :not(#labRzBottom):not(#zur):not(#rzT):not(#zpF){display:none!important}   /* 82.18: 🖍 футляр — и в rz (lab-tb.css); блок фото «Скетча» — своими правилами */
+body.rz:not(.lab-ph) #zpb> :not(#labRzBottom):not(#zur):not(#rzT):not(#zpF){display:none!important}   /* 82.18: 🖍 футляр — и в rz (lab-tb.css); блок фото — своими правилами */
 body.rz #zpb#zpb>#labRzBottom{display:contents!important}
 body:not(.rz) #labRzBottom{display:none}
 body.rz #zpb #labRzBottom>button{flex:none;width:30px;height:30px;padding:2px}
@@ -9,7 +9,7 @@ body.rz #labRzPalette{display:flex;flex:1 1 0;min-width:22px;gap:5px;overflow-x:
 body.rz #zpb .lab-rz-color{flex:none;width:22px;height:22px;background:var(--rz-color);border:2px solid #101317;border-radius:50%;padding:0}
 body.rz #zpb .lab-rz-color.on{box-shadow:0 0 0 2px #E8EBEF}
 body.rz #zpb #zur{flex:none;margin-left:0}
-body.rz #zpb #rzT{position:absolute;right:6px;bottom:86px;width:auto;max-width:50%;background:transparent;border:0;padding:0;box-shadow:none}
+body.rz #zpb #rzT{position:static;width:auto;max-width:50%;background:transparent;border:0;padding:0;box-shadow:none}   /* 82.18 F7: в потоке #zpb (было absolute поверх ряда #zb) */
 body.rz #rzT .tg{display:none}
 body.rz #zb{width:100%;min-width:0}
 body.rz #zb>#ch{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;width:100%;touch-action:pan-x;scrollbar-width:none}

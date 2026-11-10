@@ -1,5 +1,36 @@
-/* Measure 82.18 — футляр в каждом режиме (lab-tb.js). Размеры и рамки плиток — штатные (#tb .tl, #zpb button, #plb>button). */
-/* ═══ [BLOCK TB-CSS] ═══ */
+/* Measure 82.18 — футляр в каждом режиме, блок фото в нижней строке, одна 🗑, строки без «ступенек» (lab-tb.js).
+   Размеры и рамки — штатные (#tb .tl 36×36 / svg 22, #zpb button, #plb>button). */
+/* ═══ [BLOCK TB-CSS] футляр ═══ */
 body.rz #zf>#zpb>#zpF{display:flex!important;order:-1}   /* «Коммуникации и размеры»: 🖍 футляр — первой кнопкой нижней строки */
 #plb>[data-pb="shp"],#plb>[data-pb="nch"],#plb>[data-pb="nch"]+.sep{display:none!important}   /* план: колонна / ниша уже в ряду — на их месте 🖍 #labPlF */
+#tb .g[data-lab-g]{justify-content:start;gap:6px}   /* 2–7 плиток не расползаются по ширине */
 .lab-ic{display:inline-flex;vertical-align:-4px;margin-right:2px} .lab-ic svg{width:18px!important;height:18px!important}
+#zpb>[data-zk].lab-dup{display:none!important}   /* вид пера уже в ряду — в полосе не повторяется */
+
+/* ═══ [BLOCK TB-PHOTO-CSS] выбранное фото: блок в самой нижней строке, нижняя строка одна ═══ */
+#rfb,#rfb.on{display:none!important}   /* плавающая плашка фото — её действия в блоке #labPh */
+body.lab-ph #zf>#zpb{display:flex!important}
+body.lab-ph #zf>#plb{display:none!important}
+body.lab-ph #zpb>[data-zk],body.lab-ph #zpb>#zpE,body.lab-ph #zpb>.fwt,body.lab-ph #zpb>#rzT,body.lab-ph #zpb>.sep{display:none!important}
+body.lab-ph #zpb#zpb>#labRzBottom{display:none!important}
+body.lab-ph #zf>#zpb#zpb>#zpF{display:flex!important;order:0}
+body.lab-ph #zf>#zpb#zpb>#labPh{display:contents!important}
+body.lab-ph #zf>#zpb#zpb>.zcols{display:flex!important;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+body.lab-ph #zf>#zpb#zpb>#zur{display:flex!important;margin-left:0}
+#labPh>.sep{flex:0 0 auto;width:1px;height:24px;background:var(--ln);margin:0 1px}
+#zpb #labPh>button svg{width:22px!important;height:22px!important}
+#zpb #labPh>button:has(i){width:auto!important;padding:0 3px;gap:2px}
+#labPh>button>i{font:700 11px system-ui;font-style:normal;color:#E8EBEF;white-space:nowrap}
+#zpb #labPh>button.on{background:#F6E08A}
+
+/* ═══ [BLOCK TB-ONE-TRASH] удаление выбранного — только 🗑 #bDelS (zDelSel удаляет и эти случаи) ═══ */
+#rfbD,#bDel,#nDel,#bDmX,#bZwX,#bZpD,#bZdX,#bPfD,#gDel,#pp button[onclick^="zDelSel"],#lab12-plan [data-lab12^="delete"]{display:none!important}
+
+/* ═══ [BLOCK TB-ROWS] строки стека #zf (AKX-2026-0009 F3, F5, F7) ═══ */
+#zb>#zopt{flex:none!important;align-self:center;margin:0!important;max-width:45%;overflow-x:auto;scrollbar-width:none}
+#zb>#zopt:not(.on){display:none!important}
+#zb>#zopt:empty{display:none!important}
+#labFloorTools{display:none!important}   /* «Трасса пола» — штатный инструмент плана, «Размер пола» — плитка футляра плана */
+#zf>#lab12-plan{position:static!important;inset:auto!important;bottom:auto!important;left:auto!important;align-self:stretch;max-width:none;width:auto;box-sizing:border-box;padding:3px 6px;background:var(--pn);border:1px solid var(--ln);border-radius:14px;box-shadow:0 3px 12px rgba(26,32,39,.16);pointer-events:auto;flex-wrap:wrap}
+#zf>#lab12-plan.lab-tb-off,#zf>#lab12-plan:empty{display:none!important}
+body.rz #zpb#zpb #rzT{position:static!important;right:auto;bottom:auto}   /* F7: в потоке нижней строки, не поверх ряда коммуникаций */
