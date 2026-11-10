@@ -1,0 +1,388 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "open: холст проекта, активна подложка (штатная поверхность в разметке)",
+      "detail": {
+        "on": true,
+        "act": "board",
+        "sid": "bmwb74goqudu",
+        "kind": "board",
+        "mode": "wall",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "ui: нет ✕ / «Объект» / «Закрыть» / своей строки; window.AkrixBack есть",
+      "detail": {
+        "close": 0,
+        "menu": false,
+        "back": "function",
+        "rec": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "close: api.close не закрывает холст",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "name": "photo: фото — справка подложки (картинка в базе), без экрана распознавания; ⌗ в нижней строке, плавающей плашки нет",
+      "detail": {
+        "id": "rmwb74gtc774",
+        "w": 600,
+        "blob": 133444,
+        "rsel": true,
+        "rfr": false,
+        "bar": true,
+        "rfb": "none"
+      }
+    },
+    {
+      "ok": true,
+      "name": "case: футляр 🖍 на подложке открывается",
+      "detail": {
+        "zpF": true,
+        "tb": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim: размер на фото пером — в подложке (фото не сдвинуто)",
+      "detail": {
+        "n": 1,
+        "id": "dmwb74hn5tbu",
+        "ref": 32.39999999999999,
+        "kind": "board"
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim: касание подписи → штатное поле #w3f → 1250 мм",
+      "detail": {
+        "fld": {
+          "on": true,
+          "k": "lab-dim"
+        },
+        "vm": 1250
+      }
+    },
+    {
+      "ok": true,
+      "name": "dim: ↶ снимает значение, ↷ возвращает",
+      "detail": {
+        "r1": 1250
+      }
+    },
+    {
+      "ok": true,
+      "name": "board: текст и линия вне фото — штатными инструментами в подложке",
+      "detail": {
+        "txt": [
+          "узел ригеля"
+        ],
+        "ln": 1,
+        "kind": "board"
+      }
+    },
+    {
+      "ok": true,
+      "name": "corners: 4 касания пером → ref.q (формат v81), «▣ Стена» в нижней строке",
+      "detail": {
+        "q": 4,
+        "user": 1,
+        "cor": null,
+        "wall": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "wall: стена С1 «Кухня» 2391 × 2700 над фото, связь фото → wid, область плана",
+      "detail": {
+        "wid": "w0itw45p",
+        "room": "r1794345741342",
+        "w": "w1794345741342_1",
+        "sid": "smwb74j0i78e",
+        "q4": [
+          2391,
+          2700
+        ],
+        "above": true,
+        "link": true,
+        "tool": "mk",
+        "plan": 1,
+        "zf": "m-mk c-wall lab-tool-row"
+      }
+    },
+    {
+      "ok": true,
+      "name": "case: стена холста — в разметке, футляр 🖍 открывается",
+      "detail": {
+        "zpF": true,
+        "tb": true,
+        "tool": "mk"
+      }
+    },
+    {
+      "ok": true,
+      "name": "ctx: фото и рисунки подложки видны при активной стене; S и поля стены не изменены",
+      "detail": {
+        "same": true,
+        "labels": true,
+        "px": [
+          156,
+          158,
+          147
+        ],
+        "bg": [
+          233,
+          236,
+          240
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "forward: касание фото при активной стене — подложка активна, размер поставлен тем же жестом",
+      "detail": {
+        "nB": 1,
+        "act": "board",
+        "dms": 2,
+        "kind": "board"
+      }
+    },
+    {
+      "ok": true,
+      "name": "forward: жест в области стены при активной подложке — стена активна, размер на стене тем же жестом",
+      "detail": {
+        "nW": 0,
+        "act": "wall",
+        "dms": 1,
+        "sid": "smwb74j0i78e"
+      }
+    },
+    {
+      "ok": true,
+      "name": "nav: ⌂ — план внутри холста",
+      "detail": {
+        "on": true,
+        "act": "plan",
+        "sid": null,
+        "kind": null,
+        "mode": "plan",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "nav: ряд С1 — стена внутри холста, в разметке",
+      "detail": {
+        "on": true,
+        "act": "wall",
+        "sid": "smwb74j0i78e",
+        "mode": "wall",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "nav: «План» v81 (zmSet) — план внутри холста",
+      "detail": {
+        "on": true,
+        "act": "plan",
+        "sid": null,
+        "kind": null,
+        "mode": "plan",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "nav: подложка снова активна",
+      "detail": {
+        "on": true,
+        "act": "board",
+        "sid": "bmwb74goqudu",
+        "kind": "board",
+        "mode": "wall",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "nav: ✓ — сохранить и показать весь холст, холст открыт",
+      "detail": {
+        "on": true,
+        "act": "board",
+        "sid": "bmwb74goqudu",
+        "kind": "board",
+        "mode": "wall",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "🗑: область стены выбрана заголовком → удалена (вид стены в «Удалённые») → ↶ на месте",
+      "detail": {
+        "sel": {
+          "sel": "w0itw45p",
+          "has": true
+        },
+        "del": {
+          "walls": 0,
+          "del": true
+        },
+        "und": {
+          "walls": 1,
+          "del": false
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "back: поле → угол → футляр → выделение → «Ещё раз — к проектам» → список (холст открыт); из списка — false (оболочка)",
+      "detail": {
+        "bk": [
+          [
+            "field",
+            true,
+            true
+          ],
+          [
+            "cor",
+            true,
+            true
+          ],
+          [
+            "case",
+            true,
+            true
+          ],
+          [
+            "sel",
+            true,
+            true
+          ],
+          [
+            "first",
+            true,
+            true
+          ],
+          [
+            "second",
+            true,
+            true
+          ]
+        ],
+        "bk2": {
+          "list": true,
+          "open": true,
+          "off": false
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "back: из списка — тот же проект, та же поверхность",
+      "detail": {
+        "on": true,
+        "act": "board",
+        "sid": "bmwb74goqudu",
+        "kind": "board",
+        "mode": "wall",
+        "tool": "mk",
+        "list": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "layout: нижние строки без зазоров и наложений, внутри экрана",
+      "detail": {
+        "rows": 3,
+        "worst": 4,
+        "over": 0,
+        "inside": true,
+        "bottom": 2
+      }
+    },
+    {
+      "ok": true,
+      "name": "restart: раскладка, вид и активная поверхность — как были",
+      "detail": {
+        "before": {
+          "items": "[[\"plan\",\"\",\"\",-828],[\"wall\",\"r1794345741342\",\"w1794345741342_1\",32]]",
+          "view": {
+            "s": 0.20445318792657594,
+            "ox": 203.64640262410447,
+            "oy": 348.26241724353685
+          },
+          "act": "board"
+        },
+        "after": {
+          "items": "[[\"plan\",\"\",\"\",-828],[\"wall\",\"r1794345741342\",\"w1794345741342_1\",32]]",
+          "view": {
+            "s": 0.20445318792657594,
+            "ox": 203.64640262410447,
+            "oy": 369.26241724353685
+          },
+          "act": "board"
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "restart: фото (картинка), размер 1250, текст, снимки областей — на месте",
+      "detail": {
+        "items": "[[\"plan\",\"\",\"\",-828],[\"wall\",\"r1794345741342\",\"w1794345741342_1\",32]]",
+        "view": {
+          "s": 0.20445318792657594,
+          "ox": 203.64640262410447,
+          "oy": 369.26241724353685
+        },
+        "act": "board",
+        "refs": 1,
+        "img": true,
+        "vm": [
+          1250,
+          null
+        ],
+        "txt": [
+          "узел ригеля"
+        ],
+        "snaps": 2,
+        "kind": "board"
+      }
+    },
+    {
+      "ok": true,
+      "name": "export: перенос холста measure-sketch v3 — раскладка, подложка, картинки",
+      "detail": {
+        "v": 3,
+        "app": "Measure 82.18",
+        "refs": 1,
+        "img": 1,
+        "dms": 2,
+        "layout": 2
+      }
+    },
+    {
+      "ok": true,
+      "name": "v81: web/v81.html побайтно равен 51923bf",
+      "detail": null
+    },
+    {
+      "ok": true,
+      "name": "errors: нет ошибок страницы",
+      "detail": []
+    }
+  ],
+  "errors": []
+}
