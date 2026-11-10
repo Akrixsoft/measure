@@ -447,7 +447,7 @@
             {
               "side": "L",
               "neighbor": 1,
-              "session": "s1794177552537",
+              "session": "s1794314684192",
               "count": 1,
               "spanMm": 1000,
               "flipped": true
@@ -460,7 +460,7 @@
             {
               "side": "L",
               "neighbor": 1,
-              "session": "s1794177552537",
+              "session": "s1794314684192",
               "count": 1,
               "spanMm": 1000,
               "flipped": true
@@ -473,7 +473,7 @@
             {
               "side": "L",
               "neighbor": 1,
-              "session": "s1794177552537",
+              "session": "s1794314684192",
               "count": 1,
               "spanMm": 1000,
               "flipped": true
@@ -711,7 +711,7 @@
         {
           "side": "L",
           "neighbor": 1,
-          "session": "s1794177552537",
+          "session": "s1794314684192",
           "count": 1,
           "spanMm": 1000,
           "flipped": true
@@ -793,7 +793,7 @@
         {
           "side": "L",
           "neighbor": 1,
-          "session": "s1794177552537",
+          "session": "s1794314684192",
           "count": 1,
           "spanMm": 1000,
           "flipped": true
@@ -875,7 +875,7 @@
         {
           "side": "L",
           "neighbor": 1,
-          "session": "s1794177552537",
+          "session": "s1794314684192",
           "count": 1,
           "spanMm": 1000,
           "flipped": true
@@ -911,16 +911,16 @@
       "app": "akrix-zamer",
       "v": 3,
       "kind": "object",
-      "date": "2026-11-08T22:39:13.342Z",
+      "date": "2026-11-10T12:44:44.687Z",
       "obj": "QA011",
-      "oid": "omw8ezoad92g2",
+      "oid": "omwaomvihbcpx",
       "rooms": [
         {
           "app": "akrix-zamer",
           "v": 3,
           "kind": "room",
-          "id": "r1794177552183",
-          "date": "2026-11-08T22:39:13.341Z",
+          "id": "r1794314683973",
+          "date": "2026-11-10T12:44:44.686Z",
           "obj": "QA011",
           "name": "Route draw/edit",
           "ms": {
@@ -994,10 +994,10 @@
               "0": {
                 "ph": [
                   {
-                    "id": "rmw8eznyh4f3",
+                    "id": "rmwaomvar68z",
                     "n": 1,
                     "name": "angle-wall.png",
-                    "t": "2026-11-08T22:39:12.906Z",
+                    "t": "2026-11-10T12:44:44.404Z",
                     "w": 600,
                     "h": 400,
                     "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
@@ -1056,7 +1056,7 @@
                   "src": "план"
                 },
                 "gn": 1,
-                "id": "w1794177552183_1",
+                "id": "w1794314683973_1",
                 "notes": [],
                 "L": 4000
               },
@@ -1106,7 +1106,7 @@
                   "src": "план"
                 },
                 "gn": 2,
-                "id": "w1794177552183_2",
+                "id": "w1794314683973_2",
                 "notes": [],
                 "L": 2700
               },
@@ -1116,7 +1116,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 3,
-                "id": "w1794177552183_3",
+                "id": "w1794314683973_3",
                 "L": 4000
               },
               "3": {
@@ -1125,7 +1125,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 4,
-                "id": "w1794177552183_4",
+                "id": "w1794314683973_4",
                 "L": 2700
               }
             },
@@ -1139,10 +1139,10 @@
               "3": 4
             },
             "wid": {
-              "0": "w1794177552183_1",
-              "1": "w1794177552183_2",
-              "2": "w1794177552183_3",
-              "3": "w1794177552183_4"
+              "0": "w1794314683973_1",
+              "1": "w1794314683973_2",
+              "2": "w1794314683973_3",
+              "3": "w1794314683973_4"
             },
             "geo": {
               "v": 1,
@@ -1151,7 +1151,7 @@
                 {
                   "k": 0,
                   "gn": 1,
-                  "id": "w1794177552183_1",
+                  "id": "w1794314683973_1",
                   "a": [
                     0,
                     0
@@ -1166,7 +1166,7 @@
                 {
                   "k": 1,
                   "gn": 2,
-                  "id": "w1794177552183_2",
+                  "id": "w1794314683973_2",
                   "a": [
                     4000,
                     0
@@ -1181,7 +1181,7 @@
                 {
                   "k": 2,
                   "gn": 3,
-                  "id": "w1794177552183_3",
+                  "id": "w1794314683973_3",
                   "a": [
                     4000,
                     -2700
@@ -1196,7 +1196,7 @@
                 {
                   "k": 3,
                   "gn": 4,
-                  "id": "w1794177552183_4",
+                  "id": "w1794314683973_4",
                   "a": [
                     0,
                     -2700
@@ -1240,16 +1240,16 @@
     "app": "akrix-zamer",
     "v": 3,
     "kind": "object",
-    "date": "2026-11-08T22:39:50.404Z",
+    "date": "2026-11-10T12:44:51.610Z",
     "obj": "QA011",
-    "oid": "omw8ezoad92g2",
+    "oid": "omwaomvihbcpx",
     "rooms": [
       {
         "app": "akrix-zamer",
         "v": 3,
         "kind": "room",
-        "id": "r1794177552183",
-        "date": "2026-11-08T22:39:50.404Z",
+        "id": "r1794314683973",
+        "date": "2026-11-10T12:44:51.610Z",
         "obj": "QA011",
         "name": "Route draw/edit",
         "ms": {
@@ -1323,10 +1323,10 @@
             "0": {
               "ph": [
                 {
-                  "id": "rmw8eznyh4f3",
+                  "id": "rmwaomvar68z",
                   "n": 1,
                   "name": "angle-wall.png",
-                  "t": "2026-11-08T22:39:12.906Z",
+                  "t": "2026-11-10T12:44:44.404Z",
                   "w": 600,
                   "h": 400,
                   "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
@@ -1385,7 +1385,7 @@
                 "src": "план"
               },
               "gn": 1,
-              "id": "w1794177552183_1",
+              "id": "w1794314683973_1",
               "notes": [],
               "L": 4000
             },
@@ -1435,7 +1435,7 @@
                 "src": "план"
               },
               "gn": 2,
-              "id": "w1794177552183_2",
+              "id": "w1794314683973_2",
               "notes": [],
               "L": 2700
             },
@@ -1445,7 +1445,7 @@
               "pts": [],
               "zn": [],
               "gn": 3,
-              "id": "w1794177552183_3",
+              "id": "w1794314683973_3",
               "L": 4000
             },
             "3": {
@@ -1454,7 +1454,7 @@
               "pts": [],
               "zn": [],
               "gn": 4,
-              "id": "w1794177552183_4",
+              "id": "w1794314683973_4",
               "L": 2700
             }
           },
@@ -1468,10 +1468,10 @@
             "3": 4
           },
           "wid": {
-            "0": "w1794177552183_1",
-            "1": "w1794177552183_2",
-            "2": "w1794177552183_3",
-            "3": "w1794177552183_4"
+            "0": "w1794314683973_1",
+            "1": "w1794314683973_2",
+            "2": "w1794314683973_3",
+            "3": "w1794314683973_4"
           },
           "geo": {
             "v": 1,
@@ -1480,7 +1480,7 @@
               {
                 "k": 0,
                 "gn": 1,
-                "id": "w1794177552183_1",
+                "id": "w1794314683973_1",
                 "a": [
                   0,
                   0
@@ -1495,7 +1495,7 @@
               {
                 "k": 1,
                 "gn": 2,
-                "id": "w1794177552183_2",
+                "id": "w1794314683973_2",
                 "a": [
                   4000,
                   0
@@ -1510,7 +1510,7 @@
               {
                 "k": 2,
                 "gn": 3,
-                "id": "w1794177552183_3",
+                "id": "w1794314683973_3",
                 "a": [
                   4000,
                   -2700
@@ -1525,7 +1525,7 @@
               {
                 "k": 3,
                 "gn": 4,
-                "id": "w1794177552183_4",
+                "id": "w1794314683973_4",
                 "a": [
                   0,
                   -2700

@@ -4,7 +4,7 @@
       "ok": true,
       "name": "actual pen drag creates selected warm-floor route in real plan",
       "detail": {
-        "id": "frmw8ezj3uagcty",
+        "id": "frmwaomrkkzu3uq",
         "t": "ufh",
         "lvl": "f",
         "d": "",
@@ -39,7 +39,7 @@
       "ok": true,
       "name": "trusted touch endpoint edit changes route without cloning",
       "detail": {
-        "id": "frmw8ezj3uagcty",
+        "id": "frmwaomrkkzu3uq",
         "t": "ufh",
         "lvl": "f",
         "d": "",
@@ -93,7 +93,7 @@
       "ok": true,
       "name": "arbitrary floor dimension uses actual plan coordinates",
       "detail": {
-        "id": "fdmw8ezk3fh3zjn",
+        "id": "fdmwaomsg2h213n",
         "a": [
           599.9999661386095,
           2400.0002031683425
@@ -132,7 +132,7 @@
       "name": "floor dimension exposes painted value field",
       "detail": [
         150.12249755859375,
-        355.04249572753906
+        352.04249572753906
       ]
     },
     {
@@ -169,7 +169,7 @@
       "detail": {
         "rt": [
           {
-            "id": "frmw8ezj3uagcty",
+            "id": "frmwaomrkkzu3uq",
             "t": "ufh",
             "lvl": "f",
             "d": "",
@@ -188,7 +188,7 @@
         ],
         "dims": [
           {
-            "id": "fdmw8ezk3fh3zjn",
+            "id": "fdmwaomsg2h213n",
             "a": [
               599.9999661386095,
               2400.0002031683425
@@ -202,7 +202,7 @@
             "coordinateSpace": "plan"
           },
           {
-            "id": "fdmw8ezkpaiy4uv",
+            "id": "fdmwaomt00k3luw",
             "a": [
               3300.000152376257,
               700.000101584171
@@ -238,7 +238,7 @@
   ],
   "errors": [],
   "route": {
-    "id": "frmw8ezj3uagcty",
+    "id": "frmwaomrkkzu3uq",
     "t": "ufh",
     "lvl": "f",
     "d": "",
@@ -255,7 +255,7 @@
     "dash": true
   },
   "edited": {
-    "id": "frmw8ezj3uagcty",
+    "id": "frmwaomrkkzu3uq",
     "t": "ufh",
     "lvl": "f",
     "d": "",
@@ -272,7 +272,7 @@
     "dash": true
   },
   "dim": {
-    "id": "fdmw8ezk3fh3zjn",
+    "id": "fdmwaomsg2h213n",
     "a": [
       599.9999661386095,
       2400.0002031683425
@@ -283,21 +283,21 @@
     ]
   },
   "saved": {
-    "rid": "r1794177546334",
+    "rid": "r1794314679396",
     "obj": {
       "app": "akrix-zamer",
       "v": 3,
       "kind": "object",
-      "date": "2026-11-08T22:39:09.157Z",
+      "date": "2026-11-10T12:44:41.878Z",
       "obj": "QA011",
-      "oid": "omw8ezl29qwd1",
+      "oid": "omwaomtcjne3k",
       "rooms": [
         {
           "app": "akrix-zamer",
           "v": 3,
           "kind": "room",
-          "id": "r1794177546334",
-          "date": "2026-11-08T22:39:09.155Z",
+          "id": "r1794314679396",
+          "date": "2026-11-10T12:44:41.877Z",
           "obj": "QA011",
           "name": "Measured floor",
           "ms": {
@@ -374,7 +374,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 1,
-                "id": "w1794177546334_1",
+                "id": "w1794314679396_1",
                 "L": 4000
               },
               "1": {
@@ -383,7 +383,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 2,
-                "id": "w1794177546334_2",
+                "id": "w1794314679396_2",
                 "L": 3000
               },
               "2": {
@@ -392,7 +392,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 3,
-                "id": "w1794177546334_3",
+                "id": "w1794314679396_3",
                 "L": 4000
               },
               "3": {
@@ -401,7 +401,7 @@
                 "pts": [],
                 "zn": [],
                 "gn": 4,
-                "id": "w1794177546334_4",
+                "id": "w1794314679396_4",
                 "L": 3000
               }
             },
@@ -415,10 +415,10 @@
               "3": 4
             },
             "wid": {
-              "0": "w1794177546334_1",
-              "1": "w1794177546334_2",
-              "2": "w1794177546334_3",
-              "3": "w1794177546334_4"
+              "0": "w1794314679396_1",
+              "1": "w1794314679396_2",
+              "2": "w1794314679396_3",
+              "3": "w1794314679396_4"
             },
             "geo": {
               "v": 1,
@@ -427,7 +427,7 @@
                 {
                   "k": 0,
                   "gn": 1,
-                  "id": "w1794177546334_1",
+                  "id": "w1794314679396_1",
                   "a": [
                     0,
                     0
@@ -442,7 +442,7 @@
                 {
                   "k": 1,
                   "gn": 2,
-                  "id": "w1794177546334_2",
+                  "id": "w1794314679396_2",
                   "a": [
                     4000,
                     0
@@ -457,7 +457,7 @@
                 {
                   "k": 2,
                   "gn": 3,
-                  "id": "w1794177546334_3",
+                  "id": "w1794314679396_3",
                   "a": [
                     4000,
                     -3000
@@ -472,7 +472,7 @@
                 {
                   "k": 3,
                   "gn": 4,
-                  "id": "w1794177546334_4",
+                  "id": "w1794314679396_4",
                   "a": [
                     0,
                     -3000
@@ -498,7 +498,7 @@
             },
             "rt": [
               {
-                "id": "frmw8ezj3uagcty",
+                "id": "frmwaomrkkzu3uq",
                 "t": "ufh",
                 "lvl": "f",
                 "d": "",
@@ -517,7 +517,7 @@
             ],
             "labFloorDims": [
               {
-                "id": "fdmw8ezk3fh3zjn",
+                "id": "fdmwaomsg2h213n",
                 "a": [
                   599.9999661386095,
                   -2400.0002031683425
@@ -531,7 +531,7 @@
                 "coordinateSpace": "plan-sheet"
               },
               {
-                "id": "fdmw8ezkpaiy4uv",
+                "id": "fdmwaomt00k3luw",
                 "a": [
                   3300.000152376257,
                   -700.000101584171
@@ -551,7 +551,7 @@
       "gnMax": 4
     },
     "route": {
-      "id": "frmw8ezj3uagcty",
+      "id": "frmwaomrkkzu3uq",
       "t": "ufh",
       "lvl": "f",
       "d": "",
@@ -568,7 +568,7 @@
       "dash": true
     },
     "dim": {
-      "id": "fdmw8ezk3fh3zjn",
+      "id": "fdmwaomsg2h213n",
       "a": [
         599.9999661386095,
         2400.0002031683425
@@ -584,7 +584,7 @@
   "restored": {
     "rt": [
       {
-        "id": "frmw8ezj3uagcty",
+        "id": "frmwaomrkkzu3uq",
         "t": "ufh",
         "lvl": "f",
         "d": "",
@@ -603,7 +603,7 @@
     ],
     "dims": [
       {
-        "id": "fdmw8ezk3fh3zjn",
+        "id": "fdmwaomsg2h213n",
         "a": [
           599.9999661386095,
           2400.0002031683425
@@ -617,7 +617,7 @@
         "coordinateSpace": "plan"
       },
       {
-        "id": "fdmw8ezkpaiy4uv",
+        "id": "fdmwaomt00k3luw",
         "a": [
           3300.000152376257,
           700.000101584171

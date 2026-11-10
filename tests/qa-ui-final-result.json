@@ -20,7 +20,7 @@
           "persist": false,
           "before": 2,
           "after": 3,
-          "tool": "sel"
+          "tool": "roz"
         }
       ]
     },
@@ -30,7 +30,7 @@
     },
     {
       "ok": true,
-      "name": "single-use option returns completed tool to select"
+      "name": "wall objects stay sequential even when drawing repeat is disabled"
     },
     {
       "ok": true,

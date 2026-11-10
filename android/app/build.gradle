@@ -3,11 +3,11 @@ android {
     namespace 'ge.akrix.zamer'
     compileSdk 34
     defaultConfig {
-        applicationId 'ge.akrix.measure.lab12'
+        applicationId 'ge.akrix.measure.lab13'
         minSdk 26
         targetSdk 34
-        versionCode 12
-        versionName '0.12'
+        versionCode 13
+        versionName '0.13'
     }
     signingConfigs {
         debug {
