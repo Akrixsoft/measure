@@ -1,0 +1,169 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "title shows loaded web version (lab-version.js)",
+      "details": {
+        "zVer": "Measure 82.17",
+        "zVerB": "82.17",
+        "zVer2": "Measure 82.17",
+        "ready": [
+          [
+            "ready",
+            "82.17"
+          ]
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "ready signal sent once with MeasureVersion after IndexedDB opened",
+      "details": [
+        [
+          "ready",
+          "82.17"
+        ]
+      ]
+    },
+    {
+      "ok": true,
+      "name": "ready only after DB.db is open"
+    },
+    {
+      "ok": true,
+      "name": "«Проверить обновления» in ⋮ menu",
+      "details": "⟳ Проверить обновления"
+    },
+    {
+      "ok": true,
+      "name": "menu button calls AkrixUpdate.check() and closes menu"
+    },
+    {
+      "ok": true,
+      "name": "manual check: «up to date» toast",
+      "details": {
+        "text": "Установлена последняя версия 82.17",
+        "on": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "background check: no toast when nothing found",
+      "details": {
+        "text": "",
+        "on": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "offline background check is silent",
+      "details": {
+        "text": "",
+        "on": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "offline manual check: toast, current version keeps working",
+      "details": {
+        "text": "Нет связи с GitHub — работает текущая версия 82.17",
+        "on": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "manifest error reported on manual check",
+      "details": {
+        "text": "Обновление не проверено: манифест: base",
+        "on": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "web-ready (even background): sticky card with version",
+      "details": "Загружена версия 82.99 — применится при следующем запускеПерезапустить✕"
+    },
+    {
+      "ok": true,
+      "name": "«Перезапустить» saves (PM.flushAll) before AkrixUpdate.restart()",
+      "details": [
+        "restart",
+        1
+      ]
+    },
+    {
+      "ok": true,
+      "name": "apk-available card: version, size, «Обновить»",
+      "details": "Доступно приложение Measure 82.18 (5.0 МБ)Обновить✕"
+    },
+    {
+      "ok": true,
+      "name": "«Обновить» → AkrixUpdate.downloadApk()"
+    },
+    {
+      "ok": true,
+      "name": "progress shown without action button"
+    },
+    {
+      "ok": true,
+      "name": "apk SHA failure reported"
+    },
+    {
+      "ok": true,
+      "name": "install permission denied: hint + «Повторить»"
+    },
+    {
+      "ok": true,
+      "name": "card closes with ✕"
+    },
+    {
+      "ok": true,
+      "name": "BACK_JS: true only when AkrixBack() === true",
+      "details": {
+        "none": false,
+        "yes": true,
+        "no": false,
+        "truthy": false,
+        "thrown": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "update module does not define AkrixBack (canvas engineer owns the JS chain)"
+    },
+    {
+      "ok": true,
+      "name": "no bridge: button explains Android-only, no errors"
+    },
+    {
+      "ok": true,
+      "name": "same origin: IndexedDB + localStorage intact after bundle switch",
+      "details": {
+        "objs": [
+          "QA update keeps data"
+        ],
+        "ls": "kept",
+        "title": "Measure 82.99",
+        "ready": "82.99"
+      }
+    },
+    {
+      "ok": true,
+      "name": "title and ready reflect the downloaded bundle",
+      "details": {
+        "objs": [
+          "QA update keeps data"
+        ],
+        "ls": "kept",
+        "title": "Measure 82.99",
+        "ready": "82.99"
+      }
+    },
+    {
+      "ok": true,
+      "name": "no page errors",
+      "details": []
+    }
+  ],
+  "errors": []
+}
