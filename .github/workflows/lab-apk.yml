@@ -28,8 +28,10 @@ jobs:
         if: steps.sec.outputs.ok != '1'
         uses: actions/cache/restore@v4
         with: { path: ~/ks, key: akrix-ks-v1, fail-on-cache-miss: true }
-      - name: Update manifest/bundle unit tests (AKX-2026-0014)
-        run: python3 tests/test_update_manifest.py
+      - name: Update manifest/bundle + Updater state-machine tests (AKX-2026-0014)
+        run: |
+          python3 tests/test_update_manifest.py
+          python3 tests/test_updater_jvm.py
       - name: Build (scripts/build_apk.py — v81 SHA check, asset check, apksigner verify)
         run: |
           export MEASURE_GRADLE="$(command -v gradle)"
