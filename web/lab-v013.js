@@ -261,7 +261,7 @@
     const b0 = MeasureLabPlacement.begin;
     MeasureLabPlacement.begin = function (p) {
       try {
-        if (S.mode !== 'plan' && S.tool === 'mk' && gest && ptr.size === 1 && KD[S.mk] && !KD[S.mk].line && !(rzOk() && RZT[RZ.t]) && S.sel) {
+        if (false && S.mode !== 'plan' && S.tool === 'mk' && gest && ptr.size === 1 && KD[S.mk] && !KD[S.mk].line && !(rzOk() && RZT[RZ.t]) && S.sel) {   // 82.18 g2 (QA Д5): отключено — при инструменте объект выбирается только касанием выбранного (lab-placement), касание другого ставит объект
           const h = mkHit(p);
           if (h && h.id !== S.sel && S.els.some(e => e.id === h.id)) { S.sel = h.id; S.dsel = null; }
         }

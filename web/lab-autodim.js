@@ -134,6 +134,14 @@
   const fs0 = w3FSet; w3FSet = function (k, n) {
     if (k && (k.t === 'adY' || k.t === 'adB' || k.t === 'adT')) { setY(k, n); return; }
     if (k && k.t === 'el' && k.ax === 'H') { const e = S.els.find(x => x.id === k.id); if (e && W3VK[e.k]) { setY(k, n); return; } }
+    if (k && k.t === 'man' && (k.k === 'Hl' || k.k === 'Hr')) {   // поле высоты стены: объёмы у потолка остаются у потолка
+      const M0 = w3Model(), up = M0 ? w3Vols(M0).filter(v => !v.plan && v.y1 > M0.H - E && v.y0 > E).map(v => v.id) : [], H0 = M0 && M0.H;
+      const r = fs0.apply(this, arguments), M1 = w3Model();
+      if (M1 && H0 && up.length && Math.abs(M1.H - H0) > 0.05) { snap();
+        for (const id of up) { const e = S.els.find(x => x.id === id); if (!e) continue; const h = Math.min(+e.H || 0, M1.H); if (h > 0) place(e, M1.H - h, h); }
+        unsnap(); saveSess(); mkPanel(); draw(); }
+      return r;
+    }
     return fs0.apply(this, arguments);
   };
   PM.labAutodim = api;
