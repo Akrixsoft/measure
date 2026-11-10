@@ -274,7 +274,10 @@ function label(q, t, c, px, sz = 13) { cx.font = `700 ${sz * px}px system-ui`; c
 // размерная линия; вертикальная подпись — вдоль стрелки, читается снизу вверх, по центру
 function dimLine(P, Q, t, c, px, dash) {
   cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = 2 * px; if (dash) cx.setLineDash([6 * px, 4 * px]); cx.beginPath(); cx.moveTo(...P); cx.lineTo(...Q); cx.stroke(); cx.setLineDash([]);
-  for (const [A, B] of [[P, Q], [Q, P]]) { const a = Math.atan2(B[1] - A[1], B[0] - A[0]), h = 10 * px; cx.beginPath(); cx.moveTo(...A); cx.lineTo(A[0] + h * Math.cos(a + .32), A[1] + h * Math.sin(a + .32)); cx.lineTo(A[0] + h * Math.cos(a - .32), A[1] + h * Math.sin(a - .32)); cx.fill(); }
+  // наконечник как в v81 (zArrHd): узкий острый ±15°, с выемкой, длина ∝ толщине линии
+  const lw = 2 * px, hl = Math.max(6 * px, Math.min(70 * px, lw * 4.6)), hw = hl * .27, L2 = Math.hypot(Q[0] - P[0], Q[1] - P[1]) || 1;
+  for (const [B, s2] of [[Q, 1], [P, -1]]) { const e = [(Q[0] - P[0]) / L2 * s2, (Q[1] - P[1]) / L2 * s2], n = [-e[1], e[0]];
+    cx.beginPath(); cx.moveTo(B[0], B[1]); cx.lineTo(B[0] - e[0] * hl + n[0] * hw, B[1] - e[1] * hl + n[1] * hw); cx.lineTo(B[0] - e[0] * hl * .84, B[1] - e[1] * hl * .84); cx.lineTo(B[0] - e[0] * hl - n[0] * hw, B[1] - e[1] * hl - n[1] * hw); cx.closePath(); cx.fill(); }
   const m = [(P[0] + Q[0]) / 2, (P[1] + Q[1]) / 2], vert = Math.abs(Q[1] - P[1]) > Math.abs(Q[0] - P[0]);
   let ang = Math.atan2(Q[1] - P[1], Q[0] - P[0]); if (vert) ang = -Math.PI / 2; else if (ang > Math.PI / 2 || ang < -Math.PI / 2) ang += Math.PI;
   cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width, len = Math.hypot(Q[0] - P[0], Q[1] - P[1]);
