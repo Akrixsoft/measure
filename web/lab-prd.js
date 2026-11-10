@@ -69,10 +69,10 @@
     return null;
   }
   /* имя = тип; одинаковые типы в одной комнате — по порядку номера no: «Шкаф», «Шкаф 2»… */
-  const roomKey = (p, L) => zoneOf(p.room) ? p.room : '';
-  function nameOf(p, L) {
-    L = Array.isArray(L) ? L : list(); const t = typeOf(p), k = roomKey(p);
-    const same = L.filter(q => typeOf(q) === t && roomKey(q) === k).sort((a, b) => (+a.no || 0) - (+b.no || 0));
+  const roomKey = (p, Z) => (Z ? Z.has(p.room) : zoneOf(p.room)) ? p.room : '';   // Z — комнаты выгрузки (Д2: не зависит от активной поверхности)
+  function nameOf(p, L, Z) {
+    L = Array.isArray(L) ? L : list(); const t = typeOf(p), k = roomKey(p, Z);
+    const same = L.filter(q => typeOf(q) === t && roomKey(q, Z) === k).sort((a, b) => (+a.no || 0) - (+b.no || 0));
     const i = same.findIndex(q => q.id === p.id);
     return i > 0 ? t + ' ' + (i + 1) : t;
   }
@@ -80,7 +80,7 @@
     const z = zoneOf(p.room), n = nameOf(p, L);
     return z ? z.q.name + ' · ' + n : n;
   };
-  api.nameOf = nameOf;
+  api.nameOf = (p, L) => nameOf(p, L);
   api.list = list;
   api.label = p => label(p);
 
@@ -98,16 +98,34 @@
       const walls = [];
       for (const x of p.w || []) if (x && W.has(x.wid) && !walls.includes(x.wid)) walls.push(x.wid);   // целые стены; a/b v81 не выгружаются
       if (!walls.length) continue;   // пустые конструкции не выгружаются
-      res.push({id: p.id, no: +p.no || 0, type: typeOf(p), name: nameOf(p, L),
+      res.push({id: p.id, no: +p.no || 0, type: typeOf(p), name: nameOf(p, L, Z),
         ...(p.room && Z.has(p.room) ? {room: p.room} : {}), walls, ...(p.note ? {note: p.note} : {})});
     }
     return res;
   }
   api.out = out;
-  function attach(o) {
+  /* Д2 (QA 82.18): список конструкций — из записей помещений, попавших в выгрузку (o.rooms[].id), а не из S.room / S.objRooms:
+     при активной стене или подложке холста S.room пуст, и o.prd терялся. Открытая в v81 копия помещения — свежее базы (берётся она). */
+  async function exportedRooms(o) {
+    const mem = [S.room, S.room0, ...(S.objRooms || [])].filter(r => r && r.ms), res = [];
+    for (const R of o.rooms || []) {
+      if (!R || !R.id) continue;
+      const m = mem.find(r => r.id === R.id), d = m ? null : await dbGet('sess', R.id).catch(() => null);
+      if (m || d) res.push(m || d);
+    }
+    return res;
+  }
+  function listOf(R) {
+    let best = null;
+    for (const r of R) if (Array.isArray(r.prd) && (r.prdT || 0) > ((best && best.prdT) || 0)) best = r;
+    if (!best) best = R.find(r => (r.prd || []).length);
+    return best ? clone(best.prd || []) : [];
+  }
+  async function attach(o) {
     try {
       if (!o || !Array.isArray(o.rooms)) return o;
-      const P = out(list(), o.rooms);
+      const R = await exportedRooms(o), L = R.length ? listOf(R) : list();
+      const P = out(L, o.rooms);
       if (P.length) o.prd = P; else delete o.prd;
     } catch (error) { console.warn('Measure 82.18 prd export', error); }
     return o;

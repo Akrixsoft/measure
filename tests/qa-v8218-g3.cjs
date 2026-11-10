@@ -1,0 +1,133 @@
+// Measure 82.18 — исправления по независимой QA (AKX-2026-0012, measure-engineer-g3): Д2, Д8, Д9, Д10, Д16, Д18.
+// Телефонный режим (без body.tz), касания пером/пальцем через CDP. Каждый дефект — отдельный блок проверок.
+// Запуск: NODE_PATH=/opt/npm-tools/node_modules QA_VW=412 QA_VH=797 QA_DPR=3 node tests/qa-v8218-g3.cjs
+//   QA_ONLY=d2,d9 — только выбранные блоки; QA_SHOT=<папка> — скриншоты; QA_AKRIX=<akrix-furniture.html> — конструктор v898.
+'use strict';
+const fs = require('fs'), path = require('path'), http = require('http'), cp = require('child_process');
+const {chromium} = require('playwright');
+const root = path.resolve(__dirname, '..');
+const VW = +(process.env.QA_VW || 412), VH = +(process.env.QA_VH || 797), DPR = +(process.env.QA_DPR || 3), TAG = `${VW}x${VH}x${DPR}`;
+const SHOT = process.env.QA_SHOT || path.join('/tmp/qa8218-g3', TAG);
+const AKRIX = process.env.QA_AKRIX || '/home/claude/akrix-soft/Akrix/akrix-furniture.html';
+const SAMPLE = path.join(root, 'prototypes/sketch/sample.jpg');
+const ONLY = (process.env.QA_ONLY || '').split(',').filter(Boolean);
+const OLD = process.env.QA_OLD || '51923bf';   // 82.17 для миграции (Д8)
+fs.mkdirSync(SHOT, {recursive: true});
+
+(async () => {
+  const old = new Map();
+  const server = http.createServer((q, r) => { let f = decodeURIComponent(q.url.split('?')[0]).slice(1);
+    const ct = f.endsWith('.js') ? 'application/javascript' : f.endsWith('.css') ? 'text/css' : f.endsWith('.jpg') ? 'image/jpeg' : f.endsWith('.json') ? 'application/json' : 'text/html';
+    try { r.setHeader('Content-Type', ct);
+      if (f.startsWith('old/')) { f = f.slice(4); if (!old.has(f)) old.set(f, cp.execFileSync('git', ['show', OLD + ':' + f], {cwd: root, maxBuffer: 3e7, stdio: ['ignore', 'pipe', 'ignore']})); r.end(old.get(f)); }
+      else r.end(fs.readFileSync(path.join(root, f))); } catch { r.writeHead(404).end(); } });
+  await new Promise(r => server.listen(0, '127.0.0.1', r));
+  const base = `http://127.0.0.1:${server.address().port}`, url = base + '/web/experimental.html';
+  const browser = await chromium.launch({headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox']});
+  const checks = [], info = {}; let errors = [];
+  const check = (ok, name, detail) => { checks.push({ok: !!ok, name, detail}); console.log((ok ? 'PASS ' : 'FAIL ') + name + ' ' + JSON.stringify(detail ?? '').slice(0, 600)); };
+  let ctx, p, cdp, shotN = 0;
+  async function fresh() {   // чистый профиль
+    if (ctx) await ctx.close();
+    ctx = await browser.newContext({viewport: {width: VW, height: VH}, deviceScaleFactor: DPR, isMobile: true, hasTouch: true});
+    await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => false}));
+    p = await ctx.newPage(); cdp = await ctx.newCDPSession(p); p.on('pageerror', e => errors.push(String(e.stack || e).slice(0, 800)));
+  }
+  const shot = n => p.screenshot({path: path.join(SHOT, String(++shotN).padStart(2, '0') + '-' + n + '.png')});
+  const wait = ms => p.waitForTimeout(ms);
+  async function down(t, a) { if (t === 'touch') await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [{x: a[0], y: a[1], id: 5}]}); else await cdp.send('Input.dispatchMouseEvent', {type: 'mousePressed', x: a[0], y: a[1], pointerType: 'pen', button: 'left', buttons: 1, clickCount: 1, force: .6}); }
+  async function up(t, b) { if (t === 'touch') await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []}); else await cdp.send('Input.dispatchMouseEvent', {type: 'mouseReleased', x: b[0], y: b[1], pointerType: 'pen', button: 'left', buttons: 0, clickCount: 1}); await wait(80); }
+  async function move(t, a, b) { for (let i = 1; i <= 12; i++) { const x = a[0] + (b[0] - a[0]) * i / 12, y = a[1] + (b[1] - a[1]) * i / 12; if (t === 'touch') await cdp.send('Input.dispatchTouchEvent', {type: 'touchMove', touchPoints: [{x, y, id: 5}]}); else await cdp.send('Input.dispatchMouseEvent', {type: 'mouseMoved', x, y, pointerType: 'pen', button: 'left', buttons: 1, force: .6}); } }
+  const wallPt = w => p.evaluate(w => { const s = PM.toScr(...fromW(w, wf())), r = cv.getBoundingClientRect(); return [s[0] / devicePixelRatio + r.left, s[1] / devicePixelRatio + r.top]; }, w);
+  const tap = async (t, a) => { await down(t, a); await up(t, a); await wait(150); };
+  const box = sel => p.evaluate(s => { const e = [...document.querySelectorAll(s)].find(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
+  const tapSel = async (t, sel) => { const c = await box(sel); if (!c) throw new Error('нет на экране: ' + sel); await tap(t, c); };
+  const tapText = async (t, txt, scope = 'body') => { const c = await p.evaluate(([txt, scope]) => { const e = [...document.querySelectorAll(scope + ' button,' + scope + ' [role=button],' + scope + ' .lp-it')].find(e => e.getClientRects().length && e.textContent.trim().includes(txt)); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, [txt, scope]); if (!c) throw new Error('нет текста: ' + txt); await tap(t, c); };
+  const plPt = w => p.evaluate(w => { const s = PM.toScr(...w), r = cv.getBoundingClientRect(); return [s[0] / devicePixelRatio + r.left, s[1] / devicePixelRatio + r.top]; }, w);
+  const cssK = w => p.evaluate(w => { const s = MeasureLabSketch.map.toScrK(...w), r = cv.getBoundingClientRect(); return [s[0] / devicePixelRatio + r.left, s[1] / devicePixelRatio + r.top]; }, w);
+  async function caseTool(sel) { const f = (await box('#zpF')) || (await box('#labPlF')); if (!f) throw new Error('футляр не виден'); await tap('touch', f); await wait(250); await tapSel('touch', '#tb.on ' + sel); await wait(250); }
+  const run = k => !ONLY.length || ONLY.includes(k);
+  const toastT = () => p.evaluate(() => [document.getElementById('toast').textContent, (document.querySelector('#labPrj .lp-to.on span') || {}).textContent || '']);
+
+  /* ── фикстура: проект «Сидоровы · Кухня-гостиная» через список (＋), фото → ⌗ → ▣ стена «Кухня» 2364 × 2700, план 4 стены,
+        две зоны, три конструкции (как у QA: общая стена в нескольких конструкциях) ── */
+  async function project(client = 'Сидоровы', name = 'Кухня-гостиная') {
+    await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+    await tapSel('touch', '#labPrj .lp-fab'); await p.waitForSelector('#labPrj .lp-dg.on');
+    await tapSel('touch', '#labPrj [data-c]'); await p.keyboard.type(client);
+    await tapSel('touch', '#labPrj [data-n]'); await p.keyboard.type(name);
+    await tapSel('pen', '#labPrj .lp-bt .lp-pr');
+    await p.waitForFunction(() => window.MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(500);
+    { const fc = p.waitForEvent('filechooser', {timeout: 8000}); await caseTool('[data-lab-tb="gal"]'); await (await fc).setFiles(SAMPLE); }
+    await p.waitForFunction(() => S.refs && S.refs.length === 1, null, {timeout: 10000}); await wait(300);
+    return p.evaluate(async () => {
+      const ref = S.refs[0]; ref.q = [[ref.iw * .06, ref.ih * .9], [ref.iw * .96, ref.ih * .9], [ref.iw * .96, ref.ih * .1], [ref.iw * .06, ref.ih * .1]]; ref.qUser = 1; ref.labCor = 1; saveSess();
+      const w = await MeasureLabSketch.createWall(ref.id, {name: 'Кухня'}, {L: 2364, H: 2700});
+      await MeasureLabSketch.goPlan();
+      const r = S.room, m = r.ms; m.pts = [[0, 0], [2364, 0], [2364, -3000], [0, -3000]]; m.closed = true;
+      m.dims = [2364, 3000, 2364, 3000].map((v, i) => ({id: 'gd' + i, a: {p: i}, b: {p: (i + 1) % 4}, v})); gnFix(r); wIdFix(r);
+      const W = k => r.wid[k];
+      m.labRooms = [{id: 'zA', name: 'Кухня', zn: 1, pts: [[0, 0], [2364, 0], [2364, -1500], [0, -1500]], walls: [W(0), W(1)]},
+        {id: 'zB', name: 'Гостиная', zn: 2, pts: [[0, -1500], [2364, -1500], [2364, -3000], [0, -3000]], walls: [W(2), W(3)]}];
+      r.prd = [{id: 'pq1', no: 1, type: 'Кухня', n: '', room: 'zA', w: [{wid: W(0)}, {wid: W(1)}]}, {id: 'pq2', no: 2, type: 'Шкаф', n: '', room: 'zA', w: [{wid: W(0)}]},
+        {id: 'pq3', no: 3, type: 'Шкаф', n: '', room: 'zB', w: [{wid: W(0)}, {wid: W(3)}]}];
+      r.prdT = Date.now(); r.prdHi = 3; saveRoom(); await flushAll(); await MeasureLabSketch.saveNow();
+      return {pid: MeasureLabSketch.pid(), room: r.id, wall: w, wid: {...r.wid}};
+    });
+  }
+  // выгрузка «для Akrix» штатным путём v81-холста: ⇪ поделиться → appSave (AkrixApp.save)
+  async function exportAkrix() {
+    await p.evaluate(() => { window.__saved = null; window.AkrixApp = Object.assign(window.AkrixApp || {}, {save: (fn, type, txt) => { window.__saved = {fn, txt}; }}); });
+    const r = await p.evaluate(async () => { try { await cvShare81(); } catch (e) { return String(e); } return window.__saved ? null : 'нет файла: ' + document.getElementById('toast').textContent; });
+    if (r) return {err: r};
+    return JSON.parse(await p.evaluate(() => window.__saved.txt));
+  }
+  const norm = o => { if (!o || o.err) return o; const c = JSON.parse(JSON.stringify(o)); delete c.date; for (const R of c.rooms || []) delete R.date; return JSON.stringify(c); };
+  const sum = o => o && !o.err ? {rooms: (o.rooms || []).length, walls: (o.rooms || []).reduce((s, R) => s + Object.keys(R.ms.wl || {}).length, 0), zn: (o.rooms || []).flatMap(R => (R.ms.labRooms || []).map(q => q.zn)), prd: (o.prd || []).map(q => q.no + ':' + q.type + ':' + q.walls.length), no: (o.rooms || []).flatMap(R => Object.values(R.ms.wl || {}).flatMap(W => (W.els || []).map(e => e.no)))} : o;
+
+  try {
+    /* ════ Д2: выгрузка «для Akrix» из плана, стены, холста и списка проектов — один и тот же полный файл ════ */
+    if (run('d2')) {
+      await fresh(); errors = [];
+      const F = await project();
+      // элемент на стене (ригель) — els[].no / d в выгрузке
+      await p.evaluate(async () => { const it = [...MeasureLabSketch.state.items].find(i => i.t === 'wall'); await MeasureLabSketch.activate(it); MeasureLabSketch.fitRegion(it); MeasureLabSketch.map.syncToS(it); draw(); }); await wait(400);
+      await caseTool('.tl[data-k="rig"]'); { const a = await wallPt([4, 2319]), b = await wallPt([2362, 2699]); await down('pen', a); await move('pen', a, b); await up('pen', b); await wait(300); }
+      info.d2rig = await p.evaluate(async () => { saveNow(); await flushAll(); return {els: S.els.map(e => e.k), act: MeasureLabSketch.active().t, tool: S.tool, mk: S.mk}; }); await shot('d2-rig');
+      const ex = {};
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300); ex.plan = await exportAkrix();
+      await p.evaluate(() => MeasureLabSketch.activate([...MeasureLabSketch.state.items].find(i => i.t === 'wall'))); await wait(300); ex.wall = await exportAkrix();
+      info.d2wall = await p.evaluate(() => ({mode: S.mode, act: MeasureLabSketch.active().t, room: !!S.room, room0: !!S.room0}));
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(300); ex.board = await exportAkrix();
+      info.d2board = await p.evaluate(() => ({mode: S.mode, act: MeasureLabSketch.active().t, room: !!S.room, room0: !!S.room0, kind: S.sess && S.sess.kind}));
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400); ex.list = await exportAkrix();
+      info.d2 = Object.fromEntries(Object.entries(ex).map(([k, v]) => [k, sum(v)]));
+      const P = ex.plan;
+      check(P && !P.err && P.prd && P.prd.length === 3 && sum(P).zn.join() === '1,2' && sum(P).no.length === 1 && Number.isInteger(sum(P).no[0]), 'Д2: выгрузка из плана — prd 3, labRooms zn 1,2, els[].no', info.d2.plan);
+      for (const k of ['wall', 'board', 'list']) check(norm(ex[k]) === norm(P), `Д2: выгрузка из режима «${k}» = выгрузке из плана (кроме date)`, info.d2[k]);
+      // путь через интерфейс: ⋮ → ⇪ Выгрузка для Akrix → «поделиться» при активной стене
+      await p.evaluate(() => MeasureLabProjects.hide()); await p.evaluate(() => MeasureLabSketch.activate([...MeasureLabSketch.state.items].find(i => i.t === 'wall'))); await wait(400);
+      await p.evaluate(() => { window.__saved = null; });
+      await tapSel('touch', '#bMore'); await wait(200); await tapSel('touch', '#bExp'); await wait(400); await shot('d2-exp-wall');
+      await tapSel('touch', '[data-zx="o"]'); await p.waitForFunction(() => window.__saved, null, {timeout: 15000});
+      const ui = JSON.parse(await p.evaluate(() => window.__saved.txt));
+      check(norm(ui) === norm(P), 'Д2: ⋮ → ⇪ → «поделиться» со стены (касания) — тот же файл, prd 3', sum(ui));
+      // перезапуск на подложке (последнего открытого помещения в памяти нет) → ⋮ → ⇪: в окне есть «поделиться», файл тот же
+      await p.evaluate(async () => { await MeasureLabSketch.activate('board'); try { await flushAll(); } catch (e) { } await MeasureLabSketch.saveNow(); });
+      await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && MeasureLabSketch.isOpen(), null, {timeout: 20000}); await wait(1200);
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(300);
+      info.d2restart = await p.evaluate(() => ({act: MeasureLabSketch.active().t, room: !!S.room, room0: !!S.room0}));
+      await p.evaluate(() => { window.__saved = null; window.AkrixApp = Object.assign(window.AkrixApp || {}, {save: (fn, type, txt) => { window.__saved = {fn, txt}; }}); });
+      await tapSel('touch', '#bMore'); await wait(200); await tapSel('touch', '#bExp'); await wait(400); await shot('d2-exp-board-restart');
+      await tapSel('touch', '[data-zx="o"]'); await p.waitForFunction(() => window.__saved, null, {timeout: 15000});
+      const rs = JSON.parse(await p.evaluate(() => window.__saved.txt));
+      check(info.d2restart.act === 'board' && norm(rs) === norm(P), 'Д2: после перезапуска с подложки (касания ⋮ → ⇪ → «поделиться») — тот же файл', {st: info.d2restart, f: sum(rs)});
+      fs.writeFileSync(path.join(SHOT, 'd2-export.json'), JSON.stringify(P, null, 1));
+      check(errors.length === 0, 'Д2: нет ошибок страницы', errors);
+    }
+  } catch (e) {
+    check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
+  } finally { await browser.close(); await new Promise(r => server.close(r)); }
+  fs.writeFileSync(path.join(root, 'tests', `qa-v8218-g3-${TAG}.json`), JSON.stringify({checks, errors, info}, null, 2));
+  const bad = checks.filter(c => !c.ok); console.log(`${bad.length ? 'FAIL' : 'PASS'} qa-v8218-g3 ${TAG}: ${checks.length - bad.length}/${checks.length}`); if (bad.length) process.exitCode = 1;
+})().catch(e => { console.error(e); process.exitCode = 1; });
