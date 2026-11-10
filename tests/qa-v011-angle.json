@@ -2,485 +2,1103 @@
   "checks": [
     {
       "ok": true,
-      "name": "actual angle slider reaches labeled 0 degrees",
-      "detail": "Раскрытие боковых стен · 0°"
+      "name": "90 degrees is bit-for-bit the v81 default projection"
     },
     {
       "ok": true,
-      "name": "0 L wing uses true local fold angle",
+      "name": "pen sets ∠° slider to 0 through the interface",
       "detail": {
-        "delta": [
-          1000,
-          0,
+        "got": 0,
+        "value": 0,
+        "label": "0°"
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 slider range 0..180 step 1 with v81 ticks",
+      "detail": {
+        "value": 0,
+        "label": "0°",
+        "ticks": [
+          "0° · слева",
+          "90° · прямо",
+          "180° · справа"
+        ],
+        "range": [
+          "0",
+          "180",
+          "1"
+        ],
+        "front": {
+          "A": [
+            0,
+            2700,
+            0
+          ],
+          "B": [
+            4000,
+            2700,
+            0
+          ],
+          "C": [
+            4000,
+            0,
+            0
+          ],
+          "D": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scr": {
+          "A": [
+            86.51999999999998,
+            598.5392307692308
+          ],
+          "B": [
+            904.1815384615384,
+            598.5392307692308
+          ],
+          "C": [
+            904.1815384615384,
+            1150.4607692307693
+          ],
+          "D": [
+            86.51999999999998,
+            1150.4607692307693
+          ],
+          "FL": [
+            86.51999999999998,
+            1150.4607692307693
+          ],
+          "FR": [
+            1149.48,
+            1150.4607692307693
+          ],
+          "LB": [
+            86.51999999999998,
+            1150.4607692307693
+          ],
+          "RB": [
+            1149.48,
+            1150.4607692307693
+          ],
+          "LT": [
+            86.51999999999998,
+            598.5392307692308
+          ],
+          "RT": [
+            1149.48,
+            598.5392307692308
+          ]
+        },
+        "vis": {
+          "floor": true,
+          "L": false,
+          "R": true,
+          "M": true
+        },
+        "fd": [
+          0.04905969230769233,
           0
         ],
-        "expected": [
-          1000,
+        "vd": [
+          0.049059692307692374,
+          0
+        ],
+        "nm": [
+          {
+            "s": "R",
+            "c": [
+              1026.8307692307692,
+              874.5
+            ],
+            "inside": true
+          }
+        ],
+        "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+        "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+        "mos": [
+          0.5110384615384616,
           0,
+          0,
+          0.5110384615384616,
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "glyph": 66,
+        "scale": 1,
+        "farHit": "D",
+        "pvL": false,
+        "pvR": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 screen angle wall line -> floor depth axis equals slider value",
+      "detail": {
+        "shown": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 floor and side walls share their bottom edges (LB=FL, RB=FR on screen)",
+      "detail": {
+        "LB": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "FL": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "RB": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "FR": [
+          1149.48,
+          1150.4607692307693
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 side walls keep the v81 fan: left 90+a/2, right a/2 (or edge-on)",
+      "detail": {
+        "left": 0,
+        "right": 0,
+        "lenL": 0,
+        "lenR": 245.29846153846165
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 column volume depth follows the floor depth field",
+      "detail": {
+        "vd": [
+          0.049059692307692374,
+          0
+        ],
+        "fd": [
+          0.04905969230769233,
           0
         ]
       }
     },
     {
       "ok": true,
-      "name": "0 L hidden wing point cannot be edited",
-      "detail": {
-        "key": "L",
-        "D": 1000,
-        "delta": [
-          1000,
-          0,
-          0
-        ],
-        "topDelta": [
-          1000,
-          0,
-          0
-        ],
-        "farHit": null,
-        "visible": false
-      }
-    },
-    {
-      "ok": true,
-      "name": "0 R wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          -1000,
-          0,
-          0
-        ],
-        "expected": [
-          -1000,
-          0,
-          0
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "0 R hidden wing point cannot be edited",
-      "detail": {
-        "key": "R",
-        "D": 1000,
-        "delta": [
-          -1000,
-          0,
-          0
-        ],
-        "topDelta": [
-          -1000,
-          0,
-          0
-        ],
-        "farHit": null,
-        "visible": false
-      }
-    },
-    {
-      "ok": true,
-      "name": "0 leaves measured front and room plan unchanged"
-    },
-    {
-      "ok": true,
-      "name": "0 leaves front photo transform and Aa/icon size unchanged"
-    },
-    {
-      "ok": true,
-      "name": "actual angle slider reaches labeled 45 degrees",
-      "detail": "Раскрытие боковых стен · 45°"
-    },
-    {
-      "ok": true,
-      "name": "45 L wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          707.1067811865476,
-          0,
-          707.1067811865474
-        ],
-        "expected": [
-          707.1067811865476,
-          0,
-          707.1067811865474
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "45 L hidden wing point cannot be edited",
-      "detail": {
-        "key": "L",
-        "D": 1000,
-        "delta": [
-          707.1067811865476,
-          0,
-          707.1067811865474
-        ],
-        "topDelta": [
-          707.1067811865476,
-          0,
-          707.1067811865474
-        ],
-        "farHit": null,
-        "visible": false
-      }
-    },
-    {
-      "ok": true,
-      "name": "45 R wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          -707.1067811865478,
-          0,
-          707.1067811865474
-        ],
-        "expected": [
-          -707.1067811865476,
-          0,
-          707.1067811865474
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "45 R hidden wing point cannot be edited",
-      "detail": {
-        "key": "R",
-        "D": 1000,
-        "delta": [
-          -707.1067811865478,
-          0,
-          707.1067811865474
-        ],
-        "topDelta": [
-          -707.1067811865478,
-          0,
-          707.1067811865474
-        ],
-        "farHit": null,
-        "visible": false
-      }
-    },
-    {
-      "ok": true,
-      "name": "45 leaves measured front and room plan unchanged"
-    },
-    {
-      "ok": true,
-      "name": "45 leaves front photo transform and Aa/icon size unchanged"
-    },
-    {
-      "ok": true,
-      "name": "actual angle slider reaches labeled 90 degrees",
-      "detail": "Раскрытие боковых стен · 90°"
-    },
-    {
-      "ok": true,
-      "name": "90 L wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          0,
-          0,
-          1000
-        ],
-        "expected": [
-          6.123233995736766e-14,
-          0,
-          1000
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "90 L hidden wing point cannot be edited",
-      "detail": {
-        "key": "L",
-        "D": 1000,
-        "delta": [
-          0,
-          0,
-          1000
-        ],
-        "topDelta": [
-          0,
-          0,
-          1000
-        ],
-        "farHit": "LB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "90 R wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          0,
-          0,
-          1000
-        ],
-        "expected": [
-          -6.123233995736766e-14,
-          0,
-          1000
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "90 R hidden wing point cannot be edited",
-      "detail": {
-        "key": "R",
-        "D": 1000,
-        "delta": [
-          0,
-          0,
-          1000
-        ],
-        "topDelta": [
-          0,
-          0,
-          1000
-        ],
-        "farHit": "RB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "90 leaves measured front and room plan unchanged"
-    },
-    {
-      "ok": true,
-      "name": "90 leaves front photo transform and Aa/icon size unchanged"
-    },
-    {
-      "ok": true,
-      "name": "actual angle slider reaches labeled 135 degrees",
-      "detail": "Раскрытие боковых стен · 135°"
-    },
-    {
-      "ok": true,
-      "name": "135 L wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          -707.1067811865474,
-          0,
-          707.1067811865476
-        ],
-        "expected": [
-          -707.1067811865474,
-          0,
-          707.1067811865476
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "135 L hidden wing point cannot be edited",
-      "detail": {
-        "key": "L",
-        "D": 1000,
-        "delta": [
-          -707.1067811865474,
-          0,
-          707.1067811865476
-        ],
-        "topDelta": [
-          -707.1067811865474,
-          0,
-          707.1067811865476
-        ],
-        "farHit": "LB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "135 R wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          707.1067811865478,
-          0,
-          707.1067811865476
-        ],
-        "expected": [
-          707.1067811865474,
-          0,
-          707.1067811865476
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "135 R hidden wing point cannot be edited",
-      "detail": {
-        "key": "R",
-        "D": 1000,
-        "delta": [
-          707.1067811865478,
-          0,
-          707.1067811865476
-        ],
-        "topDelta": [
-          707.1067811865478,
-          0,
-          707.1067811865476
-        ],
-        "farHit": "RB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "135 leaves measured front and room plan unchanged"
-    },
-    {
-      "ok": true,
-      "name": "135 leaves front photo transform and Aa/icon size unchanged"
-    },
-    {
-      "ok": true,
-      "name": "actual angle slider reaches labeled 180 degrees",
-      "detail": "Раскрытие боковых стен · 180°"
-    },
-    {
-      "ok": true,
-      "name": "180 L wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          -1000,
-          0,
-          0
-        ],
-        "expected": [
-          -1000,
-          0,
-          1.2246467991473532e-13
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "180 L hidden wing point cannot be edited",
-      "detail": {
-        "key": "L",
-        "D": 1000,
-        "delta": [
-          -1000,
-          0,
-          0
-        ],
-        "topDelta": [
-          -1000,
-          0,
-          0
-        ],
-        "farHit": "LB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "180 R wing uses true local fold angle",
-      "detail": {
-        "delta": [
-          1000,
-          0,
-          0
-        ],
-        "expected": [
-          1000,
-          0,
-          1.2246467991473532e-13
-        ]
-      }
-    },
-    {
-      "ok": true,
-      "name": "180 R hidden wing point cannot be edited",
-      "detail": {
-        "key": "R",
-        "D": 1000,
-        "delta": [
-          1000,
-          0,
-          0
-        ],
-        "topDelta": [
-          1000,
-          0,
-          0
-        ],
-        "farHit": "RB",
-        "visible": true
-      }
-    },
-    {
-      "ok": true,
-      "name": "180 leaves measured front and room plan unchanged"
-    },
-    {
-      "ok": true,
-      "name": "180 leaves front photo transform and Aa/icon size unchanged"
-    },
-    {
-      "ok": true,
-      "name": "display slider does not alter exported plan or measured angles"
-    },
-    {
-      "ok": true,
-      "name": "adjacent content remains projected in a visible side view",
+      "name": "0 side wall names stay on their tilted faces",
       "detail": [
         {
-          "angle": 0,
-          "content": []
-        },
-        {
-          "angle": 45,
-          "content": []
-        },
-        {
-          "angle": 90,
-          "content": [
-            {
-              "side": "L",
-              "neighbor": 1,
-              "session": "s1794314684192",
-              "count": 1,
-              "spanMm": 1000,
-              "flipped": true
-            }
-          ]
-        },
-        {
-          "angle": 135,
-          "content": [
-            {
-              "side": "L",
-              "neighbor": 1,
-              "session": "s1794314684192",
-              "count": 1,
-              "spanMm": 1000,
-              "flipped": true
-            }
-          ]
-        },
-        {
-          "angle": 180,
-          "content": [
-            {
-              "side": "L",
-              "neighbor": 1,
-              "session": "s1794314684192",
-              "count": 1,
-              "spanMm": 1000,
-              "flipped": true
-            }
-          ]
+          "s": "R",
+          "c": [
+            1026.8307692307692,
+            874.5
+          ],
+          "inside": true
         }
       ]
+    },
+    {
+      "ok": true,
+      "name": "0 hidden side point cannot be edited",
+      "detail": {
+        "pvL": false,
+        "farHit": "D"
+      }
+    },
+    {
+      "ok": true,
+      "name": "0 measured front, plan and wall objects unchanged"
+    },
+    {
+      "ok": true,
+      "name": "0 front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "pen sets ∠° slider to 45 through the interface",
+      "detail": {
+        "got": 45,
+        "value": 45,
+        "label": "45°"
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 slider range 0..180 step 1 with v81 ticks",
+      "detail": {
+        "value": 45,
+        "label": "45°",
+        "ticks": [
+          "0° · слева",
+          "90° · прямо",
+          "180° · справа"
+        ],
+        "range": [
+          "0",
+          "180",
+          "1"
+        ],
+        "front": {
+          "A": [
+            0,
+            2700,
+            0
+          ],
+          "B": [
+            4000,
+            2700,
+            0
+          ],
+          "C": [
+            4000,
+            0,
+            0
+          ],
+          "D": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scr": {
+          "A": [
+            122.44312798499396,
+            555.1761793771124
+          ],
+          "B": [
+            940.1046664465323,
+            555.1761793771124
+          ],
+          "C": [
+            940.1046664465323,
+            1107.0977178386509
+          ],
+          "D": [
+            122.44312798499396,
+            1107.0977178386509
+          ],
+          "FL": [
+            86.52000000000004,
+            1193.8238206228878
+          ],
+          "FR": [
+            1149.4799999999998,
+            1193.8238206228878
+          ],
+          "LB": [
+            86.52000000000004,
+            1193.8238206228878
+          ],
+          "RB": [
+            1149.4799999999998,
+            1193.8238206228878
+          ],
+          "LT": [
+            86.52000000000004,
+            641.9022821613491
+          ],
+          "RT": [
+            1149.4799999999998,
+            641.9022821613491
+          ]
+        },
+        "vis": {
+          "floor": true,
+          "L": true,
+          "R": true,
+          "M": true
+        },
+        "fd": [
+          0.013136564322698363,
+          0.0867261027842369
+        ],
+        "vd": [
+          0.013136564322698234,
+          0.0867261027842369
+        ],
+        "nm": [
+          {
+            "s": "R",
+            "c": [
+              1044.792333223266,
+              874.5
+            ],
+            "inside": true
+          }
+        ],
+        "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+        "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+        "mos": [
+          0.5110384615384616,
+          0,
+          0,
+          0.5110384615384616,
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "glyph": 66,
+        "scale": 1,
+        "farHit": "LB",
+        "pvL": true,
+        "pvR": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 screen angle wall line -> floor depth axis equals slider value",
+      "detail": {
+        "shown": 45
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 floor and side walls share their bottom edges (LB=FL, RB=FR on screen)",
+      "detail": {
+        "LB": [
+          86.52000000000004,
+          1193.8238206228878
+        ],
+        "FL": [
+          86.52000000000004,
+          1193.8238206228878
+        ],
+        "RB": [
+          1149.4799999999998,
+          1193.8238206228878
+        ],
+        "FR": [
+          1149.4799999999998,
+          1193.8238206228878
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 side walls keep the v81 fan: left 90+a/2, right a/2 (or edge-on)",
+      "detail": {
+        "left": 112.49999999999999,
+        "right": 22.50000000000003,
+        "lenL": 93.87165721541447,
+        "lenR": 226.62622797189164
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 column volume depth follows the floor depth field",
+      "detail": {
+        "vd": [
+          0.013136564322698234,
+          0.0867261027842369
+        ],
+        "fd": [
+          0.013136564322698363,
+          0.0867261027842369
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 side wall names stay on their tilted faces",
+      "detail": [
+        {
+          "s": "R",
+          "c": [
+            1044.792333223266,
+            874.5
+          ],
+          "inside": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "45 hidden side point cannot be edited",
+      "detail": {
+        "pvL": true,
+        "farHit": "LB"
+      }
+    },
+    {
+      "ok": true,
+      "name": "45 measured front, plan and wall objects unchanged"
+    },
+    {
+      "ok": true,
+      "name": "45 front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "pen sets ∠° slider to 90 through the interface",
+      "detail": {
+        "got": 90,
+        "value": 90,
+        "label": "90°"
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 slider range 0..180 step 1 with v81 ticks",
+      "detail": {
+        "value": 90,
+        "label": "90°",
+        "ticks": [
+          "0° · слева",
+          "90° · прямо",
+          "180° · справа"
+        ],
+        "range": [
+          "0",
+          "180",
+          "1"
+        ],
+        "front": {
+          "A": [
+            0,
+            2700,
+            0
+          ],
+          "B": [
+            4000,
+            2700,
+            0
+          ],
+          "C": [
+            4000,
+            0,
+            0
+          ],
+          "D": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scr": {
+          "A": [
+            209.1692307692308,
+            537.2146153846153
+          ],
+          "B": [
+            1026.8307692307692,
+            537.2146153846153
+          ],
+          "C": [
+            1026.8307692307692,
+            1089.1361538461538
+          ],
+          "D": [
+            209.1692307692308,
+            1089.1361538461538
+          ],
+          "FL": [
+            86.52000000000004,
+            1211.7853846153846
+          ],
+          "FR": [
+            1149.48,
+            1211.7853846153846
+          ],
+          "LB": [
+            86.52000000000004,
+            1211.7853846153846
+          ],
+          "RB": [
+            1149.48,
+            1211.7853846153846
+          ],
+          "LT": [
+            86.52000000000004,
+            659.8638461538461
+          ],
+          "RT": [
+            1149.48,
+            659.8638461538461
+          ]
+        },
+        "vis": {
+          "floor": true,
+          "L": true,
+          "R": true,
+          "M": true
+        },
+        "fd": [
+          -0.07358953846153846,
+          0.12264923076923083
+        ],
+        "vd": [
+          -0.07358953846153839,
+          0.12264923076923083
+        ],
+        "nm": [
+          {
+            "s": "L",
+            "c": [
+              147.84461538461542,
+              874.4999999999999
+            ],
+            "inside": true
+          },
+          {
+            "s": "R",
+            "c": [
+              1088.1553846153847,
+              874.4999999999999
+            ],
+            "inside": true
+          }
+        ],
+        "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+        "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+        "mos": [
+          0.5110384615384616,
+          0,
+          0,
+          0.5110384615384616,
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "glyph": 66,
+        "scale": 1,
+        "farHit": "LB",
+        "pvL": true,
+        "pvR": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 screen angle wall line -> floor depth axis equals slider value",
+      "detail": {
+        "shown": 90
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 floor and side walls share their bottom edges (LB=FL, RB=FR on screen)",
+      "detail": {
+        "LB": [
+          86.52000000000004,
+          1211.7853846153846
+        ],
+        "FL": [
+          86.52000000000004,
+          1211.7853846153846
+        ],
+        "RB": [
+          1149.48,
+          1211.7853846153846
+        ],
+        "FR": [
+          1149.48,
+          1211.7853846153846
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 side walls keep the v81 fan: left 90+a/2, right a/2 (or edge-on)",
+      "detail": {
+        "left": 135,
+        "right": 45,
+        "lenL": 173.45220556847372,
+        "lenR": 173.45220556847377
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 column volume depth follows the floor depth field",
+      "detail": {
+        "vd": [
+          -0.07358953846153839,
+          0.12264923076923083
+        ],
+        "fd": [
+          -0.07358953846153846,
+          0.12264923076923083
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 side wall names stay on their tilted faces",
+      "detail": [
+        {
+          "s": "L",
+          "c": [
+            147.84461538461542,
+            874.4999999999999
+          ],
+          "inside": true
+        },
+        {
+          "s": "R",
+          "c": [
+            1088.1553846153847,
+            874.4999999999999
+          ],
+          "inside": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "90 hidden side point cannot be edited",
+      "detail": {
+        "pvL": true,
+        "farHit": "LB"
+      }
+    },
+    {
+      "ok": true,
+      "name": "90 measured front, plan and wall objects unchanged"
+    },
+    {
+      "ok": true,
+      "name": "90 front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "pen sets ∠° slider to 135 through the interface",
+      "detail": {
+        "got": 135,
+        "value": 135,
+        "label": "135°"
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 slider range 0..180 step 1 with v81 ticks",
+      "detail": {
+        "value": 135,
+        "label": "135°",
+        "ticks": [
+          "0° · слева",
+          "90° · прямо",
+          "180° · справа"
+        ],
+        "range": [
+          "0",
+          "180",
+          "1"
+        ],
+        "front": {
+          "A": [
+            0,
+            2700,
+            0
+          ],
+          "B": [
+            4000,
+            2700,
+            0
+          ],
+          "C": [
+            4000,
+            0,
+            0
+          ],
+          "D": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scr": {
+          "A": [
+            295.8953335534676,
+            555.1761793771124
+          ],
+          "B": [
+            1113.5568720150059,
+            555.1761793771124
+          ],
+          "C": [
+            1113.5568720150059,
+            1107.0977178386509
+          ],
+          "D": [
+            295.8953335534676,
+            1107.0977178386509
+          ],
+          "FL": [
+            86.51999999999998,
+            1193.8238206228878
+          ],
+          "FR": [
+            1149.48,
+            1193.8238206228878
+          ],
+          "LB": [
+            86.51999999999998,
+            1193.8238206228878
+          ],
+          "RB": [
+            1149.48,
+            1193.8238206228878
+          ],
+          "LT": [
+            86.51999999999998,
+            641.9022821613491
+          ],
+          "RT": [
+            1149.48,
+            641.9022821613491
+          ]
+        },
+        "vis": {
+          "floor": true,
+          "L": true,
+          "R": true,
+          "M": true
+        },
+        "fd": [
+          -0.16031564124577524,
+          0.0867261027842369
+        ],
+        "vd": [
+          -0.16031564124577527,
+          0.0867261027842369
+        ],
+        "nm": [
+          {
+            "s": "L",
+            "c": [
+              191.2076667767338,
+              874.5
+            ],
+            "inside": true
+          }
+        ],
+        "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+        "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+        "mos": [
+          0.5110384615384616,
+          0,
+          0,
+          0.5110384615384616,
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "glyph": 66,
+        "scale": 1,
+        "farHit": "LB",
+        "pvL": true,
+        "pvR": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 screen angle wall line -> floor depth axis equals slider value",
+      "detail": {
+        "shown": 135
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 floor and side walls share their bottom edges (LB=FL, RB=FR on screen)",
+      "detail": {
+        "LB": [
+          86.51999999999998,
+          1193.8238206228878
+        ],
+        "FL": [
+          86.51999999999998,
+          1193.8238206228878
+        ],
+        "RB": [
+          1149.48,
+          1193.8238206228878
+        ],
+        "FR": [
+          1149.48,
+          1193.8238206228878
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 side walls keep the v81 fan: left 90+a/2, right a/2 (or edge-on)",
+      "detail": {
+        "left": 157.5,
+        "right": 67.4999999999999,
+        "lenL": 226.62622797189172,
+        "lenR": 93.87165721541457
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 column volume depth follows the floor depth field",
+      "detail": {
+        "vd": [
+          -0.16031564124577527,
+          0.0867261027842369
+        ],
+        "fd": [
+          -0.16031564124577524,
+          0.0867261027842369
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 side wall names stay on their tilted faces",
+      "detail": [
+        {
+          "s": "L",
+          "c": [
+            191.2076667767338,
+            874.5
+          ],
+          "inside": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "135 hidden side point cannot be edited",
+      "detail": {
+        "pvL": true,
+        "farHit": "LB"
+      }
+    },
+    {
+      "ok": true,
+      "name": "135 measured front, plan and wall objects unchanged"
+    },
+    {
+      "ok": true,
+      "name": "135 front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "pen sets ∠° slider to 180 through the interface",
+      "detail": {
+        "got": 180,
+        "value": 180,
+        "label": "180°"
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 slider range 0..180 step 1 with v81 ticks",
+      "detail": {
+        "value": 180,
+        "label": "180°",
+        "ticks": [
+          "0° · слева",
+          "90° · прямо",
+          "180° · справа"
+        ],
+        "range": [
+          "0",
+          "180",
+          "1"
+        ],
+        "front": {
+          "A": [
+            0,
+            2700,
+            0
+          ],
+          "B": [
+            4000,
+            2700,
+            0
+          ],
+          "C": [
+            4000,
+            0,
+            0
+          ],
+          "D": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scr": {
+          "A": [
+            331.8184615384615,
+            598.5392307692308
+          ],
+          "B": [
+            1149.48,
+            598.5392307692308
+          ],
+          "C": [
+            1149.48,
+            1150.4607692307693
+          ],
+          "D": [
+            331.8184615384615,
+            1150.4607692307693
+          ],
+          "FL": [
+            86.51999999999998,
+            1150.4607692307693
+          ],
+          "FR": [
+            1149.48,
+            1150.4607692307693
+          ],
+          "LB": [
+            86.51999999999998,
+            1150.4607692307693
+          ],
+          "RB": [
+            1149.48,
+            1150.4607692307693
+          ],
+          "LT": [
+            86.51999999999998,
+            598.5392307692308
+          ],
+          "RT": [
+            1149.48,
+            598.5392307692308
+          ]
+        },
+        "vis": {
+          "floor": true,
+          "L": true,
+          "R": false,
+          "M": true
+        },
+        "fd": [
+          -0.19623876923076924,
+          0
+        ],
+        "vd": [
+          -0.19623876923076922,
+          0
+        ],
+        "nm": [
+          {
+            "s": "L",
+            "c": [
+              209.16923076923075,
+              874.5
+            ],
+            "inside": true
+          }
+        ],
+        "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+        "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+        "mos": [
+          0.5110384615384616,
+          0,
+          0,
+          0.5110384615384616,
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "glyph": 66,
+        "scale": 1,
+        "farHit": "LB",
+        "pvL": true,
+        "pvR": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 screen angle wall line -> floor depth axis equals slider value",
+      "detail": {
+        "shown": 180
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 floor and side walls share their bottom edges (LB=FL, RB=FR on screen)",
+      "detail": {
+        "LB": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "FL": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "RB": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "FR": [
+          1149.48,
+          1150.4607692307693
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 side walls keep the v81 fan: left 90+a/2, right a/2 (or edge-on)",
+      "detail": {
+        "left": 180,
+        "right": 0,
+        "lenL": 245.29846153846154,
+        "lenR": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 column volume depth follows the floor depth field",
+      "detail": {
+        "vd": [
+          -0.19623876923076922,
+          0
+        ],
+        "fd": [
+          -0.19623876923076924,
+          0
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 side wall names stay on their tilted faces",
+      "detail": [
+        {
+          "s": "L",
+          "c": [
+            209.16923076923075,
+            874.5
+          ],
+          "inside": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "180 hidden side point cannot be edited",
+      "detail": {
+        "pvL": true,
+        "farHit": "LB"
+      }
+    },
+    {
+      "ok": true,
+      "name": "180 measured front, plan and wall objects unchanged"
+    },
+    {
+      "ok": true,
+      "name": "180 front photo transform and Aa/icon size unchanged"
+    },
+    {
+      "ok": true,
+      "name": "whole view tilts monotonically one way as the slider grows",
+      "detail": [
+        0,
+        -35.923127984993926,
+        -122.64923076923077,
+        -209.3753335534676,
+        -245.29846153846154
+      ]
+    },
+    {
+      "ok": true,
+      "name": "display slider does not alter exported plan, dims or measured angles"
     },
     {
       "ok": true,
@@ -492,7 +1110,24 @@
   "frames": [
     {
       "angle": 0,
+      "got": 0,
+      "shown": 0,
+      "left": 0,
+      "right": 0,
+      "lenL": 0,
+      "lenR": 245.29846153846165,
       "value": 0,
+      "label": "0°",
+      "ticks": [
+        "0° · слева",
+        "90° · прямо",
+        "180° · справа"
+      ],
+      "range": [
+        "0",
+        "180",
+        "1"
+      ],
       "front": {
         "A": [
           0,
@@ -515,57 +1150,108 @@
           0
         ]
       },
-      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
-      "mos": [
-        0.3406923076923077,
-        0,
-        0,
-        0.3406923076923077,
-        139.44615384615383,
-        476.1430769230769
+      "scr": {
+        "A": [
+          86.51999999999998,
+          598.5392307692308
+        ],
+        "B": [
+          904.1815384615384,
+          598.5392307692308
+        ],
+        "C": [
+          904.1815384615384,
+          1150.4607692307693
+        ],
+        "D": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "FL": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "FR": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "LB": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "RB": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "LT": [
+          86.51999999999998,
+          598.5392307692308
+        ],
+        "RT": [
+          1149.48,
+          598.5392307692308
+        ]
+      },
+      "vis": {
+        "floor": true,
+        "L": false,
+        "R": true,
+        "M": true
+      },
+      "fd": [
+        0.04905969230769233,
+        0
       ],
-      "glyph": 44,
-      "scale": 1,
-      "sides": [
+      "vd": [
+        0.049059692307692374,
+        0
+      ],
+      "nm": [
         {
-          "key": "L",
-          "D": 1000,
-          "delta": [
-            1000,
-            0,
-            0
+          "s": "R",
+          "c": [
+            1026.8307692307692,
+            874.5
           ],
-          "topDelta": [
-            1000,
-            0,
-            0
-          ],
-          "farHit": null,
-          "visible": false
-        },
-        {
-          "key": "R",
-          "D": 1000,
-          "delta": [
-            -1000,
-            0,
-            0
-          ],
-          "topDelta": [
-            -1000,
-            0,
-            0
-          ],
-          "farHit": null,
-          "visible": false
+          "inside": true
         }
       ],
-      "label": "Раскрытие боковых стен · 0°",
-      "content": []
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+      "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+      "mos": [
+        0.5110384615384616,
+        0,
+        0,
+        0.5110384615384616,
+        209.1692307692308,
+        537.2146153846153
+      ],
+      "glyph": 66,
+      "scale": 1,
+      "farHit": "D",
+      "pvL": false,
+      "pvR": true
     },
     {
       "angle": 45,
+      "got": 45,
+      "shown": 45.000000000000036,
+      "left": 112.49999999999999,
+      "right": 22.50000000000003,
+      "lenL": 93.87165721541447,
+      "lenR": 226.62622797189164,
       "value": 45,
+      "label": "45°",
+      "ticks": [
+        "0° · слева",
+        "90° · прямо",
+        "180° · справа"
+      ],
+      "range": [
+        "0",
+        "180",
+        "1"
+      ],
       "front": {
         "A": [
           0,
@@ -588,57 +1274,108 @@
           0
         ]
       },
-      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
-      "mos": [
-        0.3406923076923077,
-        0,
-        0,
-        0.3406923076923077,
-        139.44615384615383,
-        476.1430769230769
+      "scr": {
+        "A": [
+          122.44312798499396,
+          555.1761793771124
+        ],
+        "B": [
+          940.1046664465323,
+          555.1761793771124
+        ],
+        "C": [
+          940.1046664465323,
+          1107.0977178386509
+        ],
+        "D": [
+          122.44312798499396,
+          1107.0977178386509
+        ],
+        "FL": [
+          86.52000000000004,
+          1193.8238206228878
+        ],
+        "FR": [
+          1149.4799999999998,
+          1193.8238206228878
+        ],
+        "LB": [
+          86.52000000000004,
+          1193.8238206228878
+        ],
+        "RB": [
+          1149.4799999999998,
+          1193.8238206228878
+        ],
+        "LT": [
+          86.52000000000004,
+          641.9022821613491
+        ],
+        "RT": [
+          1149.4799999999998,
+          641.9022821613491
+        ]
+      },
+      "vis": {
+        "floor": true,
+        "L": true,
+        "R": true,
+        "M": true
+      },
+      "fd": [
+        0.013136564322698363,
+        0.0867261027842369
       ],
-      "glyph": 44,
-      "scale": 1,
-      "sides": [
+      "vd": [
+        0.013136564322698234,
+        0.0867261027842369
+      ],
+      "nm": [
         {
-          "key": "L",
-          "D": 1000,
-          "delta": [
-            707.1067811865476,
-            0,
-            707.1067811865474
+          "s": "R",
+          "c": [
+            1044.792333223266,
+            874.5
           ],
-          "topDelta": [
-            707.1067811865476,
-            0,
-            707.1067811865474
-          ],
-          "farHit": null,
-          "visible": false
-        },
-        {
-          "key": "R",
-          "D": 1000,
-          "delta": [
-            -707.1067811865478,
-            0,
-            707.1067811865474
-          ],
-          "topDelta": [
-            -707.1067811865478,
-            0,
-            707.1067811865474
-          ],
-          "farHit": null,
-          "visible": false
+          "inside": true
         }
       ],
-      "label": "Раскрытие боковых стен · 45°",
-      "content": []
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+      "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+      "mos": [
+        0.5110384615384616,
+        0,
+        0,
+        0.5110384615384616,
+        209.1692307692308,
+        537.2146153846153
+      ],
+      "glyph": 66,
+      "scale": 1,
+      "farHit": "LB",
+      "pvL": true,
+      "pvR": true
     },
     {
       "angle": 90,
+      "got": 90,
+      "shown": 90,
+      "left": 135,
+      "right": 45,
+      "lenL": 173.45220556847372,
+      "lenR": 173.45220556847377,
       "value": 90,
+      "label": "90°",
+      "ticks": [
+        "0° · слева",
+        "90° · прямо",
+        "180° · справа"
+      ],
+      "range": [
+        "0",
+        "180",
+        "1"
+      ],
       "front": {
         "A": [
           0,
@@ -661,66 +1398,116 @@
           0
         ]
       },
-      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
-      "mos": [
-        0.3406923076923077,
-        0,
-        0,
-        0.3406923076923077,
-        139.44615384615383,
-        476.1430769230769
+      "scr": {
+        "A": [
+          209.1692307692308,
+          537.2146153846153
+        ],
+        "B": [
+          1026.8307692307692,
+          537.2146153846153
+        ],
+        "C": [
+          1026.8307692307692,
+          1089.1361538461538
+        ],
+        "D": [
+          209.1692307692308,
+          1089.1361538461538
+        ],
+        "FL": [
+          86.52000000000004,
+          1211.7853846153846
+        ],
+        "FR": [
+          1149.48,
+          1211.7853846153846
+        ],
+        "LB": [
+          86.52000000000004,
+          1211.7853846153846
+        ],
+        "RB": [
+          1149.48,
+          1211.7853846153846
+        ],
+        "LT": [
+          86.52000000000004,
+          659.8638461538461
+        ],
+        "RT": [
+          1149.48,
+          659.8638461538461
+        ]
+      },
+      "vis": {
+        "floor": true,
+        "L": true,
+        "R": true,
+        "M": true
+      },
+      "fd": [
+        -0.07358953846153846,
+        0.12264923076923083
       ],
-      "glyph": 44,
-      "scale": 1,
-      "sides": [
+      "vd": [
+        -0.07358953846153839,
+        0.12264923076923083
+      ],
+      "nm": [
         {
-          "key": "L",
-          "D": 1000,
-          "delta": [
-            0,
-            0,
-            1000
+          "s": "L",
+          "c": [
+            147.84461538461542,
+            874.4999999999999
           ],
-          "topDelta": [
-            0,
-            0,
-            1000
-          ],
-          "farHit": "LB",
-          "visible": true
+          "inside": true
         },
         {
-          "key": "R",
-          "D": 1000,
-          "delta": [
-            0,
-            0,
-            1000
+          "s": "R",
+          "c": [
+            1088.1553846153847,
+            874.4999999999999
           ],
-          "topDelta": [
-            0,
-            0,
-            1000
-          ],
-          "farHit": "RB",
-          "visible": true
+          "inside": true
         }
       ],
-      "label": "Раскрытие боковых стен · 90°",
-      "content": [
-        {
-          "side": "L",
-          "neighbor": 1,
-          "session": "s1794314684192",
-          "count": 1,
-          "spanMm": 1000,
-          "flipped": true
-        }
-      ]
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+      "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
+      "mos": [
+        0.5110384615384616,
+        0,
+        0,
+        0.5110384615384616,
+        209.1692307692308,
+        537.2146153846153
+      ],
+      "glyph": 66,
+      "scale": 1,
+      "farHit": "LB",
+      "pvL": true,
+      "pvR": true
     },
     {
       "angle": 135,
+      "got": 135,
+      "shown": 134.99999999999991,
+      "left": 157.5,
+      "right": 67.4999999999999,
+      "lenL": 226.62622797189172,
+      "lenR": 93.87165721541457,
       "value": 135,
+      "label": "135°",
+      "ticks": [
+        "0° · слева",
+        "90° · прямо",
+        "180° · справа"
+      ],
+      "range": [
+        "0",
+        "180",
+        "1"
+      ],
       "front": {
         "A": [
           0,
@@ -743,66 +1530,108 @@
           0
         ]
       },
-      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "scr": {
+        "A": [
+          295.8953335534676,
+          555.1761793771124
+        ],
+        "B": [
+          1113.5568720150059,
+          555.1761793771124
+        ],
+        "C": [
+          1113.5568720150059,
+          1107.0977178386509
+        ],
+        "D": [
+          295.8953335534676,
+          1107.0977178386509
+        ],
+        "FL": [
+          86.51999999999998,
+          1193.8238206228878
+        ],
+        "FR": [
+          1149.48,
+          1193.8238206228878
+        ],
+        "LB": [
+          86.51999999999998,
+          1193.8238206228878
+        ],
+        "RB": [
+          1149.48,
+          1193.8238206228878
+        ],
+        "LT": [
+          86.51999999999998,
+          641.9022821613491
+        ],
+        "RT": [
+          1149.48,
+          641.9022821613491
+        ]
+      },
+      "vis": {
+        "floor": true,
+        "L": true,
+        "R": true,
+        "M": true
+      },
+      "fd": [
+        -0.16031564124577524,
+        0.0867261027842369
+      ],
+      "vd": [
+        -0.16031564124577527,
+        0.0867261027842369
+      ],
+      "nm": [
+        {
+          "s": "L",
+          "c": [
+            191.2076667767338,
+            874.5
+          ],
+          "inside": true
+        }
+      ],
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+      "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
       "mos": [
-        0.3406923076923077,
+        0.5110384615384616,
         0,
         0,
-        0.3406923076923077,
-        139.44615384615383,
-        476.1430769230769
+        0.5110384615384616,
+        209.1692307692308,
+        537.2146153846153
       ],
-      "glyph": 44,
+      "glyph": 66,
       "scale": 1,
-      "sides": [
-        {
-          "key": "L",
-          "D": 1000,
-          "delta": [
-            -707.1067811865474,
-            0,
-            707.1067811865476
-          ],
-          "topDelta": [
-            -707.1067811865474,
-            0,
-            707.1067811865476
-          ],
-          "farHit": "LB",
-          "visible": true
-        },
-        {
-          "key": "R",
-          "D": 1000,
-          "delta": [
-            707.1067811865478,
-            0,
-            707.1067811865476
-          ],
-          "topDelta": [
-            707.1067811865478,
-            0,
-            707.1067811865476
-          ],
-          "farHit": "RB",
-          "visible": true
-        }
-      ],
-      "label": "Раскрытие боковых стен · 135°",
-      "content": [
-        {
-          "side": "L",
-          "neighbor": 1,
-          "session": "s1794314684192",
-          "count": 1,
-          "spanMm": 1000,
-          "flipped": true
-        }
-      ]
+      "farHit": "LB",
+      "pvL": true,
+      "pvR": true
     },
     {
       "angle": 180,
+      "got": 180,
+      "shown": 180,
+      "left": 180,
+      "right": 0,
+      "lenL": 245.29846153846154,
+      "lenR": 0,
       "value": 180,
+      "label": "180°",
+      "ticks": [
+        "0° · слева",
+        "90° · прямо",
+        "180° · справа"
+      ],
+      "range": [
+        "0",
+        "180",
+        "1"
+      ],
       "front": {
         "A": [
           0,
@@ -825,62 +1654,87 @@
           0
         ]
       },
-      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
+      "scr": {
+        "A": [
+          331.8184615384615,
+          598.5392307692308
+        ],
+        "B": [
+          1149.48,
+          598.5392307692308
+        ],
+        "C": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "D": [
+          331.8184615384615,
+          1150.4607692307693
+        ],
+        "FL": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "FR": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "LB": [
+          86.51999999999998,
+          1150.4607692307693
+        ],
+        "RB": [
+          1149.48,
+          1150.4607692307693
+        ],
+        "LT": [
+          86.51999999999998,
+          598.5392307692308
+        ],
+        "RT": [
+          1149.48,
+          598.5392307692308
+        ]
+      },
+      "vis": {
+        "floor": true,
+        "L": true,
+        "R": false,
+        "M": true
+      },
+      "fd": [
+        -0.19623876923076924,
+        0
+      ],
+      "vd": [
+        -0.19623876923076922,
+        0
+      ],
+      "nm": [
+        {
+          "s": "L",
+          "c": [
+            209.16923076923075,
+            874.5
+          ],
+          "inside": true
+        }
+      ],
+      "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1}}",
+      "els": "[{\"id\":\"tilt-col\",\"k\":\"kol\",\"c\":[1000,1350],\"W\":400,\"H\":2700,\"D\":400}]",
       "mos": [
-        0.3406923076923077,
+        0.5110384615384616,
         0,
         0,
-        0.3406923076923077,
-        139.44615384615383,
-        476.1430769230769
+        0.5110384615384616,
+        209.1692307692308,
+        537.2146153846153
       ],
-      "glyph": 44,
+      "glyph": 66,
       "scale": 1,
-      "sides": [
-        {
-          "key": "L",
-          "D": 1000,
-          "delta": [
-            -1000,
-            0,
-            0
-          ],
-          "topDelta": [
-            -1000,
-            0,
-            0
-          ],
-          "farHit": "LB",
-          "visible": true
-        },
-        {
-          "key": "R",
-          "D": 1000,
-          "delta": [
-            1000,
-            0,
-            0
-          ],
-          "topDelta": [
-            1000,
-            0,
-            0
-          ],
-          "farHit": "RB",
-          "visible": true
-        }
-      ],
-      "label": "Раскрытие боковых стен · 180°",
-      "content": [
-        {
-          "side": "L",
-          "neighbor": 1,
-          "session": "s1794314684192",
-          "count": 1,
-          "spanMm": 1000,
-          "flipped": true
-        }
-      ]
+      "farHit": "LB",
+      "pvL": true,
+      "pvR": false
     }
   ],
   "original": {
@@ -905,653 +1759,6 @@
         0,
         0
       ]
-    },
-    "plan": "{\"pts\":[[0,0],[4000,0],[4000,2700],[0,2700]],\"closed\":true,\"dims\":[{\"id\":\"ql0\",\"a\":{\"p\":0},\"b\":{\"p\":1},\"v\":4000},{\"id\":\"ql1\",\"a\":{\"p\":1},\"b\":{\"p\":2},\"v\":2700},{\"id\":\"ql2\",\"a\":{\"p\":2},\"b\":{\"p\":3},\"v\":4000},{\"id\":\"ql3\",\"a\":{\"p\":3},\"b\":{\"p\":0},\"v\":2700}],\"angs\":{},\"H\":2700,\"wsdv\":81,\"wsd\":{\"0\":1,\"1\":1}}",
-    "exported": {
-      "app": "akrix-zamer",
-      "v": 3,
-      "kind": "object",
-      "date": "2026-11-10T12:44:44.687Z",
-      "obj": "QA011",
-      "oid": "omwaomvihbcpx",
-      "rooms": [
-        {
-          "app": "akrix-zamer",
-          "v": 3,
-          "kind": "room",
-          "id": "r1794314683973",
-          "date": "2026-11-10T12:44:44.686Z",
-          "obj": "QA011",
-          "name": "Route draw/edit",
-          "ms": {
-            "v": 1,
-            "lvl": "d",
-            "pts": [
-              [
-                0,
-                0
-              ],
-              [
-                4000,
-                0
-              ],
-              [
-                4000,
-                -2700
-              ],
-              [
-                0,
-                -2700
-              ]
-            ],
-            "closed": true,
-            "dims": [
-              {
-                "id": "ql0",
-                "a": {
-                  "p": 0
-                },
-                "b": {
-                  "p": 1
-                },
-                "v": 4000
-              },
-              {
-                "id": "ql1",
-                "a": {
-                  "p": 1
-                },
-                "b": {
-                  "p": 2
-                },
-                "v": 2700
-              },
-              {
-                "id": "ql2",
-                "a": {
-                  "p": 2
-                },
-                "b": {
-                  "p": 3
-                },
-                "v": 4000
-              },
-              {
-                "id": "ql3",
-                "a": {
-                  "p": 3
-                },
-                "b": {
-                  "p": 0
-                },
-                "v": 2700
-              }
-            ],
-            "angs": {},
-            "ink": [],
-            "H": 2700,
-            "wl": {
-              "0": {
-                "ph": [
-                  {
-                    "id": "rmwaomvar68z",
-                    "n": 1,
-                    "name": "angle-wall.png",
-                    "t": "2026-11-10T12:44:44.404Z",
-                    "w": 600,
-                    "h": 400,
-                    "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
-                    "corners": [
-                      [
-                        570,
-                        370
-                      ],
-                      [
-                        30,
-                        370
-                      ],
-                      [
-                        30,
-                        30
-                      ],
-                      [
-                        570,
-                        30
-                      ]
-                    ],
-                    "on": 1
-                  }
-                ],
-                "H": 2700,
-                "yf": [
-                  null,
-                  null,
-                  null
-                ],
-                "yc": [
-                  2700,
-                  2700,
-                  2700
-                ],
-                "pl": {
-                  "d": [
-                    null,
-                    null,
-                    null
-                  ],
-                  "u": [
-                    null,
-                    null,
-                    null
-                  ]
-                },
-                "els": [],
-                "pts": [],
-                "zn": [],
-                "photo": {
-                  "rms": null,
-                  "fit": false,
-                  "frames": null,
-                  "L": 4000,
-                  "src": "план"
-                },
-                "gn": 1,
-                "id": "w1794314683973_1",
-                "notes": [],
-                "L": 4000
-              },
-              "1": {
-                "ph": [],
-                "H": 2700,
-                "yf": [
-                  null,
-                  null,
-                  null
-                ],
-                "yc": [
-                  2700,
-                  2700,
-                  2700
-                ],
-                "pl": {
-                  "d": [
-                    null,
-                    null,
-                    null
-                  ],
-                  "u": [
-                    null,
-                    null,
-                    null
-                  ]
-                },
-                "els": [
-                  {
-                    "id": "adjacent-window",
-                    "t": "win",
-                    "x0": 175,
-                    "x1": 425,
-                    "y0": 1000,
-                    "y1": 1600,
-                    "note": ""
-                  }
-                ],
-                "pts": [],
-                "zn": [],
-                "photo": {
-                  "rms": null,
-                  "fit": false,
-                  "frames": null,
-                  "L": 2700,
-                  "src": "план"
-                },
-                "gn": 2,
-                "id": "w1794314683973_2",
-                "notes": [],
-                "L": 2700
-              },
-              "2": {
-                "H": 2700,
-                "els": [],
-                "pts": [],
-                "zn": [],
-                "gn": 3,
-                "id": "w1794314683973_3",
-                "L": 4000
-              },
-              "3": {
-                "H": 2700,
-                "els": [],
-                "pts": [],
-                "zn": [],
-                "gn": 4,
-                "id": "w1794314683973_4",
-                "L": 2700
-              }
-            },
-            "ccw": true,
-            "arcs": {},
-            "rnd": {},
-            "gn": {
-              "0": 1,
-              "1": 2,
-              "2": 3,
-              "3": 4
-            },
-            "wid": {
-              "0": "w1794314683973_1",
-              "1": "w1794314683973_2",
-              "2": "w1794314683973_3",
-              "3": "w1794314683973_4"
-            },
-            "geo": {
-              "v": 1,
-              "rules": "zamer-18",
-              "walls": [
-                {
-                  "k": 0,
-                  "gn": 1,
-                  "id": "w1794314683973_1",
-                  "a": [
-                    0,
-                    0
-                  ],
-                  "b": [
-                    4000,
-                    0
-                  ],
-                  "L": 4000,
-                  "ok": 1
-                },
-                {
-                  "k": 1,
-                  "gn": 2,
-                  "id": "w1794314683973_2",
-                  "a": [
-                    4000,
-                    0
-                  ],
-                  "b": [
-                    4000,
-                    -2700
-                  ],
-                  "L": 2700,
-                  "ok": 1
-                },
-                {
-                  "k": 2,
-                  "gn": 3,
-                  "id": "w1794314683973_3",
-                  "a": [
-                    4000,
-                    -2700
-                  ],
-                  "b": [
-                    0,
-                    -2700
-                  ],
-                  "L": 4000,
-                  "ok": 1
-                },
-                {
-                  "k": 3,
-                  "gn": 4,
-                  "id": "w1794314683973_4",
-                  "a": [
-                    0,
-                    -2700
-                  ],
-                  "b": [
-                    0,
-                    0
-                  ],
-                  "L": 2700,
-                  "ok": 1,
-                  "cl": 1
-                }
-              ],
-              "err": 0,
-              "rnd": {},
-              "mm": 0
-            },
-            "wsd": {
-              "0": 1,
-              "1": 1,
-              "2": 1,
-              "3": 1
-            }
-          }
-        }
-      ],
-      "gnMax": 4
-    },
-    "mos": [
-      0.3406923076923077,
-      0,
-      0,
-      0.3406923076923077,
-      139.44615384615383,
-      476.1430769230769
-    ],
-    "glyph": 44,
-    "scale": 1
-  },
-  "exported": {
-    "app": "akrix-zamer",
-    "v": 3,
-    "kind": "object",
-    "date": "2026-11-10T12:44:51.610Z",
-    "obj": "QA011",
-    "oid": "omwaomvihbcpx",
-    "rooms": [
-      {
-        "app": "akrix-zamer",
-        "v": 3,
-        "kind": "room",
-        "id": "r1794314683973",
-        "date": "2026-11-10T12:44:51.610Z",
-        "obj": "QA011",
-        "name": "Route draw/edit",
-        "ms": {
-          "v": 1,
-          "lvl": "d",
-          "pts": [
-            [
-              0,
-              0
-            ],
-            [
-              4000,
-              0
-            ],
-            [
-              4000,
-              -2700
-            ],
-            [
-              0,
-              -2700
-            ]
-          ],
-          "closed": true,
-          "dims": [
-            {
-              "id": "ql0",
-              "a": {
-                "p": 0
-              },
-              "b": {
-                "p": 1
-              },
-              "v": 4000
-            },
-            {
-              "id": "ql1",
-              "a": {
-                "p": 1
-              },
-              "b": {
-                "p": 2
-              },
-              "v": 2700
-            },
-            {
-              "id": "ql2",
-              "a": {
-                "p": 2
-              },
-              "b": {
-                "p": 3
-              },
-              "v": 4000
-            },
-            {
-              "id": "ql3",
-              "a": {
-                "p": 3
-              },
-              "b": {
-                "p": 0
-              },
-              "v": 2700
-            }
-          ],
-          "angs": {},
-          "ink": [],
-          "H": 2700,
-          "wl": {
-            "0": {
-              "ph": [
-                {
-                  "id": "rmwaomvar68z",
-                  "n": 1,
-                  "name": "angle-wall.png",
-                  "t": "2026-11-10T12:44:44.404Z",
-                  "w": 600,
-                  "h": 400,
-                  "jpg": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAlgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAYH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AiAI1swAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=",
-                  "corners": [
-                    [
-                      570,
-                      370
-                    ],
-                    [
-                      30,
-                      370
-                    ],
-                    [
-                      30,
-                      30
-                    ],
-                    [
-                      570,
-                      30
-                    ]
-                  ],
-                  "on": 1
-                }
-              ],
-              "H": 2700,
-              "yf": [
-                null,
-                null,
-                null
-              ],
-              "yc": [
-                2700,
-                2700,
-                2700
-              ],
-              "pl": {
-                "d": [
-                  null,
-                  null,
-                  null
-                ],
-                "u": [
-                  null,
-                  null,
-                  null
-                ]
-              },
-              "els": [],
-              "pts": [],
-              "zn": [],
-              "photo": {
-                "rms": null,
-                "fit": false,
-                "frames": null,
-                "L": 4000,
-                "src": "план"
-              },
-              "gn": 1,
-              "id": "w1794314683973_1",
-              "notes": [],
-              "L": 4000
-            },
-            "1": {
-              "ph": [],
-              "H": 2700,
-              "yf": [
-                null,
-                null,
-                null
-              ],
-              "yc": [
-                2700,
-                2700,
-                2700
-              ],
-              "pl": {
-                "d": [
-                  null,
-                  null,
-                  null
-                ],
-                "u": [
-                  null,
-                  null,
-                  null
-                ]
-              },
-              "els": [
-                {
-                  "id": "adjacent-window",
-                  "t": "win",
-                  "x0": 175,
-                  "x1": 425,
-                  "y0": 1000,
-                  "y1": 1600,
-                  "note": ""
-                }
-              ],
-              "pts": [],
-              "zn": [],
-              "photo": {
-                "rms": null,
-                "fit": false,
-                "frames": null,
-                "L": 2700,
-                "src": "план"
-              },
-              "gn": 2,
-              "id": "w1794314683973_2",
-              "notes": [],
-              "L": 2700
-            },
-            "2": {
-              "H": 2700,
-              "els": [],
-              "pts": [],
-              "zn": [],
-              "gn": 3,
-              "id": "w1794314683973_3",
-              "L": 4000
-            },
-            "3": {
-              "H": 2700,
-              "els": [],
-              "pts": [],
-              "zn": [],
-              "gn": 4,
-              "id": "w1794314683973_4",
-              "L": 2700
-            }
-          },
-          "ccw": true,
-          "arcs": {},
-          "rnd": {},
-          "gn": {
-            "0": 1,
-            "1": 2,
-            "2": 3,
-            "3": 4
-          },
-          "wid": {
-            "0": "w1794314683973_1",
-            "1": "w1794314683973_2",
-            "2": "w1794314683973_3",
-            "3": "w1794314683973_4"
-          },
-          "geo": {
-            "v": 1,
-            "rules": "zamer-18",
-            "walls": [
-              {
-                "k": 0,
-                "gn": 1,
-                "id": "w1794314683973_1",
-                "a": [
-                  0,
-                  0
-                ],
-                "b": [
-                  4000,
-                  0
-                ],
-                "L": 4000,
-                "ok": 1
-              },
-              {
-                "k": 1,
-                "gn": 2,
-                "id": "w1794314683973_2",
-                "a": [
-                  4000,
-                  0
-                ],
-                "b": [
-                  4000,
-                  -2700
-                ],
-                "L": 2700,
-                "ok": 1
-              },
-              {
-                "k": 2,
-                "gn": 3,
-                "id": "w1794314683973_3",
-                "a": [
-                  4000,
-                  -2700
-                ],
-                "b": [
-                  0,
-                  -2700
-                ],
-                "L": 4000,
-                "ok": 1
-              },
-              {
-                "k": 3,
-                "gn": 4,
-                "id": "w1794314683973_4",
-                "a": [
-                  0,
-                  -2700
-                ],
-                "b": [
-                  0,
-                  0
-                ],
-                "L": 2700,
-                "ok": 1,
-                "cl": 1
-              }
-            ],
-            "err": 0,
-            "rnd": {},
-            "mm": 0
-          },
-          "wsd": {
-            "0": 1,
-            "1": 1,
-            "2": 1,
-            "3": 1
-          }
-        }
-      }
-    ],
-    "gnMax": 4
+    }
   }
 }
