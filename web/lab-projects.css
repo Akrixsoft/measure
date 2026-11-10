@@ -1,0 +1,77 @@
+/* Measure 82.18 — стартовое окно «Проекты» (AKX-2026-0012, инженер A). Тёмная тема как шапка v81 и DrawNote. */
+/* ═══ [BLOCK LP-BASE] окно поверх всего приложения (#ss скрыт) ═══ */
+body.lab-prj #ss{display:none!important}
+#labPrj{position:fixed;inset:0;z-index:9;display:none;flex-direction:column;background:#15181C;color:#E8EBEF;font:15px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#labPrj.on{display:flex}
+body.lab-prj-on #toast,body.lab-prj-on #set,body.lab-prj-on #busy,body.lab-prj-on #zMenu{z-index:40!important}
+#labPrj button{font:inherit;color:inherit;background:none;border:none;margin:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#labPrj svg{display:block}
+/* ═══ [BLOCK LP-HEAD] шапка 56 px: поиск, крошки, сортировка, меню ═══ */
+#labPrj .lp-hd{flex:none;height:56px;display:flex;align-items:center;gap:2px;padding:0 4px;border-bottom:1px solid #262B33}
+#labPrj .lp-ib{flex:none;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:20px}
+#labPrj .lp-ib:active,#labPrj .lp-ib.on{background:#262B33}
+#labPrj .lp-cr{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:4px;font-size:19px;font-weight:600;white-space:nowrap;overflow:hidden}
+#labPrj .lp-cr button{height:44px;padding:0 4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#labPrj .lp-cr .lp-up{color:#8B93A1;font-weight:500;flex:none}
+#labPrj .lp-cr i{font-style:normal;color:#5D6573;flex:none}
+#labPrj .lp-cr .lp-cur{flex:0 1 auto;min-width:0}
+#labPrj .lp-q{flex:1 1 auto;min-width:0;height:40px;border-radius:20px;border:1px solid #3A4150;background:#1F2329;color:#E8EBEF;font:16px system-ui;padding:0 14px;outline:none;-webkit-user-select:text;user-select:text}
+#labPrj .lp-q[hidden]{display:none}
+/* ═══ [BLOCK LP-SUB] строка «Новая папка» 36 px ═══ */
+#labPrj .lp-sub{flex:none;height:36px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;color:#8B93A1;font-size:13px;gap:8px}
+#labPrj .lp-sub .lp-sp{flex:1}
+#labPrj .lp-nf{height:36px;display:flex;align-items:center;gap:6px;color:#4FA3FF;font-size:15px;padding:0 6px}
+#labPrj .lp-nf svg{width:22px;height:22px}
+/* ═══ [BLOCK LP-LIST] строки 52 px: «клиент · проект», дата справа, ⋮ 44×44 ═══ */
+#labPrj .lp-ls{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+#labPrj .lp-row{height:52px;display:flex;align-items:center;padding-left:16px;gap:8px;border-bottom:1px solid #20242A;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#labPrj .lp-row:active,#labPrj .lp-row.lp-hold{background:#1F2329}
+#labPrj .lp-t{flex:1 1 auto;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#C9CED6}
+#labPrj .lp-t b{font-weight:700;color:#F2F4F7}
+#labPrj .lp-t small{font-size:13px;color:#7A8290;margin-left:6px}
+#labPrj .lp-d{flex:none;font-size:13px;color:#8B93A1;white-space:nowrap}
+#labPrj .lp-more{flex:none;width:44px;height:44px;margin-right:2px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#AEB4BE}
+#labPrj .lp-more:active{background:#2A2F37}
+#labPrj .lp-fold .lp-ic{flex:none;width:28px;height:22px}
+#labPrj .lp-fold .lp-t{color:#F2F4F7;font-weight:600}
+#labPrj .lp-sec{color:#8B93A1;font-size:15px;padding-right:16px}
+#labPrj .lp-sec .lp-t{color:#AEB4BE}
+#labPrj .lp-empty{padding:28px 20px;color:#8B93A1;font-size:15px;text-align:center}
+/* ═══ [BLOCK LP-FAB] новый проект: 56 px справа внизу ═══ */
+#labPrj .lp-fab{position:absolute;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:28px;background:#2F8BFF!important;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#labPrj .lp-fab svg{width:28px;height:28px}
+#labPrj .lp-fab[hidden]{display:none}
+/* ═══ [BLOCK LP-SHEET] меню — лист снизу, пункты 52 px ═══ */
+#labPrj .lp-sh{position:absolute;inset:0;z-index:5;display:none;background:rgba(0,0,0,.5);flex-direction:column;justify-content:flex-end}
+#labPrj .lp-sh.on{display:flex}
+#labPrj .lp-pn{background:#1F2329;border-radius:14px 14px 0 0;padding:6px 0 calc(8px + env(safe-area-inset-bottom,0px));max-height:80%;overflow-y:auto}
+#labPrj .lp-pn h4{margin:0;height:44px;line-height:44px;padding:0 20px;font-size:14px;font-weight:600;color:#8B93A1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#labPrj .lp-mi{display:flex;align-items:center;gap:14px;width:100%;height:52px;padding:0 20px;font-size:16px;text-align:left;color:#E8EBEF}
+#labPrj .lp-mi:active{background:#2A2F37}
+#labPrj .lp-mi .lp-mx{width:24px;text-align:center;flex:none;font-size:18px}
+#labPrj .lp-mi.lp-red{color:#FF6B5E}
+#labPrj .lp-mi.lp-arm{background:#5A1F1A;color:#fff}
+#labPrj .lp-mi.lp-sel{color:#4FA3FF}
+#labPrj .lp-mi small{margin-left:auto;color:#7A8290;font-size:13px}
+#labPrj .lp-ver{padding:10px 20px 4px;color:#6B7380;font-size:12px}
+/* ═══ [BLOCK LP-DLG] окно ввода (клиент, проект, папка) и подтверждение ═══ */
+#labPrj .lp-dg{position:absolute;inset:0;z-index:6;display:none;background:rgba(0,0,0,.55);align-items:flex-start;justify-content:center;padding-top:12vh}
+#labPrj .lp-dg.on{display:flex}
+#labPrj .lp-bx{width:min(92vw,380px);background:#1F2329;border-radius:14px;padding:16px 16px 10px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#labPrj .lp-bx h4{margin:0 0 10px;font-size:17px}
+#labPrj .lp-bx p{margin:0 0 12px;color:#C9CED6;font-size:15px}
+#labPrj .lp-bx label{display:block;font-size:13px;color:#8B93A1;margin:10px 0 4px}
+#labPrj .lp-bx input{width:100%;box-sizing:border-box;height:44px;border-radius:10px;border:1px solid #3A4150;background:#15181C;color:#E8EBEF;font:16px system-ui;padding:0 12px;-webkit-user-select:text;user-select:text}
+#labPrj .lp-bt{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#labPrj .lp-bt button{height:44px;min-width:88px;padding:0 16px;border-radius:10px;font-size:15px;font-weight:600;color:#4FA3FF}
+#labPrj .lp-bt button.lp-pr{background:#2F8BFF;color:#fff}
+#labPrj .lp-bt button.lp-dn{background:#D93025;color:#fff}
+/* ═══ [BLOCK LP-TOAST] тост с кнопкой «↶ Вернуть» ═══ */
+#labPrj .lp-to{position:absolute;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:4;display:none;align-items:center;gap:8px;min-height:48px;padding:0 6px 0 16px;border-radius:10px;background:#2A2F37;color:#E8EBEF;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+#labPrj .lp-to.on{display:flex}
+#labPrj .lp-to span{flex:1;min-width:0;font-size:15px}
+#labPrj .lp-to button{height:44px;padding:0 12px;color:#4FA3FF;font-weight:700}
+/* ═══ [BLOCK LP-TITLE] заголовок проекта в шапке холста вместо #hdIn ═══ */
+#labPrjT{display:none;flex:1 1 auto;min-width:0;height:32px;margin:0 6px;padding:0 9px;border-radius:8px;border:1px solid #3A4150;background:#23272E;color:#E8EBEF;font:600 13px/30px system-ui;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.lab-prj-t #labPrjT{display:block}
+body.lab-prj-t #hdIn{display:none!important}

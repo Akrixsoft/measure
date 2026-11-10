@@ -1,6 +1,7 @@
 /* Measure Lab: real Akrix object export for standalone, manually measured planes.
  * The working room exporter and Akrix v3 contract are deliberately reused.
- * Does not close an open room or require its name. */
+ * Does not close an open room or require its name.
+ * 82.18 [BLOCK EXP-8218]: optional els[].no, project oid before export. */
 (() => {
   'use strict';
   const base81 = cvBase81;
@@ -45,7 +46,7 @@
     if (!out || !out.dims) throw new Error('Не удалось получить размеры стены.');
     S.sess.out = out;
     await dbPut('sess', clone(S.sess));
-    const room = await room81(r);
+    const room = await exportRoomObj(r);   // 82.18: обёртка EXP-8218 добавляет els[].no
     const walls = Object.values(room.ms.wl || {});
     if (walls.length !== 1 || !(+walls[0].L > 0)) throw new Error('Не удалось подготовить стену для конструктора.');
     return { app: 'akrix-zamer', v: 3, kind: 'object', date: room.date,
@@ -130,6 +131,33 @@
     }
     try { title(); mkPanel(); draw(); } catch (error) { console.warn('Measure Lab imported room title refresh', error); }
     return count;
+  };
+
+  /* ═══ [BLOCK EXP-8218] AKX-2026-0012 §7: стабильные номера для конструктора — только НЕОБЯЗАТЕЛЬНЫЕ новые поля v3.
+     wl[k].els[] / pts[] / zn[] получают no (номер элемента по проекту, P.elHi, не переиспользуется); прежнее n (индекс) и id — как были.
+     Перед выгрузкой: элементам без id/no выдаются номера (MeasureLabStore.number), помещениям проекта без oid — oid = P.id
+     (иначе штатный oidFix выдал бы новый случайный oid). Зоны (labRooms[].zn, walls) выгружает MeasureLab012.planMeta. ═══ */
+  const roomNo81 = exportRoomObj;
+  async function elNo(r, room) {
+    const wl = room && room.ms && room.ms.wl; if (!r || !wl) return room;
+    for (const [j, sid] of Object.entries(r.segs || {})) {
+      const o = S.sess && S.sess.id === sid ? {els: S.els} : await dbGet('sess', sid).catch(() => null); if (!o) continue;
+      const no = {}; for (const e of o.els || []) if (e && e.id && e.no > 0) no[e.id] = e.no;
+      const wid = (r.wid || {})[j], W = Object.values(wl).find(w => w && w.id === wid); if (!W) continue;
+      for (const k of ['els', 'pts', 'zn']) for (const q of W[k] || []) if (q && no[q.id]) q.no = no[q.id];
+    }
+    return room;
+  }
+  exportRoomObj = async function (rIn) { const room = await roomNo81.apply(this, arguments); try { await elNo(rIn || S.room, room); } catch (error) { console.warn('Measure 82.18 els.no', error); } return room; };
+  const objNo81 = exportObjObj;
+  exportObjObj = async function () {
+    const ST = window.MeasureLabStore;
+    if (ST) try {
+      const P = await ST.current();
+      if (P) { for (const r of [S.room, S.room0, ...(S.objRooms || [])]) if (r && r.kind === 'room' && !r.oid && (r.obj || '') === P.obj) { r.oid = P.id; if (r !== S.room) await dbPut('sess', clone(r)).catch(() => { }); }
+        await ST.number(P.id); }
+    } catch (error) { console.warn('Measure 82.18 numbering before export', error); }
+    return objNo81.apply(this, arguments);
   };
 
   window.MeasureLabExport = Object.freeze({ isStandalone: standalone, planeRoom,

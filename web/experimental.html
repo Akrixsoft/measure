@@ -8165,6 +8165,7 @@ async function lastOpen() { let o = null; try { o = JSON.parse(localStorage.getI
   try { if (o.t === 'room' && r.kind === 'room') { await openRoom(r.id); return true } if (o.t === 'sess' && r.kind !== 'room') { await f81iLastWall(r); return true }   /* v81 [I-VERIFY] 1: как касание С№ — полоса макета */ } catch (e) { } return false }
 dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });   /* v74: последнее — сразу; v75: ?list — список */
 </script>
+<!-- slot U: lab-version.js -->
 <script src="lab-ui.js"></script>
 <script src="lab-route-catalog.js"></script>
 <script src="lab-snap.js"></script>
@@ -8179,9 +8180,22 @@ dbOpen().then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]
 <script src="lab-floor-routes.js"></script>
 <script src="lab-route-ui.js"></script>
 <script src="lab-v013.js"></script>
+<!-- [BLOCK S8218-TAGS] begin -->
+<script src="lab-store.js"></script>
+<!-- slot B: lab-ctx.js -->
+<!-- slot B: lab-board.js -->
 <link rel="stylesheet" href="lab-sketch.css">
 <script src="lab-sketch.js"></script>
+<!-- slot C: lab-history.js -->
+<!-- slot C: lab-tb.css -->
+<!-- slot C: lab-tb.js -->
 <script src="lab-icons.js"></script>
 <script src="lab-title.js"></script>
+<!-- slot U: lab-update.css -->
+<!-- slot U: lab-update.js -->
+<link rel="stylesheet" href="lab-projects.css">
+<script src="lab-projects.js"></script>
+<!-- slot C: lab-autodim.js -->
+<!-- [BLOCK S8218-TAGS] end -->
 </body>
 </html>
