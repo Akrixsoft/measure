@@ -12,6 +12,7 @@ const {start} = require('./qa-v011-harness.cjs');
         shp: [{t: 'box', pts: [[1000, 0], [1400, 0], [1400, 300], [1000, 300]], note: ''}]});
       gnFix(); saveRoom(); await new Promise(r => setTimeout(r, 400));
       await PM.openWall(0); PM.bwSet(4000, 2700); fit(); draw();
+      await new Promise(r => setTimeout(r, 400));   // 82.18 int: отложенный saveRoom (250 мс) открытия стены — до правок, как у человека; иначе он перезаписывал правки lab-v013 (нестабильно и на 51923bf)
     });
     // ввод через штатное поле #w3f (как пользователь): open → value → change
     // поле выбирается по смыслу: f — off|W|D|H, side — 0 лево / 1 право
