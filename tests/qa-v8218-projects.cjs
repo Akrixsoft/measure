@@ -287,7 +287,7 @@ const BASE = '51923bf';   // Measure 82.17 + запись плана до отк
     const bak = await p.evaluate(async () => { const o = await PM.zBackup(false); return {lab: !!o.lab, prj: o.lab.prj.length, fld: o.lab.fld.length, cv: o.lab.cv.length}; });
     check(bak.lab && bak.prj >= 4 && bak.fld === 1 && bak.cv >= 4, 'резервная копия: блок lab {prj, fld, cv}', bak);
     // старт: последний открытый проект
-    await p.evaluate(async () => { const P = (await MeasureLabStore.projects()).find(x => x.client === 'Петров'); localStorage.setItem('measure.lastPrj', P.id); });
+    await p.evaluate(async () => { const P = (await MeasureLabStore.projects()).find(x => x.client === 'Петров'); localStorage.setItem('measure.lastPrj', P.id); localStorage.setItem('measure.lab.canvas', JSON.stringify({pid: P.id, obj: P.obj})); });   // оба ключа пишутся при каждом открытии (A и B)
     await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && MeasureLabSketch.isOpen(), null, {timeout: 15000});
     const st = await p.evaluate(() => ({obj: MeasureLabSketch.state.obj, list: MeasureLabProjects.isOpen(), t: document.getElementById('labPrjT').textContent}));
     check(st.obj === 'Петров' && !st.list && st.t === 'Петров', 'старт: последний открытый проект — сразу холст (lastOpen)', st);
