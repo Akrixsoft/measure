@@ -2,6 +2,7 @@ name: Measure 82 APK
 on:
   push:
     branches: [measure-lab]
+    paths-ignore: ['prototypes/**', 'docs/**', 'tests/**', '*.md']
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,6 +24,7 @@ jobs:
       - name: Build (scripts/build_apk.py — v81 SHA check, asset check, apksigner verify)
         run: |
           export MEASURE_GRADLE="$(command -v gradle)"
+          echo "::add-mask::$(cat ~/ks/pw)"
           export AK_KS=$HOME/ks/release.jks AK_PW=$(cat ~/ks/pw)
           ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
           python3 scripts/build_apk.py

@@ -210,13 +210,14 @@
       if ((x0 + dx) * sc < -0.5 || (x1 + dx) * sc > L + 0.5) { toast('Выступ за краем стены'); return false; }
       f = ([x, z]) => [x + dx, z];
     } else if (k.f === 'W') {
-      const w0 = x1 - x0, w = n / sc; if (!(w0 > 0)) return false;
+      const w0 = x1 - x0, w = n / sc; if (!(w0 > 0)) return false; if (n > L + 0.5) { toast('Ширина больше длины стены'); return false; }
       const right = x1 * sc > L - 30 && x0 * sc > 30, o = right ? x1 : x0;   // у правого края стены — правый край на месте
       f = ([x, z]) => [o + (x - o) * w / w0, z];
       if (rect) q[along ? 'W' : 'D'] = r1(n);
     } else if (k.f === 'D') {
-      const d0 = zf - zw, d = n / sc; if (!(d0 > 0)) return false;
-      f = ([x, z]) => [x, zw + (z - zw) * d / d0];
+      // глубина показывается от линии стены без масштаба длины (w3Vols: D = max z) — так же и вводится; сторона у стены на месте
+      if (!(zf - zw > 0) || !(n > zw)) { toast('Глубина меньше зазора от стены'); return false; }
+      f = ([x, z]) => [x, zw + (z - zw) * (n - zw) / (zf - zw)];
       if (rect) q[along ? 'D' : 'W'] = r1(n);
     }
     q.pts = loc.map(f).map(fromLoc);
@@ -231,10 +232,23 @@
     const r = ref.r, before = clone(r.ms.shp || []);
     if (!applyPlanVol(k, n)) { r.ms.shp = before; return; }
     const after = clone(r.ms.shp || []);
-    const put = s => { r.ms.shp = clone(s); persist(r); mkPanel(); draw(); };
+    const put = s => { r.ms.shp = clone(s); patchHist(r, ref.i); persist(r); mkPanel(); draw(); };
+    patchHist(r, ref.i);
     const key = 'ZA:' + (++zaN); ZA.set(key, {u: () => put(before), r: () => put(after)}); S.und.push(key); S.red = []; zLay();
     persist(r); mkPanel(); draw();
   };
+  // История плана (S.pund и сохранённая r.und) — снимки всего холста. Правка с развёртки вносится в каждый снимок
+  // этого помещения по id объекта: ↶ на плане отменяет только шаги плана и не стирает введённое на развёртке.
+  function patchHist(r, i) {
+    const q = (r.ms.shp || [])[i]; if (!q) return;
+    const fix = str => { try { const o = JSON.parse(str); if (o.id !== r.id || !o.ms) return str; const L = o.ms.shp || [];
+      const j = q.id ? L.findIndex(x => x && x.id === q.id) : (L[i] && L[i].t === q.t ? i : -1); if (j < 0) return str;
+      L[j] = {...L[j], pts: q.pts, ...(q.W != null ? {W: q.W} : {}), ...(q.D != null ? {D: q.D} : {}), ...(q.nw != null ? {nw: q.nw, nd: q.nd, c: q.c} : {})};
+      return JSON.stringify(o); } catch (e) { return str; } };
+    for (const t of S.pund || []) if (t && t.cv && t.R && t.R[r.id]) t.R[r.id] = fix(t.R[r.id]);
+    if (r.und && r.und.v === 81 && Array.isArray(r.und.S)) r.und.S = r.und.S.map(fix);
+  }
+  api.patchHist = patchHist;
   function persist(r) {
     if (r === S.room) saveRoom();
     else dbPut('sess', clone(r)).catch(() => { });
