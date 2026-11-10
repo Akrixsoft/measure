@@ -657,7 +657,7 @@
     let size = 13; cx.font = 'bold ' + size * d + 'px system-ui';
     while (size > 9 && cx.measureText(text).width > span) cx.font = 'bold ' + --size * d + 'px system-ui';
     const w = Math.max(cx.measureText(text).width, custom ? cx.measureText(top).width * 0.8 : 0) / 2;
-    const h0 = (custom ? 24 : 12) * d, h1 = 5 * d;
+    const h0 = (custom ? 28 : 12) * d, h1 = 5 * d;
     const box = c => [c[0] - w, c[1] - h0, c[0] + w, c[1] + h1];
     const hits = c => { const b = box(c); return avoid.filter(x => x[0] < b[2] && x[2] > b[0] && x[1] < b[3] && x[3] > b[1]).length; };
     const c0 = toScr(...zCen(q.pts));
@@ -671,7 +671,7 @@
     avoid.push(box(best));
     cx.fillStyle = old ? '#b4610f' : '#11766c'; cx.textAlign = 'center';
     cx.fillText(text, best[0], best[1]);
-    if (custom) { cx.font = 'bold ' + Math.max(9, size - 3) * d + 'px system-ui'; cx.globalAlpha = 0.8; cx.fillText(top, best[0], best[1] - 13 * d); cx.globalAlpha = 1; }
+    if (custom) { cx.font = 'bold ' + Math.max(9, size - 3) * d + 'px system-ui'; cx.globalAlpha = 0.8; cx.fillText(top, best[0], best[1] - (size + 4) * d); cx.globalAlpha = 1; }
   }
   function paint(P, line, fillColor, closed = false, dash = []) {
     if (P.length < 2) return;
