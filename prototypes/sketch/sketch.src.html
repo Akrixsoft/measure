@@ -41,7 +41,8 @@
   <button data-t="dim">↔ Размер</button>
   <button data-t="obj">▭ Объект</button>
   <button data-t="pt">◉ Точка</button>
-  <button data-t="plan">⌐ Вид сверху</button>
+  <button data-t="plan">⌐ Ломаная</button>
+  <button data-t="pcol">▯ Колонна</button>
   <button data-t="txt">Т</button>
   <span class="sep"></span>
   <button id="bUndo">↶</button>
@@ -83,14 +84,38 @@ const UNIT = [[0, 0], [1, 0], [1, 1], [0, 1]];
 function geo(p) { if (!p.cor) return null; const k = JSON.stringify(p.cor); if (p._gk !== k) { p._g = {f: homog(p.cor, UNIT), r: homog(UNIT, p.cor)}; p._gk = k; } return p._g; }
 function aspect(p) { const c = p.cor, d = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]); return (d(c[0], c[1]) + d(c[3], c[2])) / (d(c[0], c[3]) + d(c[1], c[2])); }
 
-/* ═══ [BLOCK SK-PLAN] вид сверху: ломаная стены, длины участков ═══ */
-// Участок вдоль стены — лицевая грань; поперёк — боковая (глубина), ширины стены не добавляет.
+/* ═══ [BLOCK SK-PLAN] вид сверху: ломаная стена и/или колонны ═══
+   plan: {pts: [[x, z]] — ломаная стены (мм: x вдоль стены, z — в помещение), len: {i: мм} — введённые длины участков,
+          cols: [{id, x, z, w, d}] — колонны (x, z — угол у стены; w — вдоль, d — глубина)} */
 const isH = (a, b) => Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1]);
-function planSolve(plan) { const P = plan.pts.map(q => q.slice());
-  for (let i = 0; i + 1 < P.length; i++) { const v = +plan.len[i]; if (!(v > 0)) continue; const a = P[i], b = P[i + 1];
-    if (!isH(a, b)) { const dz = Math.sign(b[1] - a[1]) * v - (b[1] - a[1]); for (let j = i + 1; j < P.length; j++) P[j][1] += dz; } }
-  return P; }
-function planWidth(pl) { const P = planSolve(pl); let w = 0; for (let i = 0; i + 1 < P.length; i++) if (isH(P[i], P[i + 1])) { const v = +pl.len[i]; w += v > 0 ? v : Math.abs(P[i + 1][0] - P[i][0]); } return w; }
+function planNorm(pl) { if (!pl) return null; pl.pts = pl.pts || []; pl.len = pl.len || {}; pl.cols = pl.cols || []; return pl; }
+const planSegs = pl => pl.pts.slice(1).map((b, i) => [pl.pts[i], b]);
+const colPts = c => [[c.x, c.z], [c.x + c.w, c.z], [c.x + c.w, c.z + c.d], [c.x, c.z + c.d]];
+function planExt(pl) { const xs = [...pl.pts.map(q => q[0]), ...pl.cols.flatMap(c => [c.x, c.x + c.w])]; return xs.length ? [Math.min(...xs), Math.max(...xs)] : [0, 0]; }
+function wallExt(pl) { const xs = pl.pts.map(q => q[0]); return xs.length > 1 ? [Math.min(...xs), Math.max(...xs)] : planExt(pl); }
+function planHas(pl) { return !!pl && (pl.pts.length > 1 || pl.cols.length > 0); }
+function setSegLen(pl, i, v) {   // длина участка i: конец сдвигается по направлению участка, следующие — следом
+  const a = pl.pts[i], b = pl.pts[i + 1], d = [b[0] - a[0], b[1] - a[1]], l = Math.hypot(...d); if (!l || !(v > 0)) { delete pl.len[i]; return; }
+  const nb = [a[0] + d[0] / l * v, a[1] + d[1] / l * v], dv = [nb[0] - b[0], nb[1] - b[1]];
+  for (let j = i + 1; j < pl.pts.length; j++) pl.pts[j] = [Math.round((pl.pts[j][0] + dv[0]) * 10) / 10, Math.round((pl.pts[j][1] + dv[1]) * 10) / 10];
+  for (const c of pl.cols) if (c.x >= Math.min(a[0], b[0]) + Math.abs(d[0]) - 1) { /* колонны правее излома — вместе с ним */ c.x += dv[0]; c.z += dv[1]; }
+  pl.len[i] = v; }
+// привязка прямоугольника: грань — к параллельному участку стены, у прямого угла — две грани (как колонны плана 0.13)
+function snapBox(P, segs, tol) {
+  const fit = (pts, skipU) => { let best = null;
+    pts.map((a, i) => [a, pts[(i + 1) % 4]]).forEach(([a, b]) => { const el = Math.hypot(b[0] - a[0], b[1] - a[1]); if (el < 1) return; const eu = [(b[0] - a[0]) / el, (b[1] - a[1]) / el];
+      for (const [p, q] of segs) { const sl = Math.hypot(q[0] - p[0], q[1] - p[1]); if (sl < 1) continue; const u = [(q[0] - p[0]) / sl, (q[1] - p[1]) / sl], n = [-u[1], u[0]];
+        if (Math.abs(Math.abs(eu[0] * u[0] + eu[1] * u[1]) - 1) > .002) continue; if (skipU && Math.abs(u[0] * skipU[0] + u[1] * skipU[1]) > .05) continue;
+        const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], gap = (m[0] - p[0]) * n[0] + (m[1] - p[1]) * n[1]; if (Math.abs(gap) >= tol) continue;
+        const t0 = (a[0] - p[0]) * u[0] + (a[1] - p[1]) * u[1], t1 = (b[0] - p[0]) * u[0] + (b[1] - p[1]) * u[1]; if (Math.max(t0, t1) < -tol || Math.min(t0, t1) > sl + tol) continue;
+        if (!best || Math.abs(gap) < Math.abs(best.gap)) best = {gap, n, u, seg: [p, q]}; } }); return best; };
+  const sh = (pts, v) => pts.map(x => [x[0] + v[0], x[1] + v[1]]);
+  const f1 = fit(P); if (!f1) return {pts: P, hl: []}; let pts = sh(P, [-f1.n[0] * f1.gap, -f1.n[1] * f1.gap]); const hl = [f1.seg];
+  const f2 = fit(pts, f1.u); if (f2) { pts = sh(pts, [-f2.n[0] * f2.gap, -f2.n[1] * f2.gap]); hl.push(f2.seg); }
+  return {pts, hl}; }
+function snapCol(pl, c, tol) { const s = snapBox(colPts(c), planSegs(pl), tol); if (s.hl.length) { c.x = Math.min(...s.pts.map(q => q[0])); c.z = Math.min(...s.pts.map(q => q[1])); }
+  for (const v of pl.pts) { if (Math.abs(c.x - v[0]) < tol) { c.x = v[0]; s.hl.push([[v[0], v[1]], [v[0], v[1] + c.d]]); break; } if (Math.abs(c.x + c.w - v[0]) < tol) { c.x = v[0] - c.w; s.hl.push([[v[0], v[1]], [v[0], v[1] + c.d]]); break; } }   // край колонны — к концу/излому стены
+  return s.hl; }
 
 /* ═══ [BLOCK SK-BUILD] построение чертежа стены ═══
    Размер от края до края — длина/высота точно; остальные привязываются к ближайшему краю
@@ -105,10 +130,10 @@ function build(p) {
   const L0 = p._m && p._m.L, H0 = p._m && p._m.H;   // размер на чертеже от края до края — тоже длина/высота
   for (const e of p.els) if (e.t === 'dim' && e.v > 0 && e.sp === 'mm' && L0) { const dx = Math.abs(e.b[0] - e.a[0]), dy = Math.abs(e.b[1] - e.a[1]);
     if (dx > dy && dx > .94 * L0 && Math.min(e.a[0], e.b[0]) < .03 * L0) Lx = e.v; if (dy > dx && dy > .94 * H0 && Math.min(e.a[1], e.b[1]) < .03 * H0) Hx = e.v; }
-  const plh = p.plan && p.plan.pts.length > 1 ? planWidth(p.plan) : 0;
+  const pl = planNorm(p.plan), hasPl = planHas(pl), pe = hasPl ? planExt(pl) : [0, 0], Lp = pe[1] - pe[0], plh = hasPl ? Lp : 0;
   if (!L) L = Lx || plh || (wl ? sl / wl : 0); if (!H) H = Hx || (wh ? sh / wh : 0);
   const asp = aspect(p); if (!L && H) L = H * asp; if (!H && L) H = L / asp; if (!L && !H) { H = 2700; L = H * asp; }   // без размеров — условно, по пропорции фото
-  const exact = {L: !!(p.L || Lx), H: !!(p.H || Hx)};
+  const exact = {L: !!(p.L || Lx || (hasPl && pl.pts.length > 1 && planSegs(pl).every((_, i) => +pl.len[i] > 0))), H: !!(p.H || Hx)};
   // мм чертежа элементов 'mm' хранятся в масштабе того L/H, при котором нарисованы; пересчёт при изменении
   const mm = u => [u[0] * L, (1 - u[1]) * H];
   const P2 = (e, q) => e.sp === 'mm' ? [q[0] * L / (e.L0 || L), q[1] * H / (e.H0 || H)] : mm(hap(g.f, q));
@@ -119,23 +144,27 @@ function build(p) {
       if (o.x0 < .03 * L) { o.x0 = 0; o.sn.push('x0'); } if (o.x1 > .97 * L) { o.x1 = L; o.sn.push('x1'); } if (o.y0 < .03 * H) { o.y0 = 0; o.sn.push('y0'); } if (o.y1 > .97 * H) { o.y1 = H; o.sn.push('y1'); } objs.push(o); }
     if (e.t === 'pt') { const q = P2(e, e.a); objs.push({id: e.id, k: e.k, pt: 1, n: e.n || 1, x0: q[0], x1: q[0], y0: q[1], y1: q[1]}); }
   }
-  let groups = [], PP = null;
-  if (p.plan && p.plan.pts.length > 1) { PP = planSolve(p.plan); const k = L / (planWidth(p.plan) || L), x0 = Math.min(...PP.map(q => q[0]));
-    for (let i = 0; i < PP.length; i++) { const x = (PP[i][0] - x0) * k; let gr = groups.find(G => Math.abs(G.x0 - x) < 1); if (!gr) { gr = {id: 'g' + groups.length, only: 'x', pt: 1, x0: x, x1: x, y0: 0, y1: 0, ix: []}; groups.push(gr); } gr.ix.push(i); }
-    groups.sort((a, b) => a.x0 - b.x0); }
-  const all = [...objs, ...groups];
+  const pfe = [], kpl = hasPl && Lp > 0 ? L / Lp : 1, px2 = X => (X - pe[0]) * kpl;   // изломы и колонны вида сверху — закреплённые признаки по x
+  if (hasPl) { [...new Set(pl.pts.map(q => Math.round(q[0] * 10) / 10))].forEach((X, i) => pfe.push({id: 'pv' + i, only: 'x', pt: 1, x0: px2(X), x1: px2(X), y0: 0, y1: 0}));
+    for (const c of pl.cols) pfe.push({id: 'pc' + c.id, only: 'x', x0: px2(c.x), x1: px2(c.x + c.w), y0: 0, y1: H, col: c}); }
+  const all = [...objs, ...pfe];
+  // край объекта у излома/колонны вида сверху (≤1,5 % L) — на нём и закреплён
+  const pX = pfe.flatMap(f => f.pt ? [f.x0] : [f.x0, f.x1]);
+  for (const o of objs) if (!o.pt) for (const [k, s2] of [['x0', 'x0'], ['x1', 'x1']]) { const v = pX.find(x => Math.abs(x - o[k]) < .015 * L); if (v != null) { o[k] = v; o.sn.push(s2); } }
   const keyOf = f => f.o ? f.o.id + ':' + f.s : 'W:' + f.s;
-  const feats = ax => { const F = [{o: null, s: 0, v: 0}, {o: null, s: 1, v: ax === 'x' ? L : H}];
-    for (const o of all) { if (o.only && o.only !== ax) continue; if (o.pt) F.push({o, s: 'c', v: ax === 'x' ? o.x0 : o.y0}); else { F.push({o, s: 0, v: ax === 'x' ? o.x0 : o.y0}); F.push({o, s: 1, v: ax === 'x' ? o.x1 : o.y1}); } } return F; };
-  const near = (ax, v, excl, tight) => { let b = null, bd = (tight ? .025 : .07) * (ax === 'x' ? L : H); for (const f of feats(ax)) { if (excl && f.o === excl.o && f.s === excl.s) continue; const d = Math.abs(f.v - v) * (f.o ? 1 : .5); if (d < bd) { bd = d; b = f; } } return b; };
+  const feats = (ax, cr) => { const F = [{o: null, s: 0, v: 0}, {o: null, s: 1, v: ax === 'x' ? L : H}], ct = .05 * (ax === 'x' ? H : L);
+    for (const o of all) { if (o.only && o.only !== ax) continue; if (cr != null && !o.only && !o.pt && (ax === 'x' ? (cr < o.y0 - ct || cr > o.y1 + ct) : (cr < o.x0 - ct || cr > o.x1 + ct))) continue; /* край объекта — только там, где объект есть по другой оси */ if (o.pt) F.push({o, s: 'c', v: ax === 'x' ? o.x0 : o.y0}); else { F.push({o, s: 0, v: ax === 'x' ? o.x0 : o.y0}); F.push({o, s: 1, v: ax === 'x' ? o.x1 : o.y1}); } } return F; };
+  // пара признаков для размера: ближайшие к концам; габарит одного объекта — с приоритетом
+  const pair = (ax, a, b, cr, tight) => { const tol = (tight ? .025 : .07) * (ax === 'x' ? L : H), F = feats(ax, cr), w = f => f.o ? 1 : .5;
+    const ca = F.map(f => ({f, d: Math.abs(f.v - a) * w(f)})).filter(x => x.d < tol), cb = F.map(f => ({f, d: Math.abs(f.v - b) * w(f)})).filter(x => x.d < tol);
+    let best = null; for (const x of ca) for (const y of cb) { if (x.f === y.f || (x.f.o === y.f.o && x.f.s === y.f.s)) continue; const sc = (x.d + y.d) * (x.f.o && x.f.o === y.f.o ? .6 : 1); if (!best || sc < best.sc) best = {sc, fa: x.f, fb: y.f}; }
+    return best || {fa: (ca.sort((p, q) => p.d - q.d)[0] || {}).f || null, fb: null}; };
   const val = (ax, f) => f.o ? (f.s === 'c' ? (ax === 'x' ? f.o.x0 : f.o.y0) : (ax === 'x' ? (f.s ? f.o.x1 : f.o.x0) : (f.s ? f.o.y1 : f.o.y0))) : (f.s ? (ax === 'x' ? L : H) : 0);
   const dims = [];
   for (const e of p.els) if (e.t === 'dim') { const A = P2(e, e.a), B = P2(e, e.b), ax = Math.abs(B[0] - A[0]) >= Math.abs(B[1] - A[1]) ? 'x' : 'y', i = ax === 'x' ? 0 : 1, tight = e.sp === 'mm';
-    const fa = near(ax, A[i], null, tight), fb = fa ? near(ax, B[i], fa, tight) : null; dims.push({e, ax, A, B, fa, fb, est: Math.abs(B[i] - A[i])}); }
-  if (PP) for (let i = 0; i + 1 < PP.length; i++) { const v = +p.plan.len[i]; if (!(v > 0) || !isH(PP[i], PP[i + 1])) continue;
-    const ga = groups.find(G => G.ix.includes(i)), gb = groups.find(G => G.ix.includes(i + 1)); if (ga && gb && ga !== gb) dims.push({e: {v}, ax: 'x', fa: {o: ga, s: 'c'}, fb: {o: gb, s: 'c'}, pl: 1}); }
+    const {fa, fb} = pair(ax, A[i], B[i], ax === 'x' ? (A[1] + B[1]) / 2 : (A[0] + B[0]) / 2, tight); dims.push({e, ax, A, B, fa, fb, est: Math.abs(B[i] - A[i])}); }
   const pos = {x: new Set(['W:0', 'W:1']), y: new Set(['W:0', 'W:1'])}, wlk = new Set();
-  if (groups.length) { groups[0].x0 = groups[0].x1 = 0; pos.x.add(groups[0].id + ':c'); const gl = groups[groups.length - 1]; gl.x0 = gl.x1 = L; pos.x.add(gl.id + ':c'); }
+  for (const f of pfe) { if (f.pt) pos.x.add(f.id + ':c'); else { pos.x.add(f.id + ':0'); pos.x.add(f.id + ':1'); } }
   for (const o of objs) for (const k of o.sn || []) pos[k[0]].add(o.id + ':' + k[1]);
   const KK = ax => ax === 'x' ? ['x0', 'x1'] : ['y0', 'y1'];
   const setPos = (ax, f, v) => { const o = f.o, [k0, k1] = KK(ax), P = pos[ax];
@@ -144,7 +173,7 @@ function build(p) {
     if (wlk.has(o.id + ax) || !P.has(oth)) { const dv = v - o[me]; o[k0] += dv; o[k1] += dv; } else o[me] = v;
     P.add(keyOf(f)); if (wlk.has(o.id + ax)) P.add(oth); };
   const valid = dims.filter(d => d.e.v > 0 && d.fa && d.fb && (d.fa.o || d.fb.o));
-  for (const d of valid) if (d.fa.o && d.fa.o === d.fb.o && !d.fa.o.pt) { const o = d.fa.o, [k0, k1] = KK(d.ax);
+  for (const d of valid) if (d.fa.o && d.fa.o === d.fb.o && !d.fa.o.pt) { const o = d.fa.o, [k0, k1] = KK(d.ax); if (o.col) { if (o.col.wx) continue; o.col.w = d.e.v / kpl; }   // размер на колонне вида сверху — её ширина, если не введена там
     if (pos[d.ax].has(o.id + ':1') && !pos[d.ax].has(o.id + ':0')) o[k0] = o[k1] - d.e.v; else o[k1] = o[k0] + d.e.v; wlk.add(o.id + d.ax); }
   const offs = valid.filter(d => !(d.fa.o && d.fa.o === d.fb.o)), done = new Set();
   for (let pass = 0; pass < 6; pass++) for (const d of offs) { if (done.has(d)) continue;
@@ -154,20 +183,20 @@ function build(p) {
     if (!mov.o) continue; const bv = val(d.ax, base), dir = Math.sign(val(d.ax, mov) - bv) || 1; setPos(d.ax, mov, bv + dir * d.e.v); done.add(d); }
   for (const d of dims) { if (!(d.e.v > 0)) { d.st = 'nov'; continue; } if (!d.fa || !d.fb) { d.st = 'free'; continue; }
     const got = Math.abs(val(d.ax, d.fb) - val(d.ax, d.fa)); d.res = got; d.st = Math.abs(got - d.e.v) <= 2 ? 'ok' : 'bad'; d.va = val(d.ax, d.fa); d.vb = val(d.ax, d.fb); }
-  let plan = null; if (PP) { plan = PP.map(q => q.slice()); for (const G of groups) for (const i of G.ix) plan[i][0] = G.x0; const z0 = Math.min(...plan.map(q => q[1])); plan.forEach(q => q[1] -= z0); }
+  const plan = hasPl ? {pl, mn: pe[0], k: kpl, Lp} : null;
   return {g, L, H, exact, objs, dims, plan};
 }
 
 /* ═══ [BLOCK SK-LAYOUT] фото → под ним чертёж стены → под ним вид сверху, по одной оси x ═══ */
 const photoH = p => p.w * p.ih / p.iw;
 function elev(p) { const m = p._m; if (!m || !m.L) return null; const w = p.w, h = w * m.H / m.L; return {x: p.x, y: p.y + photoH(p) + 80, w, h, k: w / m.L}; }
-function planBox(p) { const E = elev(p); if (!E) return null; return {x: E.x, y: E.y + E.h + 70, w: E.w, h: Math.max(160, E.w * .35), k: E.k}; }
+function planBox(p) { const E = elev(p); if (!E) return null; const m = p._m, pk = m.plan ? m.plan.k : 1, o = m.plan ? m.plan.mn : 0; return {x: E.x, y: E.y + E.h + 70, w: E.w, h: Math.max(200, E.w * .4), k: E.k * pk, o}; }
 const imgToW = (p, q) => [p.x + q[0] * p.w / p.iw, p.y + q[1] * p.w / p.iw];
 const wToImg = (p, q) => [(q[0] - p.x) * p.iw / p.w, (q[1] - p.y) * p.iw / p.w];
 const mmToW = (E, q) => [E.x + q[0] * E.k, E.y + E.h - q[1] * E.k];
 const wToMm = (E, q) => [(q[0] - E.x) / E.k, (E.y + E.h - q[1]) / E.k];
-const plToW = (B, q) => [B.x + q[0] * B.k, B.y + 20 + q[1] * B.k];
-const wToPl = (B, q) => [(q[0] - B.x) / B.k, (q[1] - B.y - 20) / B.k];
+const plToW = (B, q) => [B.x + (q[0] - B.o) * B.k, B.y + 24 + q[1] * B.k];
+const wToPl = (B, q) => [(q[0] - B.x) / B.k + B.o, (q[1] - B.y - 24) / B.k];
 const toScr = q => [(q[0] * S.view.s + S.view.ox) * DPR(), (q[1] * S.view.s + S.view.oy) * DPR()];
 const toW = (sx, sy) => [(sx - S.view.ox) / S.view.s, (sy - S.view.oy) / S.view.s];
 // точка элемента 'mm' в текущем масштабе чертежа
@@ -195,10 +224,12 @@ function draw() {
 }
 function drawElev(p, m, E, px) {
   cx.fillStyle = '#fff'; cx.fillRect(E.x, E.y, E.w, E.h);
-  if (m.plan) { const P = m.plan, zmax = Math.max(1, ...P.map(q => q[1]));
-    for (let i = 0; i + 1 < P.length; i++) if (isH(P[i], P[i + 1]) && P[i][1] > .5) { const a = Math.min(P[i][0], P[i + 1][0]), b = Math.max(P[i][0], P[i + 1][0]), A = mmToW(E, [a, m.H]), B = mmToW(E, [b, 0]);
-      cx.fillStyle = `rgba(107,119,133,${.12 + .3 * P[i][1] / zmax})`; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); label([A[0] + 4 * px, A[1] + 18 * px], 'Z ' + Math.round(P[i][1]), '#3E4954', px, 12); }
-    const xs = [...new Set(P.map(q => Math.round(q[0])))]; cx.strokeStyle = '#3E4954'; cx.lineWidth = 2 * px; for (const x of xs) { if (x <= .5 || x >= m.L - .5) continue; const A = mmToW(E, [x, m.H]), B = mmToW(E, [x, 0]); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke(); } }
+  if (m.plan) { const {pl, mn, k} = m.plan, X = x => (x - mn) * k, zs = pl.pts.map(q => q[1]), zb = zs.length ? Math.min(...zs) : 0;
+    const band = (x0, x1, a, t) => { const A = mmToW(E, [x0, m.H]), B = mmToW(E, [x1, 0]); cx.fillStyle = `rgba(107,119,133,${a})`; cx.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); label([A[0] + 4 * px, A[1] + 18 * px], t, '#3E4954', px, 12); };
+    for (const [a, b] of planSegs(pl)) if (isH(a, b) && Math.abs(a[1] - zb) > .5) band(X(Math.min(a[0], b[0])), X(Math.max(a[0], b[0])), .2, 'Z ' + Math.round(a[1] - zb));
+    for (const c of pl.cols) band(X(c.x), X(c.x + c.w), .42, 'Колонна Z ' + Math.round(c.z + c.d - zb));
+    cx.strokeStyle = '#3E4954'; cx.lineWidth = 2 * px;
+    for (const x of [...new Set([...pl.pts.map(q => X(q[0])), ...pl.cols.flatMap(c => [X(c.x), X(c.x + c.w)])].map(v => Math.round(v))) ]) { if (x <= .5 || x >= m.L - .5) continue; const A = mmToW(E, [x, m.H]), B = mmToW(E, [x, 0]); cx.beginPath(); cx.moveTo(...A); cx.lineTo(...B); cx.stroke(); } }
   cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 3 * px; cx.strokeRect(E.x, E.y, E.w, E.h);
   for (const o of m.objs) { const sel = S.sel && S.sel.e === o.id;
     if (o.pt) { const K = PTK[o.k] || PTK.roz; for (let j = 0; j < (o.n || 1); j++) { const c = mmToW(E, [o.x0 + (j - ((o.n || 1) - 1) / 2) * 71, o.y0]); cx.fillStyle = sel ? '#1F6FD1' : K[1]; cx.beginPath(); cx.arc(c[0], c[1], Math.max(35 * E.k, 4 * px), 0, 7); cx.fill(); } continue; }
@@ -214,15 +245,21 @@ function drawElev(p, m, E, px) {
 }
 function drawPlan(p, m, B, px) {
   cx.fillStyle = '#F7F8FA'; cx.fillRect(B.x, B.y, B.w, B.h); cx.strokeStyle = '#C9CED6'; cx.lineWidth = 1 * px; cx.strokeRect(B.x, B.y, B.w, B.h);
-  label([B.x, B.y - 10 * px], 'Вид сверху' + (p.plan ? '' : ' — нарисуй инструментом ⌐'), '#3E4954', px, 14);
-  const W0 = plToW(B, [0, 0]), W1 = plToW(B, [m.L, 0]); cx.strokeStyle = '#9AA0A8'; cx.setLineDash([6 * px, 4 * px]); cx.beginPath(); cx.moveTo(...W0); cx.lineTo(...W1); cx.stroke(); cx.setLineDash([]);
-  p._plab = []; if (!p.plan) return; const P = m.plan || p.plan.pts;
-  cx.strokeStyle = '#1A2027'; cx.lineWidth = 4 * px; cx.beginPath(); P.forEach((q, i) => { const w = plToW(B, q); i ? cx.lineTo(...w) : cx.moveTo(...w); }); cx.stroke();
-  P.forEach(q => dot(plToW(B, q), '#1A2027', 5 * px, '', px));
-  for (let i = 0; i + 1 < P.length; i++) { const a = plToW(B, P[i]), b = plToW(B, P[i + 1]), h = isH(P[i], P[i + 1]), v = +p.plan.len[i], est = Math.round(h ? Math.abs(P[i + 1][0] - P[i][0]) : Math.abs(P[i + 1][1] - P[i][1]));
-    const off = h ? [0, 18 * px] : [22 * px, 0], c = [(a[0] + b[0]) / 2 + off[0], (a[1] + b[1]) / 2 + off[1]], t = v > 0 ? String(v) : '≈' + est;
-    cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width; cx.fillStyle = '#fff'; cx.fillRect(c[0] - w / 2 - 4 * px, c[1] - 9 * px, w + 8 * px, 18 * px); cx.strokeStyle = v > 0 ? '#1A2027' : '#E0442B'; cx.lineWidth = 1.5 * px; if (!(v > 0)) cx.setLineDash([3 * px, 2 * px]); cx.strokeRect(c[0] - w / 2 - 4 * px, c[1] - 9 * px, w + 8 * px, 18 * px); cx.setLineDash([]);
-    cx.fillStyle = v > 0 ? '#1A2027' : '#E0442B'; cx.fillText(t, c[0] - w / 2, c[1] + 5 * px); p._plab.push({c, i}); }
+  const pl = planNorm(p.plan); p._plab = [];
+  label([B.x, B.y - 10 * px], 'Вид сверху' + (planHas(pl) ? '' : ' — ⌐ Ломаная или ▯ Колонна'), '#3E4954', px, 14);
+  if (!pl) return; const T = q => plToW(B, q), sel = S.sel && S.sel.p === p.id ? S.sel : {};
+  const box = (c, t, exact, kind, extra) => { cx.font = `700 ${13 * px}px system-ui`; const w = cx.measureText(t).width; cx.fillStyle = '#fff'; cx.fillRect(c[0] - w / 2 - 4 * px, c[1] - 9 * px, w + 8 * px, 18 * px); cx.strokeStyle = exact ? '#1A2027' : '#E0442B'; cx.lineWidth = 1.5 * px; if (!exact) cx.setLineDash([3 * px, 2 * px]); cx.strokeRect(c[0] - w / 2 - 4 * px, c[1] - 9 * px, w + 8 * px, 18 * px); cx.setLineDash([]); cx.fillStyle = exact ? '#1A2027' : '#E0442B'; cx.fillText(t, c[0] - w / 2, c[1] + 5 * px); p._plab.push({c, kind, ...extra}); };
+  // колонны
+  for (const c of pl.cols) { const P = colPts(c).map(T), on = sel.pc === c.id; cx.fillStyle = 'rgba(107,119,133,.45)'; cx.strokeStyle = on ? '#1F6FD1' : '#3E4954'; cx.lineWidth = (on ? 3 : 2) * px; cx.beginPath(); P.forEach((q, i) => i ? cx.lineTo(...q) : cx.moveTo(...q)); cx.closePath(); cx.fill(); cx.stroke();
+    box([(P[2][0] + P[3][0]) / 2, P[2][1] + 16 * px], String(Math.round(c.w)), c.wx, 'cw', {id: c.id});
+    box([P[1][0] + 24 * px, (P[1][1] + P[2][1]) / 2], String(Math.round(c.d)), c.dx, 'cd', {id: c.id});
+    const we = wallExt(pl); if (pl.pts.length > 1) { const a = T([we[0], c.z + c.d / 2]), b = T([c.x, c.z + c.d / 2]); if (b[0] - a[0] > 30 * px) { cx.strokeStyle = '#9AA0A8'; cx.lineWidth = 1 * px; cx.setLineDash([4 * px, 3 * px]); cx.beginPath(); cx.moveTo(...a); cx.lineTo(...b); cx.stroke(); cx.setLineDash([]); box([(a[0] + b[0]) / 2, a[1]], '← ' + Math.round(c.x - we[0]), c.ox, 'co', {id: c.id}); } } }
+  // ломаная стены
+  if (pl.pts.length) { cx.strokeStyle = '#1A2027'; cx.lineWidth = 5 * px; cx.lineJoin = 'round'; cx.beginPath(); pl.pts.forEach((q, i) => { const w = T(q); i ? cx.lineTo(...w) : cx.moveTo(...w); }); cx.stroke();
+    pl.pts.forEach((q, i) => dot(T(q), sel.pv === i ? '#1F6FD1' : '#1A2027', 7 * px, '', px));
+    planSegs(pl).forEach(([a, b], i) => { const A = T(a), Bq = T(b), l = Math.hypot(b[0] - a[0], b[1] - a[1]); if (l < 1) return; const n = [-(Bq[1] - A[1]) / Math.hypot(Bq[0] - A[0], Bq[1] - A[1]), (Bq[0] - A[0]) / Math.hypot(Bq[0] - A[0], Bq[1] - A[1])];
+      const v = +pl.len[i]; box([(A[0] + Bq[0]) / 2 + n[0] * 16 * px, (A[1] + Bq[1]) / 2 + n[1] * 16 * px], v > 0 ? String(v) : '≈' + Math.round(l), v > 0, 'seg', {i}); }); }
+  if (S.plHl && S.plHl.p === p.id) { cx.strokeStyle = '#00A0E0'; cx.lineWidth = 6 * px; cx.globalAlpha = .8; for (const [a, b] of S.plHl.hl) { cx.beginPath(); cx.moveTo(...T(a)); cx.lineTo(...T(b)); cx.stroke(); } cx.globalAlpha = 1; }
 }
 function dot(q, c, r, t, px) { cx.fillStyle = c; cx.beginPath(); cx.arc(q[0], q[1], r, 0, 7); cx.fill(); if (t) label([q[0] + r + 3 * px, q[1] - r], t, c, px, 12); }
 function label(q, t, c, px, sz = 13) { cx.font = `700 ${sz * px}px system-ui`; const w = cx.measureText(t).width; cx.fillStyle = 'rgba(255,255,255,.9)'; cx.fillRect(q[0] - 3 * px, q[1] - sz * px, w + 6 * px, sz * 1.3 * px); cx.fillStyle = c; cx.fillText(t, q[0], q[1]); }
@@ -269,9 +306,9 @@ function dlg(title, fields, ok, okText = 'Готово', extra) { const D = $('d
   if (extra) $('dgX').onclick = () => extra[1](); const f0 = $('dg0'); if (f0 && !fields[0].area) setTimeout(() => { f0.focus(); f0.select(); }, 30); }
 
 /* ═══ [BLOCK SK-INPUT] ввод значения — поле над подписью, родная клавиатура ═══ */
-function ask(get, set, at) { const i = $('val'), s = toScr(at); i.style.left = s[0] / DPR() + 'px'; i.style.top = s[1] / DPR() + 'px'; i.value = get() || ''; i.classList.add('on'); i._t = {get, set}; setTimeout(() => { i.focus(); i.select(); }, 30); }
+function ask(get, set, at) { const i = $('val'), s = toScr(at); i.style.left = s[0] / DPR() + 'px'; i.style.top = s[1] / DPR() + 'px'; i.value = get() || ''; i.classList.add('on'); i._t = {get, set, force: arguments[3]}; setTimeout(() => { i.focus(); i.select(); }, 30); }
 $('val').addEventListener('keydown', ev => { if (ev.key === 'Enter') ev.target.blur(); });
-$('val').addEventListener('blur', () => { const i = $('val'), t = i._t; i.classList.remove('on'); i._t = null; if (!t) return; const n = parseFloat(String(i.value).replace(',', '.')), v = n > 0 ? Math.round(n) : 0; if (v !== (+t.get() || 0)) { snap(); t.set(v); save(); } draw(); panel(); });
+$('val').addEventListener('blur', () => { const i = $('val'), t = i._t; i.classList.remove('on'); i._t = null; if (!t) return; const n = parseFloat(String(i.value).replace(',', '.')), v = n > 0 ? Math.round(n) : 0; if (v && (t.force || v !== (+t.get() || 0))) { snap(); t.set(v); save(); } else if (!v && !t.force && (+t.get() || 0)) { snap(); t.set(0); save(); } draw(); panel(); });
 
 /* ═══ [BLOCK SK-GESTURE] перо/палец/мышь — инструмент; два пальца или колесо — масштаб ═══ */
 const ptr = new Map();
@@ -298,18 +335,39 @@ function start(w, ev) {
     add(); return; }
   const hit = elAt(w);
   if (hit && hit.lab) { S.sel = {p: hit.p.id, e: hit.e.id}; panel(); S.drag = {end: () => ask(() => hit.e.v, v => hit.e.v = v, hit.lab)}; return; }
-  if (hit && hit.plab) { const L = hit.plab, pl = hit.p.plan; S.drag = {end: () => ask(() => pl.len[L.i], v => pl.len[L.i] = v, L.c)}; return; }
+  if (hit && hit.plab) { const L = hit.plab, pl = planNorm(hit.p.plan), c = pl.cols.find(x => x.id === L.id), we = wallExt(pl); let get, set;
+    if (L.kind === 'seg') { const [a, b] = planSegs(pl)[L.i]; get = () => pl.len[L.i] || Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])); set = v => setSegLen(pl, L.i, v); }
+    else if (L.kind === 'cw') { get = () => Math.round(c.w); set = v => { c.w = v; c.wx = 1; }; }
+    else if (L.kind === 'cd') { get = () => Math.round(c.d); set = v => { c.d = v; c.dx = 1; }; }
+    else { get = () => Math.round(c.x - we[0]); set = v => { c.x = we[0] + v; c.ox = 1; }; }
+    S.sel = c ? {p: hit.p.id, pc: c.id} : {p: hit.p.id}; panel(); S.drag = {end: () => ask(get, set, L.c, 1)}; return; }
   if (t === 'pan') {
     if (at && at.sp === 'img') { const ci = corAt(at.p, w); if (ci >= 0) return cornerDrag(at.p, ci); }
     if (hit && hit.e) { const p = hit.p, e = hit.e; S.sel = {p: p.id, e: e.id}; panel(); const a0 = e.a.slice(), b0 = e.b ? e.b.slice() : null, w0 = w; let moved = 0;
       const E = elev(p), conv = e.sp === 'mm' ? (dx, dy) => { const d = emmInv(p, e, [dx / E.k, -dy / E.k]); return d; } : (dx, dy) => [dx * p.iw / p.w, dy * p.iw / p.w];
       S.drag = {move: q => { if (!moved) { snap(); moved = 1; } const [dx, dy] = conv(q[0] - w0[0], q[1] - w0[1]); e.a = [a0[0] + dx, a0[1] + dy]; if (b0) e.b = [b0[0] + dx, b0[1] + dy]; }, end: () => { if (moved) save(); }}; return; }
+    if (at && at.sp === 'plan' && at.p.plan) { const p = at.p, B = at.B, pl = planNorm(p.plan), tol = 18 / (S.view.s * B.k), q0 = at.q;
+      const vi = pl.pts.findIndex(q => Math.hypot(q[0] - q0[0], q[1] - q0[1]) < tol);
+      if (vi >= 0) { S.sel = {p: p.id, pv: vi}; panel(); const o = pl.pts[vi].slice(); let moved = 0;
+        S.drag = {move: w2 => { if (!moved) { snap(); moved = 1; delete pl.len[vi - 1]; delete pl.len[vi]; } const q = wToPl(B, w2); let x = o[0] + q[0] - q0[0], z = o[1] + q[1] - q0[1];
+          for (const j of [vi - 1, vi + 1]) { const n = pl.pts[j]; if (!n) continue; if (Math.abs(x - n[0]) < tol) x = n[0]; if (Math.abs(z - n[1]) < tol) z = n[1]; }   // по прямой с соседями
+          pl.pts[vi] = [Math.round(x), Math.round(z)]; }, end: () => { if (moved) save(); }}; return; }
+      const c = [...pl.cols].reverse().find(c => q0[0] >= c.x && q0[0] <= c.x + c.w && q0[1] >= c.z && q0[1] <= c.z + c.d);
+      if (c) { S.sel = {p: p.id, pc: c.id}; panel(); const o = [c.x, c.z]; let moved = 0;
+        S.drag = {move: w2 => { if (!moved) { snap(); moved = 1; } const q = wToPl(B, w2); c.x = o[0] + q[0] - q0[0]; c.z = o[1] + q[1] - q0[1]; S.plHl = {p: p.id, hl: snapCol(pl, c, tol)}; },
+          end: () => { S.plHl = null; c.x = Math.round(c.x); c.z = Math.round(c.z); delete c.ox; if (moved) save(); }}; return; }
+      return pan(); }
     if (at && at.sp === 'img') { const p = at.p, x0 = p.x, y0 = p.y; S.sel = {p: p.id, photo: 1}; panel(); let moved = 0; S.drag = {move: (q, c) => { if (!moved) { snap(); moved = 1; } p.x = x0 + (c[0] - c0[0]) / S.view.s; p.y = y0 + (c[1] - c0[1]) / S.view.s; }, end: () => { if (moved) save(); }}; return; }
     return pan();
   }
   if (!at) return pan();
   const p = at.p;
-  if (t === 'plan') { if (at.sp !== 'plan') return toast('Вид сверху рисуется в рамке под чертежом стены'); return planTap(p, at.q); }
+  if (t === 'plan' || t === 'pcol') { if (at.sp !== 'plan') return toast('Вид сверху рисуется в рамке под чертежом стены'); const B = at.B, pl = p.plan = planNorm(p.plan || {}), tol = 18 / (S.view.s * B.k);
+    if (t === 'plan') return planTap(p, pl, at.q, tol);
+    const a = at.q.slice(); let c = null;
+    S.drag = {move: w2 => { const b = wToPl(B, w2); c = {id: uid(), x: Math.min(a[0], b[0]), z: Math.min(a[1], b[1]), w: Math.abs(b[0] - a[0]), d: Math.abs(b[1] - a[1])}; S.plHl = {p: p.id, hl: snapCol(pl, c, tol)}; },
+      prev: px => { if (!c) return; const P = colPts(c).map(q => plToW(B, q)); cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2 * px; cx.setLineDash([6 * px, 4 * px]); cx.beginPath(); P.forEach((q, i) => i ? cx.lineTo(...q) : cx.moveTo(...q)); cx.closePath(); cx.stroke(); cx.setLineDash([]); },
+      end: () => { S.plHl = null; if (!c || c.w < 30 || c.d < 30) return toast('Колонна — протяни от угла к углу (от 30 мм)'); snap(); for (const k of ['x', 'z', 'w', 'd']) c[k] = Math.round(c[k]); pl.cols.push(c); S.sel = {p: p.id, pc: c.id}; save(); panel(); }}; return; }
   if (at.sp === 'plan') return pan();
   if (!p.cor) return toast('Сначала углы стены на фото (⌗ Углы)');
   const mmSp = at.sp === 'mm', m = p._m, E = at.E, T = mmSp ? q => mmToW(E, q) : q => imgToW(p, q), conv = q => mmSp ? wToMm(E, q) : wToImg(p, q);
@@ -322,17 +380,16 @@ function start(w, ev) {
       end: () => { const A = T(a), B = T(b); if (Math.hypot(B[0] - A[0], B[1] - A[1]) * S.view.s < 14) return; snap(); const e = mk({id: uid(), t, a, b, v: 0, k: S.kind}); p.els.push(e); S.sel = {p: p.id, e: e.id}; save(); draw(); panel();
         if (t === 'dim') { const L = e._labE || e._lab || A; ask(() => e.v, v => e.v = v, L); } }}; }
 }
-// вид сверху: каждое касание — следующий излом; участки только вдоль или поперёк стены
-function planTap(p, q) {
-  const m = p._m; if (!m) return; snap(); if (!p.plan) p.plan = {pts: [], len: {}};
-  const P = p.plan.pts; let x = clamp(q[0], 0, m.L), z = Math.max(0, q[1]);
-  if (!P.length) { if (x < .06 * m.L) x = 0; if (z < .03 * m.L) z = 0; P.push([Math.round(x), Math.round(z)]); }
-  else { const l = P[P.length - 1]; if (Math.abs(x - l[0]) >= Math.abs(z - l[1])) z = l[1]; else x = l[0]; if (x > .94 * m.L && Math.abs(z - l[1]) < 1) x = m.L; if (Math.hypot(x - l[0], z - l[1]) < 20) { S.und.pop(); return; } P.push([Math.round(x), Math.round(z)]); }
-  save();
-}
+// ломаная: касание — следующий излом; к прямой (≤12°) и к существующим точкам притягивается
+function planTap(p, pl, q, tol) { snap(); const P = pl.pts; let [x, z] = q;
+  const hitV = P.find(v => Math.hypot(v[0] - x, v[1] - z) < tol); if (hitV) [x, z] = hitV;
+  else if (!P.length) { if (Math.abs(x) < tol * 2) x = 0; if (Math.abs(z) < tol * 2) z = 0; }
+  else { const l = P[P.length - 1], dx = x - l[0], dz = z - l[1], tg = Math.tan(12 * Math.PI / 180); if (Math.abs(dz) <= tg * Math.abs(dx)) z = l[1]; else if (Math.abs(dx) <= tg * Math.abs(dz)) x = l[0];
+    if (Math.hypot(x - l[0], z - l[1]) < 20) { S.und.pop(); return; } }
+  P.push([Math.round(x), Math.round(z)]); S.sel = {p: p.id, pv: P.length - 1}; save(); panel(); }
 
 /* ═══ [BLOCK SK-UI] подсказки, панель, кнопки ═══ */
-const HINT = {pan: 'Тяни фото, элементы и жёлтые углы. Колесо или два пальца — масштаб. Касание числа — ввод.', cor: 'Ставь 4 угла стены на фото по потолку и полу: левый-верх, правый-верх, правый-низ, левый-низ. Готовый угол можно тянуть.', dim: 'Протяни размер на чертеже стены (или по фото) и введи число. Привязка — к ближайшему краю стены, излому вида сверху или объекту.', obj: 'Обведи ригель, короб, нишу, проём — на фото или на чертеже.', pt: 'Поставь розетку или вывод — на фото или на чертеже; высоту и отступ задай размерами.', plan: 'Вид сверху: касаниями в рамке под чертежом ставь изломы слева направо (вдоль стены — лицевая грань, поперёк — боковая). Касание числа — длина или глубина.', txt: 'Коснись, чтобы оставить заметку.'};
+const HINT = {pan: 'Тяни фото, элементы и жёлтые углы. Колесо или два пальца — масштаб. Касание числа — ввод.', cor: 'Ставь 4 угла стены на фото по потолку и полу: левый-верх, правый-верх, правый-низ, левый-низ. Готовый угол можно тянуть.', dim: 'Протяни размер на чертеже стены (или по фото) и введи число. Привязка — к ближайшему краю стены, излому вида сверху или объекту.', obj: 'Обведи ригель, короб, нишу, проём — на фото или на чертеже.', pt: 'Поставь розетку или вывод — на фото или на чертеже; высоту и отступ задай размерами.', plan: 'Ломаная стены (вид сверху): касаниями в рамке под чертежом ставь изломы. Притяжение к прямой и к точкам. Точки тянутся в ✋, касание числа — длина участка.', pcol: 'Колонна (вид сверху): протяни от угла к углу в рамке под чертежом — грань притянется к стене, в углу — две грани. Числа: ширина, глубина, отступ от края стены.', txt: 'Коснись, чтобы оставить заметку.'};
 function panel() {
   const P = $('panel'), p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) { P.classList.remove('on'); return; } const m = p._m || build(p), e = S.sel.e && p.els.find(x => x.id === S.sel.e);
   let h = `<h4>${p.cor ? 'Стена' : 'Фото (общее)'}</h4>`;
@@ -340,6 +397,8 @@ function panel() {
   if (m && m.dims) { const D = m.dims.filter(d => !d.pl), ok = D.filter(d => d.st === 'ok').length, bad = D.filter(d => d.st === 'bad').length, fr = D.filter(d => d.st === 'free' || d.st === 'nov').length; h += `<div class="r"><span>Размеры</span><span><span class="ok">✓${ok}</span> <span class="er">≠${bad}</span> <span class="wr">?${fr}</span></span></div>`; }
   if (p.cor) h += `<div class="r"><button id="pLH">Длина/высота вручную</button></div>`;
   if (p.plan) h += `<div class="r"><button id="pPl">Стереть вид сверху</button></div>`;
+  const pc = S.sel.pc && p.plan && p.plan.cols.find(c => c.id === S.sel.pc); if (pc) h += `<hr><div class="r"><b>Колонна (вид сверху)</b></div><div class="r"><span>Ширина</span><b>${Math.round(pc.w)}</b></div><div class="r"><span>Глубина</span><b>${Math.round(pc.d)}</b></div><div class="r"><span>От края стены</span><b>${Math.round(pc.x - wallExt(p.plan)[0])}</b></div><div class="r" style="color:#777">Числа меняются касанием на виде сверху</div>`;
+  if (S.sel.pv != null && p.plan) h += `<hr><div class="r"><b>Излом ${S.sel.pv + 1}</b><span style="color:#777">🗑 — удалить</span></div>`;
   if (e) { h += `<hr><div class="r"><b>${e.t === 'dim' ? 'Размер' : e.t === 'obj' ? (KINDS[e.k] || [])[0] : e.t === 'pt' ? (PTK[e.k] || [])[0] : 'Заметка'}</b><span style="color:#777">${e.sp === 'mm' ? 'на чертеже' : 'на фото'}</span></div>`;
     if (e.t === 'dim') { const d = m && m.dims && m.dims.find(x => x.e === e); h += `<div class="r"><span>Значение</span><b>${e.v || '—'}</b></div>` + (d ? `<div class="r"><span>По месту ≈</span><span>${Math.round(d.est)}</span></div><div class="r"><span>Привязка</span><span>${d.fa && d.fb ? (d.st === 'ok' ? '<span class="ok">к краям</span>' : '<span class="er">конфликт</span>') : '<span class="wr">нет края рядом</span>'}</span></div>` : ''); }
     if (e.t === 'pt' && e.k === 'roz') h += `<div class="r"><span>Посты</span><span>${[1, 2, 3, 4, 5].map(n => `<button data-n="${n}" style="width:28px;${(e.n || 1) === n ? 'background:#F6E08A' : ''}">${n}</button>`).join('')}</span></div>`;
@@ -353,8 +412,8 @@ function panel() {
 }
 function kinds() { const K = $('kinds'), set = S.tool === 'obj' ? KINDS : S.tool === 'pt' ? PTK : null; if (!set) { K.classList.remove('on'); return; } K.innerHTML = Object.entries(set).map(([k, v]) => `<button data-k="${k}" class="${(S.tool === 'obj' ? S.kind : S.ptk) === k ? 'on' : ''}">${v[0]}</button>`).join(''); K.classList.add('on'); K.querySelectorAll('button').forEach(b => b.onclick = () => { if (S.tool === 'obj') S.kind = b.dataset.k; else S.ptk = b.dataset.k; kinds(); }); }
 document.querySelectorAll('#bar [data-t]').forEach(b => b.onclick = () => { S.tool = b.dataset.t; S.pend = null; document.querySelectorAll('#bar [data-t]').forEach(x => x.classList.toggle('on', x === b)); kinds(); draw(); });
-$('bUndo').onclick = () => { if (S.pend) { S.pend.pts.pop(); if (!S.pend.pts.length) S.pend = null; return draw(); } const t = S.und.pop(); if (!t) return toast('Отменять нечего'); const o = JSON.parse(t); for (const q of o) { const p = S.photos.find(x => x.id === q.id); if (p) Object.assign(p, {cor: q.cor, els: q.els, x: q.x, y: q.y, L: q.L, H: q.H, plan: q.plan}); } S.photos = S.photos.filter(p => o.some(q => q.id === p.id)); save(); draw(); panel(); };
-$('bDel').onclick = () => { const p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) return toast('Выберите элемент или фото'); snap(); if (S.sel.e) p.els = p.els.filter(e => e.id !== S.sel.e); else if (S.sel.photo) S.photos = S.photos.filter(x => x !== p); S.sel = null; save(); draw(); panel(); };
+$('bUndo').onclick = () => { if (S.pend) { S.pend.pts.pop(); if (!S.pend.pts.length) S.pend = null; return draw(); } const t = S.und.pop(); if (!t) return toast('Отменять нечего'); const o = JSON.parse(t); for (const q of o) { const p = S.photos.find(x => x.id === q.id); if (p) Object.assign(p, {cor: q.cor, els: q.els, x: q.x, y: q.y, L: q.L, H: q.H, plan: q.plan}); } S.photos = S.photos.filter(p => o.some(q => q.id === p.id)); S.sel = null; save(); draw(); panel(); };
+$('bDel').onclick = () => { const p = S.photos.find(x => x.id === (S.sel && S.sel.p)); if (!p) return toast('Выберите элемент или фото'); snap(); if (S.sel.e) p.els = p.els.filter(e => e.id !== S.sel.e); else if (S.sel.pc && p.plan) p.plan.cols = p.plan.cols.filter(c => c.id !== S.sel.pc); else if (S.sel.pv != null && p.plan) { p.plan.pts.splice(S.sel.pv, 1); p.plan.len = {}; } else if (S.sel.photo) S.photos = S.photos.filter(x => x !== p); S.sel = null; save(); draw(); panel(); };
 $('bAdd').onclick = () => $('file').click();
 $('file').onchange = ev => { const fs = [...ev.target.files]; ev.target.value = ''; let x = Math.max(0, ...S.photos.map(p => p.x + p.w + 80)); fs.forEach(f => { const r = new FileReader(); r.onload = () => { snap(); S.photos.push({id: uid(), src: r.result, x, y: 0, w: 860, iw: 0, ih: 0, cor: null, els: [], plan: null}); x += 940; save(); draw(); }; r.readAsDataURL(f); }); };
 $('bJson').onclick = () => { const out = S.photos.filter(p => p._m && p._m.L).map(p => ({wall: {L: Math.round(p._m.L), H: Math.round(p._m.H)}, plan: p._m.plan && p._m.plan.map(q => q.map(Math.round)),
