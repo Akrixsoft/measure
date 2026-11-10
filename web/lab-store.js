@@ -365,6 +365,58 @@
     return res;
   };
   PM.zBackup = (...a) => zBackup(...a); PM.zRestore = o => zRestore(o);
+
+  /* ═══ [BLOCK ST-IMP] AKX-2026-0012 Д9 (QA 82.18): импорт своей выгрузки «для Akrix» (♻ → zRestore → zImpExp) — в проект и на холст.
+     v81 открывал помещение на старом экране, а проект собирался синхронизацией с client = obj («Сидоровы — Кухня-гостиная»), name пусто.
+     Здесь: obj файла разбирается обратно на клиент / проект (objOf: « — »); по oid файла — существующий проект обновляется после
+     подтверждения (прежние помещения и виды стен — в «Удалённые» штатным del, раскладка стен холста перестраивается), иначе / «Новым» —
+     новый проект; штатный импорт v81 (и обёртки lab-prd, lab-export, lab-floor-routes) получает obj и oid проекта; затем — холст проекта. ═══ */
+  const splitObj = s => { s = String(s || '').trim(); const i = s.indexOf(' — '); return i > 0 ? {client: s.slice(0, i).trim(), name: s.slice(i + 3).trim()} : {client: s, name: ''}; };
+  api.splitObj = splitObj;
+  async function askUpdate(P) {
+    const t = 'Проект «' + label(P) + '» уже есть', x = 'Файл — выгрузка этого же проекта. Обновить проект из файла (прежние помещения и стены уйдут в «Удалённые») или загрузить отдельным проектом?';
+    const LP = window.MeasureLabProjects;
+    if (LP && typeof LP.ask === 'function') return LP.ask(t, x, [{t: 'Отмена', v: null}, {t: 'Новым проектом', v: 'new'}, {t: 'Обновить', v: 'upd', pr: 1}]);
+    return confirm(t + '. Обновить?') ? 'upd' : 'new';
+  }
+  const imp81 = zImpExp;
+  zImpExp = async function (o) {
+    const RS = o && o.app === 'akrix-zamer' ? (o.kind === 'object' ? o.rooms || [] : o.kind === 'room' ? [o] : []).filter(R => R && R.ms && Array.isArray(R.ms.pts) && R.ms.pts.length >= 2) : [];
+    if (!RS.length) return imp81.apply(this, arguments);
+    await ldb();
+    const SK = window.MeasureLabSketch, objF = o.obj || RS[0].obj || '';
+    let P = o.oid ? await get(o.oid) : null; if (P && P.purged) P = null;
+    let how = 'new';
+    if (P) { how = await askUpdate(P); if (!how) { toast('Импорт отменён'); return 0; } }
+    try { await flushAll(); } catch (e) { }
+    if (SK && SK.isOpen && SK.isOpen()) { try { await SK.saveNow(); } catch (e) { } }
+    if (how === 'upd') {
+      const t = now(), R = owns(P, await zAll());
+      for (const x of [...R.rooms, ...R.walls]) if (!x.del) await zEdit(x.id, y => { if (y.del) return false; y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; });
+      if (P.del) { P.del = null; }
+      P.upd = t; await put(P);
+      const c = (await api.cv(P.id)) || cv0(P.id); c.items = (c.items || []).filter(i => !(i.t === 'wall' && i.room)); await api.putCv(c);   // области стен — заново по новым записям
+    } else {
+      const sp = splitObj(objF);
+      P = await create({id: o.oid && !(await get(o.oid)) ? o.oid : undefined, client: sp.client, name: sp.name});
+    }
+    const o2 = {...o, obj: P.obj, oid: P.id, rooms: o.kind === 'object' ? (o.rooms || []).map(R => ({...R, obj: P.obj})) : o.rooms};
+    if (o.kind === 'room') o2.obj = P.obj;
+    const n = await imp81.call(this, o2);
+    if (!n) { if (how !== 'upd') { try { await lDel('prj', P.id); await lDel('cv', P.id); } catch (e) { } } return n; }
+    try { await flushAll(); } catch (e) { }
+    try { const zn = Math.max(0, ...RS.flatMap(R => (R.ms.labRooms || []).map(q => +q.zn || 0))); const P2 = await get(P.id); if (P2 && zn > (+P2.znHi || 0)) { P2.znHi = zn; await put(P2); } } catch (e) { }
+    await api.layout(P.id);
+    emit(how === 'upd' ? 'import-update' : 'import', {pid: P.id});
+    try { localStorage.setItem('measure.lastPrj', P.id); } catch (e) { }
+    if (SK && typeof SK.open === 'function') {
+      if (SK.isOpen() && SK.pid() === P.id && SK.state) SK.state.pid = '';   // тот же проект открыт — перечитать раскладку (без записи старой поверх)
+      if (window.MeasureLabProjects && MeasureLabProjects.open) await MeasureLabProjects.open(P.id); else await SK.open(P.id);
+    }
+    toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n);
+    return n;
+  };
+  PM.zImpExp = (...a) => zImpExp(...a);
   api.backup = () => zBackup(false);
   ldb().then(() => projects()).catch(() => { });   // кэш проектов — сразу (znNext)
 })();

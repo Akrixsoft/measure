@@ -193,6 +193,56 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(b3.some(t => t === 'walls:Правка стен') && !b3.some(t => /Выбирать стены/.test(t)), 'Д16: без выбранной зоны — «Правка стен» (понятное название правки геометрии)', b3);
       check(errors.length === 0, 'Д16: нет ошибок страницы', errors);
     }
+    /* ════ Д9: импорт своей выгрузки из списка проектов — проект «клиент · проект», холст проекта; повтор — обновить по oid (подтверждение) ════ */
+    if (run('d9')) {
+      await fresh(); errors = [];
+      await project();
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300);
+      const src = await exportAkrix(); const FILE = path.join(SHOT, 'd9-source.json'); fs.writeFileSync(FILE, JSON.stringify(src, null, 1));
+      await fresh();
+      await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+      const restore = async () => { await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300); const fc = p.waitForEvent('filechooser', {timeout: 8000}); await tapText('touch', 'Восстановить из копии', '#labPrj'); await (await fc).setFiles(FILE); };
+      const state = () => p.evaluate(async () => { const L = (await MeasureLabStore.projects()).filter(P => !P.del && !P.purged), all = await dbAll('sess'), K = MeasureLabSketch.state;
+        return {prj: L.map(P => ({id: P.id, client: P.client, name: P.name, obj: P.obj, rooms: all.filter(r => r.kind === 'room' && !r.del && r.oid === P.id).length})), open: MeasureLabSketch.isOpen(), list: MeasureLabProjects.isOpen(), pid: MeasureLabSketch.pid(),
+          title: (document.getElementById('labPrjT') || {}).textContent, items: K.items.map(i => i.t), act: MeasureLabSketch.active() && MeasureLabSketch.active().t, prd: Math.max(0, ...all.filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).map(r => (r.prd || []).length)),
+          zones: all.filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).flatMap(r => (r.ms.labRooms || []).map(q => q.zn)), dlg: !!document.querySelector('#labPrj .lp-dg.on')}; });
+      await restore(); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
+      let s1 = await state(); await shot('d9-imported');
+      check(s1.prj.length === 1 && s1.prj[0].id === src.oid && s1.prj[0].client === 'Сидоровы' && s1.prj[0].name === 'Кухня-гостиная' && s1.prj[0].obj === src.obj && s1.title === 'Сидоровы · Кухня-гостиная',
+        'Д9: импорт из списка — проект «Сидоровы · Кухня-гостиная» (клиент и проект раздельно, id = oid файла)', s1.prj.concat([s1.title]));
+      check(s1.open && !s1.list && s1.pid === src.oid && s1.items.includes('plan') && s1.items.filter(t => t === 'wall').length === 1, 'Д9: открыт холст проекта (не экран v81): план и область стены С1', s1);
+      check(s1.prd === 3 && s1.zones.join() === '1,2' && s1.prj[0].rooms === 1, 'Д9: данные целы — 3 конструкции, зоны zn 1,2', s1);
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300);
+      const back = await exportAkrix();
+      check(JSON.stringify(sum(back)) === JSON.stringify(sum(src)) && back.oid === src.oid && back.obj === src.obj, 'Д9: повторная выгрузка импортированного проекта = исходной (prd, zn, стены, oid, obj)', {src: sum(src), back: sum(back)});
+      // повтор того же файла: окно «уже есть» → «Обновить» → проект один, помещение одно (прежнее — в «Удалённые»)
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await wait(200); await shot('d9-ask');
+      const askT = await p.evaluate(() => document.querySelector('#labPrj .lp-dg.on').textContent);
+      await tapText('pen', 'Обновить', '#labPrj .lp-dg.on'); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
+      const s2 = await state(); await shot('d9-updated');
+      check(/уже есть/.test(askT) && s2.prj.length === 1 && s2.prj[0].rooms === 1 && s2.open && s2.pid === src.oid && s2.items.filter(t => t === 'wall').length === 1 && s2.prd === 3, 'Д9: тот же oid — подтверждение, «Обновить»: проект один, помещение одно, холст открыт', {askT, s2});
+      // ещё раз → «Новым проектом» → второй проект «(2)»
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Новым проектом', '#labPrj .lp-dg.on');
+      await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
+      const s3 = await state();
+      check(s3.prj.length === 2 && s3.pid !== src.oid && s3.prj.some(P => P.id === s3.pid && P.client === 'Сидоровы' && /Кухня-гостиная \(2\)/.test(P.name) && P.rooms === 1), 'Д9: «Новым проектом» — второй проект «Сидоровы · Кухня-гостиная (2)», открыт его холст', s3.prj);
+      // отмена — ничего не меняется
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Отмена', '#labPrj .lp-dg.on'); await wait(800);
+      const s4 = await state();
+      check(s4.prj.length === 2 && s4.list && !s4.dlg, 'Д9: «Отмена» — проекты не меняются, список на месте', s4.prj.length);
+      check(errors.length === 0, 'Д9: нет ошибок страницы', errors);
+      // конструктор v898: выгрузка импортированного проекта открывается
+      if (fs.existsSync(AKRIX)) {
+        const EXP = path.join(SHOT, 'd9-reexport.json'); fs.writeFileSync(EXP, JSON.stringify(back, null, 1)); const out = path.join(SHOT, 'akrix'); fs.mkdirSync(out, {recursive: true});
+        try { cp.execFileSync(process.execPath, [path.join(__dirname, 'akrix-imp-v898.cjs'), AKRIX, out, EXP], {stdio: ['ignore', 'pipe', 'pipe'], timeout: 240000, env: process.env});
+          const R = JSON.parse(fs.readFileSync(out + '/import-result.json', 'utf8'))[0]; info.akrix = {walls: (R.walls || []).length, zw: R.zw && R.zw.walls && R.zw.walls.length, errors: R.errors};
+          check(R.errors.length === 0 && (R.walls || []).length >= 1, 'Д9/Д2: конструктор v898 открывает выгрузку (⇧ → ✓ В стены), ошибок нет', info.akrix);
+        } catch (e) { check(false, 'конструктор v898: импорт', String(e.stderr || e).slice(0, 800)); }
+      }
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
