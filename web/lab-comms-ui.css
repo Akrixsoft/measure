@@ -1,6 +1,6 @@
 /* Scoped to actual communications dimension mode. Ordinary tools keep v81 layout. */
 body.rz #zf>#zpb{display:flex!important;align-self:stretch;max-width:100%;width:100%;overflow:hidden;box-sizing:border-box;gap:3px}
-body.rz #zpb> :not(#labRzBottom):not(#zur):not(#rzT){display:none!important}
+body.rz:not(.lab-sk-ph):not(.lab-sk-nt) #zpb> :not(#labRzBottom):not(#zur):not(#rzT):not(#zpF){display:none!important}   /* 82.18: 🖍 футляр — и в rz (lab-tb.css); блок фото «Скетча» — своими правилами */
 body.rz #zpb#zpb>#labRzBottom{display:contents!important}
 body:not(.rz) #labRzBottom{display:none}
 body.rz #zpb #labRzBottom>button{flex:none;width:30px;height:30px;padding:2px}

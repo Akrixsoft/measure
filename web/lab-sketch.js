@@ -1,8 +1,10 @@
-/* Measure 82.16 — «Скетч»: холст объекта (как DrawNote) поверх штатного холста v81.
+/* Measure 82.18 — «Скетч»: холст объекта (как DrawNote) поверх штатного холста v81.
    Решение владельца 10.11.2026: один бесконечный холст — фото, рендеры, пометки, стены и общий план помещений видны сразу;
    стены и план — области холста, правятся ОБЩИМ набором инструментов приложения: касание области делает её активной,
    вид v81 совмещается с её местом на холсте; неактивные области — снимки последнего вида.
    Фото → 4 угла → стена над фото (нет места — под фото); фото на стену не заливается — остаётся рядом на холсте. Последовательность стен, колонны, выступы, ниши — на общем плане.
+   82.18 (AKX-2026-0008/0009, проект архитектора): своей строки холста нет — команды холста в штатном футляре (lab-tb.js),
+   действия выбранного фото — блоком в нижней строке (#zpb); стена холста открывается в разметке (⌖).
    Работает поверх неизменной v81: S, cv, cx, draw, fit, plFit, openSess, openRoom, newRoom, dbGet/dbPut/dbAll, saveNow, saveRoom … */
 (() => {
   'use strict';
@@ -69,6 +71,11 @@
     return K.items.find(i => i.t === 'wall' && i.sid === S.sess.id) || null;
   }
   api.active = active;
+  function nativeOnly() {   // F6: открыто штатное, но не область холста (стена до 4 углов, кадр, список замеров) — v81 рисует и принимает касания сама
+    if (activeKind()) return false;
+    return S.mode === 'plan' ? !!S.room : !!S.sess;
+  }
+  api.nativeOnly = nativeOnly;
   function planBox() { const rs = activeKind() === 'plan' ? [S.room, ...(S.objRooms || [])] : K.rooms, P = []; for (const r of rs) if (r && r.ms && !r.pstub && !r.del) P.push(...(r.ms.pts || [])); if (!P.length) return [0, 0, 6000, 4000];
     const xs = P.map(p => p[0]), ys = P.map(p => p[1]); return [Math.min(...xs) - 900, Math.min(...ys) - 900, Math.max(...xs) + 900, Math.max(...ys) + 900]; }
   function region(it) {   // область в единицах холста: стена — L×H + развёртка боковых и пол; план — все помещения объекта + поле
@@ -86,7 +93,6 @@
 
   /* ═══ [BLOCK SK-DRAW] отрисовка: слой холста, затем активная область — штатной v81 в своей рамке ═══ */
   const draw81 = draw;
-  let snapT = 0;
   function label(x, y, t, c, px, sz) {   // подписи — в px экрана (как подписи приложения; размер текста — из настроек Lab)
     const d = DPR(), s = toScrK(x, y), f = fsz(sz) * d; cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.font = `700 ${f}px system-ui`; const w = cx.measureText(t).width, fh = parseFloat(cx.font) || f;
     cx.fillStyle = 'rgba(255,255,255,.9)'; cx.fillRect(s[0] - 3 * d, s[1] - fh, w + 6 * d, fh * 1.3); cx.fillStyle = c; cx.fillText(t, s[0], s[1]); cx.restore(); void px; }
@@ -124,12 +130,22 @@
       const k = Math.min(1, 1400 / Math.max(ex - sx, ey - sy)), c = document.createElement('canvas'); c.width = Math.round((ex - sx) * k); c.height = Math.round((ey - sy) * k);
       c.getContext('2d').drawImage(cv, sx, sy, ex - sx, ey - sy, 0, 0, c.width, c.height);
       const w0 = toK(sx, sy), w1 = toK(ex, ey), sn = {img: c, x: w0[0], y: w0[1], w: w1[0] - w0[0], h: w1[1] - w0[1], cover};
-      K.snaps[act.id] = sn; act.snap = {src: c.toDataURL('image/jpeg', .82), x: sn.x, y: sn.y, w: sn.w, h: sn.h, cover}; save(); } catch (e) { }
+      K.snaps[act.id] = sn;
+      c.toBlob(b => { if (!b || K.snaps[act.id] !== sn) return; const fr = new FileReader(); fr.onload = () => { act.snap = {src: fr.result, x: sn.x, y: sn.y, w: sn.w, h: sn.h, cover}; save(); }; fr.readAsDataURL(b); }, 'image/jpeg', .82); } catch (e) { }   // F8: кодирование — асинхронно (toBlob)
   }
   api.snapNow = snapNow;
+  /* F8 (аудит): снимок — не во время рисования, а при деактивации области (activate) и по простою ≥ 1,5 с без касаний и отрисовки; без выделения и ручек */
+  let idleT = 0, snapBusy = 0;
+  function snapIdle(act) { clearTimeout(idleT); idleT = setTimeout(() => {
+    if (!K.on || K.quiet || active() !== act || ours.size || nat.size) return;
+    const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; snapBusy = 1;
+    try { S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; draw(); snapNow(act); }
+    finally { Object.assign(S, keep); draw(); snapBusy = 0; } }, 1500); }   // перерисовка после снимка таймер не перезапускает
+  api.snapIdle = snapIdle;
   draw = function () {
     if (!K.on) return draw81.apply(this, arguments);
-    if (S.mode === 'plan' && S.room && S.room.obj !== K.obj) { K.on = false; ui(); return draw81.apply(this, arguments); }   // ушли в другой объект — холст закрыт
+    if (S.mode === 'plan' && S.room && S.room.obj !== K.obj) { K.on = false; K.sel = null; K.cor = null; document.body.classList.remove('lab-sketch'); $s('.sk-dlg').classList.remove('on'); ui(); return draw81.apply(this, arguments); }   // ушли в другой объект — холст закрыт (F4: и класс режима)
+    if (nativeOnly()) { const r0 = draw81.apply(this, arguments); ui(); return r0; }   // F6: стена без 4 углов, кадр, список — штатная отрисовка v81 целиком
     let act = active();
     if (!act && activeKind()) act = adopt();   // стену/план открыли штатно (из плана, «Готово») — область появляется на холсте
     if (act) { if (act.t === 'wall' && S.q4) { act.L = +S.q4.L || act.L; act.H = +S.q4.H || act.H; } if (K.quiet) syncToS(act); else syncFromS(act); }   // во время открытия вид держит холст
@@ -137,8 +153,8 @@
     let res;
     if (act) { const r = region(act), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h); cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.beginPath(); cx.rect(a[0], a[1], b[0] - a[0], b[1] - a[1]); cx.clip();
       try { res = draw81.apply(this, arguments); } finally { cx.restore(); }
-      if (!K.quiet && Date.now() - snapT > 700) { snapT = Date.now(); snapNow(act); } }
-    paintOver(act); ui();
+      if (!K.quiet && !snapBusy) snapIdle(act); }
+    if (!snapBusy) paintOver(act); ui();   // снимок по простою — без рамки и выбора холста
     return res;
   };
   api.draw = () => draw();
@@ -176,7 +192,7 @@
     try {
       const cur = active(); if (cur) snapNow(cur);
       try { await flushAll(); } catch (e) { }   // план и стена — в базу сразу (saveRoom отложен на 250 мс)
-      if (it.t === 'wall') { const o = await dbGet('sess', it.sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return; } await openSess(it.sid); }
+      if (it.t === 'wall') { const o = await dbGet('sess', it.sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return; } await openSess(it.sid); if (S.tool !== 'mk') await zmSet('mk'); }   /* 82.18: стена холста — сразу в разметке (ряд, футляр) */
       else { await loadRooms(); const r = K.rooms[0]; if (!r) return roomNew(); await openRoom(r.id, null, true); }
       K.view = v0; syncToS(it); draw();
     } finally { K.quiet--; }
@@ -201,6 +217,7 @@
   api.insideActive = insideActive;
   window.addEventListener('pointerdown', ev => {
     if (!K.on || ev.target !== cv) return;
+    if (!ours.size && nativeOnly()) { nat.add(ev.pointerId); return; }   // F6
     const w = ptK(ev);
     if (!ours.size && (nat.size || (insideActive(w) && !K.cor))) { nat.add(ev.pointerId); return; }   // штатно
     ev.stopImmediatePropagation(); ev.preventDefault(); ours.set(ev.pointerId, [ev.clientX, ev.clientY]);
@@ -218,7 +235,7 @@
     G = null; if (ev.type !== 'pointercancel' && g.end) g.end(ptK(ev)); draw();
   };
   window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', up, true);
-  window.addEventListener('wheel', ev => { if (!K.on || ev.target !== cv || insideActive(ptK(ev))) return; ev.stopImmediatePropagation(); ev.preventDefault(); const w = ptK(ev), f = Math.exp(-ev.deltaY * .0015), s = clamp(K.view.s * f, .01, 20), r = cv.getBoundingClientRect(); K.view = {s, ox: ev.clientX - r.left - w[0] * s, oy: ev.clientY - r.top - w[1] * s}; pushView(); }, {capture: true, passive: false});
+  window.addEventListener('wheel', ev => { if (!K.on || ev.target !== cv || nativeOnly() || insideActive(ptK(ev))) return; ev.stopImmediatePropagation(); ev.preventDefault(); const w = ptK(ev), f = Math.exp(-ev.deltaY * .0015), s = clamp(K.view.s * f, .01, 20), r = cv.getBoundingClientRect(); K.view = {s, ox: ev.clientX - r.left - w[0] * s, oy: ev.clientY - r.top - w[1] * s}; pushView(); }, {capture: true, passive: false});
   function pinch0() { const [a, b] = [...ours.values()], r = cv.getBoundingClientRect(); return {d: Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, c: [(a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top], s: K.view.s, ox: K.view.ox, oy: K.view.oy}; }
   function pushView() { const a = active(); if (a) syncToS(a); draw(); save(); }
   function down(w, ev) {
@@ -241,38 +258,71 @@
         K.sel = null; activate(it); }};
   }
 
-  /* ═══ [BLOCK SK-UI] строка холста — сразу над штатными строками (своих инструментов чертежа нет) ═══ */
+  /* ═══ [BLOCK SK-UI] своей строки нет (82.18): команды холста — плитки футляра (lab-tb.js) → api.cmd;
+     выбранное фото / заметка — блок в самой нижней строке (#zpb, BLOCK SK-BAR); окна ввода и файлы — здесь ═══ */
   const root = document.createElement('div'); root.id = 'labSketch';
-  root.innerHTML = `<div class="sk-row" role="toolbar" aria-label="Холст"></div><div class="sk-dlg"><div class="bx"></div></div>
+  root.innerHTML = `<div class="sk-dlg"><div class="bx"></div></div>
 <input type="file" accept="image/*" capture="environment" data-skf="cam" hidden><input type="file" accept="image/*" multiple data-skf="gal" hidden><input type="file" accept=".json,application/json" data-skf="imp" hidden>`;
   document.body.appendChild(root);
-  const $s = q => root.querySelector(q), row = $s('.sk-row');
-  let uiKey = '';
-  function ui() {
-    root.classList.toggle('on', K.on); if (!K.on) return;
-    const zf = document.getElementById('zf'); if (zf && row.parentNode !== zf) zf.insertBefore(row, zf.firstChild);   // строка — в штатном стеке строк снизу (#zf), без своего положения
-    const sel = K.sel && byId(K.sel), key = [K.obj, sel && sel.id, sel && sel.t, sel && !!sel.cor, !!K.cor, K.cor && K.cor.pts.length, sel && sel.wall].join('|');
+  const $s = q => root.querySelector(q);
+  let uiKey = '', uiBlk = '';
+  const selIt = () => (K.on && K.sel && byId(K.sel)) || null;
+  function blk() { const s = selIt(); return s && s.t === 'photo' ? 'ph' : s && s.t === 'note' ? 'nt' : ''; }   // блок нижней строки: фото / заметка / нет
+  api.block = blk;
+  function ui() {   // без отрисовки строки: классы body и перестройка нижней строки при смене выбора
+    root.classList.toggle('on', K.on);
+    const sel = selIt(), key = K.on ? [K.obj, sel && sel.id, sel && sel.t, sel && !!sel.cor, !!K.cor, K.cor && K.cor.pts.length, sel && sel.wall].join('|') : '';
     if (key === uiKey) return; uiKey = key;
-    let h = `<button data-sa="close" title="Закрыть холст">✕</button><b class="sk-obj" data-sa="obj" title="Объект">${esc(K.obj)}</b><button data-sa="cam" title="Фото с камеры">📷</button><button data-sa="gal" title="Фото из галереи">🖼</button><button data-sa="note" title="Заметка на холсте">Т</button><button data-sa="plan" title="План помещений">⌂</button>`;
-    if (sel && sel.t === 'photo') h += `<span class="sep"></span><button data-sa="cor" class="${K.cor ? 'on' : ''}" title="4 угла стены на фото: ЛВ, ПВ, ПН, ЛН">⌗ ${K.cor ? K.cor.pts.length + '/4' : 'Углы'}</button>${sel.cor ? `<button data-sa="wall" title="Стена по фото: помещение, стена плана, L, H">▣ ${sel.wall && byId(sel.wall) ? 'Стена ✓' : 'Стена'}</button>` : ''}<button data-sa="del" title="Убрать фото с холста">🗑</button>`;
-    else if (sel && sel.t === 'note') h += `<span class="sep"></span><button data-sa="ned" title="Текст">✎</button><button data-sa="del" title="Удалить заметку">🗑</button>`;
-    h += `<span class="sp"></span><button data-sa="exp" title="Перенос: сохранить JSON">⇪</button><button data-sa="imp" title="Перенос: загрузить JSON">⇩</button>`;
-    row.innerHTML = h;
-    row.querySelectorAll('[data-sa]').forEach(b => b.onclick = () => act1(b.dataset.sa, b));
+    const b = blk(); document.body.classList.toggle('lab-sk-ph', b === 'ph'); document.body.classList.toggle('lab-sk-nt', b === 'nt');
+    if (b || uiBlk) { try { zpbDraw(); } catch (e) { } try { lay05(); } catch (e) { } }   // снятие выбора: lay05 возвращает ↶ ↷ 🗑 на штатное место
+    uiBlk = b;
   }
-  function act1(a, b) {
-    const sel = K.sel && byId(K.sel);
+  function cmd(a, b) {   // команды холста: плитки футляра (open, close, obj, cam, gal, note, plan, exp, imp) и блок фото (cor, wall, ned, del)
+    const sel = selIt();
+    if (a === 'open') return open();
     if (a === 'close') return close();
     if (a === 'obj') return objDlg();
     if (a === 'cam' || a === 'gal' || a === 'imp') return $s(`[data-skf="${a}"]`).click();
     if (a === 'note') { const w = toK(cv.width / 2, cv.height / 3); return textDlg('Заметка', '', tx => { if (!tx) return; const n = {id: 'n' + uid(), t: 'note', x: w[0], y: w[1], tx}; K.items.push(n); K.sel = n.id; save(); draw(); }); }
     if (a === 'plan') { const it = K.items.find(i => i.t === 'plan'); if (it) { fitRegion(it); draw(); return activate(it); } return loadRooms().then(() => K.rooms.length ? activate(planItem()) : roomNew()); }
-    if (a === 'cor' && sel) { K.cor = K.cor ? null : {id: sel.id, pts: []}; if (K.cor) say('Углы стены: левый-верх, правый-верх, правый-низ, левый-низ'); return draw(); }
-    if (a === 'wall' && sel) return wallDlg(sel);
-    if (a === 'ned' && sel) return noteEdit(sel);
-    if (a === 'del' && sel) { if (!b.classList.contains('arm')) { b.classList.add('arm'); setTimeout(() => b.classList.remove('arm'), 2500); return say('Ещё раз — удалить'); } K.items = K.items.filter(i => i !== sel); K.sel = null; save(); return draw(); }
+    if (a === 'cor' && sel && sel.t === 'photo') { K.cor = K.cor ? null : {id: sel.id, pts: []}; if (K.cor) say('Углы стены: левый-верх, правый-верх, правый-низ, левый-низ'); return draw(); }
+    if (a === 'wall' && sel && sel.t === 'photo') return wallDlg(sel);
+    if (a === 'ned' && sel && sel.t === 'note') return noteEdit(sel);
+    if (a === 'del' && sel) { if (b && !b.classList.contains('arm')) { b.classList.add('arm'); setTimeout(() => b.classList.remove('arm'), 2500); return say('Ещё раз — удалить'); } K.items = K.items.filter(i => i !== sel); K.sel = null; K.cor = null; save(); return draw(); }
     if (a === 'exp') return exportJson();
   }
+  api.cmd = cmd;
+
+  /* ═══ [BLOCK SK-BAR] блок выбранного фото / заметки — в самой нижней строке (#zpb), после 🖍:
+     ⌗ 4 угла (n/4) · ▣ Стена · 🗑 | штатная лента цветов на остальное место | ↶ ↷ 🗑. Штатные узлы полосы прячет CSS (не удаляются). ═══ */
+  const svgU = (id, vb) => `<svg viewBox="${vb || '0 0 32 32'}" aria-hidden="true"><use href="#${id}"/></svg>`;
+  const zpbSk0 = zpbDraw;
+  zpbDraw = function () {
+    const res = zpbSk0.apply(this, arguments), el = document.getElementById('zpb'); if (!el) return res;
+    try {
+      const ch = document.getElementById('ch');   // против дублей: вид пера в полосе, если он уже в ряду
+      el.querySelectorAll(':scope>[data-zk]').forEach(x => x.classList.toggle('lab-dup', !!(ch && ch.querySelector(`.pb[data-k="${x.dataset.zk}"]`))));
+      const old = el.querySelector('#labSkPh'); if (old) old.remove();
+      const b = blk(); if (!b) return res;
+      const sel = selIt();
+      let f = el.querySelector('#zpF'); if (!f) { el.insertAdjacentHTML('afterbegin', `<button id="zpF" title="Футляр: все инструменты, цвета">${svgU('t-cup')}</button>`); f = el.querySelector('#zpF'); f.onclick = () => tbOpen(); }
+      if (!el.querySelector(':scope>.zcols')) {   // полоса фото стены (Ф1/Ф4) убрала ленту — штатная лента цветов заново
+        const c = kC(S.mk), z = document.createElement('span'); z.className = 'zcols'; z.innerHTML = zColL().map(q => `<button class="cl${c === q ? ' on' : ''}" data-zc="${q}" style="background:${q}!important" title="Цвет ${q}"></button>`).join('');
+        z.querySelectorAll('[data-zc]').forEach(x => x.onclick = () => zCol(x.dataset.zc)); const u = document.getElementById('zur'); el.insertBefore(z, u && u.parentElement === el ? u : null); }
+      let h;
+      if (b === 'ph') { const n = K.cor && K.cor.id === sel.id ? K.cor.pts.length : null, w = sel.wall && byId(sel.wall);
+        h = `<button data-skp="cor" class="${n != null ? 'on' : ''}" title="4 угла стены на фото: ЛВ, ПВ, ПН, ЛН">${kIcoD('pts')}${n != null ? `<i>${n}/4</i>` : ''}</button>`
+          + (sel.cor ? `<button data-skp="wall" class="${w ? 'on' : ''}" title="${w ? 'Стена по фото создана · ещё раз — заменить вид стены' : 'Стена по фото: помещение, стена плана, L, H'}">${svgU('t-wallseg')}</button>` : '')
+          + `<button data-skp="del" title="Убрать фото с холста (два касания)">${svgU('h-trash', '0 0 24 24')}</button>`; }
+      else h = `<button data-skp="ned" title="Текст заметки">${kIcoD('txt')}</button><button data-skp="del" title="Удалить заметку (два касания)">${svgU('h-trash', '0 0 24 24')}</button>`;
+      const box = document.createElement('span'); box.id = 'labSkPh'; box.innerHTML = `<span class="sep"></span>${h}<span class="sep"></span>`;
+      f.after(box); box.querySelectorAll('[data-skp]').forEach(x => x.onclick = () => cmd(x.dataset.skp, x));
+      const u = document.getElementById('zur'); if (u && u.parentElement !== el) el.appendChild(u);   // ↶ ↷ 🗑 — в этой же строке справа
+    } catch (e) { }
+    return res;
+  };
+  const lay05Sk0 = lay05;
+  lay05 = function () { const res = lay05Sk0.apply(this, arguments); try { if (blk()) { const u = document.getElementById('zur'), el = document.getElementById('zpb'); if (u && el && u.parentElement !== el) el.appendChild(u); } } catch (e) { } return res; };
   function dlg(title, html, buttons) {
     const D = $s('.sk-dlg'), B = D.querySelector('.bx');
     B.innerHTML = `<h4>${esc(title)}</h4>${html}<div class="bt">${buttons.map((b, i) => `<button data-dg="${i}" class="${b.pr ? 'pr' : ''}">${esc(b.t)}</button>`).join('')}</div>`;
@@ -355,7 +405,7 @@
       if (!it) { it = {id: 'w' + uid(), t: 'wall', sid, L, H, name: r.name + ' · С' + wN(r, k), ax: 0, ay: 0, k: 1}; placeWall(p, it); K.items.push(it); }
       if (!K.items.some(i => i.t === 'plan')) planItem();
       p.wall = it.id; K.sel = null; K.cor = null; await saveNowSk();
-      await openSess(sid);
+      await openSess(sid); if (S.tool !== 'mk') await zmSet('mk');   /* 82.18: стена — в разметке */
       for (let i = 0; i < 80; i++) { if (S.mosaic && S.q4 && S.q4.ok && !S.recomp && S.sess && S.sess.id === sid) { try { await saveNow(); } catch (e) { } const w = await dbGet('sess', sid).catch(() => null); if (w && w.out) break; } await new Promise(z => setTimeout(z, 75)); }   // снимок для выгрузки (out)
       K.view = v0; fitUnion([region(p), region(it)]); syncToS(it); draw();
       say(`Стена ${it.name} · ${Math.round(L)}${aL ? ' ≈' : ''} × ${Math.round(H)}${aH ? ' ≈' : ''} — правка штатными инструментами`);
@@ -406,7 +456,7 @@
     const a = active() || (activeKind() && adopt()); if (a) syncToS(a);
     await saveNowSk(); draw(); return K;
   }
-  async function close() { await saveNowSk(); K.on = false; row.remove(); root.prepend(row); K.sel = null; K.cor = null; document.body.classList.remove('lab-sketch'); ui(); $s('.sk-dlg').classList.remove('on'); try { fit(); } catch (e) { draw(); } }
+  async function close() { await saveNowSk(); K.on = false; K.sel = null; K.cor = null; document.body.classList.remove('lab-sketch'); ui(); $s('.sk-dlg').classList.remove('on'); try { fit(); } catch (e) { draw(); } }
   api.open = open; api.close = close; api.isOpen = () => K.on;
   addEventListener('measure-lab-settings', () => { if (K.on) draw(); });
 

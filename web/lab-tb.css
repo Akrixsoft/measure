@@ -1,0 +1,5 @@
+/* Measure 82.18 — футляр в каждом режиме (lab-tb.js). Размеры и рамки плиток — штатные (#tb .tl, #zpb button, #plb>button). */
+/* ═══ [BLOCK TB-CSS] ═══ */
+body.rz #zf>#zpb>#zpF{display:flex!important;order:-1}   /* «Коммуникации и размеры»: 🖍 футляр — первой кнопкой нижней строки */
+#plb>[data-pb="shp"],#plb>[data-pb="nch"],#plb>[data-pb="nch"]+.sep{display:none!important}   /* план: колонна / ниша уже в ряду — на их месте 🖍 #labPlF */
+.lab-ic{display:inline-flex;vertical-align:-4px;margin-right:2px} .lab-ic svg{width:18px!important;height:18px!important}
