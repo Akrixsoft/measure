@@ -83,6 +83,10 @@ const {start} = require('./qa-v011-harness.cjs');
     const pl = await p.evaluate(id => ({act: MeasureLabSketch.active() && MeasureLabSketch.active().t, room: S.room.name, pts: S.room.ms.pts.length, snap: !!MeasureLabSketch.state.snaps[id]}), w1.wid);
     check(pl.act === 'plan' && pl.room === 'Кухня' && pl.pts === 2 && pl.snap && await aligned() < 0.5, 'plan: касание области — штатный план помещения на холсте, совмещён; стена — снимком', pl);
     await shot('8214-2-plan');
+    // ── колонна, поставленная на плане холста, — сразу объём на стене при переходе (без ожидания записи)
+    await p.evaluate(() => { S.room.ms.shp = [...(S.room.ms.shp || []), {t: 'box', pts: [[0, 0], [300, 0], [300, 400], [0, 400]], note: ''}, {t: 'box', pts: [[600, 0], [900, 0], [900, -400], [600, -400]], note: ''}]; saveRoom(); draw(); });
+    const colWall = await p.evaluate(async id => { await MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.id === id)); await new Promise(z => setTimeout(z, 300)); const Md = w3Model(); const v = Md ? w3Vols(Md).filter(x => /^p/.test(x.id)) : []; await MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.t === 'plan')); return v.map(x => [x.k, Math.round(x.x1 - x.x0), x.D]); }, w1.wid);
+    check(colWall.length >= 1 && colWall.every(c => c[1] === 300 && c[2] === 400), 'plan→wall: колонна плана сразу видна объёмом на стене', colWall);
     // ── перемещение неактивной области стены
     const wc = await p.evaluate(id => { const it = MeasureLabSketch.state.items.find(i => i.id === id), R = MeasureLabSketch.region(it); MeasureLabSketch.fitRegion(it); MeasureLabSketch.map.syncToS(MeasureLabSketch.active()); MeasureLabSketch.draw(); return {c: [R.x + R.w / 2, R.y + R.h / 2], ax: it.ax}; }, w1.wid);
     const B0 = await cssK(wc.c); await h.drag('pen', B0, [B0[0] + 50, B0[1]], {css: true});

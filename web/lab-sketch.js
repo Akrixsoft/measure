@@ -175,7 +175,7 @@
     K.quiet++; const v0 = {...K.view};
     try {
       const cur = active(); if (cur) snapNow(cur);
-      if (S.sess) { try { await saveNow(); } catch (e) { } }
+      try { await flushAll(); } catch (e) { }   // план и стена — в базу сразу (saveRoom отложен на 250 мс)
       if (it.t === 'wall') { const o = await dbGet('sess', it.sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return; } await openSess(it.sid); }
       else { await loadRooms(); const r = K.rooms[0]; if (!r) return roomNew(); await openRoom(r.id, null, true); }
       K.view = v0; syncToS(it); draw();
@@ -184,7 +184,7 @@
   api.activate = activate;
   async function loadRooms() { const all = (await dbAll('sess').catch(() => [])) || []; K.rooms = all.filter(o => o.kind === 'room' && !o.del && !o.pstub && o.obj === K.obj).sort((a, b) => a.created - b.created); return K.rooms; }
   function roomNew() { dlg('Новое помещение', `<label>Помещение</label><input type="text" data-sk-name value="Помещение ${K.rooms.length + 1}">`, [{t: 'Отмена'}, {t: 'Создать', pr: 1, fn: B => roomCreate(B.querySelector('[data-sk-name]').value.trim() || 'Помещение')}]); }
-  async function roomCreate(n) { K.quiet++; const v0 = {...K.view}; try { if (S.sess) await saveNow().catch(() => {}); await newRoom(K.obj, n, true); await loadRooms(); const it = K.items.find(i => i.t === 'plan') || planItem(); K.view = v0; syncToS(it); draw(); return it; } finally { K.quiet--; } }
+  async function roomCreate(n) { K.quiet++; const v0 = {...K.view}; try { try { await flushAll(); } catch (e) { } await newRoom(K.obj, n, true); await loadRooms(); const it = K.items.find(i => i.t === 'plan') || planItem(); K.view = v0; syncToS(it); draw(); return it; } finally { K.quiet--; } }
   api.roomCreate = roomCreate;
 
   /* ═══ [BLOCK SK-INPUT] касания: внутри активной области — штатные инструменты v81; вне — холст ═══ */
@@ -327,7 +327,7 @@
   async function createWall(p, to, dim) {
     dim = dim || {}; K.quiet++; const v0 = {...K.view};
     try {
-      await saveNowSk(); if (S.sess) { try { await saveNow(); } catch (e) { } }
+      await saveNowSk(); try { await flushAll(); } catch (e) { }   // план и стена — в базу сразу (saveRoom отложен на 250 мс)
       if (to.id) await openRoom(to.id, null, true); else await newRoom(K.obj, to.name, true);
       const r = S.room; if (!r) throw new Error('помещение не открыто'); const m = r.ms; plSnap();
       let k = to.k;
