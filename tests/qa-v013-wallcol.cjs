@@ -50,5 +50,32 @@ const {start} = require('./qa-v011-harness.cjs');
     assert(saved.every(x => x[1] === 0 || x[1] === 350));
     assert.deepEqual(h.errors, []);
     console.log('PASS plan column fields on wall view: offset L/R, width, depth, undo, persistence');
+    // сценарий скриншота 0.12: уступы у краёв стены (авто-выступы общих стен), 374×317 слева, 701×514 справа
+    await p.evaluate(async () => {
+      await PM.newRoom('QA 013 ledges', 'С20');
+      Object.assign(S.room.ms, {pts: [[0, 0], [2600, 0], [2600, 3000], [0, 3000]], closed: true, H: 2700,
+        dims: [2600, 3000, 2600, 3000].map((v, i) => ({id: 'e' + i, a: {p: i}, b: {p: (i + 1) % 4}, v})),
+        shp: [{t: 'box', auto: 1, note: 'выступ', pts: [[2226, 0], [2600, 0], [2600, 317], [2226, 317]]},
+              {t: 'box', auto: 1, note: 'выступ', pts: [[0, 0], [701, 0], [701, 300], [400, 300], [400, 514], [0, 514]]}]});
+      gnFix(); saveRoom(); await new Promise(r => setTimeout(r, 400));
+      await PM.openWall(0); PM.bwSet(2600, 2700); fit(); draw();
+    });
+    const vols = () => p.evaluate(() => w3Vols(w3Model()).map(v => [v.id, Math.round(v.x0), Math.round(v.x1), Math.round(v.D)]));
+    let V = await vols();
+    assert.deepEqual(V, [['p0', 0, 374, 317], ['p1', 1899, 2600, 514]], JSON.stringify(V));
+    const setId = (id, f, n) => p.evaluate(([id, f, n]) => {
+      draw(); const l = S.w3L.find(x => { const k = w3FKind(x); return k && k.t === 'pvol' && k.id === id && k.f === f; });
+      if (!l) return 'nofield'; w3FOpen(l); const i = $('w3f'); if (!i._k) return 'closed'; i.value = String(n); i.dispatchEvent(new Event('change')); return 'ok';
+    }, [id, f, n]);
+    assert.equal(await setId('p0', 'W', 400), 'ok');
+    assert.equal(await setId('p0', 'D', 320), 'ok');
+    assert.equal(await setId('p1', 'W', 700), 'ok');      // у правого края — правый край на месте
+    assert.equal(await setId('p1', 'D', 500), 'ok');      // фасонный контур — растяжение по глубине
+    V = await vols();
+    assert.deepEqual(V, [['p0', 0, 400, 320], ['p1', 1900, 2600, 500]], JSON.stringify(V));
+    const poly = await p.evaluate(() => S.room0.ms.shp[1].pts);
+    assert.equal(poly.length, 6);
+    assert.deepEqual(h.errors, []);
+    console.log('PASS ledges at wall ends (screenshot 0.12): width/depth input, polygon ledge scaled');
   } finally { await h.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

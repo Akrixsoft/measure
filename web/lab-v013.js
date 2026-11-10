@@ -196,20 +196,30 @@
       else { const dx = k.side ? k.v - n : n - k.v; q.c = q.c + (plFlip(m, j) ? -1 : 1) * dx / (k2 * s2); }
       return true;
     }
-    if (q.t !== 'box' || (q.pts || []).length !== 4) return false;
+    if (q.t !== 'box' || (q.pts || []).length < 3) return false;
+    // Любой контур выступа (в т.ч. авто-уступ из общих стен): сдвиг/растяжение в осях стены.
     const sc = f81VSc(S.room0.ms, Md.k, L);                       // мм стены на мм эскиза
-    const P = q.pts, toLoc = p => [dotp(sub(p, ax.Lp), ax.u), dotp(sub(p, ax.Lp), ax.n)];
-    const loc = P.map(toLoc), xs = loc.map(p => p[0]), zs = loc.map(p => p[1]);
-    const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+    const toLoc = p => [dotp(sub(p, ax.Lp), ax.u), dotp(sub(p, ax.Lp), ax.n)];
     const fromLoc = ([x, z]) => [Math.round(ax.Lp[0] + ax.u[0] * x + ax.n[0] * z), Math.round(ax.Lp[1] + ax.u[1] * x + ax.n[1] * z)];
-    const along = Math.abs(dotp(sub(P[1], P[0]), ax.u)) > 0.7 * (len(sub(P[1], P[0])) || 1);
-    const wall = Math.abs(z0) <= Math.abs(z1) ? z0 : z1, far = wall === z0 ? z1 : z0;   // грань у стены остаётся
-    let X0 = x0, X1 = x1, Zf = far;
-    if (k.f === 'off') { const dx = (k.side ? k.v - n : n - k.v) / sc; X0 += dx; X1 += dx; }
-    else if (k.f === 'W') { const w = n / sc; if (x1 * sc > L - 30 && x0 * sc > 30) X0 = X1 - w; else X1 = X0 + w; q[along ? 'W' : 'D'] = r1(n); }
-    else if (k.f === 'D') { Zf = wall + Math.sign(far - wall || 1) * n / sc; q[along ? 'D' : 'W'] = r1(n); }
-    if (k.f === 'off' && (X0 * sc < -0.5 || X1 * sc > L + 0.5)) { toast('Колонна за краем стены'); return false; }
-    q.pts = [[X0, wall], [X1, wall], [X1, Zf], [X0, Zf]].map(fromLoc);
+    const loc = q.pts.map(toLoc), xs = loc.map(p => p[0]), zs = loc.map(p => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), zw = Math.min(...zs), zf = Math.max(...zs);
+    const rect = q.pts.length === 4, along = rect && Math.abs(dotp(sub(q.pts[1], q.pts[0]), ax.u)) > 0.7 * (len(sub(q.pts[1], q.pts[0])) || 1);
+    let f = p => p;
+    if (k.f === 'off') {
+      const dx = (k.side ? k.v - n : n - k.v) / sc;
+      if ((x0 + dx) * sc < -0.5 || (x1 + dx) * sc > L + 0.5) { toast('Выступ за краем стены'); return false; }
+      f = ([x, z]) => [x + dx, z];
+    } else if (k.f === 'W') {
+      const w0 = x1 - x0, w = n / sc; if (!(w0 > 0)) return false;
+      const right = x1 * sc > L - 30 && x0 * sc > 30, o = right ? x1 : x0;   // у правого края стены — правый край на месте
+      f = ([x, z]) => [o + (x - o) * w / w0, z];
+      if (rect) q[along ? 'W' : 'D'] = r1(n);
+    } else if (k.f === 'D') {
+      const d0 = zf - zw, d = n / sc; if (!(d0 > 0)) return false;
+      f = ([x, z]) => [x, zw + (z - zw) * d / d0];
+      if (rect) q[along ? 'D' : 'W'] = r1(n);
+    }
+    q.pts = loc.map(f).map(fromLoc);
     return true;
   }
   api.applyPlanVol = applyPlanVol;
