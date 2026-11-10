@@ -8166,7 +8166,7 @@ async function lastOpen() { let o = null; try { o = JSON.parse(localStorage.getI
   try { if (o.t === 'room' && r.kind === 'room') { await openRoom(r.id); return true } if (o.t === 'sess' && r.kind !== 'room') { await f81iLastWall(r); return true }   /* v81 [I-VERIFY] 1: как касание С№ — полоса макета */ } catch (e) { } return false }
 dbOpen().then(() => new Promise(r => document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r, { once: true }) : r()))   /* 82.18 [S8218-BOOT]: старт — после загрузки модулей Lab */.then(async () => { if (!/[?&]nolist/.test(location.search)) { if (/[?&]list/.test(location.search) || !(await lastOpen())) sessList(true) } });   /* v74: последнее — сразу; v75: ?list — список */
 </script>
-<!-- slot U: lab-version.js -->
+<script src="lab-version.js"></script>
 <script src="lab-ui.js"></script>
 <script src="lab-route-catalog.js"></script>
 <script src="lab-snap.js"></script>
@@ -8193,8 +8193,8 @@ dbOpen().then(() => new Promise(r => document.readyState === 'loading' ? documen
 <link rel="stylesheet" href="lab-tb.css">
 <script src="lab-tb.js"></script>
 <script src="lab-obj.js"></script>
-<!-- slot U: lab-update.css -->
-<!-- slot U: lab-update.js -->
+<link rel="stylesheet" href="lab-update.css">
+<script src="lab-update.js"></script>
 <link rel="stylesheet" href="lab-projects.css">
 <script src="lab-projects.js"></script>
 <script src="lab-autodim.js"></script>

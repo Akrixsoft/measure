@@ -2,6 +2,8 @@
 """Stage the two offline apps, compile and sign the isolated Measure Lab APK."""
 from pathlib import Path
 import glob, hashlib, json, os, secrets, shutil, subprocess, sys, zipfile
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+import web_bundle  # AKX-2026-0014: one version source (web/lab-version.js), bundle + update manifest
 from urllib.parse import urlsplit
 ROOT=Path(__file__).resolve().parents[1]
 TOOLS=ROOT/'tools'
@@ -12,7 +14,9 @@ def main():
     source=ROOT/'web/v81.html'
     if hashlib.sha256(source.read_bytes()).hexdigest()!=BASELINE:raise SystemExit('Original v81 changed; refusing to package.')
     assets=ROOT/'android/app/src/main/assets'
-    for name,source_name in [('v81','v81.html'),('experimental','experimental.html')]:
+    version,version_code,_=web_bundle.read_version(ROOT)
+    web_bundle.stage(assets/'experimental',ROOT)  # index.html + lab-* + shared + built-in version.json
+    for name,source_name in [('v81','v81.html')]:
         target=assets/name
         target.mkdir(parents=True,exist_ok=True)
         for item in target.iterdir():
@@ -22,9 +26,6 @@ def main():
         if shared.exists():
             for item in shared.iterdir():
                 if item.is_file():shutil.copy2(item,target/item.name)
-        if name=='experimental':
-            for pattern in ['lab-*.js','lab-*.css']:
-                for item in (ROOT/'web').glob(pattern):shutil.copy2(item,target/item.name)
     env=os.environ.copy()
     jdk=Path(env.get('JAVA_HOME') or next(iter(sorted(glob.glob(str(TOOLS/'jdk-*')))),''))
     if not (jdk/'bin/javac').exists():raise SystemExit('A JDK is required: set JAVA_HOME or install tools/jdk-*.')
@@ -51,7 +52,7 @@ def main():
     run([gradle,'-p',ROOT/'android','-g',ROOT/'.gradle','assembleRelease','--no-daemon','--console=plain'],env=env)
     source_apk=ROOT/'android/app/build/outputs/apk/release/app-release.apk'
     output=ROOT/'artifacts';output.mkdir(exist_ok=True)
-    apk=output/'measure-82.17.apk';shutil.copy2(source_apk,apk)
+    apk=output/f'measure-{version}.apk';shutil.copy2(source_apk,apk)
     manifest={}
     with zipfile.ZipFile(apk) as archive:
         for file in assets.rglob('*'):
@@ -63,7 +64,13 @@ def main():
     if manifest.get('v81/index.html')!=BASELINE:raise SystemExit('Packaged v81 baseline integrity failure.')
     (output/'asset-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     digest=hashlib.sha256(apk.read_bytes()).hexdigest()
-    (output/'measure-82.17.apk.sha256').write_text(digest+'  '+apk.name+'\n')
+    (output/f'measure-{version}.apk.sha256').write_text(digest+'  '+apk.name+'\n')
     run([sdk/'build-tools/34.0.0/apksigner','verify','--verbose','--print-certs',apk],env=env)
+    update=output/'update'
+    if update.exists():shutil.rmtree(update)
+    web_bundle.publish(assets/'experimental',apk,update,ROOT)  # version.json + web/<ver>/ for branch measure-lab-apk
+    shutil.copy2(apk,update/apk.name)
+    errors=web_bundle.verify(update)
+    if errors:raise SystemExit('Update manifest verification failed: '+str(errors))
     print('APK:',apk,'\nSHA256:',digest)
 if __name__=='__main__':main()

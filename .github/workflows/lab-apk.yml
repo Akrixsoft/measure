@@ -28,6 +28,10 @@ jobs:
         if: steps.sec.outputs.ok != '1'
         uses: actions/cache/restore@v4
         with: { path: ~/ks, key: akrix-ks-v1, fail-on-cache-miss: true }
+      - name: Update manifest/bundle + Updater state-machine tests (AKX-2026-0014)
+        run: |
+          python3 tests/test_update_manifest.py
+          python3 tests/test_updater_jvm.py
       - name: Build (scripts/build_apk.py — v81 SHA check, asset check, apksigner verify)
         run: |
           export MEASURE_GRADLE="$(command -v gradle)"
@@ -48,9 +52,14 @@ jobs:
             artifacts/measure-*.apk
             artifacts/measure-*.apk.sha256
             artifacts/asset-manifest.json
-      - name: Publish APK to branch measure-lab-apk
+            artifacts/update/version.json
+      - name: Publish APK + web bundle + version.json to branch measure-lab-apk
+        # Автообновление (AKX-2026-0014): приложение читает https://raw.githubusercontent.com/Akrixsoft/measure/measure-lab-apk/version.json
+        # и файлы web/<версия>/ (SHA-256 каждого — в манифесте), APK — по apk.url/apk.sha256.
         run: |
           mkdir -p /tmp/pub && cp artifacts/measure-82*.apk artifacts/measure-82*.apk.sha256 artifacts/asset-manifest.json /tmp/pub/
+          cp -r artifacts/update/web /tmp/pub/ && cp artifacts/update/version.json /tmp/pub/
+          python3 scripts/web_bundle.py verify /tmp/pub
           cd /tmp/pub && git init -q && git checkout -q -b measure-lab-apk
           git config user.name "akrix-build" && git config user.email "build@akrix.local"
           git add -A && git commit -qm "Measure 82 APK from ${GITHUB_SHA::7} (run ${GITHUB_RUN_ID})"

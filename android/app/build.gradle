@@ -1,4 +1,10 @@
 plugins { id 'com.android.application' }
+// AKX-2026-0014: версия — только из web/lab-version.js (MeasureVersion); versionCode = major*1000+minor (82.17 → 82017)
+def measureVersion = {
+    def m = (rootProject.file('../web/lab-version.js').getText('UTF-8') =~ /window\.MeasureVersion\s*=\s*'(\d+)\.(\d+)((?:\.\d+)*)'/)
+    if (!m.find()) throw new GradleException('web/lab-version.js: MeasureVersion not found')
+    [name: m.group(1) + '.' + m.group(2) + m.group(3), code: m.group(1).toInteger() * 1000 + m.group(2).toInteger()]
+}()
 android {
     namespace 'ge.akrix.zamer'
     compileSdk 34
@@ -6,8 +12,8 @@ android {
         applicationId 'ge.akrix.measure'   // Measure 82: обновление поверх v81 (ключ v81)
         minSdk 26
         targetSdk 34
-        versionCode 82017   // v81 на телефоне — 100+номер сборки; 82.17 → 82017
-        versionName '82.17'
+        versionCode measureVersion.code   // v81 на телефоне — 100+номер сборки; 82.17 → 82017 (из web/lab-version.js)
+        versionName measureVersion.name
     }
     signingConfigs {
         prod {   // ключ v81 из GitHub Actions (AK_KS / AK_PW), иначе — локальный тестовый
