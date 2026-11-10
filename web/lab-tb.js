@@ -24,6 +24,7 @@
     + '<symbol id="t-full" viewBox="0 0 32 32"><rect x="5" y="5" width="22" height="22" rx="3" fill="#E8EBEF" stroke="#8B93A1" stroke-width="1.6"/><path d="M9 14V9h5M18 9h5v5M23 18v5h-5M14 23H9v-5" fill="none" stroke="#1F6FD1" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>'
     + '<symbol id="t-note" viewBox="0 0 32 32"><path d="M5 4h22v17l-7 7H5z" fill="#F6E08A" stroke="#C99A00" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 28v-7h7" fill="#E8C24A" stroke="#C99A00" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 10h14M9 14.5h14M9 19h8" stroke="#1A2027" stroke-width="2" stroke-linecap="round"/></symbol>'
     + '<symbol id="t-room" viewBox="0 0 32 32"><path d="M4 6h18v20H4z" fill="#E8EBEF" stroke="#1F9EA8" stroke-width="2.4" stroke-linejoin="round"/><path d="M4 16h8v10M12 6v5" fill="none" stroke="#1F9EA8" stroke-width="2.2"/><circle cx="24" cy="23" r="6.5" fill="#2E9E4F"/><path d="M24 19.5v7M20.5 23h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>'
+    + '<symbol id="t-prd" viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="20" rx="1.5" fill="#E8C9A0" stroke="#8A5A2B" stroke-width="1.8"/><path d="M16 6v20M4 13h12" stroke="#8A5A2B" stroke-width="1.6"/><path d="M12 18v3M20 15v3" stroke="#1A2027" stroke-width="2" stroke-linecap="round"/><path d="M6 26v2M26 26v2" stroke="#5B6472" stroke-width="2" stroke-linecap="round"/></symbol>'
     + '<symbol id="t-zone" viewBox="0 0 32 32"><path d="M4 5h24v22H4z" fill="#E8EBEF" stroke="#5B6472" stroke-width="2"/><path d="M5 6h12v10H5z" fill="#F2C200" opacity=".85"/><path d="M17 16h10v10H17z" fill="#1F6FD1" opacity=".75"/><path d="M17 5v22M4 16h24" stroke="#5B6472" stroke-width="1.6" stroke-dasharray="3 2"/></symbol>';
   { const c = document.querySelector('svg symbol#t-cup'); if (c && !$i('t-scan')) c.parentNode.insertAdjacentHTML('beforeend', SYM); }
   const svgU = (id, vb) => `<svg viewBox="${vb || '0 0 32 32'}" aria-hidden="true"><use href="#${id}"/></svg>`;
@@ -54,6 +55,7 @@
   const z12 = () => window.MeasureLab012;
   const PLAN = [
     ['zone', 'Зона: области внутри помещения', '#F2C200', () => svgU('t-zone'), () => !!(z12() && typeof z12().open === 'function'), () => { z12().open('pick'); try { mkPanel(); draw(); } catch (e) { } }],
+    ['prd', 'Изделие', '#8A5A2B', () => svgU('t-prd'), () => !!(window.MeasureLabPrd && typeof MeasureLabPrd.open === 'function'), () => MeasureLabPrd.open()],
     ['fdim', 'Размер пола', '#1F6FD1', () => kIcoD('dim'), () => !!(fr() && fr().setDimensionTool), () => { fr().setDimensionTool(); try { mkChips(); mkPanel(); draw(); } catch (e) { } }]];
   function tiles(list, act) { return list.map(([a, ti, c, ic]) => `<div class="tl${act === a ? ' on' : ''}" data-lab-tb="${a}" style="--c:${c}" title="${esc(ti)}">${ic()}<span>${esc(ti)}</span></div>`).join(''); }
   function labTbExtend(kind) {

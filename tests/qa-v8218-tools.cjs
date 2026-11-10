@@ -32,9 +32,16 @@ const {start} = require('./qa-v011-harness.cjs');
     await noRuler('plan');
     await p.locator('#labPlF').click(); await p.waitForTimeout(150); let T = await tiles(); await shot('2-plan-tb');
     check(T.on, 'plan: case opens from #labPlF', T); sizeOk(T, 'plan case'); check(T.lab.includes('fdim') && T.bad === 0, 'plan case: Lab tiles, no open/obj/close', T.lab);
+    check(await p.evaluate(() => !window.MeasureLabPrd || !!document.querySelector('#tb [data-lab-tb=prd]')), 'plan case: «Изделие» tile when MeasureLabPrd present');
     await p.locator('#tb [data-lab-tb=fdim]').click(); await p.waitForTimeout(150);
     check(await p.evaluate(() => PL.tool === 'labFloorDim' && !!document.querySelector('#ch [data-lab-fdim].on')), 'plan: «Размер пола» from case, shown active in row');
     await layoutOk('plan floor-dim');
+    if (await p.evaluate(() => !!(window.MeasureLab012 && MeasureLab012.open))) {   // зоны (AKX-2026-0010): плитка «Зона» → строка стека, без своих 🗑
+      await p.evaluate(() => { PL.tool = 'sel'; mkChips(); }); await p.locator('#labPlF').click(); await p.waitForTimeout(100); await p.locator('#tb [data-lab-tb=zone]').click(); await p.waitForTimeout(300);
+      const z = await p.evaluate(() => { const e = document.getElementById('lab12-plan'); return {open: MeasureLab012.isOpen(), par: e.parentElement.id, pos: getComputedStyle(e).position}; });
+      check(z.open && z.par === 'zf' && z.pos === 'static', 'zones: tile «Зона» opens zones, panel is a row of #zf', z); await layoutOk('plan zones'); await oneTrash('plan zones'); await shot('2b-zones');
+      await p.evaluate(() => { MeasureLab012.close(); mkPanel(); draw(); zLay(); });
+    }
     // трасса пола: строка модификаторов на всю ширину; выход — L / 🧲 снова (F1)
     await p.evaluate(() => { PL.tool = 'prt'; mkChips(); mkPanel(); zLay(); draw(); }); await p.waitForTimeout(150); await shot('3-plan-route');
     r = await layoutOk('plan route');
@@ -66,8 +73,8 @@ const {start} = require('./qa-v011-harness.cjs');
     await h.down('touch', c); await h.up('touch', c); await p.waitForTimeout(250); await shot('7-photo');
     const ph = await p.evaluate(() => { const g = s => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return r.width ? [Math.round(r.left), Math.round(r.right), Math.round(r.top), Math.round(r.bottom)] : null; };
       const B = [...document.querySelectorAll('#labPh>button')].map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right)]; });
-      const gaps = B.slice(1).map((x, i) => x[0] - B[i][1]); const cl = document.querySelector('#zpb .zcols .cl');
-      return {sel: S.rsel, zpb: g('#zpb'), zpF: g('#zpF'), B, gaps, cl: cl ? g('#zpb .zcols .cl') : null, und: g('#bUnd'), rfb: g('#rfb'), zur: document.getElementById('zur').parentElement.id, zfB: Math.round(document.getElementById('zf').getBoundingClientRect().bottom)}; });
+      const gaps = B.slice(1).map((x, i) => x[0] - B[i][1]); const cl = document.querySelector('#zpb .zcols');   // лента цветов (прокручивается — первый цвет может быть под краем)
+      return {sel: S.rsel, zpb: g('#zpb'), zpF: g('#zpF'), B, gaps, cl: cl ? g('#zpb .zcols') : null, und: g('#bUnd'), rfb: g('#rfb'), zur: document.getElementById('zur').parentElement.id, zfB: Math.round(document.getElementById('zf').getBoundingClientRect().bottom)}; });
     check(ph.sel && ph.zpb && ph.B.length >= 2, 'photo: block in bottom row', ph);
     check(ph.zpF && ph.zpF[1] <= ph.B[0][0] && ph.B[ph.B.length - 1][1] <= (ph.cl ? ph.cl[0] : 1e9) && (ph.cl ? ph.cl[1] : 0) <= ph.und[0], 'photo: order 🖍 < tools < colours < ↶', ph);
     check(ph.gaps.every(g => g >= 0 && g <= 6), 'photo: tools without gaps (≤ 6)', ph.gaps);

@@ -75,7 +75,7 @@ const {start} = require('./qa-v011-harness.cjs');
     await button('split-wall').click();
     assert.equal(await p.evaluate(() => plN(S.room.ms)), 7);
     await p.evaluate(() => { S.psel = {t: 's', i: 4}; draw(); });
-    await button('delete-wall').click();
+    await p.locator('#bDelS').click();   // 82.18: удаление — только штатная 🗑 (кнопка «Удалить участок» убрана, тот же zDelSel)
     assert.equal(await p.evaluate(() => plN(S.room.ms)), 6);
     assert(await p.evaluate(id => S.room.ms.labManualWalls && Object.values(S.room.wid).includes(id), stable));
     const column = await p.evaluate(() => {

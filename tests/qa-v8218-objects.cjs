@@ -59,6 +59,9 @@ const {start} = require('./qa-v011-harness.cjs');
     await p.evaluate(() => { const i = document.querySelector('#pp [data-lab-z]'); i.focus(); i.value = '-120'; i.dispatchEvent(new Event('change')); });
     s = await el(); check(s.k === 'nis' && near(s.D, 120) && near(s.vD, -120), 'Z − on ledge → niche, volume −120', s);
     await p.evaluate(() => zUndo()); s = await el(); check(s.k === 'vys' && near(s.D, 250), 'Z change is one undo step', s);
+    // Z — в выгрузку «для Akrix»: wl[k].els[].d (мм, > 0) у col / beam / box (AKX-2026-0013 З2)
+    { const ex = await p.evaluate(async () => { S.els[0].k = 'rig'; S.els[0].D = 250; saveSess(); await saveNow(); await flushAll(); const sid = S.sess.id; await zmSet('plan'); const x = await exportRoomObj(); await openSess(sid); PM.zmSet('mk'); PM.fit(); draw(); const out = []; (function walk(o) { if (Array.isArray(o)) o.forEach(walk); else if (o && typeof o === 'object') { if (o.t === 'beam' && 'x0' in o) out.push({t: o.t, d: o.d}); Object.values(o).forEach(walk); } })(x); return out; });
+      check(ex.length === 1 && ex[0].d === 250, 'export: beam d = 250 (Z)', ex); }
     // ── выбор («sel»): тот же ввод ──
     await p.evaluate(() => { S.els[0].k = 'rig'; PM.pickTool('sel'); S.sel = S.els[0].id; mkPanel(); draw(); });
     { const c = await fieldAt({t: 'el', ax: 'H'}); await tapAt('touch', c); const o = await w3fOpen(); check(o && o.ax === 'H', 'sel tool: H field opens (touch)', o); await typeIn(420); s = await el(); check(near(s.H, 420), 'sel tool: H = 420', s); }
