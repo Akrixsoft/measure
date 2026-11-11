@@ -3374,7 +3374,7 @@ async function exportRoomObj(rIn) {   /* v12: rIn — помещение объ�
     for (const e of out.els) {
       if (e.t === 'pt') W.pts.push({ id: e.id, t: AK_PT[e.kind] || 'ot', x: r1(xs(e.x)), y: e.y, D: e.D, N: e.N, st: e.st, note: e.note || '', ...(ptApx(e.apx) ? { apx: ptApx(e.apx) } : {}),   /* v81 (D1): точечный — без W / H */ ...(e.src ? { src: e.src, rf: e.rf } : {}) });   /* v79 */
       else if (ZN_K.includes(e.kind)) W.zn.push({ id: e.id, ...(e.kind !== 'zon' ? { t: e.kind } : {}), x: r1(Math.min(xs(e.x), xs(e.x + (e.W || 0)))), y: e.y, W: e.W, H: e.H, ...(e.D != null ? { D: e.D } : {}), ...(e.labEdges ? { labEdges: MeasureLab012.flipEdges(e.labEdges, flip) } : {}), note: e.note || '' });
-      else { const a = xs(e.x), b = xs(e.x + (e.W || 0)); W.els.push({ id: e.id || 'p' + k + '_' + W.els.length, t: AK_RC[e.kind] || 'box', x0: r1(Math.min(a, b)), x1: r1(Math.max(a, b)), y0: e.y, y1: r1(e.y + (e.H || 0)), note: e.note || '', ...(['kol', 'rig', 'kor', 'vys'].includes(e.kind) ? { d: Math.abs(+e.D || W3VK[e.kind][2]) } : {}) /* AKX-2026-0013 D */, ...(e.apx ? { apx: e.apx } : {}), ...(e.src ? { src: e.src, rf: e.rf } : {}) }) }   /* v79 */
+      else { const a = xs(e.x), b = xs(e.x + (e.W || 0)); W.els.push({ id: e.id || 'p' + k + '_' + W.els.length, t: AK_RC[e.kind] || 'box', x0: r1(Math.min(a, b)), x1: r1(Math.max(a, b)), y0: e.y, y1: r1(e.y + (e.H || 0)), note: e.note || '', ...(['kol', 'rig', 'kor', 'vys'].includes(e.kind) ? { d: Math.abs(+e.D || W3VK[e.kind][2]) } : e.kind === 'nis' && Math.abs(+e.D) > 0 ? { d: Math.abs(+e.D) } : {}) /* AKX-2026-0013 D2 */, ...(e.apx ? { apx: e.apx } : {}), ...(e.src ? { src: e.src, rf: e.rf } : {}) }) }   /* v79 */
     }
     wl[k] = W;
   }

@@ -182,5 +182,43 @@
   if (typeof rzMenu === 'function') { const rm0 = rzMenu; rzMenu = function () { const r = rm0.apply(this, arguments); try { scrub($i('rzM'), RZN); } catch (e) { } return r; }; }
   new MutationObserver(() => { try { for (const id of ['pp', 'ss', 'tb']) { const e = $i(id); if (e && (e.textContent.includes(NO) || e.querySelector(`[title*="${NO}"]`))) scrub(e); } } catch (e) { } }).observe(document.body, {childList: true, subtree: true});
   try { scrub($i('pp')); scrub($i('rzT'), RZN); scrub($i('ss')); } catch (e) { }
+  /* ═══ [BLOCK TB-W3] 82.18 g2 (QA Д7): ∠° / Aa и строка стен (#w3p) в виде стены на холсте.
+     w3Row() вызывается из каждого draw(), в том числе из отрисовки подложки и снимков других областей (MeasureLabCtx.paint
+     подменяет S: стены там нет) — класс body.w3 и бегунок #w3sl снимались через ~1,3 с (снимок по простою) и сразу после
+     активации стены касанием области. Во время подмены S строка не трогается; после — пересчёт по настоящему S. ═══ */
+  if (typeof w3Row === 'function') {
+    const wr0 = w3Row;
+    const swapped = () => { try { return !!(window.MeasureLabCtx && MeasureLabCtx.painting && MeasureLabCtx.painting()); } catch (e) { return false; } };
+    w3Row = function () { if (swapped()) return; return wr0.apply(this, arguments); };
+    api.w3Row = () => w3Row();
+  }
+  /* ═══ [BLOCK TB-ROWS2] 82.18 g2 (QA Д13): строки стабильны.
+     1) ↶ ↷ 🗑 (#zur) — в нижней строке #zpb, когда она видна: lay05 во время своей клавиатуры (#zkb, body.kb) видел #zpb скрытой
+        и переносил #zur в ряд инструментов, а обратно — только по следующему касанию.
+     2) Лента цветов (#zpb .zcols): штатный stripShow докручивает до выбранного цвета на произвольный сдвиг — первый видимый
+        кружок обрезан; сдвиг округляется до целого шага кружка (выбранный остаётся виден). ═══ */
+  const zurHome = () => { try {
+    const u = $i('zur'), el = $i('zpb'); if (!u || !el || document.body.classList.contains('kb')) return;
+    if (S.mode === 'plan' || zCur() !== 'mk' || !el.offsetParent) return;
+    if (u.parentElement !== el) el.appendChild(u);
+    const zc = el.querySelector('.zcols'); if (zc && api.snapStrip) api.snapStrip(zc, zc.querySelector('.cl.on'));
+  } catch (e) { } };
+  api.zurHome = zurHome;
+  { const l0 = lay05; lay05 = function () { const r = l0.apply(this, arguments); zurHome(); return r; }; }
+  new MutationObserver(() => { if (!document.body.classList.contains('kb')) requestAnimationFrame(zurHome); }).observe(document.body, {attributes: true, attributeFilter: ['class']});
+  if (typeof stripShow === 'function') {
+    const ss0 = stripShow;
+    const snapStrip = (box, it) => { try {   // сдвиг ленты — к левому краю целого кружка (позиции по рамкам, без допущений о шаге)
+      if (!box || !box.classList.contains('zcols')) return; const K = [...box.children].filter(c => c.offsetWidth > 0); if (!K.length) return;
+      const br = box.getBoundingClientRect(), sl = box.scrollLeft; if (sl < 1) return;
+      const pos = K.map(c => c.getBoundingClientRect().left - br.left - box.clientLeft + sl);
+      let n = pos.reduce((a, q) => Math.abs(q - sl) < Math.abs(a - sl) ? q : a, 0);
+      if (it) { const a = it.getBoundingClientRect().left - br.left - box.clientLeft + sl, e = a + it.offsetWidth;
+        if (e > n + box.clientWidth) n = pos.find(q => q + box.clientWidth >= e) ?? n; if (a < n) n = a; }
+      box.scrollLeft = Math.max(0, Math.round(n));
+    } catch (e) { } };
+    stripShow = function (box, it) { const r = ss0.apply(this, arguments); requestAnimationFrame(() => requestAnimationFrame(() => snapStrip(box, it))); return r; };
+    api.snapStrip = snapStrip;
+  }
   PM.labTb = api;
 })();

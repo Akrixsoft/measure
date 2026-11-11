@@ -72,9 +72,10 @@ const {start} = require('./qa-v011-harness.cjs');
     await room(2364, 2700); let A = await ad(2364, 2700, [['rig', 0, 2319, 2364, 381]]); await p.screenshot({path: `/tmp/cq/objects-${tag}-beam.png`});
     check(cnt(A, '2 319') === 2 && cnt(A, '381') === 2 && cnt(A, '2 364') === 1 && cnt(A, '2 700') === 0, 'beam at ceiling: «2 319 + 381» both sides, 2 364 once, no 2 700', A.map(x => x.t));
     check(A.filter(x => x.t === '2 319').every(x => near(x.v, 2319)) && A.filter(x => x.t === '381').every(x => near(x.v, 381)), 'beam chain values ±0.5', A.filter(x => /2 319|381/.test(x.t)));
-    // правка «2 319» → H стены, ригель остаётся у потолка
-    { const c = await fieldAt({t: 'txt', txt: '2 319'}); await tapAt('pen', c); const o = await w3fOpen(); check(o && o.t === 'adH', '«2 319» opens wall height edit', o); await typeIn(2419);
-      const r = await p.evaluate(() => { const M = w3Model(), v = w3Vols(M)[0]; return {H: M.H, y0: v.y0, y1: v.y1}; }); check(near(r.H, 2800) && near(r.y1, 2800) && near(r.y0, 2419), '«2 319»→2 419: H = 2 800, beam 381 at ceiling', r); }
+    // правка «2 319» → низ ригеля (ригель у потолка), H стены не меняется (82.18 g2, QA Д4 — решение Master: H стены только своим полем)
+    { const c = await fieldAt({t: 'txt', txt: '2 319'}); await tapAt('pen', c); const o = await w3fOpen(); check(o && o.t === 'adB', '«2 319» opens beam bottom edit (not wall height)', o); await typeIn(2419);
+      const r = await p.evaluate(() => { const M = w3Model(), v = w3Vols(M)[0]; return {H: M.H, y0: v.y0, y1: v.y1}; }); check(near(r.H, 2700) && near(r.y1, 2700) && near(r.y0, 2419), '«2 319»→2 419: H = 2 700, beam 281 at ceiling', r);
+      await p.evaluate(() => zUndo()); }
     await room(3000, 2700); A = await ad(3000, 2700, [['kol', 1300, 0, 400, 2700]]); await p.screenshot({path: `/tmp/cq/objects-${tag}-column.png`});
     check(cnt(A, '1 300') === 2 && cnt(A, '400') >= 1 && A.filter(x => x.t === '400' && x.ax === 'W').length === 1 && cnt(A, '3 000') === 0, 'column middle: 1 300 · 400 · 1 300, no 3 000', A.map(x => x.t));
     check(A.filter(x => x.t === '2 700').length <= 2 && !A.some(x => x.t === '2 700' && x.k === 'el'), 'column: height not repeated on column', A.map(x => x.t + ':' + x.k));
