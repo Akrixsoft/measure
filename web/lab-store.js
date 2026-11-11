@@ -405,9 +405,11 @@
   const imp81 = zImpExp;
   zImpExp = async function (o) {
     const RS = o && o.app === 'akrix-zamer' ? (o.kind === 'object' ? o.rooms || [] : o.kind === 'room' ? [o] : []).filter(R => R && R.ms && Array.isArray(R.ms.pts) && R.ms.pts.length >= 2) : [];
-    if (!RS.length) return imp81.apply(this, arguments);
+    const SK = window.MeasureLabSketch, LP = window.MeasureLabProjects;
+    const ui8218 = !!((SK && SK.isOpen && SK.isOpen()) || (LP && LP.isOpen && LP.isOpen()));   // штатный экран v81 без холста и списка (?nolist) — прежний импорт
+    if (!RS.length || !ui8218) return imp81.apply(this, arguments);
     await ldb();
-    const SK = window.MeasureLabSketch, objF = o.obj || RS[0].obj || '';
+    const objF = o.obj || RS[0].obj || '';
     let P = o.oid ? await get(o.oid) : null; if (P && P.purged) P = null;
     let how = 'new';
     if (P) { how = await askUpdate(P); if (!how) { toast('Импорт отменён'); return 0; } }
