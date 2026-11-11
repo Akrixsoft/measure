@@ -4,13 +4,13 @@
       "ok": true,
       "name": "title shows loaded web version (lab-version.js)",
       "details": {
-        "zVer": "Measure 82.17",
-        "zVerB": "82.17",
-        "zVer2": "Measure 82.17",
+        "zVer": "Measure 82.18",
+        "zVerB": "82.18",
+        "zVer2": "Measure 82.18",
         "ready": [
           [
             "ready",
-            "82.17"
+            "82.18"
           ]
         ]
       }
@@ -21,7 +21,7 @@
       "details": [
         [
           "ready",
-          "82.17"
+          "82.18"
         ]
       ]
     },
@@ -50,7 +50,7 @@
       "ok": true,
       "name": "manual check: «up to date» toast",
       "details": {
-        "text": "Установлена последняя версия 82.17",
+        "text": "Установлена последняя версия 82.18",
         "on": true
       }
     },
@@ -74,7 +74,7 @@
       "ok": true,
       "name": "offline manual check: toast, current version keeps working",
       "details": {
-        "text": "Нет связи с GitHub — работает текущая версия 82.17",
+        "text": "Нет связи с GitHub — работает текущая версия 82.18",
         "on": true
       }
     },

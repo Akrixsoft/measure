@@ -16,7 +16,7 @@
         {
           "side": "L",
           "neighbor": 1,
-          "session": "s1794359140054",
+          "session": "s1794372108038",
           "count": 2,
           "spanMm": 1000,
           "flipped": true
@@ -42,14 +42,14 @@
     }
   ],
   "setup": {
-    "rid": "r1794359139866",
+    "rid": "r1794372107870",
     "side": "L",
     "atLeft": false,
-    "neighborSid": "s1794359140054",
+    "neighborSid": "s1794372108038",
     "out": {
       "app": "akrix-photo-measure",
       "v": 2,
-      "date": "2026-11-11T01:05:40.150Z",
+      "date": "2026-11-11T04:41:48.137Z",
       "units": "mm",
       "obj": "QA adjacent",
       "plane": "Room · С2",
@@ -151,7 +151,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794359140054",
+            "session": "s1794372108038",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -182,7 +182,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794359140054",
+            "session": "s1794372108038",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -213,7 +213,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794359140054",
+            "session": "s1794372108038",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -244,7 +244,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794359140054",
+            "session": "s1794372108038",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -275,7 +275,7 @@
           {
             "side": "L",
             "neighbor": 1,
-            "session": "s1794359140054",
+            "session": "s1794372108038",
             "count": 2,
             "spanMm": 1000,
             "flipped": true
@@ -289,7 +289,7 @@
     {
       "side": "L",
       "neighbor": 1,
-      "session": "s1794359140054",
+      "session": "s1794372108038",
       "count": 2,
       "spanMm": 1000,
       "flipped": true

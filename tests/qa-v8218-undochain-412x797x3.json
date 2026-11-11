@@ -105,7 +105,7 @@
           "board": {
             "refs": [
               [
-                "rmwbiu49my60",
+                "rmwbm0j6hlky",
                 true,
                 true
               ]
@@ -113,7 +113,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbiu5t2zj9",
+                "dmwbm0kluse4",
                 1250
               ]
             ],
@@ -178,15 +178,15 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794365435057",
-            "wall:smwbiuddal2u"
+            "wall:s1794370771761",
+            "wall:smwbm0rshfam"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbiu49my60",
+                "rmwbm0j6hlky",
                 true,
                 true
               ]
@@ -194,7 +194,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbiu5t2zj9",
+                "dmwbm0kluse4",
                 1250
               ]
             ],
@@ -259,8 +259,8 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794365435057",
-            "wall:smwbiuddal2u"
+            "wall:s1794370771761",
+            "wall:smwbm0rshfam"
           ]
         }
       }
@@ -277,8 +277,8 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:s1794365435057",
-        "wall:smwbiuddal2u"
+        "wall:s1794370771761",
+        "wall:smwbm0rshfam"
       ]
     },
     {
@@ -312,12 +312,12 @@
       "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
       "detail": [
         [
-          "smwbiuddal2u",
+          "smwbm0rshfam",
           2364,
           2698
         ],
         [
-          "s1794365435057",
+          "s1794370771761",
           1500,
           2700
         ]
@@ -331,12 +331,12 @@
         "wall": 1260,
         "titles": [
           [
-            "smwbiuddal2u",
+            "smwbm0rshfam",
             2364,
             2698
           ],
           [
-            "s1794365435057",
+            "s1794370771761",
             1500,
             2700
           ]
@@ -471,7 +471,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               false,
               false
             ]
@@ -493,7 +493,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               false,
               false
             ]
@@ -501,7 +501,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               0
             ]
           ],
@@ -520,7 +520,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               false,
               false
             ]
@@ -528,7 +528,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -547,7 +547,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               false,
               false
             ]
@@ -555,7 +555,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -574,7 +574,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               false
             ]
@@ -582,7 +582,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -601,7 +601,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -609,7 +609,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -649,7 +649,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbiuddal2u"
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -659,7 +659,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -667,7 +667,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -716,7 +716,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbiuddal2u"
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -726,7 +726,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -734,7 +734,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -791,7 +791,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbiuddal2u"
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -801,7 +801,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -809,7 +809,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -866,7 +866,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbiuddal2u"
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -876,7 +876,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -884,7 +884,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -941,7 +941,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbiuddal2u"
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -951,7 +951,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -959,7 +959,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -1020,8 +1020,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365435057",
-          "wall:smwbiuddal2u"
+          "wall:s1794370771761",
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -1031,7 +1031,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -1039,7 +1039,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -1102,8 +1102,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365435057",
-          "wall:smwbiuddal2u"
+          "wall:s1794370771761",
+          "wall:smwbm0rshfam"
         ]
       }
     },
@@ -1113,7 +1113,7 @@
         "board": {
           "refs": [
             [
-              "rmwbiu49my60",
+              "rmwbm0j6hlky",
               true,
               true
             ]
@@ -1121,7 +1121,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbiu5t2zj9",
+              "dmwbm0kluse4",
               1250
             ]
           ],
@@ -1186,8 +1186,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365435057",
-          "wall:smwbiuddal2u"
+          "wall:s1794370771761",
+          "wall:smwbm0rshfam"
         ]
       }
     }

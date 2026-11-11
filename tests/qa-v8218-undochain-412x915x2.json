@@ -33,7 +33,7 @@
       "name": "подготовка: конструкция"
     },
     {
-      "ok": false,
+      "ok": true,
       "name": "Д15: первое касание подписи поля неактивной стены — только активация, без клавиатуры",
       "detail": {
         "lp": {
@@ -43,7 +43,7 @@
           ],
           "t": "38"
         },
-        "act": "board",
+        "act": "wall",
         "w3f": false,
         "focus": "BODY"
       }
@@ -105,7 +105,7 @@
           "board": {
             "refs": [
               [
-                "rmwbirwc09ts",
+                "rmwbml0d3iwr",
                 true,
                 true
               ]
@@ -113,7 +113,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbirxsein3",
+                "dmwbml1sxg17",
                 1250
               ]
             ],
@@ -178,15 +178,15 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794365330669",
-            "wall:smwbis57ud00"
+            "wall:s1794371727047",
+            "wall:smwbml8xlm44"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbirwc09ts",
+                "rmwbml0d3iwr",
                 true,
                 true
               ]
@@ -194,7 +194,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbirxsein3",
+                "dmwbml1sxg17",
                 1250
               ]
             ],
@@ -259,8 +259,8 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794365330669",
-            "wall:smwbis57ud00"
+            "wall:s1794371727047",
+            "wall:smwbml8xlm44"
           ]
         }
       }
@@ -277,8 +277,8 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:s1794365330669",
-        "wall:smwbis57ud00"
+        "wall:s1794371727047",
+        "wall:smwbml8xlm44"
       ]
     },
     {
@@ -312,12 +312,12 @@
       "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
       "detail": [
         [
-          "smwbis57ud00",
+          "smwbml8xlm44",
           2364,
           2698
         ],
         [
-          "s1794365330669",
+          "s1794371727047",
           1500,
           2700
         ]
@@ -331,12 +331,12 @@
         "wall": 1260,
         "titles": [
           [
-            "smwbis57ud00",
+            "smwbml8xlm44",
             2364,
             2698
           ],
           [
-            "s1794365330669",
+            "s1794371727047",
             1500,
             2700
           ]
@@ -471,7 +471,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               false,
               false
             ]
@@ -493,7 +493,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               false,
               false
             ]
@@ -501,7 +501,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               0
             ]
           ],
@@ -520,7 +520,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               false,
               false
             ]
@@ -528,7 +528,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -547,7 +547,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               false,
               false
             ]
@@ -555,7 +555,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -574,7 +574,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               false
             ]
@@ -582,7 +582,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -601,7 +601,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -609,7 +609,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -649,7 +649,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbis57ud00"
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -659,7 +659,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -667,7 +667,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -716,7 +716,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbis57ud00"
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -726,7 +726,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -734,7 +734,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -791,7 +791,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbis57ud00"
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -801,7 +801,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -809,7 +809,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -866,7 +866,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbis57ud00"
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -876,7 +876,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -884,7 +884,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -941,7 +941,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbis57ud00"
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -951,7 +951,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -959,7 +959,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -1020,8 +1020,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365330669",
-          "wall:smwbis57ud00"
+          "wall:s1794371727047",
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -1031,7 +1031,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -1039,7 +1039,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -1102,8 +1102,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365330669",
-          "wall:smwbis57ud00"
+          "wall:s1794371727047",
+          "wall:smwbml8xlm44"
         ]
       }
     },
@@ -1113,7 +1113,7 @@
         "board": {
           "refs": [
             [
-              "rmwbirwc09ts",
+              "rmwbml0d3iwr",
               true,
               true
             ]
@@ -1121,7 +1121,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbirxsein3",
+              "dmwbml1sxg17",
               1250
             ]
           ],
@@ -1186,8 +1186,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794365330669",
-          "wall:smwbis57ud00"
+          "wall:s1794371727047",
+          "wall:smwbml8xlm44"
         ]
       }
     }

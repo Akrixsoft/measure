@@ -6,7 +6,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbivlly1lf",
+        "sid": "bmwblz4wjg05",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -32,7 +32,7 @@
       "ok": true,
       "name": "photo: фото — справка подложки (картинка в базе), без экрана распознавания; ⌗ в нижней строке, плавающей плашки нет",
       "detail": {
-        "id": "rmwbivlrzj5d",
+        "id": "rmwblz50u27t",
         "w": 600,
         "blob": 133444,
         "rsel": true,
@@ -54,7 +54,7 @@
       "name": "dim: размер на фото пером — в подложке (фото не сдвинуто)",
       "detail": {
         "n": 1,
-        "id": "dmwbivmcpfz0",
+        "id": "dmwblz5jfl47",
         "ref": 32.39999999999999,
         "kind": "board"
       }
@@ -102,10 +102,10 @@
       "ok": true,
       "name": "wall: стена С1 «Кухня» 2391 × 2700 над фото, связь фото → wid, область плана",
       "detail": {
-        "wid": "wa368e43",
-        "room": "r1794365482667",
-        "w": "w1794365482667_1",
-        "sid": "smwbivniq3u9",
+        "wid": "wdkx3zu8",
+        "room": "r1794370686296",
+        "w": "w1794370686296_1",
+        "sid": "smwblz6nz42p",
         "q4": [
           2391,
           2700
@@ -161,7 +161,7 @@
         "nW": 0,
         "act": "wall",
         "dms": 1,
-        "sid": "smwbivniq3u9"
+        "sid": "smwblz6nz42p"
       }
     },
     {
@@ -177,8 +177,8 @@
         },
         "a6": {
           "act": "board",
-          "rsel": "rmwbivlrzj5d",
-          "ref": "rmwbivlrzj5d",
+          "rsel": "rmwblz50u27t",
+          "ref": "rmwblz50u27t",
           "els": 0,
           "dms": 2,
           "drw": 2,
@@ -223,7 +223,7 @@
       "detail": {
         "on": true,
         "act": "wall",
-        "sid": "smwbivniq3u9",
+        "sid": "smwblz6nz42p",
         "mode": "wall",
         "tool": "mk",
         "list": false
@@ -248,7 +248,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbivlly1lf",
+        "sid": "bmwblz4wjg05",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -288,7 +288,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbivlly1lf",
+        "sid": "bmwblz4wjg05",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -300,7 +300,7 @@
       "name": "🗑: область стены выбрана заголовком → удалена (вид стены в «Удалённые») → ↶ на месте",
       "detail": {
         "sel": {
-          "sel": "wa368e43",
+          "sel": "wdkx3zu8",
           "has": true
         },
         "del": {
@@ -364,7 +364,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbivlly1lf",
+        "sid": "bmwblz4wjg05",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -431,7 +431,7 @@
       "name": "restart: раскладка, вид и активная поверхность — как были",
       "detail": {
         "before": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794365482667\",\"w1794365482667_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794370686296\",\"w1794370686296_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -440,7 +440,7 @@
           "act": "board"
         },
         "after": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794365482667\",\"w1794365482667_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794370686296\",\"w1794370686296_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -454,7 +454,7 @@
       "ok": true,
       "name": "restart: фото (картинка), размер 1250, текст, снимки областей — на месте",
       "detail": {
-        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794365482667\",\"w1794365482667_1\",32]]",
+        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794370686296\",\"w1794370686296_1\",32]]",
         "view": {
           "s": 0.20445318792657594,
           "ox": 203.64640262410444,
@@ -470,7 +470,7 @@
         "txt": [
           "узел ригеля"
         ],
-        "snaps": 2,
+        "snaps": 1,
         "kind": "board"
       }
     },
