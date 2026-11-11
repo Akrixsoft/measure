@@ -157,6 +157,17 @@ const {start} = require('./qa-v011-harness.cjs');
     check(s.on && !s.list && s.act === 'board', 'back: из списка — тот же проект, та же поверхность', s);
     const g1 = await gap(); check(g1.over === 0 && g1.worst <= 6 && g1.inside, 'layout: нижние строки без зазоров и наложений, внутри экрана', g1);
     await shot('3-board-final');
+    // ── 9б (QA Д12). поворот экрана: области вписываются заново — внутри кадра, ниже плашек сверху, выше нижних строк
+    const inView = () => p.evaluate(() => { const K = MeasureLabSketch.state, d = devicePixelRatio, cvr = cv.getBoundingClientRect(), fh = (typeof zFreeH === 'function' ? zFreeH() : cv.height) / d;
+      const R = K.items.map(i => MeasureLabSketch.region(i)), out = [];
+      for (const r of R) { const a = MeasureLabSketch.map.toScrK(r.x, r.y), b = MeasureLabSketch.map.toScrK(r.x + r.w, r.y + r.h); out.push([a[0] / d, a[1] / d, b[0] / d, b[1] / d].map(Math.round)); }
+      const W = cvr.width; return {W: Math.round(W), fh: Math.round(fh), out, ok: out.every(q => q[0] >= -2 && q[2] <= W + 2 && q[1] >= 0 && q[3] <= fh + 2)}; });
+    const VW0 = +(process.env.QA_VW || 412), VH0 = +(process.env.QA_VH || 915);
+    await p.setViewportSize({width: VH0, height: VW0}); await settle(900);
+    const land = await inView();
+    await p.setViewportSize({width: VW0, height: VH0}); await settle(900);
+    const port = await inView();
+    check(land.ok && port.ok, 'Д12: поворот экрана (альбом и обратно) — области вписаны в кадр выше нижних строк', {land, port});
     // ── 10. перезапуск — всё на месте
     await p.evaluate(() => { MeasureLabSketch.activate('board'); });
     await settle(200);

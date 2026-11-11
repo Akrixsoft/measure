@@ -355,6 +355,12 @@
       end: () => { if (moved) { dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'move', id: it.id, a: {ax: o0[0], ay: o0[1]}, b: {ax: it.ax, ay: it.ay}}})); return save(); } K.sel = K.sel === it.id ? null : it.id; }};
   }
 
+  /* 82.18 fix (QA Д12): поворот экрана (смена ширины / ориентации) — холст вписывается заново под новые нижние строки.
+     Смена только высоты (клавиатура) — без вписывания. */
+  { let rzW = innerWidth, rzH = innerHeight, rzT = 0;
+    addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { const w = innerWidth, h = innerHeight, turned = Math.abs(w - rzW) > 40 || (w > h) !== (rzW > rzH); rzW = w; rzH = h;
+      if (!K.on || !turned || listOn()) return; try { zLay(); } catch (e) { } fitAll(); draw(); save(); }, 250); }); }
+
   /* ═══ [BLOCK SK-NAV] навигация внутри холста: ✓, 📁, ряд С№, ⌂ / стена, «План» v81 — без закрытия холста ═══ */
   async function done() {   // ✓: футляр / меню — свернуть; иначе сохранить и показать весь холст
     if (S.zSheet) return zSheet(false);
