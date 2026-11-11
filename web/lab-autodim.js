@@ -150,5 +150,29 @@
     }
     return fs0.apply(this, arguments);
   };
+  /* ═══ [BLOCK AD-PLACE] r2b (QA2 Н8): поля размеров не ложатся на значки коммуникаций и не выходят за рамку области стены.
+     1) значки точечных объектов (розетки и т. п.) — препятствия раскладки (кольца S.w3RO, как у подписей С№ в w3Txt9);
+     2) кандидаты места поля за рамкой активной области холста отбрасываются, пока есть место внутри (иначе — как было).
+     Поверх неизменной v81 (обёртки w3FPs, w3Free). ═══ */
+  const fp0 = w3FPs; w3FPs = function () {
+    const r = fp0.apply(this, arguments);
+    try { const RO = S.w3RO; if (Array.isArray(RO)) { const z = w3IcZ() * 0.6 + 2 * (devicePixelRatio || 1); for (const e of S.els) if ((KD[e.k] || {}).pt && layOn(e) && !e.cand) RO.push([toScr(...e.c), z]); } } catch (e) { }
+    return r;
+  };
+  function frame() {   // рамка активной области стены на холсте, px холста; null — вне холста / снимок
+    try {
+      if (!window.MeasureLabSketch || !MeasureLabSketch.isOpen || !MeasureLabSketch.isOpen()) return null;
+      if (window.MeasureLabCtx && MeasureLabCtx.painting && MeasureLabCtx.painting()) return null;
+      const it = MeasureLabSketch.active(); if (!it || it.t !== 'wall') return null;
+      const R = MeasureLabSketch.region(it), a = MeasureLabSketch.map.toScrK(R.x, R.y), b = MeasureLabSketch.map.toScrK(R.x + R.w, R.y + R.h);
+      const d = devicePixelRatio || 1; return {x0: Math.min(a[0], b[0]) + 2 * d, x1: Math.max(a[0], b[0]) - 2 * d, y0: Math.min(a[1], b[1]) + 2 * d, y1: Math.max(a[1], b[1]) - 2 * d};
+    } catch (e) { return null; }
+  }
+  api.frame = frame;
+  const inF = (F, c, o) => { const ca = Math.abs(Math.cos(o.an || 0)), sa = Math.abs(Math.sin(o.an || 0)), hw = (o.w * ca + o.h * sa) / 2, hh = (o.w * sa + o.h * ca) / 2; return c[0] - hw >= F.x0 && c[0] + hw <= F.x1 && c[1] - hh >= F.y0 && c[1] + hh <= F.y1; };
+  const fr0 = w3Free; w3Free = function (C, o) {
+    try { if (Array.isArray(C) && C.length > 1 && o && o.w) { const F = frame(); if (F) { const C2 = C.filter(c => inF(F, c, o)); if (C2.length && C2.length < C.length) { const a = [...arguments]; a[0] = C2; return fr0.apply(this, a); } } } } catch (e) { }
+    return fr0.apply(this, arguments);
+  };
   PM.labAutodim = api;
 })();
