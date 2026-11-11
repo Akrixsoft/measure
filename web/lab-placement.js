@@ -52,6 +52,20 @@
   };
   /* r2b: инструмент протяжки (прямоугольник, размер, линия…) забирает касание в zdrStart; короткое касание по подписи — поле */
   if(typeof zdrEnd==='function'){const ze0=zdrEnd;zdrEnd=function(g,p){const f=g&&g.labField,z=g&&g.zdr,short=!!(z&&!z.mv&&!g.pinch);const r=ze0.apply(this,arguments);if(f&&short&&!g.labFieldDone){g.labFieldDone=1;w3FOpen(f);}return r;};}
+  /* r2b (Д5, решение Master: выбор — инструментом «выбор»): касание (без протяжки) точно по значку точечного объекта (пост розетки и т. п.)
+     в «выборе» выбирает объект, даже если на постах лежат размер / стрелка, привязанные к ним (v81 брал разметку первой — группу с привязанным
+     размером было не выбрать). Протяжка от поста — как v81: конец стрелки / размера переносится на другой пост. */
+  const iconHit=p=>{try{const z=w3IcZ()*0.5;for(let i=S.els.length-1;i>=0;i--){const e=S.els[i];if(!(KD[e.k]||{}).pt||!layOn(e)||e.cand)continue;const C=rzIcons(e).cs||[];if(C.some(c=>Math.hypot(c[0]-p[0],c[1]-p[1])<z))return e;}}catch(x){}return null;};
+  api.iconHit=iconHit;
+  cv.addEventListener('pointerdown',ev=>{
+    api.iconSel=null;if(S.mode==='plan'||S.show>=0||S.tool!=='mk'||S.mk!=='sel'||!S.mosaic||ptr.size)return;
+    const r=cv.getBoundingClientRect(),d=devicePixelRatio||1,p=[(ev.clientX-r.left)*d,(ev.clientY-r.top)*d],e=iconHit(p);if(!e)return;
+    api.iconSel=e.id;api.iconP=p;api.iconT=performance.now();   /* только отметка: протяжка — как v81 (конец стрелки / размера переносится на другой пост), касание — выбор объекта (pointerup ниже) */
+  },true);
+  const iconUp=ev=>{const id=api.iconSel;if(!id)return;api.iconSel=null;if(ev.type==='pointercancel'||S.mk!=='sel')return;
+    const r=cv.getBoundingClientRect(),d=devicePixelRatio||1,p=[(ev.clientX-r.left)*d,(ev.clientY-r.top)*d];if(Math.hypot(p[0]-api.iconP[0],p[1]-api.iconP[1])>8*d||performance.now()-api.iconT>500)return;
+    setTimeout(()=>{if(!S.els.some(e=>e.id===id))return;S.sel=id;S.dsel=null;S.nsel=null;S.dfoc=null;try{const i=document.getElementById('w3f');if(i&&i.classList.contains('on')){i._k=null;i.classList.remove('on');i.blur();}}catch(x){}mkPanel();draw();},0);};   /* после штатной обработки касания: объект под значком — выбран */
+  cv.addEventListener('pointerup',iconUp,true);cv.addEventListener('pointercancel',iconUp,true);
   const nativePick=pickTool0;
   pickTool0=function(k){
     if(k!==S.mk&&gest?.labPlacement&&!gest.labPlacement.cancelled){rollback(gest);gest.labPlacement.cancelled=true;gest.edrag=null;gest.znp=1;gest.moved=true;}
