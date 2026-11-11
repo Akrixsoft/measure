@@ -225,7 +225,10 @@ fs.mkdirSync(SHOT, {recursive: true});
         if ((b.t === 'wall' || b.t === 'plan') && it !== MeasureLabSketch.active()) {   // активная область рисуется вживую
           const inside = sn && sn.img && sn.x >= rr.x - rr.w * .02 && sn.y >= rr.y - rr.h * .02 && sn.x + sn.w <= rr.x + rr.w * 1.02 && sn.y + sn.h <= rr.y + rr.h * 1.02; if (!sn || !sn.img || st || !inside) snap.push(b.t + (b.sid ? ':' + b.sid.slice(-4) : '') + (!sn || !sn.img ? ' заглушка' : st ? ' устарел' : ' вне рамки')); } }
       return {out, hit, snap, n: B.length, boxes: hit.length || out.length ? B.map(b => [b.t, ...[b.box.x, b.box.y, b.box.w, b.box.h].map(Math.round)]) : undefined, s: K.view.s}; });
-    const readable = async (name, fit = true) => { if (fit) { await tapSel('touch', '#bDone'); await wait(1200); } await p.evaluate(() => { document.getElementById('toast').classList.remove('on'); }); const g = await geo(); await shot('h4-' + name);
+    const readable = async (name, fit = true) => { if (fit) {   // r5: ✓ — сохранить и в список; проект открывается снова, снимки — фоном (здесь — сразу), «вписать всё» — вид
+        const pid = await p.evaluate(() => MeasureLabSketch.state.pid); await tapSel('touch', '#bDone'); await wait(1200);
+        await p.evaluate(async pid => { if (window.MeasureLabProjects && MeasureLabProjects.isOpen && MeasureLabProjects.isOpen()) await MeasureLabProjects.open(pid); }, pid); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !(window.MeasureLabProjects && MeasureLabProjects.isOpen()), null, {timeout: 20000}); await wait(800);
+        await p.evaluate(async () => { await p_wait(); async function p_wait() { for (let i = 0; i < 100 && MeasureLabSketch.bgBusy(); i++) await new Promise(z => setTimeout(z, 100)); } await MeasureLabSketch.snapMissing(MeasureLabSketch.active()); MeasureLabSketch.fitAll(); draw(); }); await wait(600); } await p.evaluate(() => { document.getElementById('toast').classList.remove('on'); }); const g = await geo(); await shot('h4-' + name);
       check(!g.out.length && !g.hit.length && !g.snap.length, 'Н4: ' + name + ' — рамки и заголовки в экране, без наложений; снимки вписаны, без заглушек', g); return g; };
     await readable('после ↷ и перезапуска, ✓');
     // высота стены изменилась вне стены (запись) → ✓: заголовок L × H по записи, снимок перестроен

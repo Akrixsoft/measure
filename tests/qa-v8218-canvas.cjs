@@ -142,8 +142,11 @@ const {start} = require('./qa-v011-harness.cjs');
     const pan1 = await panel();
     check(empty && a7.act === 'plan' && a7.mode === 'plan' && Math.abs(a7.view.ox - v7.ox - 40) < 2 && Math.abs(a7.view.oy - v7.oy - 60) < 2 && (!prdOk || !pan0 || pan1), 'Н7: сдвиг пальцем с пустой подложки — холст сдвинут, план и панель «Изделия» остаются', {empty, prdOk, pan0, pan1, v7, a7});
     await p.evaluate(() => { try { MeasureLabPrd.close(); } catch (e) { } }); await p.evaluate(() => MeasureLabSketch.activate('board')); await settle(300);
-    await p.evaluate(() => zDone()); await settle(200); s = await st();
-    check(s.on && !s.list, 'nav: ✓ — сохранить и показать весь холст, холст открыт', s);
+    const dn0 = await p.evaluate(() => JSON.stringify(MeasureLabSketch.state.items.map(i => [i.id, Math.round(i.ax * 100), Math.round(i.ay * 100), i.k])));
+    await p.evaluate(() => zDone()); await settle(600); s = await st();
+    const dn1 = await p.evaluate(() => JSON.stringify(MeasureLabSketch.state.items.map(i => [i.id, Math.round(i.ax * 100), Math.round(i.ay * 100), i.k])));
+    check(s.list && dn0 === dn1, 'nav (r5, правило 2): ✓ — сохранить и выйти в список проектов; области не сдвинуты', s);
+    await p.evaluate(async () => { if (window.MeasureLabProjects && MeasureLabProjects.isOpen && MeasureLabProjects.isOpen()) MeasureLabProjects.hide(); try { await sessList(false); } catch (e) { } }); await settle(300); await p.evaluate(() => { MeasureLabSketch.fitAll(); draw(); }); await settle(200);
     void tb3;
     // ── 8. 🗑 области стены (выбор за заголовок) и ↶
     const tt = await p.evaluate(() => { const a = MeasureLabSketch.state.items.find(i => i.t === 'wall'), R = MeasureLabSketch.region(a); return [R.x + 20 / MeasureLabSketch.state.view.s, R.y - 14 / MeasureLabSketch.state.view.s]; });
@@ -178,7 +181,7 @@ const {start} = require('./qa-v011-harness.cjs');
       const out = K.items.map(i => { const r = MeasureLabSketch.region(i), a = MeasureLabSketch.map.toScrK(r.x, r.y), b = MeasureLabSketch.map.toScrK(r.x + r.w, r.y + r.h); return [a[0] / d, b[0] / d].map(Math.round); });
       return {W: Math.round(W), out, s: K.view.s, ok: out.every(q => q[0] >= -2 && q[1] <= W + 2)}; });
     const VW0 = +(process.env.QA_VW || 412), VH0 = +(process.env.QA_VH || 915);
-    await p.evaluate(() => MeasureLabSketch.cmd ? 0 : 0); await p.locator('#bDone').click().catch(() => {}); await settle(900);
+    await p.evaluate(() => { MeasureLabSketch.fitAll(); draw(); }); await settle(900);   // r5: «вписать всё» — вид (✓ теперь выходит в список)
     const k0 = await inW();
     await p.setViewportSize({width: VW0, height: Math.round(VH0 * .55)}); await settle(900);
     const k1 = await inW();

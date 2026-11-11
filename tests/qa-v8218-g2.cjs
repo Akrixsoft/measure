@@ -49,7 +49,7 @@ fs.mkdirSync(SHOT, {recursive: true});
     { const inp = await ev(() => [...document.querySelectorAll('#labPrj .lp-dg.on input')].map(e => { const r = e.getBoundingClientRect(); return [r.left + 40, r.top + r.height / 2]; }));
       await tap('touch', inp[0]); await p.keyboard.type('QA g2'); await tap('touch', inp[1]); await p.keyboard.type('Кухня'); await tapSel('pen', '#labPrj .lp-dg.on .lp-pr'); await wait(1800); }
     { const fc = p.waitForEvent('filechooser', {timeout: 8000}); await caseTool('[data-lab-tb="gal"]'); await (await fc).setFiles(SAMPLE); await wait(1500); }
-    if (await box('#bDone')) { await tapSel('touch', '#bDone'); await wait(500); }
+    await ev(() => { MeasureLabSketch.fitAll(); draw(); }); await wait(500);   // r5: «вписать всё» — вид (✓ — выход в список)
     const rid = await ev(() => S.refs[0].id);
     await tap('touch', await refAt(rid, .5, .3)); await wait(400); await tapSel('touch', '#labSkPh [data-skp="cor"]');
     for (const [u, v] of [[.06, .11], [.97, .1], [.97, .89], [.08, .9]]) { await tap('pen', await refAt(rid, u, v)); await wait(150); }

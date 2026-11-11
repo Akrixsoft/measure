@@ -327,6 +327,17 @@
     if (n) await zEdit(b.id, x => { x.refs = b.refs; x.dms = b.dms || x.dms; x.drw = b.drw || x.drw; });
     return n;
   }
+  /* r5 (правило 1, Д8): миграция 82.17 — фото не сдвигаются; область 82.18 (шире области 82.17), легшая на фото или текст подложки, ставится правее — в свободное место */
+  async function areasFree(P) {
+    const all = await zAll(), R = owns(P, all), rooms = R.rooms.filter(r => !r.pstub && !r.del), c = await api.cv(P.id); if (!c) return 0;
+    const OB = obstacles(R); if (!OB.length) return 0;
+    const ov = (a, q) => a.x < q.x + q.w && q.x < a.x + a.w && a.y < q.y + q.h && q.y < a.y + a.h; let n = 0;
+    for (const it of c.items) { const r0 = regionOf(it, rooms); if (!r0 || !OB.some(q => ov(r0, q))) continue; const B = {...r0};
+      const others = c.items.filter(x => x !== it).map(x => regionOf(x, rooms)).filter(Boolean);
+      for (let i = 0; i < 400; i++) { const q = OB.concat(others).find(q => ov(B, q)); if (!q) break; B.x = q.x + q.w + GAP; }
+      it.ax += B.x - r0.x; n++; }
+    if (n) await api.putCv(c); return n;
+  }
   api.refsFree = async pid => { const P = await get(pid); return P ? refsFree(P) : 0; };
   let migP = null;
   async function mig82_18() {
@@ -340,7 +351,7 @@
       const sk = sks.find(x => x.obj === P.obj);
       if (sk) await canvasFrom(P, sk, sdb);
       await api.layout(P.id);   // нет холста — авто; есть — недостающие стены проекта добавляются
-      /* r5 (правило 1, Д8): фото при миграции не сдвигаются — новые области layout() ставит в свободное место (фото и текст — препятствия) */
+      if (sk) await areasFree(P);   /* r5 (правило 1, Д8): фото при миграции не сдвигаются — область, легшая на фото, — в свободное место */
     }
     for (const sk of sks) if (sk.obj && !L.some(p => p.obj === sk.obj) && ((sk.items || []).length || (sk.photos || []).length || (sk.notes || []).length)) {   // холст без замеров — свой проект
       const P = await create({client: sk.obj}); await lDel('cv', P.id); await canvasFrom(P, sk, sdb); if (!(await api.cv(P.id))) await api.layout(P.id); }
