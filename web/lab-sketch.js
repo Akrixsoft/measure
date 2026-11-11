@@ -432,7 +432,8 @@
   async function done() {   // ✓: футляр / меню — свернуть; иначе сохранить и показать весь холст
     if (S.zSheet) return zSheet(false);
     const tb = document.getElementById('tb'); if (tb && tb.classList.contains('on')) { tb.classList.remove('on'); return; }
-    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } try { const a = active(); if (K.items.some(it => it !== a && snapStale(it))) await snapMissing(a || BOARD); } catch (e) { } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
+    doneBusy++; try { if (smP) { try { await smP; } catch (e) { } }   // фоновые снимки — сначала дождаться (их вид не должен затереть вписывание)
+    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } try { const a = active(); if (K.items.some(it => it !== a && snapStale(it))) await snapMissing(a || BOARD); } catch (e) { } } finally { doneBusy--; } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
   }
   api.done = done;
   async function toProjects() {   // 📁: список проектов; холст остаётся открытым под списком
@@ -740,15 +741,20 @@
   const snapStale = it => { if (it.t !== 'wall' && it.t !== 'plan') return false; const sn = K.snaps[it.id]; if (!sn || !sn.img) return true; if (sn.cover === false) return true;
     return it.t === 'wall' && sn.L > 0 && (Math.abs(sn.L - (+it.L || 0)) > .5 || Math.abs(sn.H - (+it.H || 0)) > .5); };
   async function wallReady(sid) { for (let i = 0; i < 30; i++) { if (S.sess && S.sess.id === sid && S.mosaic && S.q4 && S.q4.ok && !S.recomp) return true; await new Promise(z => setTimeout(z, 50)); } return false; }
-  let bgT = 0, bgN = 0;
+  let bgT = 0, bgN = 0, smP = null, bgOn = 0, wantList = 0;
+  addEventListener('measure-lab-projects', e => { if (bgOn && e.detail && e.detail.on) wantList = 1; });   // список открыли во время фоновых снимков — вернуть его после
   function bgSnaps(pid, tries) {   // фоном: холст открыт, список закрыт, пальцы/перо не на экране; иначе — позже (до 20 попыток)
     clearTimeout(bgT); bgN = tries || 0;
     bgT = setTimeout(async () => { if (!K.on || K.pid !== pid) return; const a = active();
       if (listOn() || F.on || ours.size || nat.size || actP || opening || !K.items.some(it => it !== a && snapStale(it))) { if (bgN < 20 && K.items.some(it => it !== a && snapStale(it))) bgSnaps(pid, bgN + 1); return; }
-      try { await snapMissing(a || BOARD, () => listOn() || F.on || ours.size > 0 || nat.size > 0 || K.pid !== pid); } catch (e) { } }, 400);
+      bgOn = 1; wantList = 0;
+      try { await snapMissing(a || BOARD, () => wantList || listOn() || F.on || ours.size > 0 || nat.size > 0 || K.pid !== pid || doneBusy); } catch (e) { }
+      finally { bgOn = 0; if (wantList && !listOn() && window.MeasureLabProjects && MeasureLabProjects.show) { try { MeasureLabProjects.show(); } catch (e) { } } wantList = 0; } }, 400);
   }
   api.bgSnaps = () => bgSnaps(K.pid);
-  async function snapMissing(back, stop) {
+  let doneBusy = 0;
+  async function snapMissing(back, stop) { if (smP) { try { await smP; } catch (e) { } } const P = snapMissing1(back, stop); smP = P; try { return await P; } finally { if (smP === P) smP = null; } }
+  async function snapMissing1(back, stop) {
     const L = K.items.filter(it => it !== back && snapStale(it)); if (!L.length) return 0;
     const v0 = {...K.view}; K.quiet++;   // вид холста не меняется (активация внутри — с syncToS, без подстройки вида под поверхность)
     let n = 0; try { for (const it of L) { if (stop && stop()) break; const ok = await activate(it, {force: 1}).catch(() => false); if (!ok) continue; if (it.t === 'wall') await wallReady(it.sid); else await new Promise(z => setTimeout(z, 150)); draw(); n++; }
