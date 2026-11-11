@@ -111,10 +111,10 @@ fs.mkdirSync(SHOT, {recursive: true});
     // ── Д13: строки — «+» не на 7-м инструменте, ↶↷🗑 на месте после поля / выбора, первый цвет целый ──
     const rows = () => ev(() => { const R = e => e && e.getBoundingClientRect(), a = R(document.getElementById('chAll')); const tools = [...document.querySelectorAll('#ch .pb')].filter(e => e.getClientRects().length).map(R);
       const zc = document.querySelector('#zpb .zcols'), zr = zc && R(zc), first = zc && [...zc.children].filter(c => c.offsetWidth).map(R).find(r => r.right > zr.left + .5);
-      return {plusOver: tools.filter(b => a && b.right > a.left + 1 && b.left < a.right - 1).length, zur: document.getElementById('zur').parentElement.id, firstClip: first ? +(zr.left - first.left).toFixed(1) : null, sl: zc ? zc.scrollLeft : null}; });
+      const f0 = zc && zc.firstElementChild && R(zc.firstElementChild); return {plusOver: tools.filter(b => a && b.right > a.left + 1 && b.left < a.right - 1).length, zur: document.getElementById('zur').parentElement.id, firstClip: first ? +(zr.left - first.left).toFixed(1) : null, sl: zc ? zc.scrollLeft : null, black: !!(f0 && zc.firstElementChild.dataset.zc === '#1a2027' && f0.left >= zr.left - .5 && f0.right <= zr.right + .5), more: zc ? zc.scrollWidth <= zc.clientWidth + 2 || zc.classList.contains('lab-more-r') : null}; });
     await tapSel('touch', '#ch [data-k="dim"]'); await wait(400);
     { const r = await rows(); check(r.plusOver === 0, 'Д13: инструмент «размер» (плашка ∟∥↔⛓🧲) — «+» не налезает на инструменты', r);
-      check(r.firstClip != null && Math.abs(r.firstClip) < 1, 'Д13: первый видимый цвет строки пера не обрезан', r); await shot('d13-dim'); }
+      check(r.sl === 0 && r.black && r.more, 'Д13 / Н9: лента цветов с первого цвета (чёрный виден целиком), не помещается — явная прокрутка (lab-more-r)', r); await shot('d13-dim'); }
     await tapSel('touch', '#ch [data-k="sel"]'); await wait(300);
     check(await field('2 364') === 'ok', 'Д13: поле открыто (#zkb)'); await typeKb('2364');
     { const r = await rows(); check(r.zur === 'zpb', 'Д13: после своей клавиатуры ↶↷🗑 — в нижней строке', r); }

@@ -208,16 +208,12 @@
   new MutationObserver(() => { if (!document.body.classList.contains('kb')) requestAnimationFrame(zurHome); }).observe(document.body, {attributes: true, attributeFilter: ['class']});
   if (typeof stripShow === 'function') {
     const ss0 = stripShow;
-    const snapStrip = (box, it) => { try {   // сдвиг ленты — к левому краю целого кружка (позиции по рамкам, без допущений о шаге)
-      if (!box || !box.classList.contains('zcols')) return; const K = [...box.children].filter(c => c.offsetWidth > 0); if (!K.length) return;
-      const br = box.getBoundingClientRect(), sl = box.scrollLeft; if (sl < 1) return;
-      const pos = K.map(c => c.getBoundingClientRect().left - br.left - box.clientLeft + sl);
-      let n = pos.reduce((a, q) => Math.abs(q - sl) < Math.abs(a - sl) ? q : a, 0);
-      if (it) { const a = it.getBoundingClientRect().left - br.left - box.clientLeft + sl, e = a + it.offsetWidth;
-        if (e > n + box.clientWidth) n = pos.find(q => q + box.clientWidth >= e) ?? n; if (a < n) n = a; }
-      box.scrollLeft = Math.max(0, Math.round(n));
-    } catch (e) { } };
-    stripShow = function (box, it) { const r = ss0.apply(this, arguments); requestAnimationFrame(() => requestAnimationFrame(() => snapStrip(box, it))); return r; };
+    /* r2b (QA2 Н9): лента цветов строки пера начинается с первого цвета (чёрный), без докрутки к выбранному;
+       не помещается — явная прокрутка: край ленты гаснет и стоит «›» / «‹» (классы lab-more-r / lab-more-l). */
+    const moreUpd = box => { try { const m = box.scrollWidth - box.clientWidth; box.classList.toggle('lab-more-r', m > 2 && box.scrollLeft < m - 2); box.classList.toggle('lab-more-l', m > 2 && box.scrollLeft > 2); } catch (e) { } };
+    const snapStrip = box => { try { if (!box || !box.classList.contains('zcols')) return; if (!box._labInit) { box._labInit = 1; box.scrollLeft = 0; box.addEventListener('scroll', () => moreUpd(box), {passive: true}); } moreUpd(box); } catch (e) { } };
+    api.moreUpd = moreUpd;
+    stripShow = function (box, it) { if (box && box.classList && box.classList.contains('zcols')) { requestAnimationFrame(() => snapStrip(box)); return; } return ss0.apply(this, arguments); };
     api.snapStrip = snapStrip;
   }
   PM.labTb = api;
