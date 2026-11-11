@@ -233,8 +233,26 @@
       obst.push(boxOf(it));
     }
   }
+  /* 82.18 r2 (QA Н1 g3 Д9, Н5): область стены — только у живой стены (запись есть, не удалена, помещение не удалено), одна на sid и на (помещение, wid).
+     Импорт «Обновить», ↶ всей цепочки, adopt во время открытия оставляли вторую область или область удалённого помещения. */
+  function pruneItems(all) {
+    const by = new Map(all.map(o => [o.id, o])), a = active(), seen = new Set(); let ch = 0;
+    for (const r of [S.room, S.room0, ...(S.objRooms || [])]) if (r && r.id && by.has(r.id) && !by.get(r.id).del) by.set(r.id, r);   // открытое помещение — свежее базы (saveRoom отложен)
+    const live = it => { const o = by.get(it.sid); if (!o || o.del) return false; if (!o.room) return true; const r = by.get(o.room); if (!r || r.del) return false;
+      const m = r.ms || {}, n = (m.pts || []).length - (m.closed ? 0 : 1); return !(o.seg != null && o.seg >= Math.max(0, n)); };   // отрезок плана снят (↶) — области нет
+    // снятые области (стена умерла) — в запасе K.extra.gone: стена ожила (↷) — область возвращается на своё место
+    const gone = K.extra.gone = (K.extra.gone || []).filter(g => by.has(g.sid));
+    for (let i = gone.length - 1; i >= 0; i--) { const g = gone[i]; if (live(g) && !K.items.some(x => x.t === 'wall' && x.sid === g.sid)) { K.items.push(g); gone.splice(i, 1); ch++;
+      if (g.snap && g.snap.src) { const im = new Image(); im.onload = () => draw(); im.src = g.snap.src; K.snaps[g.id] = {img: im, x: g.snap.x, y: g.snap.y, w: g.snap.w, h: g.snap.h, cover: g.snap.cover}; } } }
+    const order = [...K.items].sort((x, y) => (y === a) - (x === a));   // активная область — в приоритете
+    const keep = new Set();
+    for (const it of order) { if (it.t !== 'wall') { keep.add(it); continue; } if (!live(it)) continue; const o = by.get(it.sid), k1 = 's:' + it.sid, k2 = o && o.room && it.wid ? 'w:' + o.room + '|' + it.wid : null;
+      if (seen.has(k1) || (k2 && seen.has(k2))) continue; seen.add(k1); if (k2) seen.add(k2); keep.add(it); }
+    for (let i = K.items.length - 1; i >= 0; i--) if (!keep.has(K.items[i])) { const it = K.items[i]; if (it.t === 'wall' && !live(it) && !gone.some(g => g.sid === it.sid)) gone.push(clone(it)); delete K.snaps[it.id]; K.items.splice(i, 1); ch++; }
+    if (ch) save(); return ch;
+  }
   async function refreshDims() {   // QA Д11: L × H неактивных стен — из записи (правки на плане, ↶ ↷ меняют q4 без активации) → заголовок и область
-    const all = (await dbAll('sess').catch(() => [])) || [], by = new Map(all.map(o => [o.id, o])); let ch = 0; const a = active();
+    const all = (await dbAll('sess').catch(() => [])) || [], by = new Map(all.map(o => [o.id, o])); let ch = pruneItems(all); const a = active();
     for (const it of K.items) { if (it.t !== 'wall' || it === a) continue; const o = by.get(it.sid), q = o && o.q4; if (!q) continue; const L = +q.L || it.L, H = +q.H || it.H;
       if (Math.abs(L - (+it.L || 0)) > .5 || Math.abs(H - (+it.H || 0)) > .5) { it.L = L; it.H = H; ch++; } }
     if (ch) { save(); draw(); } return ch;
@@ -684,7 +702,7 @@
   async function open1(arg, opt) {
     opt = opt || {}; if (arg == null) arg = K.pid || curObj(); if (!arg) return null;
     const pr0 = await resolve(arg);
-    if (K.on && pr0.pid === K.pid) { if (window.MeasureLabProjects && MeasureLabProjects.hide) MeasureLabProjects.hide(); if (listOn()) try { sessList(false); } catch (e) { } draw(); return K; }
+    if (K.on && pr0.pid === K.pid) { if (window.MeasureLabProjects && MeasureLabProjects.hide) MeasureLabProjects.hide(); if (listOn()) try { sessList(false); } catch (e) { } draw(); refreshDims().catch(() => { }); return K; }
     if (K.on) { try { await flushAll(); } catch (e) { } await saveNowSk(); }
     const b = await boardFor(pr0.pid, pr0.obj);
     let cvr = await cvLoad(pr0.pid);
@@ -692,7 +710,7 @@
     await loadRooms();
     if (!cvr) { const old = await sGet('sk', pr0.obj).catch(() => null); if (old) { cvr = await migrateCanvas(pr0.pid, old, b.id); K.boardRec = await dbGet('sess', b.id); } }
     if (cvr) { const {pid, v, obj, board, view, act, items, upd, ...rest} = cvr; K.extra = rest; K.items = (items || []).filter(i => i.t === 'wall' || i.t === 'plan'); if (view && view.s > 0) K.view = view; if (act) K.act = act; }
-    const all = (await dbAll('sess').catch(() => [])) || [], walls = [];
+    const all = (await dbAll('sess').catch(() => [])) || [], walls = []; if (cvr) pruneItems(all);
     for (const r of K.rooms) for (const [k, sid] of Object.entries(r.segs || {})) { const o = all.find(x => x.id === sid); if (o && !o.del && o.q4 && o.q4.ok) { o.seg = +k; walls.push([o, r]); } }
     if (!cvr) { autoLayout(walls); }
     else for (const it of K.items) { const w = it.t === 'wall' && walls.find(([o]) => o.id === it.sid); if (w && w[0].q4) { it.L = +w[0].q4.L || it.L; it.H = +w[0].q4.H || it.H; } }   // QA Д11: L × H — из записи

@@ -22,6 +22,10 @@
     },
     {
       "ok": true,
+      "name": "подготовка: область С2 после открытия стены"
+    },
+    {
+      "ok": true,
       "name": "подготовка: зона"
     },
     {
@@ -34,8 +38,8 @@
       "detail": {
         "lp": {
           "c": [
-            286.6032789577711,
-            264.4986403910284
+            196.8196306917721,
+            289.9794056506098
           ],
           "t": "300"
         },
@@ -79,7 +83,7 @@
           "rooms": [],
           "items": []
         },
-        "steps": 15
+        "steps": 16
       }
     },
     {
@@ -101,7 +105,7 @@
           "board": {
             "refs": [
               [
-                "rmwbenap2di5",
+                "rmwbhkz0dpor",
                 true,
                 true
               ]
@@ -109,7 +113,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbenc5cuoj",
+                "dmwbhl0q7wod",
                 1250
               ]
             ],
@@ -132,7 +136,7 @@
                 [
                   "kol",
                   400,
-                  2280,
+                  1900,
                   300,
                   0,
                   0
@@ -155,12 +159,15 @@
                 [
                   2400,
                   0
+                ],
+                [
+                  2400,
+                  1500
                 ]
               ],
               "dims": [
                 2400
               ],
-              "segs": 1,
               "zones": [
                 "Зона 1"
               ],
@@ -171,14 +178,15 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbenji47jk"
+            "wall:s1794363330546",
+            "wall:smwbhl8vovut"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbenap2di5",
+                "rmwbhkz0dpor",
                 true,
                 true
               ]
@@ -186,7 +194,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbenc5cuoj",
+                "dmwbhl0q7wod",
                 1250
               ]
             ],
@@ -209,7 +217,7 @@
                 [
                   "kol",
                   400,
-                  2280,
+                  1900,
                   300,
                   0,
                   0
@@ -232,12 +240,15 @@
                 [
                   2400,
                   0
+                ],
+                [
+                  2400,
+                  1500
                 ]
               ],
               "dims": [
                 2400
               ],
-              "segs": 1,
               "zones": [
                 "Зона 1"
               ],
@@ -248,7 +259,8 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbenji47jk"
+            "wall:s1794363330546",
+            "wall:smwbhl8vovut"
           ]
         }
       }
@@ -265,7 +277,8 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:smwbenji47jk"
+        "wall:s1794363330546",
+        "wall:smwbhl8vovut"
       ]
     },
     {
@@ -276,6 +289,7 @@
       "ok": true,
       "name": "Д11: после перезапуска у областей стен — снимки, не заглушки",
       "detail": [
+        true,
         true
       ]
     },
@@ -284,9 +298,14 @@
       "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
       "detail": [
         [
-          "smwbenji47jk",
+          "smwbhl8vovut",
           2364,
           2698
+        ],
+        [
+          "s1794363330546",
+          1500,
+          2700
         ]
       ]
     },
@@ -323,6 +342,7 @@
       "колонна",
       "Z колонны",
       "длина на плане",
+      "вторая стена плана, С2 открыта",
       "зона",
       "конструкция"
     ],
@@ -334,6 +354,7 @@
       "↶ отменено",
       "↶ отменено",
       "↻",
+      "↶ отменено",
       "↶ отменено",
       null,
       "↶ отменено",
@@ -352,6 +373,7 @@
       null,
       "↷ повторено",
       "↻",
+      "↷ повторено",
       "↷ повторено",
       "↷ повторено",
       "↷ повторено",
@@ -384,7 +406,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               false,
               false
             ]
@@ -406,7 +428,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               false,
               false
             ]
@@ -414,7 +436,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               0
             ]
           ],
@@ -433,7 +455,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               false,
               false
             ]
@@ -441,7 +463,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -460,7 +482,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               false,
               false
             ]
@@ -468,7 +490,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -487,7 +509,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               false
             ]
@@ -495,7 +517,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -514,7 +536,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -522,7 +544,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -556,14 +578,13 @@
             "dims": [
               2364
             ],
-            "segs": 1,
             "zones": [],
             "prd": []
           }
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -573,7 +594,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -581,7 +602,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -624,14 +645,13 @@
             "dims": [
               2364
             ],
-            "segs": 1,
             "zones": [],
             "prd": []
           }
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -641,7 +661,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -649,7 +669,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -672,7 +692,7 @@
               [
                 "kol",
                 400,
-                2280,
+                1900,
                 0,
                 0,
                 0
@@ -700,14 +720,13 @@
             "dims": [
               2364
             ],
-            "segs": 1,
             "zones": [],
             "prd": []
           }
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -717,7 +736,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -725,7 +744,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -748,7 +767,7 @@
               [
                 "kol",
                 400,
-                2280,
+                1900,
                 300,
                 0,
                 0
@@ -776,14 +795,13 @@
             "dims": [
               2364
             ],
-            "segs": 1,
             "zones": [],
             "prd": []
           }
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -793,7 +811,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -801,7 +819,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -824,7 +842,7 @@
               [
                 "kol",
                 400,
-                2280,
+                1900,
                 300,
                 0,
                 0
@@ -852,14 +870,93 @@
             "dims": [
               2400
             ],
-            "segs": 1,
             "zones": [],
             "prd": []
           }
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:smwbhl8vovut"
+        ]
+      }
+    },
+    {
+      "name": "вторая стена плана, С2 открыта",
+      "d": {
+        "board": {
+          "refs": [
+            [
+              "rmwbhkz0dpor",
+              true,
+              true
+            ]
+          ],
+          "els": [],
+          "dms": [
+            [
+              "dmwbhl0q7wod",
+              1250
+            ]
+          ],
+          "drw": 1,
+          "notes": [],
+          "txt": 0
+        },
+        "walls": [
+          {
+            "name": "Кухня · С1",
+            "els": [
+              [
+                "rig",
+                2358,
+                380,
+                0,
+                0,
+                0
+              ],
+              [
+                "kol",
+                400,
+                1900,
+                300,
+                0,
+                0
+              ]
+            ],
+            "dms": [],
+            "drw": 0,
+            "notes": [],
+            "txt": 0
+          }
+        ],
+        "rooms": [
+          {
+            "name": "Кухня",
+            "pts": [
+              [
+                0,
+                0
+              ],
+              [
+                2400,
+                0
+              ],
+              [
+                2400,
+                1500
+              ]
+            ],
+            "dims": [
+              2400
+            ],
+            "zones": [],
+            "prd": []
+          }
+        ],
+        "items": [
+          "plan:",
+          "wall:s1794363330546",
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -869,7 +966,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -877,7 +974,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -900,7 +997,7 @@
               [
                 "kol",
                 400,
-                2280,
+                1900,
                 300,
                 0,
                 0
@@ -923,12 +1020,15 @@
               [
                 2400,
                 0
+              ],
+              [
+                2400,
+                1500
               ]
             ],
             "dims": [
               2400
             ],
-            "segs": 1,
             "zones": [
               "Зона 1"
             ],
@@ -937,7 +1037,8 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:s1794363330546",
+          "wall:smwbhl8vovut"
         ]
       }
     },
@@ -947,7 +1048,7 @@
         "board": {
           "refs": [
             [
-              "rmwbenap2di5",
+              "rmwbhkz0dpor",
               true,
               true
             ]
@@ -955,7 +1056,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbenc5cuoj",
+              "dmwbhl0q7wod",
               1250
             ]
           ],
@@ -978,7 +1079,7 @@
               [
                 "kol",
                 400,
-                2280,
+                1900,
                 300,
                 0,
                 0
@@ -1001,12 +1102,15 @@
               [
                 2400,
                 0
+              ],
+              [
+                2400,
+                1500
               ]
             ],
             "dims": [
               2400
             ],
-            "segs": 1,
             "zones": [
               "Зона 1"
             ],
@@ -1017,7 +1121,8 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbenji47jk"
+          "wall:s1794363330546",
+          "wall:smwbhl8vovut"
         ]
       }
     }

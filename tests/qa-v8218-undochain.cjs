@@ -56,8 +56,8 @@ fs.mkdirSync(SHOT, {recursive: true});
     const b = all.find(o => o.id === K.board) || {};
     const surf = o => ({els: (o.els || []).map(e => [e.k, n(+e.W), n(+e.H), n(+e.D || 0), n(+e.x || 0), n(+e.y || 0)]), dms: (o.dms || []).map(d => [d.id, n(+d.vm || 0)]), drw: (o.drw || []).length, notes: (o.notes || []).map(q => q.t || q.txt || ''), txt: (o.txt || []).length});
     const out = {board: {refs: (b.refs || []).map(r => [r.id, !!r.q, !!r.labWall]), ...surf(b)},
-      walls: all.filter(o => o.room && rid.has(o.room) && !o.del && o.kind !== 'room').map(o => ({name: o.name, ...surf(o)})).sort((a, c) => a.name < c.name ? -1 : 1),
-      rooms: rooms.map(r => ({name: r.name, pts: R(r.ms && r.ms.pts), dims: ((r.ms && r.ms.dims) || []).map(d => n(d.v)), segs: Object.keys(r.segs || {}).length, zones: ((r.ms && r.ms.labRooms) || []).map(z => z.name), prd: (r.prd || []).map(q => q.type + ':' + (q.walls || q.w || []).length)})),
+      walls: all.filter(o => o.room && rid.has(o.room) && !o.del && o.kind !== 'room').map(o => ({name: o.name, ...surf(o)})).filter(w => w.name.endsWith('С1') || w.els.length || w.dms.length || w.drw || w.notes.length).sort((a, c) => a.name < c.name ? -1 : 1),   // пустой вид стены (открыт вкладкой) — не данные
+      rooms: rooms.map(r => ({name: r.name, pts: R(r.ms && r.ms.pts), dims: ((r.ms && r.ms.dims) || []).map(d => n(d.v)), zones: ((r.ms && r.ms.labRooms) || []).map(z => z.name), prd: (r.prd || []).map(q => q.type + ':' + (q.walls || q.w || []).length)})),
       items: K.items.map(i => i.t + ':' + (i.t === 'wall' ? i.sid : '')).sort()};
     return JSON.stringify(out);
   });
@@ -124,7 +124,8 @@ fs.mkdirSync(SHOT, {recursive: true});
     await cp('ригель');
     // 6. колонна + Z 300
     await caseTool('.tl[data-k="kol"]');
-    await drag('pen', await wallPt([1000, 20]), await wallPt([1400, 2300]));
+    // от 300 мм: у пола — подпись ширины «2 364»; после g2 Д5 (ef793b7) касание подписи забирает жест полю (протяжка с подписи объект не рисует)
+    await drag('pen', await wallPt([1000, 300]), await wallPt([1400, 2200]));
     const col = await p.evaluate(() => S.els.find(e => e.k === 'kol') && S.els.find(e => e.k === 'kol').id);
     await cp('колонна');
     await p.evaluate(id => { S.sel = id; mkPanel(); draw(); }, col);
@@ -137,6 +138,12 @@ fs.mkdirSync(SHOT, {recursive: true});
     if (fld) { await tap('pen', fld); await typeIn(2400); }
     check(await p.evaluate(() => (plDim(S.room.ms, 0) || {}).v === 2400), 'подготовка: длина стены плана 2400');
     await cp('длина на плане');
+    // 7б (QA Н5). вторая стена плана и открыть её «вкладкой» (область С2 появляется на холсте без шага журнала), назад на план
+    await p.evaluate(() => { plSnap(); const m = S.room.ms; m.pts.push([m.pts[1][0], 1500]); gnFix(); saveRoom(); draw(); }); await wait(300);
+    await p.evaluate(() => wGo(1)); await wait(900);
+    check(await p.evaluate(() => MeasureLabSketch.state.items.filter(i => i.t === 'wall').length === 2), 'подготовка: область С2 после открытия стены');
+    await p.evaluate(() => mdGo('plan')); await wait(600);
+    await cp('вторая стена плана, С2 открыта');
     // 8. зона
     await p.evaluate(() => { S.psel = null; draw(); });
     await caseTool('[data-lab-tb="zone"]');
@@ -214,10 +221,10 @@ fs.mkdirSync(SHOT, {recursive: true});
     const g0 = await geo();
     check(g0.snaps.length && g0.snaps.every(Boolean), 'Д11: после перезапуска у областей стен — снимки, не заглушки', g0.snaps);
     // высота стены изменилась вне стены (запись), стена неактивна → ✓: заголовок L × H — из записи
-    await p.evaluate(async () => { await MeasureLabSketch.activate('board'); const it = MeasureLabSketch.state.items.find(i => i.t === 'wall'), o = await dbGet('sess', it.sid); o.q4.H = 2698; await dbPut('sess', o); });
+    const eSid = await p.evaluate(async () => { await MeasureLabSketch.activate('board'); const it = MeasureLabSketch.state.items.find(i => i.t === 'wall' && /С1/.test(i.name || '')) || MeasureLabSketch.state.items.find(i => i.t === 'wall'), o = await dbGet('sess', it.sid); o.q4.H = 2698; await dbPut('sess', o); return it.sid; });
     await tapSel('touch', '#bDone'); await wait(900);
     const g1 = await geo();
-    check(g1.titles.every(t => t[2] === 2698), 'Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший', g1.titles);
+    check(g1.titles.some(t => t[0] === eSid && t[2] === 2698), 'Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший', g1.titles);
     check(g1.plan >= g1.wall * .69, 'Д11: ✓ — область плана не мельче 0,7 области стены', {plan: g1.plan, wall: g1.wall});
     check(g1.hit.length === 0, 'Д11: ✓ — области и заголовки не накрывают фото и друг друга', g1.hit);
     await shot('fit-after');
