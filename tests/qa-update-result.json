@@ -31,6 +31,14 @@
     },
     {
       "ok": true,
+      "name": "ready only after Lab modules are up and the 82.18 migration finished (audit m6)"
+    },
+    {
+      "ok": true,
+      "name": "broken lab-*.js at startup: ready is NOT sent (audit m6)"
+    },
+    {
+      "ok": true,
       "name": "«Проверить обновления» in ⋮ menu",
       "details": "⟳ Проверить обновления"
     },
@@ -140,6 +148,7 @@
       "name": "same origin: IndexedDB + localStorage intact after bundle switch",
       "details": {
         "objs": [
+          "QA update keeps data",
           "QA update keeps data"
         ],
         "ls": "kept",
@@ -152,6 +161,7 @@
       "name": "title and ready reflect the downloaded bundle",
       "details": {
         "objs": [
+          "QA update keeps data",
           "QA update keeps data"
         ],
         "ls": "kept",
