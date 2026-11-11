@@ -30,6 +30,27 @@
     },
     {
       "ok": true,
+      "name": "Д15: первое касание подписи поля неактивной стены — только активация, без клавиатуры",
+      "detail": {
+        "lp": {
+          "c": [
+            286.6032789577711,
+            264.4986403910284
+          ],
+          "t": "300"
+        },
+        "act": "wall",
+        "w3f": false,
+        "focus": "BODY"
+      }
+    },
+    {
+      "ok": true,
+      "name": "после Д15: данные не изменились",
+      "detail": null
+    },
+    {
+      "ok": true,
       "name": "↶ до начала (с перезапуском посередине): данные = пустой проект",
       "detail": {
         "last": {
@@ -80,7 +101,7 @@
           "board": {
             "refs": [
               [
-                "rmwbdye1tsa7",
+                "rmwbenap2di5",
                 true,
                 true
               ]
@@ -88,7 +109,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbdyfgp1xy",
+                "dmwbenc5cuoj",
                 1250
               ]
             ],
@@ -150,14 +171,14 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbdymom2n1"
+            "wall:smwbenji47jk"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbdye1tsa7",
+                "rmwbenap2di5",
                 true,
                 true
               ]
@@ -165,7 +186,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbdyfgp1xy",
+                "dmwbenc5cuoj",
                 1250
               ]
             ],
@@ -227,7 +248,7 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbdymom2n1"
+            "wall:smwbenji47jk"
           ]
         }
       }
@@ -244,12 +265,43 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:smwbdymom2n1"
+        "wall:smwbenji47jk"
       ]
     },
     {
       "ok": true,
       "name": "после перезапуска: данные = конечные, без дублей"
+    },
+    {
+      "ok": true,
+      "name": "Д11: после перезапуска у областей стен — снимки, не заглушки",
+      "detail": [
+        true
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
+      "detail": [
+        [
+          "smwbenji47jk",
+          2364,
+          2698
+        ]
+      ]
+    },
+    {
+      "ok": true,
+      "name": "Д11: ✓ — область плана не мельче 0,7 области стены",
+      "detail": {
+        "plan": 1260,
+        "wall": 1260
+      }
+    },
+    {
+      "ok": true,
+      "name": "Д11: ✓ — области и заголовки не накрывают фото и друг друга",
+      "detail": []
     },
     {
       "ok": true,
@@ -332,7 +384,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               false,
               false
             ]
@@ -354,7 +406,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               false,
               false
             ]
@@ -362,7 +414,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               0
             ]
           ],
@@ -381,7 +433,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               false,
               false
             ]
@@ -389,7 +441,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -408,7 +460,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               false,
               false
             ]
@@ -416,7 +468,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -435,7 +487,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               false
             ]
@@ -443,7 +495,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -462,7 +514,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -470,7 +522,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -511,7 +563,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -521,7 +573,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -529,7 +581,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -579,7 +631,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -589,7 +641,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -597,7 +649,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -655,7 +707,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -665,7 +717,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -673,7 +725,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -731,7 +783,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -741,7 +793,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -749,7 +801,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -807,7 +859,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -817,7 +869,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -825,7 +877,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -885,7 +937,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     },
@@ -895,7 +947,7 @@
         "board": {
           "refs": [
             [
-              "rmwbdye1tsa7",
+              "rmwbenap2di5",
               true,
               true
             ]
@@ -903,7 +955,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbdyfgp1xy",
+              "dmwbenc5cuoj",
               1250
             ]
           ],
@@ -965,7 +1017,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbdymom2n1"
+          "wall:smwbenji47jk"
         ]
       }
     }

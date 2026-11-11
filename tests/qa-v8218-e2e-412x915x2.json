@@ -4,7 +4,7 @@
       "ok": true,
       "name": "новый проект: холст открыт, шапка «Клиент · Проект», активна подложка",
       "detail": {
-        "pid": "omwbd9qkfmp1u",
+        "pid": "omwbf19gkagc2",
         "name": "Проект",
         "t": "Клиент · Проект",
         "act": "board",
@@ -48,7 +48,7 @@
       "detail": {
         "dm": {
           "n": 1,
-          "id": "dmwbd9tfcg1k",
+          "id": "dmwbf1cbhxom",
           "kind": "board"
         },
         "vm": 1250,
@@ -59,7 +59,7 @@
       "ok": true,
       "name": "стена «Кухня» 2364 × 2700 над фото, фото связано со стеной",
       "detail": {
-        "sid": "smwbd9zlhr4u",
+        "sid": "smwbf1ifc5y1",
         "L": 2364,
         "H": 2700,
         "above": true,
@@ -189,11 +189,11 @@
       "detail": {
         "sel1": {
           "act": "board",
-          "rsel": "rmwbd9rx4u7m"
+          "rsel": "rmwbf1atbktf"
         },
         "sel2": {
           "act": "board",
-          "rsel": "rmwbd9rx4u7m"
+          "rsel": "rmwbf1atbktf"
         },
         "del": {
           "refs": 0,
@@ -209,7 +209,7 @@
         "open": true,
         "list": false,
         "refs": [
-          "rmwbd9rx4u7m"
+          "rmwbf1atbktf"
         ],
         "blob": 133444,
         "t": "Клиент · Проект"
@@ -245,7 +245,7 @@
       "name": "выгрузка для Akrix v3: els[].d (ригель, колонна 300), els[].no, labRooms[].zn, o.prd",
       "detail": {
         "fn": "obekt_Клиент_Проект_2026-11-11.json",
-        "oid": "omwbd9qkfmp1u",
+        "oid": "omwbf19gkagc2",
         "els": [
           {
             "t": "beam",
@@ -270,13 +270,13 @@
         ],
         "prd": [
           {
-            "id": "prmwbdaiuc2cc",
+            "id": "prmwbf21j5vej",
             "no": 1,
             "type": "Кухня",
             "name": "Кухня",
-            "room": "d1375aa7-e0b6-463d-911d-56d3d7af2d52",
+            "room": "698765f7-a94f-4a7a-ba79-7b304cd80219",
             "walls": [
-              "w1794356073819_1"
+              "w1794359037545_1"
             ]
           }
         ]
@@ -313,7 +313,7 @@
       300,
       2364
     ],
-    "rsel": "rmwbd9rx4u7m",
+    "rsel": "rmwbf1atbktf",
     "beam": {
       "x0": 0,
       "x1": 2364,
@@ -345,7 +345,7 @@
     },
     "export": {
       "fn": "obekt_Клиент_Проект_2026-11-11.json",
-      "oid": "omwbd9qkfmp1u",
+      "oid": "omwbf19gkagc2",
       "els": [
         {
           "t": "beam",
@@ -370,13 +370,13 @@
       ],
       "prd": [
         {
-          "id": "prmwbdaiuc2cc",
+          "id": "prmwbf21j5vej",
           "no": 1,
           "type": "Кухня",
           "name": "Кухня",
-          "room": "d1375aa7-e0b6-463d-911d-56d3d7af2d52",
+          "room": "698765f7-a94f-4a7a-ba79-7b304cd80219",
           "walls": [
-            "w1794356073819_1"
+            "w1794359037545_1"
           ]
         }
       ]

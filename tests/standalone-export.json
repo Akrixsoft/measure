@@ -2,16 +2,16 @@
   "app": "akrix-zamer",
   "v": 3,
   "kind": "object",
-  "date": "2026-11-11T00:07:03.467Z",
+  "date": "2026-11-11T01:05:33.848Z",
   "obj": "QA plane",
-  "oid": "o_lab_plane_s1794355622925",
+  "oid": "o_lab_plane_s1794359133309",
   "rooms": [
     {
       "app": "akrix-zamer",
       "v": 3,
       "kind": "room",
-      "id": "r_lab_plane_s1794355622925",
-      "date": "2026-11-11T00:07:03.467Z",
+      "id": "r_lab_plane_s1794359133309",
+      "date": "2026-11-11T01:05:33.848Z",
       "obj": "QA plane",
       "name": "",
       "ms": {
@@ -30,7 +30,7 @@
         "closed": false,
         "dims": [
           {
-            "id": "d_lab_plane_s1794355622925",
+            "id": "d_lab_plane_s1794359133309",
             "a": {
               "p": 0
             },
@@ -80,7 +80,7 @@
               "src": "фото"
             },
             "gn": 1,
-            "id": "w_lab_plane_s1794355622925",
+            "id": "w_lab_plane_s1794359133309",
             "notes": [],
             "L": 3500
           }
@@ -92,7 +92,7 @@
           "0": 1
         },
         "wid": {
-          "0": "w_lab_plane_s1794355622925"
+          "0": "w_lab_plane_s1794359133309"
         },
         "geo": {
           "v": 1,
@@ -101,7 +101,7 @@
             {
               "k": 0,
               "gn": 1,
-              "id": "w_lab_plane_s1794355622925",
+              "id": "w_lab_plane_s1794359133309",
               "a": [
                 0,
                 0
