@@ -122,7 +122,7 @@
   }
   async function sessDel(sid, on, why) { if (!sid) return null; const o = await dbGet('sess', sid).catch(() => null); if (!o) return null; if (on) { o.del = Date.now(); o.delWhy = why; } else { delete o.del; delete o.delWhy; } await dbPut('sess', o).catch(() => { }); return o; }
   const itemsOf = () => { const sk = SKh(); return sk && sk.state && sk.state.items; };
-  const fin = () => { const sk = SKh(); try { sk && sk.saveNow && sk.saveNow(); } catch (e) { } try { draw(); zLay(); } catch (e) { } };
+  const fin = () => { const sk = SKh(); try { sk && sk.refreshDims && sk.refreshDims(); } catch (e) { } try { sk && sk.saveNow && sk.saveNow(); } catch (e) { } try { draw(); zLay(); } catch (e) { } };
   async function areaPut(it, on) {   // 82.18 fix (Д1): область стены — одна на sid (без дублей после ↶ ↷)
     const L = itemsOf(); if (!L) return; const same = x => x.id === it.id || (it.t === 'wall' && x.t === 'wall' && it.sid && x.sid === it.sid);
     if (on && !L.some(same)) L.push(JSON.parse(JSON.stringify(it)));
@@ -227,8 +227,9 @@
     return nat();   // журнал пуст — штатно
   }
   const zUndo0 = zUndo, zRedo0 = zRedo;
-  zUndo = async function () { try { return await step(-1); } finally { keepPred(); } };
-  zRedo = async function () { try { return await step(1); } finally { keepPred(); } };
+  const dims = () => { const sk = SKh(); try { if (sk && sk.refreshDims && sk.isOpen && sk.isOpen()) sk.refreshDims(); } catch (e) { } };   // QA Д11: L × H стен в заголовках
+  zUndo = async function () { try { return await step(-1); } finally { keepPred(); dims(); } };
+  zRedo = async function () { try { return await step(1); } finally { keepPred(); dims(); } };
   const pls1 = plSnap; plSnap = function () { const r = pls1.apply(this, arguments); keepPred(); return r; };
   api.undo = () => zUndo(); api.redo = () => zRedo();
   const bind = () => { const u = document.getElementById('bUnd'), r = document.getElementById('bRed'); if (u) u.onclick = () => zUndo(); if (r) r.onclick = () => zRedo(); };

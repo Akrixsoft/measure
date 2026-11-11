@@ -25,7 +25,7 @@
   const pr = () => Math.max(3, cfg().pointPx * 1.8);                    // точка
   const ver = () => String(window.MeasureVersion || '82.18');
   const PLAN_K = 0.12, GAP = 40;                                       // масштаб плана (ед. холста на мм), зазор
-  const WM = {x: 1300, b: 800, t: 600};                                // поля области стены, мм: развёртка боковых стен, пол, подписи сверху (82.18 int: 300 → 600 — цепочка авторазмеров над ригелем у потолка не обрезается рамкой)
+  const WM = {x: 1300, b: 800, t: 900};                                // поля области стены, мм: развёртка боковых стен, пол, подписи сверху (82.18 int: 300 → 600 — цепочка авторазмеров над ригелем у потолка не обрезается рамкой; QA Д11: 900 — подписи над ригелем и снимки не обрезаны)
   api.metrics = () => ({text: fsz(13), point: pr()});
 
   /* ═══ [BLOCK SK-STATE] модель холста проекта ═══
@@ -105,13 +105,16 @@
   api.refRegion = id => { const r = boardRefs().find(x => x.id === id); return r ? refR(r) : null; };
   const inR = (r, p, m = 0) => p[0] >= r.x - m && p[0] <= r.x + r.w + m && p[1] >= r.y - m && p[1] <= r.y + r.h + m;
   const ovl = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-  function titleR(it) { const r = region(it), f = fsz(15) / K.view.s; return {x: r.x, y: r.y - f * 1.7, w: Math.max(r.w * .6, 160 / K.view.s), h: f * 1.6}; }
+  function titleR(it) { const r = region(it), f = fsz(15) / K.view.s; let tw = 0; try { const d = DPR(); cx.save(); cx.font = `700 ${fsz(15) * d}px system-ui`; tw = (cx.measureText(title(it)).width / d + 8) / K.view.s; cx.restore(); } catch (e) { }
+    return {x: r.x, y: r.y - f * 1.7, w: Math.max(r.w * .6, 160 / K.view.s, tw), h: f * 1.6}; }   // QA Д11: ширина — по тексту заголовка
   function title(it) { if (it.t === 'plan') return 'План помещений'; const L = Math.round(+it.L || 0), H = Math.round(+it.H || 0); return (it.name || 'Стена') + (L && H ? ` · ${L} × ${H}` : ''); }
 
   /* ═══ [BLOCK SK-DRAW] фон и сетка → снимки неактивных областей → активная стена / план (в своей рамке) → подложка поверх (векторно) → рамки ═══ */
   const draw81 = draw;
   function label(x, y, t, c, sz, clip) {   // подписи — в px экрана (размер текста — из настроек Lab); clip — область холста, за которую подпись не выходит
-    const d = DPR(), s = toScrK(x, y), f = fsz(sz) * d; cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); if (clip) { const a = toScrK(clip.x, clip.y), b = toScrK(clip.x + clip.w, clip.y + clip.h); cx.beginPath(); cx.rect(a[0], a[1], b[0] - a[0], b[1] - a[1]); cx.clip(); } cx.font = `700 ${f}px system-ui`; const w = cx.measureText(t).width, fh = parseFloat(cx.font) || f;
+    const d = DPR(), s = toScrK(x, y), f = fsz(sz) * d; cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); if (clip) { const a = toScrK(clip.x, clip.y), b = toScrK(clip.x + clip.w, clip.y + clip.h); cx.beginPath(); cx.rect(a[0], a[1], b[0] - a[0], b[1] - a[1]); cx.clip(); } cx.font = `700 ${f}px system-ui`;
+    if (Array.isArray(t)) { const room = clip ? toScrK(clip.x + clip.w, 0)[0] - s[0] - 6 * d : Infinity; t = t.find(x => cx.measureText(x).width <= room) || t[t.length - 1]; }   // QA Д11: подсказка — вариант, который помещается
+    const w = cx.measureText(t).width, fh = parseFloat(cx.font) || f;
     cx.fillStyle = 'rgba(255,255,255,.9)'; cx.fillRect(s[0] - 3 * d, s[1] - fh, w + 6 * d, fh * 1.3); cx.fillStyle = c; cx.fillText(t, s[0], s[1]); cx.restore(); }
   function paintLayer(act) {
     const d = DPR(); cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = '#E9ECF0'; cx.fillRect(0, 0, cv.width, cv.height);
@@ -124,7 +127,7 @@
       else { cx.fillStyle = it.t === 'plan' ? '#F4F6F8' : '#F7F8FA'; cx.fillRect(r.x, r.y, r.w, r.h); cx.strokeStyle = '#B8C0CA'; cx.lineWidth = px; cx.setLineDash([6 * px, 4 * px]); cx.strokeRect(r.x, r.y, r.w, r.h); cx.setLineDash([]); }
     }
     cx.restore();
-    for (const it of K.items) { if (it === act || (K.snaps[it.id] && K.snaps[it.id].img)) continue; const r = region(it); label(r.x + 12 / K.view.s, r.y + r.h / 2, it.t === 'plan' ? (K.rooms.length ? 'Коснитесь — план помещений' : 'Коснитесь — новое помещение') : 'Коснитесь — стена', '#6B7380', 13, r); }
+    for (const it of K.items) { if (it === act || (K.snaps[it.id] && K.snaps[it.id].img)) continue; const r = region(it); label(r.x + 12 / K.view.s, r.y + r.h / 2, it.t === 'plan' ? (K.rooms.length ? ['Коснитесь — план помещений', 'Коснитесь — план', 'План'] : ['Коснитесь — новое помещение', 'Новое помещение', '＋']) : ['Коснитесь — стена', 'Коснитесь', 'Стена'], '#6B7380', 13, r); }
   }
   function paintTitles(act) { for (const it of K.items) { const r = region(it); label(r.x, r.y - fsz(15) * .5 / K.view.s, title(it), it === act ? '#1F6FD1' : K.sel === it.id ? '#1F6FD1' : '#3E4954', 15); } }
   function paintOver(act) {   // рамка активной области, выбранная область, 4 угла выбранного фото
@@ -147,6 +150,7 @@
     cx.fillRect = function (x, y, w, h) { if (skip && x === 0 && y === 0 && w === cv.width && h === cv.height) { skip = false; return; } return fr.apply(this, arguments); };
     try { return fn(); } finally { if (own) cx.fillRect = fr; else delete cx.fillRect; } }
   function snapNow(act) {   // снимок активной области для показа, когда она неактивна; кодирование — асинхронно (toBlob)
+    if (act.t === 'wall' && !(S.mosaic && S.q4 && S.q4.ok && !S.recomp)) return;   // QA Д11: стена ещё не построена (переход, ↶ ↷) — пустой снимок не заменяет прежний
     try { const r = region(act), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h), sx = Math.max(0, a[0]), sy = Math.max(0, a[1]), ex = Math.min(cv.width, b[0]), ey = Math.min(cv.height, b[1]);
       if (ex - sx < 40 || ey - sy < 40) return; const cover = sx === a[0] && sy === a[1] && ex === b[0] && ey === b[1], old = K.snaps[act.id];
       if (old && old.cover && !cover) return;   // частичный вид не заменяет полный снимок
@@ -205,7 +209,39 @@
   function fitRegion(it) { if (!it) return; if (it === BOARD) return fitAll(); const r = region(it), f = fsz(15) * 2 / K.view.s; fitRect(r.x, r.y - f, r.x + r.w, r.y + r.h); if (active() === it) syncToS(it); }
   function boardBox() { const P = []; for (const r of boardRefs()) { const R = refR(r); P.push([R.x, R.y], [R.x + R.w, R.y + R.h]); } const B = activeKind() === 'board' ? S : K.boardRec || {};
     for (const k of ['dms', 'drw']) for (const q of B[k] || []) for (const p of [q.a, q.b, ...(q.pts || [])]) if (Array.isArray(p) && typeof p[0] === 'number') P.push([p[0], -p[1]]); return P; }
-  function fitAll() { const P = boardBox(); for (const it of K.items) { const r = region(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [r.x + r.w, r.y + r.h]); } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
+  /* 82.18 fix (QA Д11): «вписать всё» — план не мельче стен, области и их заголовки не накрывают фото и друг друга.
+     planScale: масштаб области плана — сторона не меньше 0,7 и не больше 1,6 стороны самой крупной области стены (верхний левый угол на месте).
+     tidy: область (вместе с заголовком при текущем масштабе) накрывает фото или уже разложенную область — сдвиг вниз или вправо, что меньше. */
+  function planScale() {
+    const pl = K.items.find(i => i.t === 'plan'); if (!pl || !K.rooms.length) return;
+    const walls = K.items.filter(i => i.t === 'wall').map(region), side = r => Math.max(r.w, r.h), T = walls.length ? Math.max(...walls.map(side)) : 1000, r0 = region(pl), cur = side(r0);
+    if (!(cur > 0) || (cur >= T * .7 && cur <= T * 1.6)) return;
+    const k = clamp(pl.k * T / cur, .03, .8); if (Math.abs(k - pl.k) < 1e-6) return;
+    const f = k / pl.k; pl.k = k; const r1 = region(pl); pl.ax += r0.x - r1.x; pl.ay += r0.y - r1.y;
+    for (const sn of [K.snaps[pl.id], pl.snap]) if (sn) { sn.x = r0.x + (sn.x - r0.x) * f; sn.y = r0.y + (sn.y - r0.y) * f; sn.w *= f; sn.h *= f; }   // снимок — вместе с областью
+  }
+  function shiftItem(it, dx, dy) { it.ax += dx; it.ay += dy; const sn = K.snaps[it.id]; if (sn) { sn.x += dx; sn.y += dy; } if (it.snap) { it.snap.x += dx; it.snap.y += dy; } }
+  function tidy() {
+    const gap = 12 / K.view.s, boxOf = it => { const r = region(it), t = titleR(it), x0 = Math.min(r.x, t.x), y0 = Math.min(r.y, t.y); return {x: x0, y: y0, w: Math.max(r.x + r.w, t.x + t.w) - x0, h: r.y + r.h - y0}; };
+    const obst = boardRefs().map(refR), order = [...K.items].sort((a, b) => region(a).y - region(b).y || region(a).x - region(b).x);
+    for (const it of order) {
+      for (let n = 0; n < 60; n++) {
+        const b = boxOf(it), o = obst.find(q => ovl(b, q)); if (!o) break;
+        const dy = o.y + o.h + gap - b.y, dx = o.x + o.w + gap - b.x;
+        if (dx < dy) shiftItem(it, dx, 0); else shiftItem(it, 0, dy);
+      }
+      obst.push(boxOf(it));
+    }
+  }
+  async function refreshDims() {   // QA Д11: L × H неактивных стен — из записи (правки на плане, ↶ ↷ меняют q4 без активации) → заголовок и область
+    const all = (await dbAll('sess').catch(() => [])) || [], by = new Map(all.map(o => [o.id, o])); let ch = 0; const a = active();
+    for (const it of K.items) { if (it.t !== 'wall' || it === a) continue; const o = by.get(it.sid), q = o && o.q4; if (!q) continue; const L = +q.L || it.L, H = +q.H || it.H;
+      if (Math.abs(L - (+it.L || 0)) > .5 || Math.abs(H - (+it.H || 0)) > .5) { it.L = L; it.H = H; ch++; } }
+    if (ch) { save(); draw(); } return ch;
+  }
+  api.refreshDims = refreshDims;
+  function fitAll() { try { planScale(); tidy(); } catch (e) { } fitAll0(); try { tidy(); } catch (e) { } fitAll0(); save(); }
+  function fitAll0() { const P = boardBox(); for (const it of K.items) { const r = region(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [r.x + r.w, r.y + r.h]); } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
   api.fitAll = fitAll; api.fitRegion = fitRegion;
   const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet) fitRegion(a); syncToS(a); } return draw(); };
   fit = function () { return K.on && !nativeOnly() && !listOn() ? fitK() : fit81.apply(this, arguments); };
@@ -244,7 +280,10 @@
     const run = (async () => {
       K.quiet++; const v0 = {...K.view};
       try {
-        const cur = active(); if (cur && cur !== BOARD) { wantSnap = 1; try { draw(); } finally { wantSnap = 0; } }
+        const cur = active(); if (cur && cur !== BOARD) {
+          { const r = region(cur), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h); if (a[0] < 0 || a[1] < 0 || b[0] > cv.width || b[1] > cv.height) fitRegion(cur); }   // QA Д11: снимок — всей области (вид вернётся ниже, K.view = v0)
+          const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; S.sel = null; S.dsel = null; S.nsel = null; S.msel = [];
+          wantSnap = 1; try { draw(); } finally { wantSnap = 0; Object.assign(S, keep); } }
         try { await flushAll(); } catch (e) { }   // текущая поверхность — в базу сразу (saveRoom отложен на 250 мс)
         if (cur === BOARD || (S.sess && S.sess.kind === 'board')) K.boardRec = await dbGet('sess', K.board).catch(() => K.boardRec) || K.boardRec;
         if (it === BOARD) { await openSess(K.board); }
@@ -365,7 +404,7 @@
   async function done() {   // ✓: футляр / меню — свернуть; иначе сохранить и показать весь холст
     if (S.zSheet) return zSheet(false);
     const tb = document.getElementById('tb'); if (tb && tb.classList.contains('on')) { tb.classList.remove('on'); return; }
-    try { await flushAll(); } catch (e) { } await saveNowSk(); K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
+    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
   }
   api.done = done;
   async function toProjects() {   // 📁: список проектов; холст остаётся открытым под списком
@@ -656,6 +695,7 @@
     const all = (await dbAll('sess').catch(() => [])) || [], walls = [];
     for (const r of K.rooms) for (const [k, sid] of Object.entries(r.segs || {})) { const o = all.find(x => x.id === sid); if (o && !o.del && o.q4 && o.q4.ok) { o.seg = +k; walls.push([o, r]); } }
     if (!cvr) { autoLayout(walls); }
+    else for (const it of K.items) { const w = it.t === 'wall' && walls.find(([o]) => o.id === it.sid); if (w && w[0].q4) { it.L = +w[0].q4.L || it.L; it.H = +w[0].q4.H || it.H; } }   // QA Д11: L × H — из записи
     for (const it of K.items) if (it.snap && it.snap.src) { const im = new Image(); im.src = it.snap.src; await new Promise(z => { im.onload = z; im.onerror = z; }); K.snaps[it.id] = {img: im, x: it.snap.x, y: it.snap.y, w: it.snap.w, h: it.snap.h, cover: it.snap.cover}; }
     if (window.MeasureLabProjects && MeasureLabProjects.hide) MeasureLabProjects.hide(); try { await sessList(false); } catch (e) { }
     K.on = true; uiKey = ''; document.body.classList.add('lab-sketch');

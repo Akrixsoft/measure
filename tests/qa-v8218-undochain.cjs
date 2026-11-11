@@ -204,6 +204,23 @@ fs.mkdirSync(SHOT, {recursive: true});
     await reopen();
     const after = await digest();
     check(after === END && !(JSON.parse(after).items.length !== new Set(JSON.parse(after).items).size), 'после перезапуска: данные = конечные, без дублей');
+    // ── QA Д11: после ↶ ↷ и перезапуска → ✓ «вписать всё»: снимки стен есть, L × H заголовка — из записи, план не мельче стен, области и заголовки не накрывают фото и друг друга
+    const geo = () => p.evaluate(() => { const K = MeasureLabSketch.state, R = MeasureLabSketch.region, f = 15 * 1.7 / K.view.s;
+      const box = it => { const r = R(it); return {x: r.x, y: r.y - f, w: r.w, h: r.h + f, t: it.t}; }, ov = (a, b) => a.x < b.x + b.w - 1e-6 && a.x + a.w > b.x + 1e-6 && a.y < b.y + b.h - 1e-6 && a.y + a.h > b.y + 1e-6;
+      const B = K.items.map(box), refs = ((MeasureLabSketch.active() && MeasureLabSketch.active().t === 'board' ? S.refs : (K.boardRec || {}).refs) || []).map(r => MeasureLabSketch.refRegion(r.id)).filter(Boolean);
+      const hit = []; B.forEach((b, i) => { refs.forEach((q, j) => { if (ov(b, q)) hit.push(b.t + '×фото' + j); }); B.forEach((c, j) => { if (j > i && ov(b, c)) hit.push(b.t + '×' + c.t); }); });
+      const side = r => Math.max(r.w, r.h), pl = K.items.find(i => i.t === 'plan'), wl = K.items.filter(i => i.t === 'wall');
+      return {hit, plan: pl ? Math.round(side(R(pl))) : 0, wall: wl.length ? Math.round(Math.max(...wl.map(i => side(R(i))))) : 0, snaps: wl.map(i => !!(K.snaps[i.id] && K.snaps[i.id].img)), titles: wl.map(i => [i.sid, Math.round(i.L), Math.round(i.H)])}; });
+    const g0 = await geo();
+    check(g0.snaps.length && g0.snaps.every(Boolean), 'Д11: после перезапуска у областей стен — снимки, не заглушки', g0.snaps);
+    // высота стены изменилась вне стены (запись), стена неактивна → ✓: заголовок L × H — из записи
+    await p.evaluate(async () => { await MeasureLabSketch.activate('board'); const it = MeasureLabSketch.state.items.find(i => i.t === 'wall'), o = await dbGet('sess', it.sid); o.q4.H = 2698; await dbPut('sess', o); });
+    await tapSel('touch', '#bDone'); await wait(900);
+    const g1 = await geo();
+    check(g1.titles.every(t => t[2] === 2698), 'Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший', g1.titles);
+    check(g1.plan >= g1.wall * .69, 'Д11: ✓ — область плана не мельче 0,7 области стены', {plan: g1.plan, wall: g1.wall});
+    check(g1.hit.length === 0, 'Д11: ✓ — области и заголовки не накрывают фото и друг друга', g1.hit);
+    await shot('fit-after');
     check(errors.length === 0, 'нет ошибок страницы', errors);
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
