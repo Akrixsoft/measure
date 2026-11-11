@@ -732,7 +732,7 @@
     const tgt = K.act.t === 'wall' && byId(K.act.id) || K.act.t === 'plan' && byId(K.act.id) || BOARD;
     if (!opt.fromNative || !activeKind()) { const ok = await activate(tgt, {force: 1}); if (!ok && tgt !== BOARD) await activate(BOARD, {force: 1}); }
     if (!cvr) { fitAll(); const a = active(); if (a) syncToS(a); }
-    RZ.w = innerWidth; RZ.h = innerHeight;
+    RZ.w = innerWidth; RZ.h = innerHeight; lastIn = Date.now();
     bgSnaps(K.pid);   // r2 (Н4): снимки областей без снимка (миграция, импорт, ↷) — фоном, после открытия
     await saveNowSk(); draw(); return K;
   }
@@ -741,15 +741,16 @@
   const snapStale = it => { if (it.t !== 'wall' && it.t !== 'plan') return false; const sn = K.snaps[it.id]; if (!sn || !sn.img) return true; if (sn.cover === false) return true;
     return it.t === 'wall' && sn.L > 0 && (Math.abs(sn.L - (+it.L || 0)) > .5 || Math.abs(sn.H - (+it.H || 0)) > .5); };
   async function wallReady(sid) { for (let i = 0; i < 30; i++) { if (S.sess && S.sess.id === sid && S.mosaic && S.q4 && S.q4.ok && !S.recomp) return true; await new Promise(z => setTimeout(z, 50)); } return false; }
-  let bgT = 0, bgN = 0, smP = null, bgOn = 0, wantList = 0;
+  let bgT = 0, bgN = 0, smP = null, bgOn = 0, wantList = 0, lastIn = Date.now();
+  for (const t of ['pointerdown', 'keydown', 'wheel']) addEventListener(t, () => { lastIn = Date.now(); }, true);   // фоновые снимки — только после 2,5 с без касаний
   addEventListener('measure-lab-projects', e => { if (bgOn && e.detail && e.detail.on) wantList = 1; });   // список открыли во время фоновых снимков — вернуть его после
   function bgSnaps(pid, tries) {   // фоном: холст открыт, список закрыт, пальцы/перо не на экране; иначе — позже (до 20 попыток)
     clearTimeout(bgT); bgN = tries || 0;
-    bgT = setTimeout(async () => { if (!K.on || K.pid !== pid) return; const a = active();
-      if (listOn() || F.on || ours.size || nat.size || actP || opening || !K.items.some(it => it !== a && snapStale(it))) { if (bgN < 20 && K.items.some(it => it !== a && snapStale(it))) bgSnaps(pid, bgN + 1); return; }
+    bgT = setTimeout(async () => { if (!K.on || K.pid !== pid) return; const a = active();   // шаг ожидания 600 мс
+      if (Date.now() - lastIn < 2500 || listOn() || F.on || ours.size || nat.size || actP || opening || !K.items.some(it => it !== a && snapStale(it))) { if (bgN < 40 && K.items.some(it => it !== a && snapStale(it))) bgSnaps(pid, bgN + 1); return; }
       bgOn = 1; wantList = 0;
       try { await snapMissing(a || BOARD, () => wantList || listOn() || F.on || ours.size > 0 || nat.size > 0 || K.pid !== pid || doneBusy); } catch (e) { }
-      finally { bgOn = 0; if (wantList && !listOn() && window.MeasureLabProjects && MeasureLabProjects.show) { try { MeasureLabProjects.show(); } catch (e) { } } wantList = 0; } }, 400);
+      finally { bgOn = 0; if (wantList && !listOn() && window.MeasureLabProjects && MeasureLabProjects.show) { try { MeasureLabProjects.show(); } catch (e) { } } wantList = 0; } }, 600);
   }
   api.bgSnaps = () => bgSnaps(K.pid);
   let doneBusy = 0;
