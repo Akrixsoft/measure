@@ -58,18 +58,25 @@ fs.mkdirSync(SHOT, {recursive: true});
     const refs = ((act && act.t === 'board' ? S.refs : (K.boardRec || {}).refs) || []);
     const RB = refs.map(q => scr(MeasureLabSketch.refRegion(q.id))).concat((MeasureLabSketch.textBoxes ? MeasureLabSketch.textBoxes() : []).map(scr));   // фото и надписи подложки
     const out = [], hit = [], snap = [], handles = [];
-    for (const b of B) { const q = b.box; if (q.x < -1 || q.y < -1 || q.x + q.w > cr.width + 1 || q.y + q.h > fh + 1) out.push(b.nm);
+    for (const b of B) { const q = b.box; if (q.x < -1 || q.x + q.w > cr.width + 1 || (q === B[0].box && q.y < -1)) out.push(b.nm);   // колонна: по ширине экрана, ниже — сдвиг
       RB.forEach((r, j) => { if (ov(q, r)) hit.push(b.nm + (j < refs.length ? '×фото' + (j + 1) : '×надпись')); }); for (const c of B) if (c.id > b.id && ov(q, c.box)) hit.push(b.nm + '×' + c.nm);
       const it = K.items.find(i => i.id === b.id); if (it === act || !(it.t === 'wall' || it.t === 'plan')) continue; const sn = K.snaps[b.id], rr = R(it);
       const inside = sn && sn.img && sn.x >= rr.x - rr.w * .02 && sn.y >= rr.y - rr.h * .02 && sn.x + sn.w <= rr.x + rr.w * 1.02 && sn.y + sn.h <= rr.y + rr.h * 1.02;
       if (!sn || !sn.img || MeasureLabSketch.snapStale(b.id) || !inside) { snap.push(b.nm + (!sn || !sn.img ? ' заглушка' : ' устарел/вне рамки')); continue; }
       try { const g = sn.img.getContext('2d').getImageData(0, 0, sn.img.width, sn.img.height).data; let n = 0; for (let i = 0; i < g.length; i += 4) if (g[i] > 225 && g[i + 1] > 115 && g[i + 1] < 160 && g[i + 2] < 40) n++; if (n > 40) handles.push(b.nm + ':' + n); } catch (e) { } }
-    for (const q of (MeasureLabSketch.textBoxes ? MeasureLabSketch.textBoxes() : []).map(scr)) if (q.x < -1 || q.x + q.w > cr.width + 1 || q.y < -1 || q.y + q.h > fh + 1) out.push('надпись подложки');   // м1: текст целиком в экране
+    for (const q of (MeasureLabSketch.textBoxes ? MeasureLabSketch.textBoxes() : []).map(scr)) if (q.x < -1 || q.x + q.w > cr.width + 1 || q.y + q.h > fh + 1) out.push('надпись подложки');   // м1: текст целиком в экране
     const ar = refs.filter(q => q.iw && q.ih).map(q => { const r = MeasureLabSketch.refRegion(q.id); return Math.abs((r.w / r.h) / (q.iw / q.ih) - 1); }), photo = ar.every(x => x < .02);
     const ks = K.items.filter(i => i.t === 'wall' || i.t === 'plan').map(i => +i.k), scale = ks.length ? Math.max(...ks) / Math.min(...ks) : 1;
-    return {out, hit, snap, handles, photo, scale: Math.round(scale * 100) / 100, n: B.length, refsW: refs.map(q => Math.round(q.w))}; });
+    // колонна: элементы (области и фото) друг под другом; связанное фото — над своей стеной, шириной стены
+    const E = B.map(b => ({k: 'a', id: b.id, nm: b.nm, y: b.box.y, x: b.box.x, w: b.box.w})).concat(refs.map((q, j) => ({k: 'p', id: q.id, nm: 'фото' + (j + 1), lw: q.labWall, y: RB[j].y, x: RB[j].x, w: RB[j].w, mm: q.w}))).sort((a, b) => a.y - b.y);
+    const col = [], cw = Math.max(...E.map(e => e.x + e.w)) - Math.min(...E.map(e => e.x));
+    E.forEach((e, i) => { if (e.k !== 'p' || !e.lw) return; const it = K.items.find(t => t.t === 'wall' && (t.wid === e.lw || t.sid === e.lw)); const nx = E[i + 1];
+      if (!it || !nx || nx.id !== it.id) col.push(e.nm + ' не над своей стеной'); else if (Math.abs(e.mm - (+it.L) * it.k) > 1) col.push(e.nm + ' ширина ' + Math.round(e.mm) + ' ≠ ' + Math.round((+it.L) * it.k)); });
+    { const nums = E.filter(e => e.k === 'a' && /С\d+$/.test(e.nm)).map(e => +/С(\d+)$/.exec(e.nm)[1]); if (nums.some((v, i) => i && v < nums[i - 1])) col.push('стены не по порядку С№: ' + nums.join(',')); if (E[0] && E[0].nm !== 'plan' && K.items.some(i => i.t === 'plan')) col.push('план не первым: ' + E[0].nm); }
+    if (cw > cr.width * 1.02 || cw < cr.width * .6) col.push('ширина колонны ' + Math.round(cw) + ' при экране ' + Math.round(cr.width));
+    return {out, hit, snap, handles, col, photo, scale: Math.round(scale * 100) / 100, n: B.length, refsW: refs.map(q => Math.round(q.w))}; });
   const readable = async (name, fit = true) => { if (fit) { await tapSel('touch', '#bDone'); await wait(1500); } await p.evaluate(() => document.getElementById('toast').classList.remove('on')); const g = await geo(); await shot(name);
-    check(!g.out.length && !g.hit.length && !g.snap.length && !g.handles.length && g.photo && g.scale <= 1.01, 'М1: ' + name + ' — читаемо (в экране, без наложений, снимки в рамке без ручек, фото с пропорциями, масштаб областей один)', g); return g; };
+    check(!g.out.length && !g.hit.length && !g.snap.length && !g.handles.length && !g.col.length && g.photo && g.scale <= 1.01, 'М1: ' + name + ' — читаемо (колонна по ширине экрана: фото над своей стеной шириной стены; без наложений, снимки без ручек, фото с пропорциями, масштаб один)', g); return g; };
   const restore = async how => { await p.evaluate(() => MeasureLabProjects.show()); await wait(400); await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300);
     const fc = p.waitForEvent('filechooser', {timeout: 8000});
     const c = await p.evaluate(() => { const e = [...document.querySelectorAll('#labPrj button,#labPrj [role=button],#labPrj .lp-it')].find(e => e.getClientRects().length && e.textContent.includes('Восстановить из копии')); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
@@ -90,8 +97,30 @@ fs.mkdirSync(SHOT, {recursive: true});
     const id2 = await p.evaluate(() => S.refs[1].id);
     await tap('touch', await refAt(id2, 1.15, .1)); await wait(200);
     await p.evaluate(() => { const i = document.getElementById('pp').querySelector('[data-zt]'); if (i) { i.value = 'Холодильник справа'; i.dispatchEvent(new Event('input', {bubbles: true})); i.dispatchEvent(new Event('change', {bubbles: true})); i.blur(); } pickTool('sel'); });
+    // фото 1 → С1, фото 2 → С2 (связь фото → стена, как после «▣ Стена»), фото 3 — без стены
+    await p.evaluate(() => { const K = MeasureLabSketch.state, w = n => K.items.find(i => i.t === 'wall' && new RegExp('С' + n + '$').test(i.name)); S.refs[0].labWall = w(1).wid || w(1).sid; S.refs[1].labWall = w(2).wid || w(2).sid; saveSess(); });
+    // последний шаг перед ✓ — на плане (сдвиг точки Прихожей)
+    await p.evaluate(async () => { await MeasureLabSketch.goPlan(); const r = (await dbAll('sess')).find(o => o.kind === 'room' && !o.del && o.oid === MeasureLabSketch.state.pid && o.name === 'Прихожая'); await openRoom(r.id, null, true); plSnap(); S.room.ms.pts[0] = [S.room.ms.pts[0][0] - 50, S.room.ms.pts[0][1]]; saveRoom(); draw(); }); await wait(500);
+    await readable('01-импорт, 3 фото, шаг плана, ✓');
+    // снимок экрана всей колонны (вид временно уменьшен, затем возвращён)
+    await p.evaluate(() => { const K = MeasureLabSketch.state; window.__v = {...K.view}; MeasureLabSketch.fitAll0 ? 0 : 0; const B = K.items.map(MeasureLabSketch.region).concat(S.refs.map(r => MeasureLabSketch.refRegion(r.id))); const y0 = Math.min(...B.map(b => b.y)) - 200, y1 = Math.max(...B.map(b => b.y + b.h)), fh = (typeof zFreeH === 'function' ? zFreeH() : cv.height) / devicePixelRatio; const s = Math.min(K.view.s, (fh - 20) / (y1 - y0)); K.view = {s, ox: K.view.ox + 0, oy: 10 - y0 * s}; K.view.ox = (cv.getBoundingClientRect().width - (K.view.s * (Math.max(...B.map(b => b.x + b.w)) - Math.min(...B.map(b => b.x))))) / 2 - Math.min(...B.map(b => b.x)) * s; MeasureLabSketch.map.syncToS(MeasureLabSketch.active()); draw(); });
+    await wait(300); await shot('01a-колонна целиком');
+    await p.evaluate(() => { MeasureLabSketch.state.view = window.__v; MeasureLabSketch.map.syncToS(MeasureLabSketch.active()); draw(); });
     const refsW0 = await p.evaluate(() => S.refs.map(r => Math.round(r.w)));
-    await readable('01-импорт и фото, ✓');
+    // ↶ после ✓ — переход на область вписывает её
+    { let a = null; for (let i = 0; i < 8; i++) { await p.evaluate(() => zUndo()); await wait(600); a = await p.evaluate(() => { const x = MeasureLabSketch.active(); return x && x.t; }); if (a === 'plan' || a === 'wall') break; }
+      const u = await p.evaluate(() => { const a = MeasureLabSketch.active(), r = MeasureLabSketch.region(a), d = devicePixelRatio, A = MeasureLabSketch.map.toScrK(r.x, r.y), Bq = MeasureLabSketch.map.toScrK(r.x + r.w, r.y + r.h), cr = cv.getBoundingClientRect();
+        return {t: a.t, w: Math.round((Bq[0] - A[0]) / d), h: Math.round((Bq[1] - A[1]) / d), x: Math.round(A[0] / d), cw: Math.round(cr.width)}; });
+      await shot('01b-↶ после ✓');
+      check((u.t === 'plan' || u.t === 'wall') && u.w >= u.cw * .6 && u.x >= -2 && u.x + u.w <= u.cw + 2, '↶ после ✓ — активированная область вписана в экран', u);
+      for (let i = 0; i < 8; i++) { await p.evaluate(() => zRedo()); await wait(400); } }
+    // «Стены в плоскости» с плана: выбрана Прихожая, отрезок С1 — открывается её стена, вписана
+    { await p.evaluate(async () => { await MeasureLabSketch.goPlan(); const r = (await dbAll('sess')).find(o => o.kind === 'room' && !o.del && o.oid === MeasureLabSketch.state.pid && o.name === 'Прихожая'); await openRoom(r.id, null, true); S.psel = {t: 's', i: 1}; draw(); }); await wait(600);
+      await tapSel('touch', '#mdT [data-md="wall"]'); await wait(1800);
+      const m4 = await p.evaluate(() => { const a = MeasureLabSketch.active(), r = a && a.t === 'wall' && MeasureLabSketch.region(a), d = devicePixelRatio, cr = cv.getBoundingClientRect(); if (!r) return {t: a && a.t};
+        const A = MeasureLabSketch.map.toScrK(r.x, r.y), Bq = MeasureLabSketch.map.toScrK(r.x + r.w, r.y + r.h); return {t: a.t, name: a.name, room: S.room0 && S.room0.name, x0: Math.round(A[0] / d), x1: Math.round(Bq[0] / d), w: Math.round((Bq[0] - A[0]) / d), cw: Math.round(cr.width)}; });
+      await shot('01c-стены в плоскости');
+      check(m4.t === 'wall' && m4.room === 'Прихожая' && m4.x0 >= -2 && m4.x1 <= m4.cw + 2 && m4.w >= m4.cw * .6, 'М4: «Стены в плоскости» с плана — стена выбранного помещения, вписана в экран', m4); }
     // М3: холст отдалён (после ✓) → стена вкладкой С№ — холст приближается к ней
     await p.evaluate(async () => { const it = MeasureLabSketch.state.items.find(i => i.t === 'wall' && /С1$/.test(i.name)); await MeasureLabSketch.activate(it); }); await wait(600);
     await p.evaluate(() => wGo(1)); await wait(1800);
@@ -119,7 +148,7 @@ fs.mkdirSync(SHOT, {recursive: true});
     // импорт той же выгрузки → «Обновить» → ✓
     await restore('Обновить');
     const g9 = await readable('07-импорт «Обновить», ✓');
-    check(JSON.stringify(g9.refsW) === JSON.stringify(refsW0), 'М1: после «Обновить» фото того же размера (мм)', {before: refsW0, after: g9.refsW});
+    check(JSON.stringify(g9.refsW) === JSON.stringify(refsW0), 'М1: после «Обновить» фото того же размера (мм, по раскладке)', {before: refsW0, after: g9.refsW});
     check(errors.length === 0, 'нет ошибок страницы', errors);
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }

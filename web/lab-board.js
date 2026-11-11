@@ -69,6 +69,16 @@
   api.attached = id => { const r = (S.refs || []).find(x => x.id === id); return r && isB() ? attached(r) : []; };
   function mapPts(o, f) { if (Array.isArray(o)) { if (o.length === 2 && typeof o[0] === 'number' && typeof o[1] === 'number') return f(o); return o.map(x => mapPts(x, f)); } if (o && typeof o === 'object') { const n = {}; for (const k in o) n[k] = k[0] === '_' ? o[k] : mapPts(o[k], f); return n; } return o; }
   const xf = (a, b) => p => { const k = b[2] / a[2]; return [b[0] + (p[0] - a[0]) * k, b[1] + (p[1] - a[1]) * k]; };
+  /* r4 (QA-4 М1): фото на новое место и ширину (раскладка «вписать всё» холста) — вместе с разметкой на фото и рядом с ним (все точки в пределах фото,
+     расширенного на 30 % ширины), выноски — тоже; пропорции фото сохраняются. Только на активной подложке; шагом ↶ не записывается (раскладка). */
+  api.placeRef = (id, x, y, w) => {
+    if (!isB()) return false; const r = (S.refs || []).find(q => q.id === id); if (!r || !(w > 0)) return false;
+    const a = [r.x, r.y, r.w], b = [x, y, w]; if (a.every((v, i) => Math.abs(v - b[i]) < 1e-6)) return true;
+    const m = r.w * .3, h = rfH(r), near = p => p[0] >= r.x - m && p[0] <= r.x + r.w + m && p[1] <= r.y + m && p[1] >= r.y - h - m, f = xf(a, b);
+    for (const k of KINDS) for (const q of S[k] || []) { const P = pts(q); if (P.length && P.every(near)) { const o = mapPts(q, f); for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = o[kk]; } }
+    for (const n of S.notes || []) { const P = [n.p, n.t].filter(Array.isArray); if (P.length && P.every(near)) { if (Array.isArray(n.p)) n.p = f(n.p); if (Array.isArray(n.t)) n.t = f(n.t); } }
+    r.x = x; r.y = y; r.w = w; return true;
+  };
   function put(list, src) { for (const [q, o] of list) for (const k of Object.keys(o)) if (k !== 'id') q[k] = src(o)[k]; }
   /* перенос фото (штатный жест v81): привязанные рисунки — следом, на лету; шаг ↶ — общий с фото */
   const MV = {r: null, o0: null, att: null};

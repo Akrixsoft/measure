@@ -198,7 +198,7 @@
       if (e.t === 'N' && st && st.board && e.sid === st.board) { await sk.activate('board'); return here(e); }   // 82.18 fix (Д1): метки подложки
       if (st && Array.isArray(st.items)) {   // холст 82.17: области-элементы
         const it = e.t === 'N' ? st.items.find(i => i.t === 'wall' && i.sid === e.sid) : st.items.find(i => i.t === 'plan');
-        if (!it) return false; await sk.activate(it);
+        if (!it) return false; await sk.activate(it, {fit: 1});   // r4 (QA-4 М1): ↶ ↷ переходят на область — она вписывается в экран
       } else await sk.activate(e.t === 'N' ? {t: 'wall', sid: e.sid} : {t: 'plan', rid: e.rid});   // контракт 82.18 (§8.3)
     } catch (x) { return false; }
     return here(e);

@@ -171,16 +171,21 @@
     if (Date.now() - RZ.at < 1500) return;
     const r = region(cur), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h), W = cv.width, Hf = freeH() * DPR(), full = a[0] >= 0 && a[1] >= 0 && b[0] <= W && b[1] <= cv.height;
     if (!full || ((b[0] - a[0]) < W * .7 && (b[1] - a[1]) < Hf * .6)) fitRegion(cur);
-    const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel, rsel: S.rsel, mk: S.mk, pend: S.pend}; S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; S.rsel = null; S.pend = null; if (S.mode !== 'plan' && S.tool === 'mk') S.mk = 'pen';
-    const pts0 = window.__w3pts; window.__w3pts = false;   // угловые точки развёртки v81 (window.__w3pts) — не в снимке
-    wantSnap = 1; wantSnapGood = 1; try { draw(); } finally { wantSnap = 0; wantSnapGood = 0; Object.assign(S, keep); if (pts0 === undefined) delete window.__w3pts; else window.__w3pts = pts0; }
+    cleanDraw(true);
+  }
+  /* r4 (QA-4 М1): любой снимок — без выделения и ручек: выбор стены / размера / выноски / фото / отрезка плана (psel), начатое действие,
+     инструмент на время снимка — «перо», угловые точки развёртки v81 (window.__w3pts) выключены */
+  function cleanDraw(good) {
+    const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel, rsel: S.rsel, mk: S.mk, pend: S.pend, psel: S.psel, pfirst: S.pfirst};
+    S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; S.rsel = null; S.pend = null; S.psel = null; S.pfirst = null; if (S.mode !== 'plan' && S.tool === 'mk') S.mk = 'pen';
+    const pts0 = window.__w3pts; window.__w3pts = false;
+    wantSnap = 1; if (good) wantSnapGood = 1; try { draw(); } finally { wantSnap = 0; wantSnapGood = 0; Object.assign(S, keep); if (pts0 === undefined) delete window.__w3pts; else window.__w3pts = pts0; draw(); }
   }
   /* снимок — по деактивации области и по простою ≥ 1,5 с без касаний; без выделения и ручек, до подложки */
   let idleT = 0, wantSnap = 0, wantSnapGood = 0;
   function snapIdle(act) { clearTimeout(idleT); idleT = setTimeout(() => {
     if (!K.on || K.quiet || active() !== act || ours.size || nat.size || F.on) return;
-    const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; wantSnap = 1;
-    try { S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; draw(); } finally { wantSnap = 0; Object.assign(S, keep); draw(); } }, 1500); }
+    cleanDraw(false); }, 1500); }
   let swAct = null;
   /* 82.18 fix (qa-v8218-undo): пока идёт open(), S.sess ещё прежняя стена другого проекта — draw() в этом окне (K.on уже true, подложка не активна)
      уводил холст обратно в прежний проект (switchTo) и создавал ему подложку; фото ложилось туда. Переход — только вне open() и если расхождение осталось. */
@@ -297,7 +302,34 @@
     for (const [it, b] of order) { if (x > xs && x + b.w > xs + rowW) { x = xs; y += rowH + gap; rowH = 0; } shiftItem(it, x - b.x, y - b.y); x += b.w + gap; rowH = Math.max(rowH, b.h); }
     return 1;
   }
-  function fitAll() { try { planScale(); } catch (e) { } try { if (pack()) fitStable(); } catch (e) { } fitStable(); for (let i = 0; i < 6; i++) { let mv = 0; try { mv = tidy(); } catch (e) { } if (!mv) break; fitStable(); } save(); }   // r2 (Н4): заголовки — в px экрана, после вписывания масштаб меняется — до устойчивости
+  /* r4 (QA-4 М1, решение Master по модели владельца): «Вписать всё» на подложке — ВЕРТИКАЛЬНАЯ колонна по ширине экрана (телефон — только книжная):
+     план, затем по помещениям пары «фото → его стена» (стена под своим фото, по порядку стен), следующее помещение ниже, в конце — стены без помещения
+     и фото без стены. Фото — шириной своей стены (связано через ref.labWall) или 2400 мм, с пропорциями; разметка на фото и рядом — вместе с ним
+     (MeasureLabBoard.placeRef). Масштаб мм → холст один (K0). Зазоры — с полосой заголовка области, подписи не ложатся на фото.
+     Вид — по ширине колонны, от её верха (дальше — сдвиг вниз). */
+  function columnLayout() {
+    if (activeKind() !== 'board' || !window.MeasureLabBoard || !MeasureLabBoard.placeRef) return false;
+    const refs = (S.refs || []).slice(), items = K.items.filter(i => i.t === 'wall' || i.t === 'plan');
+    if (!refs.length && !items.length) return false;
+    const wallOf = r => r.labWall && items.find(i => i.t === 'wall' && (i.wid === r.labWall || i.sid === r.labWall));
+    const pw = r => { const it = wallOf(r); return (it ? (+it.L || 2400) : 2400) * K0; };
+    const colW = Math.max(1, ...items.map(i => region(i).w), ...refs.map(pw));
+    const W = cv.width / DPR(), s = W * .94 / colW, tH = fsz(15) * 2 / s, gap = 14 / s;
+    let y = 0; const used = new Set();
+    const putItem = it => { const r = region(it); shiftItem(it, (colW - r.w) / 2 - r.x, y + tH - r.y); y += tH + r.h + gap; };
+    const putPhoto = (ref, it) => { const w = pw(ref), h = w * (ref.ih || 3) / (ref.iw || 4), x = it ? (colW - region(it).w) / 2 + WM.x * K0 : (colW - w) / 2;
+      MeasureLabBoard.placeRef(ref.id, x, -y, w); used.add(ref.id); y += h + gap; };
+    const pl = items.find(i => i.t === 'plan'); if (pl) putItem(pl);
+    const segOf = it => { const m = /С(\d+)$/.exec(it.name || ''); if (m) return +m[1]; const r = K.rooms.find(x => x.id === it.room); if (!r) return 1e9; for (const [k, sid] of Object.entries(r.segs || {})) if (sid === it.sid) return +k; return 1e9; };   // по С№
+    const walls = items.filter(i => i.t === 'wall'), byRoom = K.rooms.map(r => walls.filter(w => w.room === r.id).sort((a, b) => segOf(a) - segOf(b)));
+    const rest = walls.filter(w => !K.rooms.some(r => r.id === w.room));
+    for (const W2 of [...byRoom.flat(), ...rest]) { for (const ref of refs) if (!used.has(ref.id) && wallOf(ref) === W2) putPhoto(ref, W2); putItem(W2); }
+    for (const ref of refs) if (!used.has(ref.id)) putPhoto(ref, null);
+    K.view = {s, ox: (W - colW * s) / 2, oy: topInset() + 6};   // по ширине колонны, от верха
+    try { saveSess(); } catch (e) { } const a = active(); if (a) syncToS(a); return true;
+  }
+  api.columnLayout = () => { const r = columnLayout(); draw(); save(); return r; };
+  function fitAll() { try { planScale(); } catch (e) { } try { if (columnLayout()) { save(); return; } } catch (e) { console.error(e); } try { if (pack()) fitStable(); } catch (e) { } fitStable(); for (let i = 0; i < 6; i++) { let mv = 0; try { mv = tidy(); } catch (e) { } if (!mv) break; fitStable(); } save(); }   // r2 (Н4): заголовки — в px экрана, после вписывания масштаб меняется — до устойчивости
   function fitAll0() { const P = boardBox(); for (const it of K.items) { const r = region(it), t = titleR(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [Math.max(r.x + r.w, t.x + t.w), r.y + r.h]); /* r2 (Н4): заголовок шире области — в кадре */ } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
   api.fitAll = fitAll; api.fitRegion = fitRegion;
   const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet && Date.now() - (K.actT || 0) > 2500) fitRegion(a); syncToS(a); } return draw(); };   // отложенный fit() v81 сразу после перехода — без вписывания; вписывание открытой области — явно (вкладка, касание: r3 М3); r2: отложенный fit() v81 сразу после перехода — без вписывания (вид холста держится)
@@ -352,7 +384,7 @@
     })();
     actP = run; try { return await run; } finally { if (actP === run) actP = null; }
   }
-  api.activate = t => activate(t === 'board' ? BOARD : typeof t === 'string' ? byId(t) : t);
+  api.activate = (t, opt) => activate(t === 'board' ? BOARD : typeof t === 'string' ? byId(t) : t, opt);
   async function loadRooms() { const all = (await dbAll('sess').catch(() => [])) || []; K.rooms = all.filter(o => o.kind === 'room' && !o.del && !o.pstub && o.obj === K.obj).sort((a, b) => a.created - b.created); return K.rooms; }
   function roomNew() { dlg('Новое помещение', `<label>Помещение</label><input type="text" data-sk-name value="Помещение ${K.rooms.length + 1}">`, [{t: 'Отмена'}, {t: 'Создать', pr: 1, fn: B => roomCreate(B.querySelector('[data-sk-name]').value.trim() || 'Помещение')}]); }
   async function roomCreate(n) { K.quiet++; const v0 = {...K.view}; try { try { await flushAll(); } catch (e) { } await newRoom(K.obj, n, true); if (S.room) { S.room.oid = K.pid; try { saveRoom(); } catch (e) { } } await loadRooms(); const it = K.items.find(i => i.t === 'plan') || planItem(); K.view = v0; fitRegion(it); syncToS(it); K.actT = Date.now(); draw(); return it; } finally { K.quiet--; } }   // r3: новое помещение — область плана вписана (чертить сразу)
@@ -486,7 +518,13 @@
   const mdGo0 = mdGo; mdGo = function (m) {
     if (!K.on) return mdGo0.apply(this, arguments);
     if (m === 'plan') return goPlan().then(() => { try { lay05(); } catch (e) { } });
-    const it = K.lastWall && byId(K.lastWall) || K.items.find(i => i.t === 'wall'); if (it) return activate(it).then(() => { try { lay05(); } catch (e) { } });
+    /* r4 (QA-4 М4): «Стены в плоскости» с плана — стена выбранного отрезка выбранного помещения, иначе первая стена этого помещения; область вписана */
+    if (S.mode === 'plan' && S.room) { const r = S.room, n = plN(r.ms); let j = S.psel && S.psel.t === 's' && S.psel.i < n ? S.psel.i : -1;
+      if (j < 0) { for (let k = 0; k < n; k++) if ((r.segs || {})[k] && K.items.some(i => i.t === 'wall' && i.sid === r.segs[k])) { j = k; break; } }
+      if (j < 0) for (let k = 0; k < n; k++) if ((r.segs || {})[k]) { j = k; break; }
+      if (j < 0 && n) j = 0;
+      if (j >= 0) return goWall(r, j).then(() => { try { lay05(); } catch (e) { } }); }
+    const it = K.lastWall && byId(K.lastWall) || K.items.find(i => i.t === 'wall'); if (it) return activate(it, {fit: 1}).then(() => { try { lay05(); } catch (e) { } });
     if (S.mode === 'plan') return mdGo0.apply(this, arguments);
   };
   const zm0 = zmSet; zmSet = async function (m) { if (K.on && m === 'plan' && !listOn()) { try { $('zMenu').classList.remove('on'); } catch (e) { } return goPlan(); } return zm0.apply(this, arguments); };

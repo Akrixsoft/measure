@@ -219,7 +219,7 @@ fs.mkdirSync(SHOT, {recursive: true});
       const B = K.items.map(it => { const r = scr(R(it)), t = scr(MeasureLabSketch.titleBox(it)); return {id: it.id, t: it.t, sid: it.sid, r, ti: t, box: {x: r.x, y: t.y, w: Math.max(r.w, t.w), h: r.h + (r.y - t.y)}}; });
       const refs = ((MeasureLabSketch.active() && MeasureLabSketch.active().t === 'board' ? S.refs : (K.boardRec || {}).refs) || []).map(q => scr(MeasureLabSketch.refRegion(q.id)));
       const out = [], hit = [], snap = [];
-      for (const b of B) { const q = b.box; if (q.x < -1 || q.y < -1 || q.x + q.w > cr.width + 1 || q.y + q.h > fh + 1) out.push(b.t + ':' + [q.x, q.y, q.x + q.w, q.y + q.h].map(Math.round).join(','));
+      for (const b of B) { const q = b.box; if (q.x < -1 || q.x + q.w > cr.width + 1 || (b === B.reduce((m, c) => c.box.y < m.box.y ? c : m, B[0]) && q.y < -1)) out.push(b.t + ':' + [q.x, q.y, q.x + q.w, q.y + q.h].map(Math.round).join(','));
         refs.forEach((r, j) => { if (ov(q, r)) hit.push(b.t + '×фото' + j); }); for (const c of B) if (c !== b && c.id > b.id && ov(q, c.box)) hit.push(b.t + '×' + c.t);
         const it = K.items.find(i => i.id === b.id), sn = K.snaps[b.id], st = MeasureLabSketch.snapStale ? MeasureLabSketch.snapStale(b.id) : null, rr = R(it);
         if ((b.t === 'wall' || b.t === 'plan') && it !== MeasureLabSketch.active()) {   // активная область рисуется вживую
@@ -238,9 +238,9 @@ fs.mkdirSync(SHOT, {recursive: true});
     // ↶ ×3 / ↷ ×3 → ✓
     for (let i = 0; i < 3; i++) await press(-1); for (let i = 0; i < 3; i++) await press(1);
     await readable('↶ ↷, ✓');
-    // поворот: альбом (вписывание само) и обратно
-    await p.setViewportSize({width: VH, height: VW}); await wait(1200); await readable('альбом', false);
-    await p.setViewportSize({width: VW, height: VH}); await wait(1200); await readable('книжная снова', false);
+    // окно ниже (клавиатура; приложение — только книжная) и обратно
+    await p.setViewportSize({width: VW, height: Math.round(VH * .55)}); await wait(1200);
+    await p.setViewportSize({width: VW, height: VH}); await wait(1500); await readable('высота окна туда-обратно', false);
     // импорт своей выгрузки «Новым проектом» (список → ⋮ → Восстановить из копии)
     { await p.evaluate(() => { window.__saved = null; window.AkrixApp = Object.assign(window.AkrixApp || {}, {save: (fn, type, txt) => { window.__saved = {fn, txt}; }}); });
       await p.evaluate(async () => { try { await MeasureLabSketch.goPlan(); await cvShare81(); } catch (e) { } });
