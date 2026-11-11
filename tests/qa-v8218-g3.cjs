@@ -392,6 +392,66 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(nrm(x2) === nrm(x0), 'м2: второе «Обновить» — выгрузка снова равна исходной', S0(x2));
       check(errors.length === 0, 'м2: нет ошибок страницы', errors);
     }
+    /* ════ r4c: «Новое помещение» с высотой H; H на плане без «⋯» (перо / палец, ↶); выгрузка ms.H; м3 (подпись чужой стены); м4 (число на ✓) ════ */
+    if (run('h4')) {
+      await fresh(); errors = [];
+      await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+      await tapSel('touch', '#labPrj .lp-fab'); await p.waitForSelector('#labPrj .lp-dg.on');
+      await tapSel('touch', '#labPrj [data-c]'); await p.keyboard.type('Ломидзе'); await tapSel('touch', '#labPrj [data-n]'); await p.keyboard.type('H');
+      await tapSel('pen', '#labPrj .lp-bt .lp-pr'); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(500);
+      const kbOn = () => p.evaluate(() => { const k = document.getElementById('zkb'); return !!(k && k.getBoundingClientRect().height > 50); });
+      const kbType = async v => { await p.evaluate(() => { const a = KB.el; if (a) { const n = a.value.length; a.setSelectionRange && a.setSelectionRange(n, n); } }); for (let i = 0; i < 7; i++) await tapSel('touch', '#zkb [data-kk="bs"]'); for (const ch of String(Math.abs(v))) await tapSel('touch', `#zkb [data-kk="${ch}"]`); if (v < 0) await tapSel('touch', '#zkb [data-kk="pm"]'); await tapSel('touch', '#zkb [data-kk="ok"]'); await wait(250); };
+      const dlgOpen = async () => { await caseTool('[data-lab-tb="room"]'); await p.waitForSelector('#labSketch .sk-dlg.on', {timeout: 5000}); await wait(200); };
+      const nameIn = async n => { await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-name]'); await p.keyboard.press('Control+A'); await p.keyboard.type(n); };
+      const rooms = () => p.evaluate(async () => (await dbAll('sess')).filter(r => r.kind === 'room' && !r.del && r.oid === MeasureLabSketch.pid()).sort((a, b) => a.created - b.created).map(r => [r.name, r.ms.H]));
+      const rowH = () => p.evaluate(() => { const pp = document.getElementById('pp'), i = pp.querySelector('input[data-pf="H"]'), vis = !!(i && i.getClientRects().length && getComputedStyle(pp).display !== 'none'); return {vis, v: i && i.value, name: (pp.querySelector('.row>.t') || {}).textContent, more: pp.classList.contains('pps')}; });
+      // 1. окно: имя + H (по умолчанию 2700), H — своей клавиатурой
+      await dlgOpen(); await shot('h4-dlg');
+      const f1 = await p.evaluate(() => ({inputs: [...document.querySelectorAll('#labSketch .sk-dlg.on input')].map(i => [i.dataset.skName != null ? 'name' : i.dataset.skRh != null ? 'H' : '?', i.value])}));
+      await nameIn('Кухня'); await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-rh]'); await wait(200); const k1 = await kbOn(); await shot('h4-dlg-kb'); const kbR = await p.evaluate(() => { const k = document.getElementById('zkb').getBoundingClientRect(), b = document.querySelector('#labSketch .sk-dlg.on .bx').getBoundingClientRect(), x = document.getElementById('zkb'), c = document.elementFromPoint(k.left + k.width / 2, k.top + 20); return {kbTop: Math.round(k.top), boxBottom: Math.round(b.bottom), front: !!(c && x.contains(c))}; }); await kbType(2650);
+      await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(1300);
+      const r1 = await rooms(), h1 = await rowH(); await shot('h4-room-row');
+      check(JSON.stringify(f1.inputs) === JSON.stringify([['name', 'Помещение 1'], ['H', '2700']]) && k1 && kbR.front && kbR.boxBottom <= kbR.kbTop + 1 && JSON.stringify(r1) === JSON.stringify([['Кухня', 2650]]), '«Новое помещение»: окно — имя и H (по умолчанию 2700, ввод клавиатурой #zkb поверх окна, окно над клавиатурой) → «Кухня» H 2650', {f1, k1, kbR, r1});
+      check(h1.vis && h1.v === '2650' && h1.name === 'Кухня' && !h1.more, 'План: строка помещения «Кухня · H 2650» видна сразу, без «⋯»', h1);
+      await p.evaluate(async () => { const k = S.room; Object.assign(k.ms, {pts: [[0, 0], [3000, 0], [3000, -2400], [0, -2400]], closed: true, dims: [3000, 2400, 3000, 2400].map((v, i) => ({id: 'k' + i, a: {p: i}, b: {p: (i + 1) % 4}, v}))}); gnFix(k); saveRoom(); await flushAll(); mkPanel(); draw(); });   // контур «Кухни» (пустое помещение v81 убирает при переходе)
+      // 2. H 0 и минус — не создаётся, сообщение; окно остаётся
+      await dlgOpen(); const f2 = await p.evaluate(() => document.querySelector('#labSketch .sk-dlg.on [data-sk-rh]').value);
+      await nameIn('Плохая'); await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-rh]'); await wait(150); await kbType(0); await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(400);
+      const b0 = await p.evaluate(() => ({dlg: !!document.querySelector('#labSketch .sk-dlg.on'), toast: document.getElementById('toast').textContent}));
+      await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-rh]'); await wait(150); await kbType(-100); await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(400);
+      const b1 = await p.evaluate(() => ({dlg: !!document.querySelector('#labSketch .sk-dlg.on'), v: document.querySelector('#labSketch .sk-dlg.on [data-sk-rh]').value}));
+      check(f2 === '2650' && b0.dlg && /больше 0/.test(b0.toast) && b1.dlg && (await rooms()).length === 1, 'H 0 и минус — помещение не создаётся, сообщение «больше 0»; по умолчанию — H предыдущего помещения (2650)', {f2, b0, b1});
+      // 3. второе помещение — H по умолчанию прежнее, затем правка H на плане пером и пальцем, ↶
+      await nameIn('Прихожая'); await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-rh]'); await wait(150); await kbType(2650); await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(1300);
+      await tapSel('pen', '#pp input[data-pf="H"]'); await wait(200); const k2 = await kbOn(); await kbType(2500);
+      const e1 = await p.evaluate(() => [S.room.name, S.room.ms.H]);
+      await tapSel('touch', '#pp input[data-pf="H"]'); await wait(200); const k3 = await kbOn(); await kbType(2550);
+      const e2 = await p.evaluate(() => [S.room.name, S.room.ms.H]);
+      await tapSel('touch', '#bUnd'); await wait(500); const e3 = await p.evaluate(() => [S.room.name, S.room.ms.H]), h3 = await rowH();
+      check(k2 && k3 && JSON.stringify(e1) === '["Прихожая",2500]' && JSON.stringify(e2) === '["Прихожая",2550]' && JSON.stringify(e3) === '["Прихожая",2500]' && h3.v === '2500', 'H на плане: касание поля пером → #zkb → 2500, пальцем → 2550; ↶ — шаг, 2500', {k2, k3, e1, e2, e3, h3});
+      // 4. выгрузка: ms.H помещений
+      await p.evaluate(async () => { const r = S.room; Object.assign(r.ms, {pts: [[600, -2900], [2400, -2900], [2400, -4100], [600, -4100]], closed: true, dims: []}); gnFix(r); saveRoom(); await flushAll();
+      });
+      const ex = await exportAkrix(); const hs = (ex.rooms || []).map(R => [R.name, R.ms.H]);
+      check(JSON.stringify(hs) === JSON.stringify([['Кухня', 2650], ['Прихожая', 2500]]), 'Выгрузка для Akrix: ms.H помещений 2650 / 2500', hs);
+      // 5. м4: число на ✓ — список «что не введено»
+      await p.evaluate(async () => { await openRoom((await dbAll('sess')).find(x => x.kind === 'room' && x.name === 'Прихожая' && !x.del).id, null, true); PL.tool = 'sel'; S.psel = null; mkChips(); mkPanel(); draw(); }); await wait(300);
+      const cnt = await p.evaluate(() => document.getElementById('hCnt').textContent);
+      await tapSel('touch', '#bDone'); await wait(900); const tt = await p.evaluate(() => document.getElementById('toast').textContent);
+      check(cnt === '4' && /Не введено \(4\)/.test(tt) && /Прихожая: длина С\d+, С\d+, С\d+, С\d+/.test(tt), 'м4: число на ✓ (4) — касание ✓ даёт список «Не введено (4): Прихожая: длина С…»', {cnt, tt});
+      // 6. м3: маленькое помещение (~87 px) — касание середины каждой стены дважды пальцем открывает её поле L
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(500);
+      await p.evaluate(() => { const a = PM.toScr(600, 0), b = PM.toScr(2400, 0), w = Math.abs(b[0] - a[0]) / devicePixelRatio, K = MeasureLabSketch.state, f = 87 / w, c = [cv.width / devicePixelRatio / 2, 400]; K.view = {s: K.view.s * f, ox: c[0] - (c[0] - K.view.ox) * f, oy: c[1] - (c[1] - K.view.oy) * f}; MeasureLabSketch.map.syncToS(MeasureLabSketch.active()); PL.tool = 'sel'; mkChips(); draw(); }); await wait(300);
+      const m3 = {};
+      for (const [nm, w, k] of [['верх', [1500, -2900], 0], ['право', [2400, -3500], 1], ['низ', [1500, -4100], 2], ['лево', [600, -3500], 3]]) {
+        await p.evaluate(() => { S.psel = null; if (document.activeElement) document.activeElement.blur(); const z = document.getElementById('w3f'); if (z) z.classList.remove('on'); mkPanel(); draw(); }); await wait(250);
+        const a = await plPt(w); await tap('touch', a); await wait(200); const s1 = await p.evaluate(() => S.psel && S.psel.i); await tap('touch', a); await wait(300);
+        m3[nm] = {sel: s1, want: k, kb: await kbOn(), fld: await p.evaluate(() => { const f = S.plFld; return f ? f.i : null; })};
+      }
+      await shot('h4-m3');
+      check(Object.values(m3).every(x => x.sel === x.want && x.kb), 'м3: маленькое помещение (~87 px) — касание середины стены выбирает её (не чужую подпись С№), второе — поле L с #zkb, все 4 стены', m3);
+      check(errors.length === 0, 'r4c: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
