@@ -99,5 +99,26 @@
     } catch (x) { console.error(x); }
     return r;
   };
+  /* ═══ [BLOCK OBJ-WALLDLG] 82.18 g2 (QA Д17): «▣ Стена» (lab-sketch wallDlg) — L / H ноль, отрицательное или не число не принимаются
+     молча (раньше пустое значение заменялось размером с плана / ≈): сообщение, поле подсвечено, окно не закрывается.
+     Пустое поле — как было (с плана или ≈). Перехват касания «Создать» до обработчика окна (lab-sketch.js не меняется). ═══ */
+  function wallDlgBad(B) {
+    const bad = [];
+    for (const [sel, nm] of [['[data-sk-l]', 'Длина L'], ['[data-sk-h]', 'Высота H']]) {
+      const i = B.querySelector(sel); if (!i) continue; const t = String(i.value).trim(); i.classList.remove('lab-bad'); if (!t) continue;
+      let n = null; try { n = typeof evalN === 'function' ? evalN(t.replace(',', '.')) : parseFloat(t.replace(',', '.')); } catch (e) { n = null; }
+      if (!(Number.isFinite(n) && n > 0)) { bad.push(nm); i.classList.add('lab-bad'); }
+    }
+    return bad;
+  }
+  api.wallDlgBad = wallDlgBad;
+  document.addEventListener('click', ev => {
+    const b = ev.target && ev.target.closest && ev.target.closest('.sk-dlg .bt .pr'); if (!b) return;
+    const B = b.closest('.bx'); if (!B || !B.querySelector('[data-sk-l],[data-sk-h]')) return;
+    const bad = wallDlgBad(B); if (!bad.length) return;
+    ev.stopImmediatePropagation(); ev.preventDefault();
+    try { toast(bad.join(' и ') + ': нужно число больше 0 мм'); } catch (e) { }
+  }, true);
+  { const st = document.createElement('style'); st.textContent = '.sk-dlg input.lab-bad{border-color:#E0442B!important;box-shadow:0 0 0 2px rgba(224,68,43,.35)}'; document.head.appendChild(st); }
   PM.labObj = api;
 })();
