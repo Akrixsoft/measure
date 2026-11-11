@@ -60,12 +60,16 @@
   /* ═══ [BLOCK HJ-RED] 82.18 fix (QA Д1): ↷ поверхности не теряется при переходе между поверхностями и после перезапуска.
      v81 держит S.red / S.pred только в памяти и обнуляет при openSess / openRoom. Стек ↷ (снимки, без ZA) пишется в запись поверхности
      (sess.labRed / room._labPred — с «_», чтобы не попасть в снимки cjStr) и возвращается при её открытии. Новое действие (snap / plSnap) обнуляет стек, как в v81. ═══ */
-  const RED_LIM = 40, PRED_LIM = 20;
+  const RED_LIM = 60, PRED_LIM = 60;   // r2 (QA Н2): как стеки ↶ в памяти v81 (S.und / S.pund — 60); раньше 40 / 20 — после перезапуска ↷ терял последние шаги
   const noZA = L => (L || []).filter(t => t && (typeof t !== 'string' || (!t.startsWith('ZA:') && !t.startsWith('PA:'))));   // план: снимки cjSnap — объекты
   const doSave0 = doSave; doSave = async function () { try { if (S.sess) S.sess.labRed = noZA(S.red).slice(-RED_LIM); } catch (e) { } return doSave0.apply(this, arguments); };
-  const keepPred = () => { try { if (S.room) S.room._labPred = noZA(S.pred).slice(-PRED_LIM); } catch (e) { } };
+  // стек ↷ плана — в формате cjEnc v81 (строки снимков помещений один раз), без его обрезки до 30; читается cjDec
+  const encPred = L => { const T = [], ix = new Map(), put = x => { let i = ix.get(x); if (i == null) { i = T.length; T.push(x); ix.set(x, i); } return i; }, E = [];
+    for (const t of L) { if (t && t.cv) E.push({cv: 1, act: t.act, R: Object.fromEntries(Object.entries(t.R).map(([id, x]) => [id, put(x)]))}); else if (t && t.lg) E.push({lg: t.lg, s: t.s}); else if (typeof t === 'string' && S.room) E.push({lg: S.room.id, s: t}); }
+    return {v: 81, S: T, E}; };
+  const keepPred = () => { try { if (S.room) S.room._labPred = encPred(noZA(S.pred).slice(-PRED_LIM)); } catch (e) { } };
   const os0 = openSess; openSess = async function (id) { const r = await os0.apply(this, arguments); try { if (S.sess && S.sess.id === id && Array.isArray(S.sess.labRed) && !S.red.length) S.red = S.sess.labRed.slice(); } catch (e) { } return r; };
-  const cjl0 = cjLoad; cjLoad = function (r) { const res = cjl0.apply(this, arguments); try { if (r && Array.isArray(r._labPred) && !S.pred.length) S.pred = r._labPred.slice(); } catch (e) { } return res; };
+  const cjl0 = cjLoad; cjLoad = function (r) { const res = cjl0.apply(this, arguments); try { if (r && r._labPred && !S.pred.length) S.pred = Array.isArray(r._labPred) ? r._labPred.slice() : cjDec(r._labPred, r.id); } catch (e) { } return res; };
 
   /* ═══ [BLOCK HJ-PHOTO] фото — шаг-снимок (с refs), не ZA: переживает перезапуск ═══ */
   function dropZA(n0) { let k = 0; while (S.und.length > n0 && String(S.und[S.und.length - 1]).startsWith('ZA:')) { S.und.pop(); k++; } if (k) { const t = H.j[H.j.length - 1]; if (t && t.t === 'N' && t.n > S.und.length) { H.j.pop(); persist(); } } }
@@ -220,6 +224,7 @@
         J.pop(); persist(); continue;   // поверхности нет — метка пропускается
       }
       if (dir < 0 && !valid(e)) { J.pop(); persist(); continue; }   // шаг слит / снят — молча дальше
+      if (dir > 0 && ((e.t === 'N' && !noZA(S.red).length && !S.red.length) || (e.t === 'P' && !S.pred.length))) { J.pop(); persist(); continue; }   // r2 (Н2): штатного ↷ нет — метка снимается (кнопка гаснет)
       J.pop(); H.busy++; try { await nat(); } finally { H.busy--; }
       if (dir > 0) { e.n = curLen(); e.h = hOf(e.t === 'P' ? S.pund[S.pund.length - 1] : S.und[S.und.length - 1]); }
       R.push(e); persist(); return;
