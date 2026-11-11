@@ -26,10 +26,10 @@
              конец: {t:'node', id} | {t:'wall', id, s} | {t:'elev', id, u, v} | {t:'photo', id, u, v} (доли полного кадра) | {t:'free'}; x,y — последнее место (мм)
      drw:    {id, k, c, h:{t:'photo'|'elev',id}|null, p:[[u,v]|[x,y]…], tx, n, dash, fill, wp} — Б3: рисунок; p — доли основы (фото — полный кадр, развёртка) или мм холста (h=null); wp — мм на случай удаления основы
      frames: {id, ph, q:[[u,v]×4], wall}                   — Б2: рамка «4 угла» на фото (доли полного кадра; ЛВ, ПВ, ПН, ЛН); wall — стена, построенная по рамке */
-  const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: [], frames: [], drw: [], com: []});
+  const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: [], frames: [], drw: [], com: [], ops: []});
   let D = null;
   let V = {ox: 40, oy: 60, s: 0.1};                    // вид: px CSS на мм
-  const C = {tool: 'sel', mode: 'wall', sel: null, crop: null, phm: false, msel: [], ptsP: null, zdp: [], phHide: false, rt: 'el', cpg: null};   // Б2: msel — группа [{t,id}]; ptsP — начатая рамка {ph, q}      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
+  const C = {tool: 'sel', mode: 'wall', sel: null, crop: null, phm: false, msel: [], ptsP: null, zdp: [], phHide: false, rt: 'el', cpg: null, ctp: null, opp: null};   // Б2: msel — группа [{t,id}]; ptsP — начатая рамка {ph, q}      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
   const node = id => D.nodes.find(n => n.id === id);
   const wall = id => D.walls.find(w => w.id === id);
   const photo = id => D.photos.find(p => p.id === id);
@@ -42,7 +42,7 @@
   const phH = p => p.w * ((p.cr[3] - p.cr[1]) * p.ih) / ((p.cr[2] - p.cr[0]) * p.iw);
   const elevRect = e => { const w = wall(e.wall); return {x: e.x, y: e.y, w: w ? wLen(w) : 0, h: Hmm()}; };
   const deg = id => D.walls.filter(w => w.a === id || w.b === id).length;
-  function dropOrphans() { D.nodes = D.nodes.filter(n => deg(n.id)); D.elev = D.elev.filter(e => wall(e.wall)); D.frames = D.frames.filter(f => photo(f.ph)); }
+  function dropOrphans() { D.nodes = D.nodes.filter(n => deg(n.id)); D.elev = D.elev.filter(e => wall(e.wall)); D.frames = D.frames.filter(f => photo(f.ph)); if (D.ops) D.ops = D.ops.filter(o => wall(o.wall)); }
 
   /* ═══ [BLOCK C-HIST] отмена / повтор — снимки документа ═══ */
   const HS = {u: [], r: []};
@@ -54,7 +54,7 @@
   function undo() { if (!HS.u.length) return; HS.r.push(snap()); D = JSON.parse(HS.u.pop()); afterHist('↶ отменено'); }
   function redo() { if (!HS.r.length) return; HS.u.push(snap()); D = JSON.parse(HS.r.pop()); afterHist('↷ повторено'); }
   function afterHist(t) {
-    const s = C.sel, F = {photo, wall, node, elev, dim, frame, drw, com: id => D.com.find(c => c.id === id)}; if (s && !F[s.t](s.id)) C.sel = null; C.msel = C.msel.filter(m => F[m.t] && F[m.t](m.id)); C.ptsP = null; C.zdp = [];
+    const s = C.sel, F = {photo, wall, node, elev, dim, frame, drw, com: id => D.com.find(c => c.id === id), op: id => D.ops.find(o => o.id === id)}; if (s && !F[s.t](s.id)) C.sel = null; C.msel = C.msel.filter(m => F[m.t] && F[m.t](m.id)); C.ptsP = null; C.zdp = [];
     C.crop = null; $('labPrjT').value = D.name; dirty(); ui(); toast(t);
   }
 
@@ -82,7 +82,7 @@
     const last = await get('meta', 'last'); const r = last ? await get('prj', last) : null;
     if (r) { if (r.view) V = r.view; HS.u = (r.hist && r.hist.u) || []; HS.r = (r.hist && r.hist.r) || []; delete r.view; delete r.hist; delete r.upd; D = r; }
     else D = newDoc();
-    D.dims = D.dims || []; D.frames = D.frames || []; D.drw = D.drw || []; D.com = D.com || [];
+    D.dims = D.dims || []; D.frames = D.frames || []; D.drw = D.drw || []; D.com = D.com || []; D.ops = D.ops || [];
   }
 
   /* ═══ [BLOCK C-IMG] кэш картинок ═══ */
@@ -128,6 +128,7 @@
     ELBL.clear(); for (const e of D.elev) drawElev(e);
     drawCom();
     drawPlan();
+    drawOps();
     drawDrw();
     drawDims();
     drawFrames();
@@ -521,7 +522,7 @@
   function B3gMove(g, mx, my) {
     for (const id in g.go.cm) { const c = com(id), o = g.go.cm[id], dx = rnd(mx), dy = -rnd(my);
       if (c.a) { c.a = [o.a[0] + dx, o.a[1] + dy]; c.b = [o.b[0] + dx, o.b[1] + dy]; } else if (c.pts) c.pts = o.pts.map(t => [t[0] + dx, t[1] + dy]); else { c.x = o.x + dx; c.y = o.y + dy; if (o.ex) c.xv = o.xv - dx; if (o.ey) c.yv = o.yv - dy; } } for (const id in g.go.dr) { const q = drw(id); q.h = null; q.p = g.go.dr[id].map(t => [rnd((t.x + mx) * 10) / 10, rnd((t.y + my) * 10) / 10]); } }
-  function B3del(s) { if (s.t === 'drw') D.drw = D.drw.filter(q => q.id !== s.id); if (s.t === 'com') D.com = D.com.filter(c => c.id !== s.id); }
+  function B3del(s) { if (s.t === 'drw') D.drw = D.drw.filter(q => q.id !== s.id); if (s.t === 'com') D.com = D.com.filter(c => c.id !== s.id); if (s.t === 'op') D.ops = D.ops.filter(o => o.id !== s.id); }
   function B3moveKind(h) { return h.t === 'drw' ? 'drmove' : h.t === 'drw-h' ? 'drwh' : h.t === 'com' ? 'cmove' : h.t === 'com-h' ? 'cres' : null; }
   const eraseAt = (sx, sy) => { const h = B3hit(sx, sy); if (!h) return false; begin(); D.drw = D.drw.filter(q => q.id !== h.id); if (C.sel && C.sel.id === h.id) C.sel = null; return true; };
   function B3start(g, p, h) {
@@ -688,6 +689,7 @@
     const r = cRect(c), A = w2s(R, r.x, r.y + r.h), B = w2s(R, r.x + r.w, r.y); return {box: [A[0], A[1], B[0], B[1]]};
   }
   function B4hit(sx, sy) {
+    { const ho = opHit(sx, sy); if (ho) return ho; }
     for (const [side, o] of OFL) { const r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'cofl', id: o.id, side}; }
     for (let i = D.com.length - 1; i >= 0; i--) { const c = D.com[i], g = comPx(c); if (!g) continue;
       if (g.box && sx >= g.box[0] - 4 && sx <= g.box[2] + 4 && sy >= g.box[1] - 4 && sy <= g.box[3] + 4) return {t: 'com', id: c.id};
@@ -706,6 +708,7 @@
   function B4start(g, p, h) {
     if (h && h.t === 'com-h') { g.t = 'cres'; return true; }
     if (h && h.t === 'cofl') { g.t = 'pan'; return true; }
+    if ((C.tool === 'ct' || C.tool === 'op') && !isLbl(h)) { g.t = 'pan'; return true; }
     const K = CK[C.tool]; if (!K || isLbl(h)) return false;
     const e = elevOf(p.x, p.y); if (!e) { g.t = 'pan'; return true; }
     if (K.pt || K.pg) { g.t = 'pan'; return true; }              // касанием
@@ -736,13 +739,14 @@
   }
   function B4tap(g, h) {
     if (h && h.t === 'cofl') { C.sel = {t: 'com', id: h.id}; openKb('cOf', h.id); KB.tg.side = h.side; const c = com(h.id), r = cRect(c), o = {L: r.x, R: r.R.w - r.x - r.w, F: r.y, C: r.R.h - r.y - r.h}; KB.buf = String(rnd(o[h.side])); ui(); draw(); return true; }
+    if (!isLbl(h) && B5tap(g, h)) return true;
     const K = CK[C.tool]; if (!K || isLbl(h)) return false;
     if (h && h.t === 'com' && !C.cpg) { C.sel = {t: 'com', id: h.id}; ui(); draw(); return true; }
     const e = elevOf(g.p0.x, g.p0.y); if (!e) { toast('«' + K.n + '» — на развёртке стены'); return true; }
     const R = elevRect(e), w = s2w(R, g.p0.x, g.p0.y);
     if (K.pt) { comNew(C.tool, e, {x: rnd(w.x), y: rnd(w.y), N: 1}); ui(); draw(); return true; }
     if (K.rc) { const s = 300; comNew(C.tool, e, {x: rnd(w.x - s / 2), y: rnd(w.y - s / 2), w: s, h: s}); ui(); draw(); return true; }
-    if (K.pg) { if (C.cpg && C.cpg.e !== e.id) C.cpg = null; if (!C.cpg) C.cpg = {e: e.id, pts: []};
+    if (K.pg) { if (C.cpg && C.cpg.e !== e.id) C.cpg = null; if (!C.cpg) { C.cpg = {e: e.id, pts: []}; C.sel = null; }
       const P = C.cpg.pts; if (P.length >= 3) { const [fx, fy] = w2s(R, P[0][0], P[0][1]); if (hyp(fx - g.p0.x, fy - g.p0.y) < 16) { polyDone(); return true; } }
       const sw = snapE(R, w); P.push([rnd(sw.x), rnd(sw.y)]); ui(); draw(); return true; }
     if (K.ln) { C.sel = null; ui(); draw(); return true; }
@@ -773,6 +777,42 @@
     return null; }
   function comSnapPts() { const out = []; for (const c of D.com) { const e = elev(c.e); if (!e) continue; const K = CK[c.k];
     if (K.pt) postsW(c).forEach((_, i) => out.push({t: 'com', id: c.id, i})); else if (K.rc) for (let i = 0; i < 4; i++) out.push({t: 'com', id: c.id, i}); } return out; }
+
+  /* ═══ [BLOCK C-B5] Б5 план: «контур: касания по углам» (⌗) и «проём» (⊓) — как v81 (ct, op).
+     Контур: касание — угол, между углами — стена плана (0/90°, узлы, выравнивание — привязки ядра); касание первого угла — замкнуть, касание последнего — закончить.
+     Проём: два касания по стене — участок стены (доли длины, следует за правкой L); подпись — ширина, мм. ═══ */
+  const opn = id => D.ops.find(o => o.id === id);
+  function drawOps() {
+    for (const o of D.ops) { const w = wall(o.wall), a = w && node(w.a), b = w && node(w.b); if (!a || !b) continue;
+      const P = t => toS(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t), A = P(o.s0), B = P(o.s1), on = C.sel && C.sel.t === 'op' && C.sel.id === o.id;
+      cx.strokeStyle = '#f6f5f1'; cx.lineWidth = 7; cx.lineCap = 'butt'; cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke();
+      const L = hyp(B[0] - A[0], B[1] - A[1]) || 1, nx = -(B[1] - A[1]) / L * 7, ny = (B[0] - A[0]) / L * 7; cx.strokeStyle = on ? COL.sel : COL.wall; cx.lineWidth = 2;
+      cx.beginPath(); for (const Q of [A, B]) { cx.moveTo(Q[0] - nx, Q[1] - ny); cx.lineTo(Q[0] + nx, Q[1] + ny); } cx.stroke();
+      cx.font = '600 11px system-ui'; cx.fillStyle = on ? COL.sel : COL.wall; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('⊓ ' + num(Math.abs(o.s1 - o.s0) * wLen(w)), (A[0] + B[0]) / 2 - nx * 2.4, (A[1] + B[1]) / 2 - ny * 2.4); }
+    if (C.ctp) { const [x, y] = toS(C.ctp.x, C.ctp.y); cx.strokeStyle = '#e08a00'; cx.lineWidth = 3; cx.beginPath(); cx.arc(x, y, 10, 0, 7); cx.stroke(); }
+    if (C.opp) { const w = wall(C.opp.wall), a = w && node(w.a), b = w && node(w.b); if (a && b) { const [x, y] = toS(a.x + (b.x - a.x) * C.opp.s, a.y + (b.y - a.y) * C.opp.s); cx.fillStyle = '#e08a00'; cx.beginPath(); cx.arc(x, y, 6, 0, 7); cx.fill(); } }
+  }
+  function opHit(sx, sy) { for (const o of D.ops) { const w = wall(o.wall), a = w && node(w.a), b = w && node(w.b); if (!a || !b) continue;
+    const P = t => toS(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); if (segDist([sx, sy], P(o.s0), P(o.s1)) < 10) return {t: 'op', id: o.id}; } return null; }
+  function wallAt(sx, sy) { let best = null, bd = HR.wall; for (const w of D.walls) { const a = node(w.a), b = node(w.b); if (!a || !b) continue; const A = toS(a.x, a.y), B = toS(b.x, b.y), dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy; if (!L2) continue;
+    const t = clamp(((sx - A[0]) * dx + (sy - A[1]) * dy) / L2, 0, 1), dd = hyp(A[0] + dx * t - sx, A[1] + dy * t - sy); if (dd < bd) { bd = dd; best = {w, s: t}; } } return best; }
+  function B5tap(g, h) {
+    if (C.tool === 'ct') {
+      const last = C.ctp, b = snapEnd(last, g.p0.x, g.p0.y, null);
+      if (!last) { C.ctp = {x: b.x, y: b.y, node: b.node || null, n0: b.node || null}; draw(); return true; }
+      if (hyp(b.x - last.x, b.y - last.y) * V.s < 12) { C.ctp = null; draw(); toast('Контур: готово'); return true; }
+      const w = addWall(last, b); if (!w) { draw(); return true; }
+      const end = w.b, start0 = C.ctp.n0 || D.walls.find(x => x.id === w.id).a;
+      if (b.node && b.node === start0) { C.ctp = null; C.sel = {t: 'wall', id: w.id}; ui(); draw(); toast('Контур замкнут'); return true; }
+      const n = node(end); C.ctp = {x: n.x, y: n.y, node: end, n0: start0}; C.sel = {t: 'wall', id: w.id}; ui(); draw(); return true; }
+    if (C.tool === 'op') {
+      const hw = wallAt(g.p0.x, g.p0.y); if (!hw) { toast('Проём — двумя касаниями по стене'); return true; }
+      const s0 = rnd(hw.s * 1e4) / 1e4;
+      if (!C.opp || C.opp.wall !== hw.w.id) { C.opp = {wall: hw.w.id, s: s0}; draw(); return true; }
+      const a = Math.min(C.opp.s, s0), b = Math.max(C.opp.s, s0); C.opp = null; if ((b - a) * wLen(hw.w) < 10) { draw(); return true; }
+      begin(); const o = {id: uid('o'), wall: hw.w.id, s0: a, s1: b}; D.ops.push(o); C.sel = {t: 'op', id: o.id}; commit(); toast('Проём ' + num((b - a) * wLen(hw.w))); return true; }
+    return false;
+  }
 
   /* ═══ [BLOCK C-HIT] что под пальцем (px) — порядок: маркеры → подписи → узлы → стены → развёртки → фото ═══ */
   const HR = {handle: 22, node: 20, wall: 14};
@@ -1075,11 +1115,11 @@
   let ST = (() => { try { const v = JSON.parse(localStorage.getItem(SKEY)); if (v && v.wall && v.plan && v.row2) return v; } catch (e) { } return clone(SDEF); })();
   const stSave = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) { } };
   const TOOLK = {sel: 'sel', dim: 'dim', arr: 'arr', st: 'wall', rsel: 'rsel', pts: 'pts', pen: 'pen', ln: 'ln', pl: 'pl', rect: 'rect', circ: 'circ', arc: 'arc', er: 'er', txt: 'txt', pin: 'pin', vyn: 'vyn',
-    ...Object.fromEntries(Object.keys(CK).map(k => [k, k]))};               // ключ футляра → инструмент ядра
+    ct: 'ct', op: 'op', ...Object.fromEntries(Object.keys(CK).map(k => [k, k]))};               // ключ футляра → инструмент ядра
   const IMPL = {sel: 1, dim: 1, arr: 1, st: 1, rf: () => { C.phm = !C.phm; ui(); }, cam: () => $('cCam').click(), gal: () => $('cFile').click()};
   function useKey(k) {
     if (C.crop) cropEnd();
-    C.ptsP = null; C.zdp = []; C.cpg = null;
+    C.ptsP = null; C.zdp = []; C.cpg = null; C.ctp = null; C.opp = null;
     if (typeof B3tool === 'function' && B3tool(k)) { if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
     if (TOOLK[k]) { C.tool = TOOLK[k]; if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
     if (typeof IMPL[k] === 'function') { IMPL[k](); return; }
@@ -1180,6 +1220,7 @@
     if (C.ptsP) { C.ptsP = null; draw(); return true; }
     if (C.zdp.length) { C.zdp = []; ui(); draw(); return true; }
     if (C.cpg) { C.cpg = null; ui(); draw(); return true; }
+    if (C.ctp || C.opp) { C.ctp = null; C.opp = null; draw(); return true; }
     if (C.msel.length) { C.msel = []; ui(); draw(); return true; }
     if (G && !G.pinch) { cancel(); G = null; draw(); return true; }
     if (C.sel) { C.sel = null; ui(); draw(); return true; }
