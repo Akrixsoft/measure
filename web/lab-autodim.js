@@ -90,6 +90,12 @@
         rest.forEach((y, i) => { if (S2.length || i > 0) drop.add(y.q); });
       }
     }
+    /* 82.18 g2 (QA Д14): глубина объёма (ребро стена → лицо, W…→K…) — одна подпись на объём: колонна плана от пола до потолка
+       давала «232» у верха и у низа. Остаётся нижняя (у пола), при равных — первая. */
+    { const seen = new Map();
+      const dep = q => { const r = q.rec || {}; if (typeof r.a !== 'string' || typeof r.b !== 'string') return null; const v = VV.find(o => r.a.startsWith(o.id) && r.b.startsWith(o.id) && /^W[LR][TB]$/.test(r.a.slice(o.id.length)) && /^K[LR][TB]$/.test(r.b.slice(o.id.length))); return v ? {v, lo: r.a.slice(v.id.length)[2] === 'B'} : null; };
+      LQ.forEach(q => { if (drop.has(q)) return; const d = dep(q); if (!d) return; const key = d.v.id + '|' + q.t, o = seen.get(key);
+        if (!o) { seen.set(key, {q, lo: d.lo}); return; } if (d.lo && !o.lo) { drop.add(o.q); seen.set(key, {q, lo: true}); } else drop.add(q); }); }
     for (let i = LQ.length - 1; i >= 0; i--) if (drop.has(LQ[i])) LQ.splice(i, 1);
   };
 
