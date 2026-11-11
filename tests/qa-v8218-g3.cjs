@@ -356,6 +356,42 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(a10.cur === 'Детская', 'Н6: после перезапуска план — в текущем помещении «Детская» (не в первом по порядку «Спальня»)', a10);
       check(errors.length === 0, 'Н6: нет ошибок страницы', errors);
     }
+    /* ════ r3c м2: выгрузка → импорт «Обновить» → выгрузка: rooms[].id, wid и photo.src те же; photo.src — источник L как manV v81 ════ */
+    if (run('m2')) {
+      await fresh(); errors = [];
+      await project('Источник', 'м2');
+      // С2: вид стены открыт с плана ДО ввода длины на плане (снимок out — «фото»), длина введена позже; С3: длина рулеткой (man.Lb)
+      await p.evaluate(async () => { await MeasureLabSketch.goPlan(); const r = S.room; r.ms.dims = r.ms.dims.filter(d => !((d.a.p === 1 && d.b.p === 2) || (d.a.p === 2 && d.b.p === 1))); saveRoom(); await flushAll(); });
+      await p.evaluate(async () => { await PM.openWall(1); PM.bwSet(3000, 2700); await PM.saveNow(); await flushAll(); });
+      await p.evaluate(async () => { await MeasureLabSketch.goPlan(); const r = S.room; r.ms.dims.push({id: 'gdm2', a: {p: 1}, b: {p: 2}, v: 3000}); saveRoom(); await flushAll(); });
+      await p.evaluate(async () => { await PM.openWall(2); PM.bwSet(2364, 2700); S.man = S.man || {}; S.man.Lb = 2364; saveSess(); await PM.saveNow(); await flushAll(); });
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(400);
+      const S0 = o => (o.rooms || []).map(R => ({id: R.id, wl: Object.values(R.ms.wl || {}).map(W => [W.id, W.photo ? W.photo.src : null]).sort((a, b) => a[0].localeCompare(b[0]))}));
+      const x0 = await exportAkrix(); const FILE = path.join(SHOT, 'm2-source.json'); fs.writeFileSync(FILE, JSON.stringify(x0, null, 1));
+      const s0 = S0(x0), W0 = await p.evaluate(() => [0, 1, 2].map(k => S.room.wid[k]));
+      const src = w => (s0[0].wl.find(x => x[0] === w) || [])[1];
+      check(src(W0[0]) === 'план' && src(W0[1]) === 'план' && src(W0[2]) === 'рулетка', 'м2: photo.src — источник L как manV v81: С1 план, С2 (вид открыт до ввода длины на плане) план, С3 рулетка', s0);
+      // импорт «Обновить» в том же профиле
+      const restore = async () => { await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300); const fc = p.waitForEvent('filechooser', {timeout: 8000}); await tapText('touch', 'Восстановить из копии', '#labPrj'); await (await fc).setFiles(FILE); };
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Обновить', '#labPrj .lp-dg.on');
+      await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300);
+      const x1 = await exportAkrix(); const s1 = S0(x1);
+      const del = await p.evaluate(async () => (await dbAll('sess')).filter(r => r.kind === 'room' && r.del && r.labWas).map(r => [r.id, r.labWas]));
+      const it = await p.evaluate(() => MeasureLabSketch.state.items.filter(i => i.t === 'wall').map(i => [i.room, i.wid]));
+      check(JSON.stringify(s1) === JSON.stringify(s0), 'м2: «Обновить» → выгрузка: rooms[].id, wid и photo.src равны исходной', {s0, s1});
+      check(del.length === 1 && del[0][1] === x0.rooms[0].id && it.length === 3 && new Set(it.map(x => x.join())).size === 3 && it.every(x => x[0] === x0.rooms[0].id), 'м2: прежнее помещение — в «Удалённые» копией (labWas = прежний id); областей стен по одной на вид (3), на том же помещении', {del, it});
+      const nrm = o => { const c = JSON.parse(JSON.stringify(o)); delete c.date; for (const R of c.rooms || []) delete R.date; return JSON.stringify(c); };
+      check(nrm(x1) === nrm(x0), 'м2: повторная выгрузка после «Обновить» = исходной целиком (кроме date)', null);
+      // ещё раз «Обновить» — снова те же id (копий в «Удалённых» — две)
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Обновить', '#labPrj .lp-dg.on');
+      await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300); const x2 = await exportAkrix();
+      check(nrm(x2) === nrm(x0), 'м2: второе «Обновить» — выгрузка снова равна исходной', S0(x2));
+      check(errors.length === 0, 'м2: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
