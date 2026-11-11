@@ -424,6 +424,35 @@
     if (LP && typeof LP.ask === 'function') return LP.ask(t, x, [{t: 'Отмена', v: null}, {t: 'Новым проектом', v: 'new'}, {t: 'Обновить', v: 'upd', pr: 1}]);
     return confirm(t + '. Обновить?') ? 'upd' : 'new';
   }
+  /* r2c Н3 (QA-2): штатный импорт v81 (impWall81) кладёт объектам стены D = '' и не знает no — повторная выгрузка давала глубину по
+     умолчанию (колонна 400 вместо 300) и новые номера (9–12 вместо 1–4). Здесь по файлу (стена wid + id элемента) возвращаются
+     D = d для объёмных (колонна, ригель, короб, выступ, ниша) — и в снимке выгрузки out.els — и no элементов (els / pts / zn). */
+  const VOL = ['kol', 'rig', 'kor', 'vys', 'nis'];
+  async function elsBack(P, RS) {
+    const F = new Map();
+    for (const R of RS) for (const [k, W] of Object.entries((R.ms || {}).wl || {})) { const wid = W.id || ((R.ms || {}).wid || {})[k]; if (!wid) continue;
+      for (const q of W.els || []) if (q && q.id && q.t !== 'poly') F.set(wid + '|' + q.id, {d: q.d, no: q.no});
+      for (const q of [...(W.pts || []), ...(W.zn || [])]) if (q && q.id) F.set(wid + '|' + q.id, {no: q.no}); }
+    if (!F.size) return 0;
+    const R2 = owns(P, await zAll()); let n = 0;
+    for (const r of R2.rooms) { if (r.del || r.pstub) continue;
+      for (const [k, sid] of Object.entries(r.segs || {})) { const wid = (r.wid || {})[k], o = R2.walls.find(w => w.id === sid && !w.del); if (!wid || !o) continue;
+        const fix = L => { let c = 0; for (const e of L || []) { const m = e && e.id && F.get(wid + '|' + e.id); if (!m) continue;
+          if (m.d != null && m.d !== '' && VOL.includes(e.k) && +e.D !== +m.d) { e.D = +m.d; c++; }
+          if (+m.no > 0 && e.no !== +m.no) { e.no = +m.no; c++; } } return c; };
+        const fixOut = x => { const L = x.out && Array.isArray(x.out.els) ? x.out.els : []; for (const q of L) { const m = q && q.id && F.get(wid + '|' + q.id); if (m && m.d != null && m.d !== '' && VOL.includes(q.kind)) q.D = +m.d; } };
+        if (!fix(clone(o.els))) continue;
+        await zEdit(o.id, x => { fix(x.els); fixOut(x); });
+        if (S.sess && S.sess.id === o.id && S.els !== S.sess.els) fix(S.els);
+        n++; } }
+    return n;
+  }
+  async function staleOut(P) {   // раскладка: области стен, чьи записи удалены (или помещение удалено), — убрать
+    const all = await zAll(), c = await api.cv(P.id); if (!c) return 0;
+    const live = id => { const o = id && all.find(x => x.id === id); return !!(o && !o.del); };
+    const n0 = c.items.length; c.items = c.items.filter(i => i.t !== 'wall' || (live(i.sid) && (!i.room || live(i.room))));
+    if (c.items.length !== n0) await api.putCv(c); return n0 - c.items.length;
+  }
   const imp81 = zImpExp;
   zImpExp = async function (o) {
     const RS = o && o.app === 'akrix-zamer' ? (o.kind === 'object' ? o.rooms || [] : o.kind === 'room' ? [o] : []).filter(R => R && R.ms && Array.isArray(R.ms.pts) && R.ms.pts.length >= 2) : [];
@@ -452,12 +481,16 @@
     const n = await imp81.call(this, o2);
     if (!n) { if (how !== 'upd') { try { await lDel('prj', P.id); await lDel('cv', P.id); } catch (e) { } } return n; }
     try { await flushAll(); } catch (e) { }
+    const same = !!(SK && SK.isOpen && SK.isOpen() && SK.pid() === P.id && SK.state);
+    if (same) SK.state.pid = '';   // тот же проект открыт: холст не пишет старую раскладку поверх (перечитывается ниже)
+    try { await elsBack(P, RS); } catch (e) { console.warn('Measure 82.18 import els', e); }
     try { const zn = Math.max(0, ...RS.flatMap(R => (R.ms.labRooms || []).map(q => +q.zn || 0))); const P2 = await get(P.id); if (P2 && zn > (+P2.znHi || 0)) { P2.znHi = zn; await put(P2); } } catch (e) { }
+    try { await number(P.id); } catch (e) { }
+    if (how === 'upd') await staleOut(P);   // r2c (QA-2 Д9): области стен прежних (удалённых) записей — вон, иначе «Обновить» давал две области
     await api.layout(P.id);
     emit(how === 'upd' ? 'import-update' : 'import', {pid: P.id});
     try { localStorage.setItem('measure.lastPrj', P.id); } catch (e) { }
     if (SK && typeof SK.open === 'function') {
-      if (SK.isOpen() && SK.pid() === P.id && SK.state) SK.state.pid = '';   // тот же проект открыт — перечитать раскладку (без записи старой поверх)
       if (window.MeasureLabProjects && MeasureLabProjects.open) await MeasureLabProjects.open(P.id); else await SK.open(P.id);
     }
     toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n);

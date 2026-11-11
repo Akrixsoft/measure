@@ -204,7 +204,7 @@ fs.mkdirSync(SHOT, {recursive: true});
       const restore = async () => { await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300); const fc = p.waitForEvent('filechooser', {timeout: 8000}); await tapText('touch', 'Восстановить из копии', '#labPrj'); await (await fc).setFiles(FILE); };
       const state = () => p.evaluate(async () => { const L = (await MeasureLabStore.projects()).filter(P => !P.del && !P.purged), all = await dbAll('sess'), K = MeasureLabSketch.state;
         return {prj: L.map(P => ({id: P.id, client: P.client, name: P.name, obj: P.obj, rooms: all.filter(r => r.kind === 'room' && !r.del && r.oid === P.id).length})), open: MeasureLabSketch.isOpen(), list: MeasureLabProjects.isOpen(), pid: MeasureLabSketch.pid(),
-          title: (document.getElementById('labPrjT') || {}).textContent, items: K.items.map(i => i.t), act: MeasureLabSketch.active() && MeasureLabSketch.active().t, prd: Math.max(0, ...all.filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).map(r => (r.prd || []).length)),
+          title: (document.getElementById('labPrjT') || {}).textContent, items: K.items.map(i => i.t), itd: K.items.map(i => [i.t, i.room, i.wid, i.sid, i.id]), cvd: ((await MeasureLabStore.cv(K.pid)) || {items: []}).items.map(i => [i.t, i.room, i.wid, i.sid, i.id]), walls: all.filter(o => o.room && o.room !== '~board').map(o => [o.id, o.room, o.seg, !!o.del]), act: MeasureLabSketch.active() && MeasureLabSketch.active().t, prd: Math.max(0, ...all.filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).map(r => (r.prd || []).length)),
           zones: all.filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).flatMap(r => (r.ms.labRooms || []).map(q => q.zn)), dlg: !!document.querySelector('#labPrj .lp-dg.on')}; });
       await restore(); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800);
       let s1 = await state(); await shot('d9-imported');
@@ -272,6 +272,45 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(errors.length === 0, 'Д8' + variant + ': нет ошибок страницы', errors);
     }
     if (run('d8')) { await d8('a'); await d8('b'); }
+    /* ════ r2c Н3: выгрузка → импорт («Обновить» и «Новым проектом») → выгрузка: глубина d объектов стены и no те же ════ */
+    if (run('n3')) {
+      await fresh(); errors = [];
+      await project('Глубина', 'Н3');
+      await p.evaluate(async () => { const it = [...MeasureLabSketch.state.items].find(i => i.t === 'wall'); await MeasureLabSketch.activate(it);
+        S.els.push({id: 'eN3rig', k: 'rig', c: [1182, 2500], W: 2364, H: 400, D: 300, N: '', st: '', note: ''}, {id: 'eN3kol', k: 'kol', c: [1850, 1150], W: 300, H: 2300, D: 300, N: '', st: '', note: ''},
+          {id: 'eN3kor', k: 'kor', c: [350, 150], W: 700, H: 300, D: 200, N: '', st: '', note: ''}, {id: 'eN3nis', k: 'nis', c: [1100, 1300], W: 600, H: 600, D: 150, N: '', st: '', note: ''});
+        saveNow(); await flushAll(); });
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300);
+      const E = o => (o.rooms || []).flatMap(R => Object.values(R.ms.wl || {}).flatMap(W => (W.els || []).map(e => [W.id, e.id, e.t, e.d == null ? null : e.d, e.no]))).sort((a, b) => String(a[1]).localeCompare(String(b[1])));
+      const nrm = o => { const c = JSON.parse(JSON.stringify(o)); delete c.date; for (const R of c.rooms || []) { delete R.date; delete R.id; } return JSON.stringify(c); };
+      const x0 = await exportAkrix(); const FILE = path.join(SHOT, 'n3-source.json'); fs.writeFileSync(FILE, JSON.stringify(x0, null, 1));
+      info.n3src = E(x0);
+      check(JSON.stringify(info.n3src.map(e => [e[1], e[3]])) === JSON.stringify([['eN3kol', 300], ['eN3kor', 200], ['eN3nis', 150], ['eN3rig', 300]]) && info.n3src.every(e => e[4] > 0),
+        'Н3: исходная выгрузка — колонна d 300, ригель 300, короб 200, ниша 150, no у всех', info.n3src);
+      const restore = async () => { await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300); const fc = p.waitForEvent('filechooser', {timeout: 8000}); await tapText('touch', 'Восстановить из копии', '#labPrj'); await (await fc).setFiles(FILE); };
+      const reexport = async () => { await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(800); await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300); return exportAkrix(); };
+      // 1. чистый профиль → импорт
+      await fresh(); await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+      await restore(); const x1 = await reexport();
+      const d1 = await p.evaluate(async () => { const P = await MeasureLabStore.get(MeasureLabSketch.pid()); return {elHi: P.elHi, els: S.room ? null : null}; });
+      check(nrm(x1) === nrm(x0), 'Н3: импорт в чистый профиль → выгрузка = исходной (кроме date / id записей): d и no те же', {src: info.n3src, back: E(x1), elHi: d1.elHi});
+      // 2. «Обновить»
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Обновить', '#labPrj .lp-dg.on'); const x2 = await reexport();
+      const it2 = await p.evaluate(() => MeasureLabSketch.state.items.filter(i => i.t === 'wall').length);
+      check(nrm(x2) === nrm(x0) && it2 === 1, 'Н3: «Обновить» → выгрузка = исходной (d, no), область стены одна', {back: E(x2), walls: it2});
+      // 3. «Новым проектом» — те же номера в новом проекте, счётчик проекта ≥ max
+      await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+      await restore(); await p.waitForSelector('#labPrj .lp-dg.on', {timeout: 8000}); await tapText('pen', 'Новым проектом', '#labPrj .lp-dg.on'); const x3 = await reexport();
+      const P3 = await p.evaluate(async () => { const P = await MeasureLabStore.get(MeasureLabSketch.pid()); return {id: P.id, elHi: P.elHi, name: P.name}; });
+      const mx = Math.max(...info.n3src.map(e => e[4]));
+      check(JSON.stringify(E(x3)) === JSON.stringify(info.n3src) && x3.oid === P3.id && x3.oid !== x0.oid && P3.elHi >= mx, 'Н3: «Новым проектом» → те же d и no в новом проекте, счётчик elHi ≥ max no', {P3, mx, back: E(x3)});
+      // новый объект в новом проекте получает номер после max
+      await p.evaluate(async () => { const it = [...MeasureLabSketch.state.items].find(i => i.t === 'wall'); await MeasureLabSketch.activate(it); S.els.push({id: 'eN3new', k: 'kol', c: [300, 1150], W: 200, H: 2300, D: 250, N: '', st: '', note: ''}); saveNow(); await flushAll(); });
+      await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(300); const x4 = await exportAkrix(); const nw = E(x4).find(e => e[1] === 'eN3new');
+      check(nw && nw[3] === 250 && nw[4] === mx + 1, 'Н3: новый объект после импорта — no = max + 1, d 250', nw);
+      check(errors.length === 0, 'Н3: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
