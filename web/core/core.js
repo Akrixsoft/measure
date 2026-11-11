@@ -241,7 +241,7 @@
       else if (edit) { cx.strokeStyle = '#c99a1e'; cx.lineWidth = 2; cx.strokeRect(-tw / 2, -11, tw, 22); }
       cx.fillStyle = val.kind === 'none' && !edit ? COLD.none : val.kind === 'man' || edit ? '#1f4fa8' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 1); cx.restore();
       DLBL.set(d.id, {x: cxp, y: cyp, r: Math.max(tw / 2, 14) + 6});
-      if (on) handles([[ax, ay], [bx, by]]);
+      /* маркеров на концах нет (владелец 12.11): выбранный — только цветом; конец берётся пальцем в радиусе касания */
     }
   }
   /* привязка конца размера: точка (узел, угол фото/развёртки, конец размера) → грань (стена, край развёртки/фото) → поверхность (фото, развёртка) → свободно */
@@ -618,8 +618,7 @@
   act($('bUnd'), () => { if (C.crop) cropEnd(); undo(); });
   act($('bRed'), () => { if (C.crop) cropEnd(); redo(); });
   act($('bDelS'), () => { if (!$('bDelS').classList.contains('dis')) del(); });
-  act($('bFit'), fitAll);
-  act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); save().then(() => toast('Сохранено')); });
+  act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); fitAll(); save().then(() => toast('Сохранено')); });   // ✓ — сохранить и показать весь холст (82.18)
   act($('bMore'), () => $('zMenu').classList.toggle('on'));
   act($('bUpdChk'), () => { $('zMenu').classList.remove('on'); const N = window.AkrixUpdate; if (N && N.check) N.check(); else toast('Обновление — только в приложении'); });
   act($('labCrX'), () => { cancel(); C.crop = null; ui(); draw(); });

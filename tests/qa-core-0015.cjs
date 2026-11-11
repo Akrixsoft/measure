@@ -33,7 +33,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  ok('версия в бандле 82.21', (await M('window.MeasureVersion')) === '82.21');
+  ok('версия в бандле 82.21.1', (await M('window.MeasureVersion')) === '82.21.1');
   const [bx, by] = await box('#ch [data-q=rf]'); await tap(bx, by);
   ok('фото-справка → плашка «камера / галерея»', !!(await ctxBtn('камера')) && !!(await ctxBtn('галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));
@@ -148,7 +148,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   d = await doc(); const ph2 = d.photos[2], A1 = await M(`MeasureCore.endPos(MeasureCore.doc.dims.find(q=>q.id==='${dm.id}').a)`);
   ok('фото перенесено — конец размера сместился так же', Math.abs((A1.x - A0.x) - (ph2.x - ph.x)) < 1 && Math.abs((A1.y - A0.y) - (ph2.y - ph.y)) < 1, {dx: A1.x - A0.x, px: ph2.x - ph.x});
   // размер на плане между узлами С1 — по геометрии
-  { const [fx, fy] = await box('#bFit'); await tap(fx, fy); }
+  { const [fx, fy] = await box('#bDone'); await tap(fx, fy); await W(300); }
   await tap(mx2, my2); d = await doc(); const w1n = d.walls[0], n1 = d.nodes.find(q => q.id === w1n.a), n2 = d.nodes.find(q => q.id === w1n.b);
   const s1 = await scr(n1.x, n1.y), s2 = await scr(n2.x, n2.y); await drag(s1, s2);
   d = await doc(); const dp = d.dims[d.dims.length - 1];

@@ -3,7 +3,7 @@
  "total": 61,
  "R": [
   {
-   "name": "версия в бандле 82.21",
+   "name": "версия в бандле 82.21.1",
    "ok": true
   },
   {
@@ -60,12 +60,12 @@
    "ok": true,
    "info": [
     {
-     "id": "nmwcn9mdopzqv",
+     "id": "nmwcnnzh6da81",
      "x": 2931,
      "y": -1124
     },
     {
-     "id": "nmwcn9mdoquqj",
+     "id": "nmwcnnzh6lohv",
      "x": 6687,
      "y": -1124
     }
@@ -164,11 +164,11 @@
    "name": "размер на фото создан, концы привязаны к фото",
    "ok": true,
    "info": {
-    "id": "dmwcn9wy733dv",
+    "id": "dmwcno9zf1kg5",
     "k": "dim",
     "a": {
      "t": "photo",
-     "id": "fmwcn9krskbar",
+     "id": "fmwcnnxw5rdpf",
      "u": 0.1454619282117359,
      "v": 0.8505762697127703,
      "x": 783.5818865394111,
@@ -176,7 +176,7 @@
     },
     "b": {
      "t": "photo",
-     "id": "fmwcn9krskbar",
+     "id": "fmwcnnxw5rdpf",
      "u": 0.2903864052708393,
      "v": 0.8505762697127703,
      "x": 1141.8351938295148,
@@ -250,7 +250,7 @@
    "ok": true,
    "info": {
     "t": "photo",
-    "id": "fmwcn9krsdlvr"
+    "id": "fmwcnnxw51cj9"
    }
   },
   {
