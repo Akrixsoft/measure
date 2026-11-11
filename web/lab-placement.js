@@ -17,7 +17,7 @@
     if(!objectTool()||!gest||ptr.size!==1)return false;
     const hit=mkHit(p);let current=S.els.find(e=>e.id===S.sel);
     /* 82.18 F2 (AKX-2026-0009): поля и ручки размера выбранного объекта — при любом инструменте; перенос — только протяжкой тела */
-    {const f=fieldHit(p);if(f){gest.labField=f;gest.labPlacement={id:current?current.id:null,tool:S.mk,clearOnTap:false,field:1};return true;}}   /* g2 Д5: и без выбора — касание открывает поле (иначе протяжка инструмента забирает касание) */
+    {const f=fieldHit(p);if(f)gest.labField=f;}   /* r2b (QA2 Н1): касание подписи — поле (tap / zdrEnd ниже), протяжка от подписи — инструмент рисует, как без поля */
     if(current){const hd=hHit(p);if(hd){gest.hdrag=hd;gest.labPlacement={id:current.id,tool:S.mk,clearOnTap:false,handle:1};return true;}}
     if(!current)return false;
     const same=!!hit&&hit.id===current.id;
@@ -43,13 +43,15 @@
   const nativeTap=tap;
   tap=function(p){
     const state=gest?.labPlacement;
-    if(gest&&gest.labField&&!gest.moved&&(!state||state.field)){const f=gest.labField;return w3FOpen(f);}
+    if(gest&&gest.labField&&!gest.moved){const f=gest.labField;return w3FOpen(f);}
     if(state&&state.field)return;   /* 82.18 F2: поле размера открывается при любом инструменте */
     if(state&&state.handle){return;}
     if(!state&&S.mode!=='plan'&&S.tool==='mk'&&S.show<0&&S.mosaic&&!q4Need()&&typeof w3FHit==='function'){const f=S.mk==='sel'||S.mk==='rsel'?w3FHit(p):fieldHit(p);if(f)return w3FOpen(f);}   /* 82.18 F2: и в «выборе» — поле поверх объекта открывается (v81: только вне объекта) */
     if(state){if(state.clearOnTap)S.sel=null;S.pend=null;mkPanel();draw();return;}
     return nativeTap.apply(this,arguments);
   };
+  /* r2b: инструмент протяжки (прямоугольник, размер, линия…) забирает касание в zdrStart; короткое касание по подписи — поле */
+  if(typeof zdrEnd==='function'){const ze0=zdrEnd;zdrEnd=function(g,p){const f=g&&g.labField,z=g&&g.zdr,short=!!(z&&!z.mv&&!g.pinch);const r=ze0.apply(this,arguments);if(f&&short&&!g.labFieldDone){g.labFieldDone=1;w3FOpen(f);}return r;};}
   const nativePick=pickTool0;
   pickTool0=function(k){
     if(k!==S.mk&&gest?.labPlacement&&!gest.labPlacement.cancelled){rollback(gest);gest.labPlacement.cancelled=true;gest.edrag=null;gest.znp=1;gest.moved=true;}
