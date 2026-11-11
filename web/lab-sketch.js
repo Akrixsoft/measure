@@ -573,7 +573,10 @@
     const D = $s('.sk-dlg'), B = D.querySelector('.bx');
     B.innerHTML = `<h4>${esc(title)}</h4>${html}<div class="bt">${buttons.map((b, i) => `<button data-dg="${i}" class="${b.pr ? 'pr' : ''}">${esc(b.t)}</button>`).join('')}</div>`;
     D.classList.add('on'); const close0 = () => D.classList.remove('on');
-    B.querySelectorAll('[data-dg]').forEach(x => x.onclick = () => { const b = buttons[+x.dataset.dg]; if (!b.keep) close0(); b.fn && b.fn(B); });
+    const run = i => { const b = buttons[i]; if (!b.keep) close0(); b.fn && b.fn(B); };
+    /* r5: касание кнопки при открытой цифровой клавиатуре — клавиатура прячется на pointerdown, окно сдвигается и click уходит мимо кнопки; кнопка, на которой палец опустился, срабатывает */
+    let pend = null; B.onclick = null; D.onclick = e => { const x = e.target.closest && e.target.closest('[data-dg]'); if (x) { pend = null; return run(+x.dataset.dg); } if (pend && Date.now() - pend.t < 1000) { const i = pend.i; pend = null; run(i); } };
+    B.querySelectorAll('[data-dg]').forEach(x => x.onpointerdown = () => { pend = {i: +x.dataset.dg, t: Date.now()}; });
     return {B, close: close0};
   }
   api.dialog = dlg;
@@ -626,7 +629,8 @@
       /* r5 (правило 6): фото — в реальный масштаб: рамка 4 углов = L × H области стены (K0); разметка на фото — вместе; шаг ↶ — в шаге 'wall' */
       try { const brd0 = await dbGet('sess', K.board), rr = brd0 && (brd0.refs || []).find(x => x.id === pid), c = rr && q2c(rr.q);
         if (c && window.MeasureLabBoard && MeasureLabBoard.scaleRec) { const kq = rr.w / rr.iw, dd = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]), wA = (dd(c[0], c[1]) + dd(c[3], c[2])) / 2 * kq, hA = (dd(c[0], c[3]) + dd(c[1], c[2])) / 2 * kq, fk = Math.sqrt((L * K0 / wA) * (H * K0 / hA));
-          if (fk > 0 && isFinite(fk) && Math.abs(fk - 1) > 1e-6) { phSt = MeasureLabBoard.scaleRec(brd0, pid, fk); await dbPut('sess', brd0); K.boardRec = brd0; } Rp = refR(rr); } } catch (e) { console.error(e); }
+          const cc = c.reduce((m, q) => [m[0] + (rr.x + q[0] * kq) / 4, m[1] + (rr.y - q[1] * kq) / 4], [0, 0]);   // центр рамки — на месте (где его видел пользователь)
+          if (fk > 0 && isFinite(fk) && Math.abs(fk - 1) > 1e-6) { phSt = MeasureLabBoard.scaleRec(brd0, pid, fk, cc); await dbPut('sess', brd0); K.boardRec = brd0; } Rp = refR(rr); } } catch (e) { console.error(e); }
       if (k === 'new' || k == null) {   // новая стена — продолжение открытой ломаной (поворот 90° от последнего участка)
         if (m.closed) throw new Error('контур помещения замкнут — выберите стену');
         if (!m.pts.length) m.pts.push([0, 0]);
@@ -654,7 +658,7 @@
       K.view = v0; { const a = region(it), f = fsz(15) * 2 / K.view.s; fitRect(Math.min(a.x, Rp.x), Math.min(a.y - f, Rp.y), Math.max(a.x + a.w, Rp.x + Rp.w), Math.max(a.y + a.h, Rp.y + Rp.h)); } syncToS(it); K.lastWall = it.id; K.act = {t: 'wall', id: it.id}; save(); draw();
       const pit = planNew ? K.items.find(i => i.t === 'plan') : null;
       dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'wall', a: null, b: {id: it.id, sid, room: r.id, wid, photo: pid, fresh: fresh ? 1 : 0, plan: pit ? clone(pit) : null, ph: phSt}}}));
-      say(`Стена ${it.name} · ${Math.round(L)}${aL ? ' ≈' : ''} × ${Math.round(H)}${aH ? ' ≈' : ''} — правка штатными инструментами`);
+      say(`Стена ${it.name} · ${Math.round(L)}${aL ? ' ≈' : ''} × ${Math.round(H)}${aH ? ' ≈' : ''}` + (phSt && phSt.over ? ' · Фото перекрывает соседние — перетащите' : ' — правка штатными инструментами'));   // r5: соседние фото не двигаются (правило 1)
       return {room: r.id, k, sid, wid, item: it.id};
     } finally { K.quiet--; }
   }
@@ -736,7 +740,7 @@
     if (!b) { b = MeasureLabBoard.record(pid, obj); await dbPut('sess', b); } else if (obj && b.obj !== obj) { b.obj = obj; await dbPut('sess', b); }
     return b;
   }
-  async function open(arg, opt) { opening++; try { return await open1(arg, opt); } finally { opening--; } }
+  async function open(arg, opt) { let r; opening++; try { r = await open1(arg, opt); } finally { opening--; } if (r && K.on) await prep(); return r; }   // r5: недостающие снимки — до работы
   async function open1(arg, opt) {
     opt = opt || {}; if (arg == null) arg = K.pid || curObj(); if (!arg) return null;
     const pr0 = await resolve(arg);
@@ -744,6 +748,7 @@
     if (K.on) { try { await flushAll(); } catch (e) { } await saveNowSk(); }
     const b = await boardFor(pr0.pid, pr0.obj);
     let cvr = await cvLoad(pr0.pid);
+    const vNew = !cvr || !cvr.view || !(cvr.view.s > 0) || (cvr.view.ox === 20 && cvr.view.oy === 80 && cvr.view.s === 0.4);
     Object.assign(K, {pid: pr0.pid, obj: pr0.obj, board: b.id, boardRec: b, items: [], view: {ox: 20, oy: 80, s: 0.4}, act: {t: 'board'}, sel: null, cor: null, snaps: {}, lastWall: null, extra: {}});
     await loadRooms();
     if (!cvr) { const old = await sGet('sk', pr0.obj).catch(() => null); if (old) { cvr = await migrateCanvas(pr0.pid, old, b.id); K.boardRec = await dbGet('sess', b.id); } }
@@ -758,9 +763,8 @@
     try { localStorage.setItem('measure.lab.canvas', JSON.stringify({pid: K.pid, obj: K.obj})); } catch (e) { }
     const tgt = K.act.t === 'wall' && byId(K.act.id) || K.act.t === 'plan' && byId(K.act.id) || BOARD;
     if (!opt.fromNative || !activeKind()) { const ok = await activate(tgt, {force: 1}); if (!ok && tgt !== BOARD) await activate(BOARD, {force: 1}); }
-    if (!cvr) { fitAll(); const a = active(); if (a) syncToS(a); }
+    if (vNew) { fitAll(); const a = active(); if (a) syncToS(a); }   // r5: вида ещё нет (новый, импорт, миграция) — весь холст в кадре (только вид)
     RZ.w = innerWidth; RZ.h = innerHeight; lastIn = Date.now();
-    bgSnaps(K.pid);   // r2 (Н4): снимки областей без снимка (миграция, импорт, ↷) — фоном, после открытия
     await saveNowSk(); draw(); return K;
   }
   /* r2 (QA Н4): снимок области строится, когда его нет или он устарел (L × H стены изменились, снимок неполный) — при открытии проекта и по ✓,
@@ -768,25 +772,27 @@
   const snapStale = it => { if (it.t !== 'wall' && it.t !== 'plan') return false; const sn = K.snaps[it.id]; if (!sn || !sn.img) return true; if (sn.cover === false) return true;
     return it.t === 'wall' && sn.L > 0 && (Math.abs(sn.L - (+it.L || 0)) > .5 || Math.abs(sn.H - (+it.H || 0)) > .5); };
   async function wallReady(sid) { for (let i = 0; i < 30; i++) { if (S.sess && S.sess.id === sid && S.mosaic && S.q4 && S.q4.ok && !S.recomp) return true; await new Promise(z => setTimeout(z, 50)); } return false; }
-  let bgT = 0, bgN = 0, smP = null, bgOn = 0, wantList = 0, lastIn = Date.now();
-  for (const t of ['pointerdown', 'keydown', 'wheel']) addEventListener(t, () => { lastIn = Date.now(); }, true);   // фоновые снимки — только после 2,5 с без касаний
-  addEventListener('measure-lab-projects', e => { if (bgOn && e.detail && e.detail.on) wantList = 1; });   // список открыли во время фоновых снимков — вернуть его после
-  function bgSnaps(pid, tries) {   // фоном: холст открыт, список закрыт, пальцы/перо не на экране; иначе — позже (до 20 попыток)
-    clearTimeout(bgT); bgN = tries || 0;
-    bgT = setTimeout(async () => { if (!K.on || K.pid !== pid) return; const a = active();   // шаг ожидания 600 мс
-      if (Date.now() - lastIn < 2500 || listOn() || F.on || ours.size || nat.size || actP || opening || !K.items.some(it => it !== a && snapStale(it))) { if (bgN < 40 && K.items.some(it => it !== a && snapStale(it))) bgSnaps(pid, bgN + 1); return; }
-      bgOn = 1; wantList = 0;
-      try { await snapMissing(a || BOARD, () => wantList || listOn() || F.on || ours.size > 0 || nat.size > 0 || K.pid !== pid || doneBusy); } catch (e) { }
-      finally { bgOn = 0; if (wantList && !listOn() && window.MeasureLabProjects && MeasureLabProjects.show) { try { MeasureLabProjects.show(); } catch (e) { } } wantList = 0; } }, 600);
+  /* r5 (решение Master): фоновых снимков по простою с переключением областей нет (перехват касаний, «бегущая рамка»). Снимок области — при уходе с неё (activate)
+     и при открытии проекта: недостающие / устаревшие (импорт, миграция, ↷) строятся ДО работы — экран «Подготовка холста… N/M», касания блокированы, вид — как был. */
+  let smP = null, prepOn = 0, lastIn = Date.now();
+  for (const t of ['pointerdown', 'keydown', 'wheel']) addEventListener(t, () => { lastIn = Date.now(); }, true);
+  async function prep() {
+    if (!K.on || listOn()) return 0; const a = active(), L = K.items.filter(it => it !== a && snapStale(it)); if (!L.length) return 0;
+    prepOn = 1; const ov = document.createElement('div'); ov.id = 'labPrep';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(233,236,240,.94);font:600 18px system-ui;color:#3E4954;touch-action:none';
+    const msg = n => { ov.textContent = `Подготовка холста… ${n}/${L.length}`; }; msg(0);
+    for (const t of ['pointerdown', 'pointermove', 'pointerup', 'click', 'touchstart', 'touchmove', 'wheel']) ov.addEventListener(t, e => { e.stopPropagation(); if (e.cancelable) e.preventDefault(); }, {passive: false});
+    document.body.appendChild(ov);
+    try { return await snapMissing(a || BOARD, () => !K.on, msg); } catch (e) { console.error(e); return 0; } finally { ov.remove(); prepOn = 0; }
   }
-  api.bgSnaps = () => bgSnaps(K.pid);
-  api.bgBusy = () => !!(bgOn || actP || F.on);   // тесты: фоновые снимки / переход идут
+  api.prep = prep;
+  api.bgBusy = () => !!(prepOn || actP || F.on);   // тесты: подготовка / переход идут
   let doneBusy = 0;
-  async function snapMissing(back, stop) { if (smP) { try { await smP; } catch (e) { } } const P = snapMissing1(back, stop); smP = P; try { return await P; } finally { if (smP === P) smP = null; } }
-  async function snapMissing1(back, stop) {
+  async function snapMissing(back, stop, step) { if (smP) { try { await smP; } catch (e) { } } const P = snapMissing1(back, stop, step); smP = P; try { return await P; } finally { if (smP === P) smP = null; } }
+  async function snapMissing1(back, stop, step) {
     const L = K.items.filter(it => it !== back && snapStale(it)); if (!L.length) return 0;
     const v0 = {...K.view}; K.quiet++;   // вид холста не меняется (активация внутри — с syncToS, без подстройки вида под поверхность)
-    let n = 0; try { for (const it of L) { if (stop && stop()) break; const ok = await activate(it, {force: 1}).catch(() => false); if (!ok) continue; if (it.t === 'wall') await wallReady(it.sid); else await new Promise(z => setTimeout(z, 150)); draw(); n++; }
+    let n = 0; try { for (const it of L) { if (stop && stop()) break; const ok = await activate(it, {force: 1}).catch(() => false); if (!ok) continue; if (it.t === 'wall') await wallReady(it.sid); else await new Promise(z => setTimeout(z, 150)); draw(); n++; if (step) try { step(n); } catch (e) { } }
     if (back) await activate(back, {force: 1}).catch(() => false); } finally { K.view = v0; { const a = active(); if (a) syncToS(a); } draw();
       setTimeout(() => { K.quiet--; }, 700); }   // отложенные fit() v81 после тихих открытий — без вписывания холста
     return n;

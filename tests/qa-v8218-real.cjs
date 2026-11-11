@@ -76,7 +76,16 @@ fs.mkdirSync(SHOT, {recursive: true});
   try {
     await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
     // реальный проект: выгрузка QA «Сидоровы» — 2 помещения (6 + 4 стены)
-    await p.evaluate(() => MeasureLabProjects.hide()); await restore(null); await hookToast();
+    await p.evaluate(() => { MeasureLabProjects.hide(); window.__prep = []; new MutationObserver(() => { const e = document.getElementById('labPrep'); if (e) __prep.push(e.textContent); }).observe(document.body, {childList: true, subtree: true, characterData: true}); });
+    await restore(null); await hookToast();
+    // решение Master: после импорта — экран «Подготовка холста… N/M» до работы, затем все снимки есть; касание сразу после — туда, куда коснулись
+    { const pr = await p.evaluate(() => ({log: [...new Set(__prep)], left: !!document.getElementById('labPrep'), stale: MeasureLabSketch.state.items.filter(i => MeasureLabSketch.snapStale(i.id)).map(i => i.name || i.t), act: MeasureLabSketch.active() && MeasureLabSketch.active().t}));
+      check(pr.log.some(t => /Подготовка холста… \d+\/\d+/.test(t)) && !pr.left && !pr.stale.length, 'импорт: экран «Подготовка холста… N/M», затем снимки всех областей есть', pr);
+      const tgt = await p.evaluate(() => { const K = MeasureLabSketch.state, a = MeasureLabSketch.active(), d = devicePixelRatio, H = cv.getBoundingClientRect().height, W = cv.getBoundingClientRect().width;
+        const L = K.items.filter(i => i.t === 'wall' && i !== a).map(it => { const r = MeasureLabSketch.region(it), c = [r.x + r.w / 2, r.y + r.h / 2], q = MeasureLabSketch.map.toScrK(...c); return {id: it.id, c, q: [q[0] / d, q[1] / d]}; });
+        return L.find(o => o.q[0] > 20 && o.q[0] < W - 20 && o.q[1] > 130 && o.q[1] < H - 220) || L[0]; });   // область, видимая на экране
+      await tap('touch', await cssK(tgt.c)); await wait(1500);
+      const a2 = await p.evaluate(() => MeasureLabSketch.active() && MeasureLabSketch.active().id); check(a2 === tgt.id, 'касание области сразу после подготовки — активна она', {tgt: tgt.id, act: a2}); }
     const st0 = await p.evaluate(async () => { const K = MeasureLabSketch.state, rooms = (await dbAll('sess')).filter(o => o.kind === 'room' && !o.del && o.oid === K.pid); return {items: K.items.map(i => i.t), rooms: rooms.length, segs: rooms.reduce((n, r) => n + r.ms.pts.length - (r.ms.closed ? 0 : 1), 0)}; });
     check(st0.items.filter(t => t === 'wall').length >= 3 && st0.items.includes('plan') && st0.segs >= 10, 'подготовка: импорт — 2 помещения (10 стен плана), области стен и план', st0);
     const D0 = await data();
@@ -152,11 +161,15 @@ fs.mkdirSync(SHOT, {recursive: true});
     const C1 = await data();
     await p.evaluate(() => zUndo()); await wait(500); { const r = await ref(ids[2]); check(!r.crop && Math.abs(r.w - c0.w) < .01 && Math.abs(r.x - c0.x) < .01 && r.iw === c0.iw, 'подрезка: ↶ — фото целиком', {crop: r.crop || null, w: r.w}); } await shot('05b-↶ подрезки');
     await p.evaluate(() => zRedo()); await wait(500); same('подрезка: ↷ — снова подрезано', C1, await data());
+    // решение Master: 10 с простоя — активная область не переключается сама (фоновых снимков с переключением нет)
+    { const tr = await p.evaluate(async () => { const out = new Set(), t0 = Date.now(); while (Date.now() - t0 < 10000) { const a = MeasureLabSketch.active(); out.add((a ? a.t + ':' + (a.id || '') : '-') + '|' + (S.sess ? S.sess.id : S.mode)); await new Promise(z => setTimeout(z, 200)); } return [...out]; });
+      check(tr.length === 1, '10 с простоя — без переключений активной области', tr); }
     // 6. ▣ Стена по рамке на фото 1: рамка (аспект L / H) → фото в реальном масштабе (рамка = L × H области), область — в свободном месте; ↶ ↷
     await settle(); await p.evaluate(() => pickTool('sel')); await viewOnRefs([ids[0]]); await wait(300); await tap('touch', await refAt(ids[0], .5, .5)); await wait(300);
     const L = 3000, H = 2500; const r0 = await ref(ids[0]); const fu = .8, fv = fu * r0.iw / (L / H) / r0.ih, u0 = .1, v0q = .1;
     await tapSel('touch', '#labSkPh [data-skp="cor"]'); await wait(200);
     for (const [u, v] of [[u0, v0q], [u0 + fu, v0q], [u0 + fu, v0q + fv], [u0, v0q + fv]]) { await tap('touch', await refAt(ids[0], u, v)); await wait(150); }
+    const fc0 = await p.evaluate(id => { const r = S.refs.find(x => x.id === id), k = r.w / r.iw; return r.q.reduce((m, q) => [m[0] + (r.x + q[0] * k) / 4, m[1] + (r.y - q[1] * k) / 4], [0, 0]); }, ids[0]);
     const W0 = await data();
     await tapSel('touch', '#labSkPh [data-skp="wall"]'); await wait(500);
     await p.evaluate(([L, H]) => { const B = [...document.querySelectorAll('[data-sk-room]')].pop().closest('div,section,form') || document; const s = [...document.querySelectorAll('[data-sk-room]')].pop(); s.value = ''; s.dispatchEvent(new Event('change')); [...document.querySelectorAll('[data-sk-l]')].pop().value = String(L); [...document.querySelectorAll('[data-sk-h]')].pop().value = String(H); [...document.querySelectorAll('[data-sk-name]')].pop().value = 'Кухня'; }, [L, H]);
@@ -167,6 +180,10 @@ fs.mkdirSync(SHOT, {recursive: true});
       const R = MeasureLabSketch.region, ov = (a, b2) => a.x < b2.x + b2.w - .5 && a.x + a.w > b2.x + .5 && a.y < b2.y + b2.h - .5 && a.y + a.h > b2.y + .5, ra = R(it), ta = MeasureLabSketch.titleBox(it);
       const P = b.refs.map(x => ({id: x.id, b: {x: x.x, y: -x.y, w: x.w, h: x.w * x.ih / x.iw}})), hits = P.filter(o => ov(ra, o.b) || ov(ta, o.b)).concat(K.items.filter(x => x !== it).map(x => ({id: x.id, b: R(x)})).filter(o => ov(ra, o.b))).map(o => o.id);   // заголовок — в px экрана: с областями сравнивается рамка
       return {fw: (d(c[0], c[1]) + d(c[3], c[2])) / 2 * k, fh: (d(c[0], c[3]) + d(c[1], c[2])) / 2 * k, L: it.L, H: it.H, k: it.k, w: r.w, hits, wall: it.id}; }, ids[0]);
+    { const fc1 = await p.evaluate(async id => { const b = await dbGet('sess', MeasureLabSketch.state.board), r = b.refs.find(x => x.id === id), k = r.w / r.iw; return {c: r.q.reduce((m, q) => [m[0] + (r.x + q[0] * k) / 4, m[1] + (r.y - q[1] * k) / 4], [0, 0]),
+        over: b.refs.some(x => x.id !== id && x.x < r.x + r.w && x.x + x.w > r.x && x.y - x.w * x.ih / x.iw < r.y && x.y > r.y - r.w * r.ih / r.iw), toast: (window.__toastLog || []).slice(-3)}; }, ids[0]);
+      check(Math.hypot(fc1.c[0] - fc0[0], fc1.c[1] - fc0[1]) < .5, 'решение Master: масштаб фото по рамке — центр рамки на месте', {before: fc0, after: fc1.c});
+      check(!fc1.over || fc1.toast.some(t => t.includes('Фото перекрывает соседние — перетащите')), 'увеличенное фото накрывает соседние — тост «перетащите», соседние не двигаются', fc1); }
     check(Math.abs(wf.fw - wf.L * wf.k) / (wf.L * wf.k) < .01 && Math.abs(wf.fh - wf.H * wf.k) / (wf.H * wf.k) < .01, 'правило 6: фото в реальном масштабе — рамка = L × H области стены', wf);
     check(!wf.hits.length, 'правило 6: область стены — в свободном месте (не поверх фото и областей)', wf.hits);
     same('правило 6: остальные объекты не сдвинуты', W0, W1, [ids[0], ...Object.keys(W0.mk).filter(m => false)]);

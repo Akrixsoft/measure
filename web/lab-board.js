@@ -228,8 +228,11 @@
      Состояние до / после — в шаг холста 'wall' (↶ ↷ — lab-history). */
   function attachedIn(rec, r) { const out = []; for (const k of KINDS) for (const q of rec[k] || []) { const P = pts(q); if (q.id && P.length && P.every(p => inRef(r, p))) out.push([k, q]); } return out; }
   const phState = (r, L) => ({ref: {x: r.x, y: r.y, w: r.w}, it: L.map(([k, q]) => [k, q.id, clone(q)])});
-  api.scaleRec = (rec, id, f) => { const r = (rec.refs || []).find(x => x.id === id); if (!r || !(f > 0)) return null; const L = attachedIn(rec, r), a = phState(r, L), A = [r.x, r.y, r.w], B = [r.x, r.y, r.w * f], m = xf(A, B);
-    for (const [, q] of L) { const o = mapPts(q, m); for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = o[kk]; } r.w = B[2]; return {id, a, b: phState(r, L)}; };
+  api.scaleRec = (rec, id, f, c) => {   // c — неподвижная точка (центр рамки, координаты подложки); нет — левый верхний угол фото
+    const r = (rec.refs || []).find(x => x.id === id); if (!r || !(f > 0)) return null; c = c || [r.x, r.y]; const L = attachedIn(rec, r), a = phState(r, L), A = [r.x, r.y, r.w], B = [c[0] + (r.x - c[0]) * f, c[1] + (r.y - c[1]) * f, r.w * f], m = xf(A, B);
+    for (const [, q] of L) { const o = mapPts(q, m); for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = o[kk]; } r.x = B[0]; r.y = B[1]; r.w = B[2];
+    const ov = (rec.refs || []).some(x => x !== r && !x.on && x.x < r.x + r.w && x.x + x.w > r.x && x.y - x.w * x.ih / x.iw < r.y && x.y > r.y - rfH(r));
+    return {id, a, b: phState(r, L), over: ov ? 1 : 0}; };
   api.phApply = (rec, st, id) => { if (!rec || !st) return; const r = (rec.refs || []).find(x => x.id === (id || st.id)); if (r) Object.assign(r, st.ref);
     for (const [k, id, o] of st.it || []) { const q = (rec[k] || []).find(x => x.id === id); if (q) for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = clone(o[kk]); } };
 })();
