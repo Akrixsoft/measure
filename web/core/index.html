@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Measure — ядро холста (AKX-2026-0015)</title>
+<link rel="stylesheet" href="core.css">
+</head>
+<body>
+<!-- [BLOCK C-HTML] разметка ядра: шапка, холст, нижний ряд. Своих экранов/рамок нет. -->
+<header id="cHd">
+  <button id="cOk" title="Сохранить">✓</button>
+  <input id="cName" placeholder="клиент · проект" autocomplete="off">
+  <label id="cHl">H<input id="cH" inputmode="numeric" placeholder="мм" autocomplete="off"></label>
+  <button id="cFit" title="Показать всё">⤢</button>
+</header>
+<canvas id="cCv"></canvas>
+<div id="cCtx"></div>
+<nav id="cTb">
+  <div class="grp">
+    <button data-t="sel" title="Выбор">↖</button>
+    <button data-t="wall" title="Стена плана">／</button>
+    <button id="cPh" title="Фото">📷</button>
+  </div>
+  <div class="grp">
+    <button id="cUn" title="Отменить">↶</button>
+    <button id="cRe" title="Повторить">↷</button>
+    <button id="cDel" title="Удалить">🗑</button>
+  </div>
+</nav>
+<input id="cFile" type="file" accept="image/*" multiple hidden>
+<input id="cEd" inputmode="numeric" autocomplete="off">
+<div id="cToast"></div>
+<script src="core.js"></script>
+</body>
+</html>
