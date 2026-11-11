@@ -36,6 +36,10 @@
   function persistNow() { clearTimeout(pT); if (H.sc) api.storage.save(H.sc, {v: 1, j: H.j.slice(-LIM), r: H.r.slice(-LIM)}); }
   const persist = () => { clearTimeout(pT); pT = setTimeout(persistNow, 300); };
   api.flush = persistNow;
+  /* r5 (QA-5 D2): импорт «Обновить» — история проекта начинается заново (lab-store очистил стеки записей); журнал холста — тоже, иначе ↶ уходил к шагам до импорта */
+  addEventListener('measure-lab-project', ev => { const d = ev.detail || {}; if (d.op !== 'import-update' || !d.pid) return; const sc = 'p:' + d.pid;
+    api.storage.save(sc, {v: 1, j: [], r: []}); if (H.sc === sc) { H.j = []; H.r = []; }
+    try { const sk = window.MeasureLabSketch; if (sk && sk.isOpen && sk.isOpen() && sk.pid && sk.pid() === d.pid) { S.und = []; S.red = []; S.pund = []; S.pred = []; } } catch (e) { } });
 
   /* ═══ [BLOCK HJ-REC] метки шагов: после штатного push в S.und / S.pund ═══ */
   function rec(e) { if (H.busy || H.mute) return; sync(); H.j.push(e); if (H.j.length > LIM) H.j.splice(0, H.j.length - LIM); H.r = []; persist(); }

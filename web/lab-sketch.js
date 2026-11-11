@@ -129,7 +129,7 @@
     for (const it of K.items) { if (it === act || (K.snaps[it.id] && K.snaps[it.id].img)) continue; const r = region(it); label(r.x + 12 / K.view.s, r.y + r.h / 2, it.t === 'plan' ? (K.rooms.length ? ['Коснитесь — план помещений', 'Коснитесь — план', 'План'] : ['Коснитесь — новое помещение', 'Новое помещение', '＋']) : ['Коснитесь — стена', 'Коснитесь', 'Стена'], '#6B7380', 13, r); }
   }
   function titles(it) { const t = title(it); if (it.t === 'plan') return [t, 'План']; const nm = it.name || 'Стена', m = /С\d+$/.exec(nm); return [t, nm, m ? m[0] : nm]; }   // полный → имя → С№
-  function paintTitles(act) { for (const it of K.items) { const r = region(it), tr = titleR(it), clip = {x: tr.x - 4 / K.view.s, y: tr.y - tr.h, w: tr.w + 8 / K.view.s, h: tr.h * 2.2};
+  function paintTitles(act) { for (const it of K.items) { const r = region(it); if (it !== act && K.sel !== it.id && (r.w * K.view.s < 36 || r.h * K.view.s < fsz(15) * 1.2)) continue; /* r5 (QA-5 м4): обзор — заголовок крупнее своей области не рисуется (только вид) */ const tr = titleR(it), clip = {x: tr.x - 4 / K.view.s, y: tr.y - tr.h, w: tr.w + 8 / K.view.s, h: tr.h * 2.2};
     label(r.x, r.y - fsz(15) * .5 / K.view.s, titles(it), it === act ? '#1F6FD1' : K.sel === it.id ? '#1F6FD1' : '#3E4954', 15, clip); } }
   function paintOver(act) {   // рамка активной области, выбранная область, 4 угла выбранного фото
     const d = DPR(), s = K.view.s * d; cx.save(); cx.setTransform(s, 0, 0, s, K.view.ox * d, K.view.oy * d); const px = 1 / K.view.s;

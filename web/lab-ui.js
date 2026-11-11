@@ -158,9 +158,9 @@
     return out;
   }
   const bD = $('bDone');
-  if (bD) { bD.title = 'Готово: сохранить и показать весь холст · число — сколько не введено (длины стен, высоты, размеры); касание — список';
+  if (bD) { bD.title = 'Готово: сохранить и выйти в список проектов · число — сколько не введено (длины стен, высоты, размеры); касание — список';
     bD.addEventListener('click', () => { const c = $('hCnt'), n = c && c.textContent; if (!n) return; const L = openList(); if (!L.length) return;
-      setTimeout(() => say('Не введено (' + n + '): ' + L.slice(0, 4).join(' · ') + (L.length > 4 ? ' …' : '')), 450); }, true); }
+      const t0 = Date.now(); const show = () => { const P = window.MeasureLabProjects; if (P && P.note && P.isOpen && P.isOpen()) return P.note('Не введено (' + n + '):\n' + L.join('\n')); if (P && P.isOpen && Date.now() - t0 < 3000) return setTimeout(show, 150); say('Не введено (' + n + '): ' + L.slice(0, 4).join(' · ') + (L.length > 4 ? ' …' : '')); }; setTimeout(show, 450); }, true); }   // r5 (QA-5 м3): после ✓ открыт список — полный список внизу, по строке на помещение
   PM.labOpenList = openList;
 
   /* ── 1) окно «Новое помещение»: имя + H ── */

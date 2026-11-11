@@ -73,6 +73,10 @@ fs.mkdirSync(SHOT, {recursive: true});
   const settle = async () => { await wait(200); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); await p.evaluate(async () => { await MeasureLabSketch.activate('board'); await MeasureLabSketch.snapMissing(MeasureLabSketch.active()); await MeasureLabSketch.activate('board'); }); await wait(300); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); };   // снимки свежие — фоновые снимки не перехватывают жест
   const toList = async () => { await tapSel('touch', '#bDone'); await p.waitForFunction(() => MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(600); };
   const reopen = async () => { const pid = await p.evaluate(() => MeasureLabSketch.state.pid); await p.evaluate(pid => MeasureLabProjects.open(pid), pid); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(1500); };
+  const addTxt = async (id, u, v, tx) => { await p.evaluate(() => pickTool('txt')); await tap('touch', await refAt(id, u, v)); await wait(250);
+    await p.evaluate(tx => { const i = document.getElementById('pp').querySelector('[data-zt]'); if (i) { i.value = tx; i.dispatchEvent(new Event('input', {bubbles: true})); i.dispatchEvent(new Event('change', {bubbles: true})); i.blur(); } pickTool('sel'); draw(); }, tx); await wait(250);
+    return p.evaluate(tx => { const q = (S.drw || []).find(x => x.k === 'txt' && x.tx === tx); return q && q.id; }, tx); };
+  const txtAt = (t, id) => p.evaluate(([t, id]) => { const q = S.drw.find(x => x.id === t), r = S.refs.find(x => x.id === id), h = r.w * r.ih / r.iw; return {a: q.a, uv: [(q.a[0] - r.x) / r.w, (r.y - q.a[1]) / h], ref: q.labRef}; }, [t, id]);
   try {
     await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
     // реальный проект: выгрузка QA «Сидоровы» — 2 помещения (6 + 4 стены)
@@ -192,6 +196,27 @@ fs.mkdirSync(SHOT, {recursive: true});
     { const U = await data(); check(!U.items[wf.wall] && U.refs[ids[0]] === W0.refs[ids[0]], 'стена по рамке: ↶ — области нет, фото — прежнего размера', {ref: U.refs[ids[0]], was: W0.refs[ids[0]]}); }
     await p.evaluate(() => zRedo()); await wait(1500);
     { const U = await data(); check(!!U.items[wf.wall] && U.refs[ids[0]] === W1.refs[ids[0]], 'стена по рамке: ↷ — область и масштаб фото снова', {ref: U.refs[ids[0]], was: W1.refs[ids[0]]}); }
+    // QA-5 D1: перекрывающиеся фото — разметка принадлежит фото, на котором её поставили; перенос / масштаб / подрезка одного не трогают разметку другого
+    await settle(); await p.evaluate(() => { MeasureLabBoard.setGroup([]); pickTool('sel'); });
+    const ovl = await p.evaluate(([a, b]) => { const A = S.refs.find(x => x.id === a), B = S.refs.find(x => x.id === b), hA = A.w * A.ih / A.iw, hB = B.w * B.ih / B.iw, x0 = Math.max(A.x, B.x), x1 = Math.min(A.x + A.w, B.x + B.w), yT = Math.min(A.y, B.y), yB = Math.max(A.y - hA, B.y - hB);
+      return x1 > x0 && yT > yB ? {u: ((x0 + x1) / 2 - B.x) / B.w, v: (B.y - (yT + yB) / 2) / hB, iA: S.refs.indexOf(A), iB: S.refs.indexOf(B)} : null; }, [ids[0], ids[1]]);
+    check(!!ovl && ovl.iB > ovl.iA, 'D1 подготовка: увеличенное фото 1 накрыто фото 2 (фото 2 сверху)', ovl);
+    await viewOnRefs([ids[0], ids[1]]); await wait(300);
+    const T2 = await addTxt(ids[1], ovl.u, ovl.v, 'Верх 2'), T1 = await addTxt(ids[0], .5, .06, 'Верх 1');
+    { const b1 = await txtAt(T1, ids[0]), b2 = await txtAt(T2, ids[1]); check(b1.ref === ids[0] && b2.ref === ids[1], 'D1: разметка привязана к фото, на котором её поставили (верхнее фото под точкой; в зоне перекрытия — фото 2)', {T1: b1.ref, T2: b2.ref}); }
+    { await settle(); await p.evaluate(() => pickTool('sel')); await viewOnRefs([ids[0], ids[1]]); await wait(300); const M0 = await data(), t1a = await txtAt(T1, ids[0]);
+      const a = await refAt(ids[0], .5, .12); await drag('touch', a, [a[0] + 50, a[1] + 30]); await wait(300); const M1 = await data(), t1b = await txtAt(T1, ids[0]);
+      check(M1.refs[ids[0]] !== M0.refs[ids[0]] && Math.abs(t1b.uv[0] - t1a.uv[0]) < 1e-6 && Math.abs(t1b.uv[1] - t1a.uv[1]) < 1e-6, 'D1: перенос фото 1 — его текст вместе с ним', {uv0: t1a.uv, uv1: t1b.uv});
+      same('D1: перенос фото 1 — разметка фото 2 (в зоне перекрытия) на месте', M0, M1, [ids[0], T1]);
+      await p.evaluate(() => zUndo()); await wait(500); same('D1: ↶ переноса', M0, await data()); }
+    { const M0 = await data(), t2a = await txtAt(T2, ids[1]); await p.evaluate(id => { MeasureLabBoard.setGroup([]); S.rsel = id; draw(); }, ids[1]); await wait(200);
+      const c = await refAt(ids[1], 1, 1); await drag('touch', [c[0] + 6, c[1] + 6], [c[0] - 30, c[1] - 40]); await wait(300); const M1 = await data(), t2b = await txtAt(T2, ids[1]);
+      check(M1.refs[ids[1]] !== M0.refs[ids[1]] && Math.abs(t2b.uv[0] - t2a.uv[0]) < 1e-6 && Math.abs(t2b.uv[1] - t2a.uv[1]) < 1e-6, 'D1: масштаб фото 2 за угол — его текст масштабируется с ним', {uv0: t2a.uv, uv1: t2b.uv});
+      same('D1: масштаб фото 2 — разметка фото 1 на месте', M0, M1, [ids[1], T2, txtId]);
+      await p.evaluate(() => zUndo()); await wait(500); same('D1: ↶ масштаба', M0, await data()); }
+    { const M0 = await data(); await p.evaluate(id => { MeasureLabBoard.setGroup([]); S.rsel = id; draw(); }, ids[0]); await wait(200); await tapSel('touch', '#labSkPh [data-skp="crop"]'); await wait(300);
+      const a = await refAt(ids[0], 0, 0); await drag('touch', a, [a[0] + 25, a[1] + 30]); await tapSel('touch', '#labCrOk'); await wait(400); const M1 = await data();
+      same('D1: подрезка фото 1 — разметка обоих фото на месте', M0, M1, [ids[0]]); await p.evaluate(() => zUndo()); await wait(500); same('D1: ↶ подрезки', M0, await data()); }
     // 7. ↶ после перехода — вид на активированную область (камера); «Стены в плоскости» — стена вписана; снимки без ручек
     await p.evaluate(async () => { await MeasureLabSketch.goPlan(); const r = (await dbAll('sess')).find(o => o.kind === 'room' && !o.del && o.oid === MeasureLabSketch.state.pid && o.name === 'Прихожая'); await openRoom(r.id, null, true); plSnap(); S.room.ms.pts[0] = [S.room.ms.pts[0][0] - 50, S.room.ms.pts[0][1]]; saveRoom(); draw(); }); await wait(500);
     { await p.evaluate(async () => { await MeasureLabSketch.activate('board'); MeasureLabSketch.state.view.s *= .3; MeasureLabSketch.map.syncToS(MeasureLabSketch.active()); draw(); }); await wait(300);
@@ -215,9 +240,31 @@ fs.mkdirSync(SHOT, {recursive: true});
     { await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(600); const r = await ref(ids[2]); check(r && r.crop && Math.abs(r.w - c1.w) < .01, 'подрезка и масштаб фото сохранены после перезапуска', r && {crop: r.crop, w: r.w}); }
     const hs = await p.evaluate(() => { const K = MeasureLabSketch.state, out = []; for (const it of K.items) { const sn = K.snaps[it.id]; if (!sn || !sn.img || !sn.img.getContext) continue; const g = sn.img.getContext('2d').getImageData(0, 0, sn.img.width, sn.img.height).data; let n = 0; for (let i = 0; i < g.length; i += 4) if (g[i] > 225 && g[i + 1] > 115 && g[i + 1] < 160 && g[i + 2] < 40) n++; if (n > 40) out.push(it.name + ':' + n); } return out; });
     check(!hs.length, 'правило 7: снимки областей без выделения и ручек', hs);
+    // QA-5 D1: старые данные без привязки — привязка один раз по геометрии при открытии
+    { const before = await p.evaluate(async () => { await MeasureLabSketch.activate('board'); return S.drw.filter(q => q.k === 'txt').map(q => [q.id, q.labRef]); });
+      await p.evaluate(async () => { const it = MeasureLabSketch.state.items.find(i => i.t === 'wall'); await MeasureLabSketch.activate(it); await flushAll(); await MeasureLabSketch.saveNow();
+        const b = await dbGet('sess', MeasureLabSketch.state.board); for (const k of ['drw', 'dms']) for (const q of b[k] || []) delete q.labRef; await dbPut('sess', b); });
+      await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && MeasureLabSketch.isOpen(), null, {timeout: 20000}); await wait(2500); await hookToast();
+      const raw = await p.evaluate(async () => (await dbGet('sess', MeasureLabSketch.state.board)).drw.filter(q => 'labRef' in q).length);
+      const after = await p.evaluate(async () => { await MeasureLabSketch.activate('board'); draw(); return S.drw.filter(q => q.k === 'txt').map(q => [q.id, q.labRef]); });
+      check(raw === 0 && JSON.stringify(after) === JSON.stringify(before), 'D1: миграция — разметка без привязки привязана по геометрии при открытии (как была)', {raw, before, after}); }
     const D9 = await data(); await restore('Обновить'); await shot('09-импорт Обновить');
     { const D10 = await data(), gone = Object.keys(D9.items).filter(id => !(id in D0.items) && !(id in D10.items)); info.updGone = gone;   // стены, которых нет в файле, «Обновить» снимает (r2c QA-2 Д9)
       same('правило 1: импорт «Обновить» — места и размеры объектов холста те же', D9, D10, gone); }
+    // QA-5 D2: после «Обновить» история начата заново: тост; ↶ не откатывает к данным до импорта; новые шаги ↶ работают
+    { const tl = await p.evaluate(() => (window.__toastLog || []).slice(-4)); check(tl.some(t => t.includes('история ↶ начата заново')), 'D2: «Обновить» — тост «история ↶ начата заново»', tl);
+      const rooms = () => p.evaluate(async () => (await dbAll('sess')).filter(o => o.kind === 'room' && !o.del && o.oid === MeasureLabSketch.state.pid).map(o => JSON.stringify(o.ms.pts)).sort());
+      const Du = await data(), r0 = await rooms(); for (let i = 0; i < 3; i++) { await p.evaluate(() => zUndo()); await wait(600); }
+      same('D2: ↶ после «Обновить» — холст не откатывается к данным до импорта', Du, await data()); check(JSON.stringify(await rooms()) === JSON.stringify(r0), 'D2: ↶ после «Обновить» — план не откатывается к данным до импорта', null);
+      await settle(); await p.evaluate(() => { MeasureLabBoard.setGroup([]); pickTool('sel'); }); await viewOnRefs([ids[3]]); await wait(300); const P0 = await data();
+      const a = await refAt(ids[3], .5, .5); await drag('touch', a, [a[0] + 40, a[1] + 30]); await wait(300); const P1 = await data();
+      await p.evaluate(() => zUndo()); await wait(600); check(P1.refs[ids[3]] !== P0.refs[ids[3]] && diff(P0, await data()).length === 0, 'D2: перенос фото после «Обновить» — ↶ возвращает', {moved: P1.refs[ids[3]], was: P0.refs[ids[3]]}); }
+    // QA-5 м3: ✓ при незаполненных L — список «Не введено» внизу списка проектов целиком
+    { await p.evaluate(async () => { await MeasureLabSketch.goPlan(); await newRoom(MeasureLabSketch.state.obj, 'Кабинет', true); S.room.oid = MeasureLabSketch.state.pid; Object.assign(S.room.ms, {pts: [[0, 0], [3000, 0], [3000, 2500], [0, 2500]], closed: true, H: 2700}); saveRoom(); draw(); zLay(); }); await wait(800);
+      const cnt = await p.evaluate(() => document.getElementById('hCnt').textContent); await tapSel('touch', '#bDone'); await wait(2000);
+      const m3 = await p.evaluate(() => { const e = document.querySelector('#labPrj .lp-to.on span'); if (!e) return null; const r = e.getBoundingClientRect(); return {t: e.textContent, w: Math.round(r.width), sw: e.scrollWidth, cw: e.clientWidth, h: Math.round(r.height), vis: r.bottom <= innerHeight && r.top >= 0}; });
+      await shot('10-не введено');
+      check(cnt && m3 && /Не введено/.test(m3.t) && /Кабинет: длина С\d+, С\d+, С\d+, С\d+/.test(m3.t) && m3.sw <= m3.cw + 1 && m3.vis, 'м3: ✓ — «Не введено» внизу списка проектов целиком (все стены, без обрезки)', {cnt, m3}); }
     check(errors.length === 0, 'нет ошибок страницы', errors);
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }

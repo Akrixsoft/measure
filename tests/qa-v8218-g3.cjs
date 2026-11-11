@@ -437,7 +437,7 @@ fs.mkdirSync(SHOT, {recursive: true});
       // 5. м4: число на ✓ — список «что не введено»
       await p.evaluate(async () => { await openRoom((await dbAll('sess')).find(x => x.kind === 'room' && x.name === 'Прихожая' && !x.del).id, null, true); PL.tool = 'sel'; S.psel = null; mkChips(); mkPanel(); draw(); }); await wait(300);
       const cnt = await p.evaluate(() => document.getElementById('hCnt').textContent);
-      await tapSel('touch', '#bDone'); await wait(900); const tt = await p.evaluate(() => document.getElementById('toast').textContent);
+      await tapSel('touch', '#bDone'); await wait(1800); const tt = await p.evaluate(() => { const e = document.querySelector('#labPrj .lp-to.on span'); return e ? e.textContent : document.getElementById('toast').textContent; });   // r5 (QA-5 м3): после ✓ — список проектов, сообщение внизу целиком
       check(cnt === '4' && /Не введено \(4\)/.test(tt) && /Прихожая: длина С\d+, С\d+, С\d+, С\d+/.test(tt), 'м4: число на ✓ (4) — касание ✓ даёт список «Не введено (4): Прихожая: длина С…»', {cnt, tt});
       // 6. м3: маленькое помещение (~87 px) — касание середины каждой стены дважды пальцем открывает её поле L
       await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(500);

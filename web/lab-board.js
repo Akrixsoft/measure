@@ -68,7 +68,14 @@
   /* ═══ [BLOCK BD-ATT] рисунки на фото: вычисляемая привязка — все точки внутри прямоугольника фото ═══ */
   const inRef = (r, p) => p[0] >= r.x && p[0] <= r.x + r.w && p[1] <= r.y && p[1] >= r.y - rfH(r);
   function pts(q) { try { const P = zdPts(q); if (P && P.length) return P; } catch (e) { } const P = []; (function walk(o) { if (Array.isArray(o)) { if (o.length === 2 && typeof o[0] === 'number' && typeof o[1] === 'number') P.push(o); else o.forEach(walk); } else if (o && typeof o === 'object') for (const k in o) if (k[0] !== '_') walk(o[k]); })(q); return P; }
-  function attached(r) { const out = []; for (const k of KINDS) for (const q of S[k] || []) { const P = pts(q); if (P.length && P.every(p => inRef(r, p))) out.push(q); } return out; }
+  /* r5 (QA-5 D1): разметка принадлежит фото, на котором её поставили — явная привязка q.labRef = id фото (null — вне фото, ни к чему).
+     Новая разметка и старые данные без привязки — один раз по геометрии: верхнее фото (по порядку отрисовки) под первой точкой; дальше — только привязка.
+     Привязка — поле самой разметки: в шагах ↶ ↷ и в записи. Координаты разметки меняются вместе с фото (перенос / масштаб) — в системе фото они те же. */
+  const BIND = 'labRef', hasB = q => Object.prototype.hasOwnProperty.call(q, BIND);
+  function topRefAt(rec, p) { const R = rec.refs || []; for (let i = R.length - 1; i >= 0; i--) { const r = R[i]; if (r && !r.on && r.iw && inRef(r, p)) return r; } return null; }
+  function bindAll(rec) { let n = 0; if (!rec) return 0; if (rec === S) { const RF = getG('RF'); if ((RF && RF.ld) || ((S.sess && (S.sess.refs || []).length) && !(S.refs || []).length)) return 0; }   /* openSess v81: разметка уже загружена, фото — ещё нет (S.refs = [] до конца загрузки) */ for (const k of KINDS) for (const q of rec[k] || []) { if (!q || typeof q !== 'object' || hasB(q)) continue; const P = pts(q), r = P.length ? topRefAt(rec, P[0]) : null; q[BIND] = r ? r.id : null; n++; } return n; }
+  api.bindAll = rec => bindAll(rec || S);
+  function attached(r) { bindAll(S); const out = []; for (const k of KINDS) for (const q of S[k] || []) if (q && q[BIND] === r.id) out.push(q); return out; }
   api.attached = id => { const r = (S.refs || []).find(x => x.id === id); return r && isB() ? attached(r) : []; };
   function mapPts(o, f) { if (Array.isArray(o)) { if (o.length === 2 && typeof o[0] === 'number' && typeof o[1] === 'number') return f(o); return o.map(x => mapPts(x, f)); } if (o && typeof o === 'object') { const n = {}; for (const k in o) n[k] = k[0] === '_' ? o[k] : mapPts(o[k], f); return n; } return o; }
   const xf = (a, b) => p => { const k = b[2] / a[2]; return [b[0] + (p[0] - a[0]) * k, b[1] + (p[1] - a[1]) * k]; };
@@ -77,9 +84,8 @@
   api.placeRef = (id, x, y, w) => {
     if (!isB()) return false; const r = (S.refs || []).find(q => q.id === id); if (!r || !(w > 0)) return false;
     const a = [r.x, r.y, r.w], b = [x, y, w]; if (a.every((v, i) => Math.abs(v - b[i]) < 1e-6)) return true;
-    const m = r.w * .3, h = rfH(r), near = p => p[0] >= r.x - m && p[0] <= r.x + r.w + m && p[1] <= r.y + m && p[1] >= r.y - h - m, f = xf(a, b);
-    for (const k of KINDS) for (const q of S[k] || []) { const P = pts(q); if (P.length && P.every(near)) { const o = mapPts(q, f); for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = o[kk]; } }
-    for (const n of S.notes || []) { const P = [n.p, n.t].filter(Array.isArray); if (P.length && P.every(near)) { if (Array.isArray(n.p)) n.p = f(n.p); if (Array.isArray(n.t)) n.t = f(n.t); } }
+    const f = xf(a, b);
+    for (const q of attached(r)) { const o = mapPts(q, f); for (const kk of Object.keys(o)) if (kk !== 'id') q[kk] = o[kk]; }   // r5 (D1): только своя разметка
     r.x = x; r.y = y; r.w = w; return true;
   };
   function put(list, src) { for (const [q, o] of list) for (const k of Object.keys(o)) if (k !== 'id') q[k] = src(o)[k]; }
@@ -209,8 +215,19 @@
   const phUp = ev => { if (ev.pointerId !== PH.id) return; ev.stopImmediatePropagation(); const g = PH.g; PH.id = null; PH.g = null; if (g && g.end && ev.type === 'pointerup') g.end(); draw(); };
   window.addEventListener('pointerup', phUp, true); window.addEventListener('pointercancel', phUp, true);
   /* отрисовка: группа (пунктир), ручки масштаба выбранного фото, рамка подрезки (снаружи — затемнение) */
+  /* r5 (QA-5 м4): обзор — подписи экранного размера (размеры, текст, выноски) у фото, которое на экране мельче 110 px, не рисуются; только вид, данные те же */
+  function hideSmall() {
+    const SK = window.MeasureLabSketch; if (!SK || !SK.isOpen || !SK.isOpen() || !SK.state || !SK.state.view) return [];
+    const s = SK.state.view.s, back = [], recs = [...new Set([isB() ? S : null, SK.state.boardRec].filter(Boolean))], selQ = q => q.id && (q.id === S.dsel || (S.msel || []).includes(q.id));
+    for (const rec of recs) { const R = new Map((rec.refs || []).map(r => [r.id, r]));
+      for (const k of ['dms', 'drw']) { const A = rec[k]; if (!Array.isArray(A)) continue;
+        const F = A.filter(q => { if (!q || !q.labRef || selQ(q) || !(k === 'dms' || q.k === 'txt' || q.k === 'pin')) return true; const r = R.get(q.labRef); return !(r && r.w * s < 110); });
+        if (F.length !== A.length) { back.push([rec, k, A]); rec[k] = F; } } }
+    return back;
+  }
   const dr1 = draw; draw = function () {
-    const res = dr1.apply(this, arguments);
+    try { if (isB() && bindAll(S)) saveSess(); } catch (e) { }   // r5 (D1): привязка новой разметки — сразу (до скрытия подписей обзора)
+    const back = hideSmall(); let res; try { res = dr1.apply(this, arguments); } finally { for (const [rec, k, A] of back) rec[k] = A; }
     try {
       if (CR.on && !isB()) cropEnd(false);
       if (!isB() || !skOn()) return res; const d = devicePixelRatio || 1; cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0);
@@ -226,7 +243,7 @@
   };
   /* ▣ Стена по рамке: фото — в реальный масштаб (рамка = L × H области стены), разметка на фото — вместе; запись подложки (подложка может быть неактивна).
      Состояние до / после — в шаг холста 'wall' (↶ ↷ — lab-history). */
-  function attachedIn(rec, r) { const out = []; for (const k of KINDS) for (const q of rec[k] || []) { const P = pts(q); if (q.id && P.length && P.every(p => inRef(r, p))) out.push([k, q]); } return out; }
+  function attachedIn(rec, r) { bindAll(rec); const out = []; for (const k of KINDS) for (const q of rec[k] || []) if (q && q.id && q[BIND] === r.id) out.push([k, q]); return out; }
   const phState = (r, L) => ({ref: {x: r.x, y: r.y, w: r.w}, it: L.map(([k, q]) => [k, q.id, clone(q)])});
   api.scaleRec = (rec, id, f, c) => {   // c — неподвижная точка (центр рамки, координаты подложки); нет — левый верхний угол фото
     const r = (rec.refs || []).find(x => x.id === id); if (!r || !(f > 0)) return null; c = c || [r.x, r.y]; const L = attachedIn(rec, r), a = phState(r, L), A = [r.x, r.y, r.w], B = [c[0] + (r.x - c[0]) * f, c[1] + (r.y - c[1]) * f, r.w * f], m = xf(A, B);

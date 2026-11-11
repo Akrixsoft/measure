@@ -72,7 +72,7 @@ body.lab-prj-on #toast{top:calc(9px + env(safe-area-inset-top,0px));left:52px;tr
 /* ═══ [BLOCK LP-TOAST] тост с кнопкой «↶ Вернуть» ═══ */
 #labPrj .lp-to{position:absolute;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:4;display:none;align-items:center;gap:8px;min-height:48px;padding:0 6px 0 16px;border-radius:10px;background:#2A2F37;color:#E8EBEF;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 #labPrj .lp-to.on{display:flex}
-#labPrj .lp-to span{flex:1;min-width:0;font-size:15px}
+#labPrj .lp-to span{flex:1;min-width:0;font-size:15px;white-space:pre-line;line-height:1.35;padding:8px 0}
 #labPrj .lp-to button{height:44px;padding:0 12px;color:#4FA3FF;font-weight:700}
 /* ═══ [BLOCK LP-TITLE] заголовок проекта в шапке холста вместо #hdIn ═══ */
 #labPrjT{display:none;flex:0 1 auto;min-width:48px;max-width:58vw;height:32px;margin:0 6px;padding:0 9px;border-radius:8px;border:1px solid #3A4150;background:#23272E;color:#E8EBEF;font:600 13px/30px system-ui;text-align:left;cursor:pointer;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

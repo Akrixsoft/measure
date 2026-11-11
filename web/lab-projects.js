@@ -209,8 +209,9 @@
   }
   function note(msg, undo) {
     const to = $p('.lp-to'); to.querySelector('span').textContent = msg; to.querySelector('button').hidden = !undo; last = undo || null; to.classList.add('on');
-    clearTimeout(toT); toT = setTimeout(() => { to.classList.remove('on'); last = null; }, undo ? 6000 : 2500);
+    clearTimeout(toT); toT = setTimeout(() => { to.classList.remove('on'); last = null; }, undo ? 6000 : Math.max(2500, Math.min(9000, msg.length * 70)));   // r5 (QA-5 м3): длинное — дольше
   }
+  api.note = (msg, ms) => note(String(msg));   // r5 (QA-5 м3): сообщение внизу списка, многострочное (тост v81 в шапке обрезался)
   async function undoLast() {
     const u = last; last = null; $p('.lp-to').classList.remove('on'); if (!u) return;
     if (u.t === 'trash') await ST.restore(u.pid); else if (u.t === 'arch') await ST.archive(u.pid, false);

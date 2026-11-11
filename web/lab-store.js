@@ -525,12 +525,15 @@
     try { await number(P.id); } catch (e) { }
     if (how === 'upd') await staleOut(P);   // r2c (QA-2 Д9): области стен прежних (удалённых) записей — вон, иначе «Обновить» давал две области
     await api.layout(P.id);
+    /* r5 (QA-5 D2): «Обновить» — файл источник; история ↶ ↷ проекта начинается заново (стеки записей и журнал холста), иначе ↶ откатывал план к данным до импорта */
+    if (how === 'upd') { try { const R = await api.records(P.id); for (const o of (R && R.all) || []) if ((o.und || []).length || (o.red || []).length || o.labRed || (o.pund || []).length || (o.pred || []).length || o._labPred)
+      await zEdit(o.id, x => { x.und = []; x.red = []; delete x.labRed; x.pund = []; x.pred = []; delete x._labPred; }); } catch (e) { console.warn('Measure 82.18 import und', e); } }
     emit(how === 'upd' ? 'import-update' : 'import', {pid: P.id});
     try { localStorage.setItem('measure.lastPrj', P.id); } catch (e) { }
     if (SK && typeof SK.open === 'function') {
       if (window.MeasureLabProjects && MeasureLabProjects.open) await MeasureLabProjects.open(P.id); else await SK.open(P.id);
     }
-    toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n);
+    toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n + (how === 'upd' ? ' · история ↶ начата заново' : ''));
     return n;
   };
   PM.zImpExp = (...a) => zImpExp(...a);
