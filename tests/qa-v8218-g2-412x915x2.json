@@ -1,6 +1,6 @@
 {
  "tag": "412x915x2",
- "pass": 41,
+ "pass": 42,
  "fail": 0,
  "checks": [
   {
@@ -344,7 +344,7 @@
    "ok": true,
    "name": "Д5: касание поверх колонны при выбранной розетке — новая розетка, колонна не выбрана",
    "detail": {
-    "before": "emwbjfgnbo9r",
+    "before": "emwbk60cg5j1",
     "sel": "roz"
    }
   },
@@ -401,6 +401,38 @@
   },
   {
    "ok": true,
+   "name": "Н9: последний цвет выбран касанием ленты — виден и отмечен; после перерисовки строки положение ленты то же",
+   "detail": {
+    "z1": {
+     "sl": 89,
+     "last": "#8d6e63",
+     "on": "#8d6e63",
+     "onVis": true,
+     "more": true,
+     "box": [
+      192,
+      883,
+      134,
+      24
+     ]
+    },
+    "z2": {
+     "sl": 89,
+     "last": "#8d6e63",
+     "on": "#8d6e63",
+     "onVis": true,
+     "more": true,
+     "box": [
+      192,
+      883,
+      134,
+      24
+     ]
+    }
+   }
+  },
+  {
+   "ok": true,
    "name": "Д13: поле открыто (#zkb)"
   },
   {
@@ -409,9 +441,9 @@
    "detail": {
     "plusOver": 0,
     "zur": "zpb",
-    "firstClip": -1.5,
-    "sl": 0,
-    "black": true,
+    "firstClip": 10.5,
+    "sl": 12,
+    "black": false,
     "more": true
    }
   },
@@ -455,9 +487,9 @@
     },
     "plusOver": 0,
     "zur": "zpb",
-    "firstClip": -1.5,
-    "sl": 0,
-    "black": true,
+    "firstClip": 10.5,
+    "sl": 12,
+    "black": false,
     "more": true
    }
   },

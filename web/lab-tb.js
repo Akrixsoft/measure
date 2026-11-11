@@ -208,10 +208,22 @@
   new MutationObserver(() => { if (!document.body.classList.contains('kb')) requestAnimationFrame(zurHome); }).observe(document.body, {attributes: true, attributeFilter: ['class']});
   if (typeof stripShow === 'function') {
     const ss0 = stripShow;
-    /* r2b (QA2 Н9): лента цветов строки пера начинается с первого цвета (чёрный), без докрутки к выбранному;
-       не помещается — явная прокрутка: край ленты гаснет и стоит «›» / «‹» (классы lab-more-r / lab-more-l). */
+    /* r2b (QA2 Н9): лента цветов строки пера — одна строка с явной прокруткой (край гаснет, «›» / «‹»: lab-more-r / lab-more-l).
+       Первый показ — с первого цвета (чёрный); при перерисовке строки положение прокрутки сохраняется (api.zcolsX);
+       выбранный касанием цвет (.cl.on) после перерисовки не уходит из видимой части — лента докручивается к нему до целого кружка. */
     const moreUpd = box => { try { const m = box.scrollWidth - box.clientWidth; box.classList.toggle('lab-more-r', m > 2 && box.scrollLeft < m - 2); box.classList.toggle('lab-more-l', m > 2 && box.scrollLeft > 2); } catch (e) { } };
-    const snapStrip = box => { try { if (!box || !box.classList.contains('zcols')) return; if (!box._labInit) { box._labInit = 1; box.scrollLeft = 0; box.addEventListener('scroll', () => moreUpd(box), {passive: true}); } moreUpd(box); } catch (e) { } };
+    api.zcolsX = 0; api.zcolsPick = 0;
+    document.addEventListener('click', ev => { const b = ev.target && ev.target.closest && ev.target.closest('.zcols [data-zc]'); if (b) { api.zcolsPick = 1; const zc = b.closest('.zcols'); if (zc) api.zcolsX = zc.scrollLeft; } }, true);   // выбор цвета касанием ленты — после перерисовки он в видимой части
+    const keepOn = box => {   // выбранный — целиком в видимой части (сдвиг к краю кружка)
+      const it = box.querySelector('.cl.on'); if (!it) return; const br = box.getBoundingClientRect(), r = it.getBoundingClientRect(), pad = 0;
+      if (r.left < br.left) box.scrollLeft -= br.left - r.left + 2; else if (r.right > br.right - pad) box.scrollLeft += r.right - (br.right - pad) + 2;
+    };
+    const snapStrip = box => { try {
+      if (!box || !box.classList.contains('zcols')) return;
+      if (!box._labInit) { box._labInit = 1; box.scrollLeft = api.zcolsX || 0; if (api.zcolsPick) { api.zcolsPick = 0; keepOn(box); }
+        box.addEventListener('scroll', () => { moreUpd(box); if (box.isConnected && box.offsetWidth) api.zcolsX = box.scrollLeft; }, {passive: true}); }
+      api.zcolsX = box.scrollLeft; moreUpd(box);
+    } catch (e) { } };
     api.moreUpd = moreUpd;
     stripShow = function (box, it) { if (box && box.classList && box.classList.contains('zcols')) { requestAnimationFrame(() => snapStrip(box)); return; } return ss0.apply(this, arguments); };
     api.snapStrip = snapStrip;

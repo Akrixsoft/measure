@@ -126,6 +126,14 @@ fs.mkdirSync(SHOT, {recursive: true});
     await tapSel('touch', '#ch [data-k="dim"]'); await wait(400);
     { const r = await rows(); check(r.plusOver === 0, 'Д13: инструмент «размер» (плашка ∟∥↔⛓🧲) — «+» не налезает на инструменты', r);
       check(r.sl === 0 && r.black && r.more, 'Д13 / Н9: лента цветов с первого цвета (чёрный виден целиком), не помещается — явная прокрутка (lab-more-r)', r); await shot('d13-dim'); }
+    // Н9: лента прокручена пальцем до конца → касание последнего цвета → он виден и отмечен; перерисовка строки — положение сохраняется
+    { const zs = () => ev(() => { const zc = document.querySelector('#zpb .zcols'), r = zc.getBoundingClientRect(), K = [...zc.children], on = zc.querySelector('.cl.on'), q = on && on.getBoundingClientRect(); return {sl: zc.scrollLeft, last: K[K.length - 1].dataset.zc, on: on && on.dataset.zc, onVis: !!(q && q.left >= r.left - 1 && q.right <= r.right + 1), more: zc.classList.contains('lab-more-r') || zc.classList.contains('lab-more-l'), box: [r.left, r.top, r.width, r.height]}; });
+      let z = await zs(); const y = z.box[1] + z.box[3] / 2;
+      for (let i = 0; i < 3; i++) { await drag('touch', [z.box[0] + z.box[2] - 6, y], [z.box[0] + 6, y]); await wait(200); }
+      const lc = await ev(() => { const K = [...document.querySelectorAll('#zpb .zcols > *')], r = K[K.length - 1].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+      await tap('touch', lc); await wait(500); const z1 = await zs();
+      await tapSel('touch', '#ch [data-k="sel"]'); await wait(300); await tapSel('touch', '#ch [data-k="dim"]'); await wait(400); const z2 = await zs();
+      check(z1.on === z1.last && z1.onVis && z1.more && z2.on === z2.last && z2.onVis && Math.abs(z2.sl - z1.sl) < 2, 'Н9: последний цвет выбран касанием ленты — виден и отмечен; после перерисовки строки положение ленты то же', {z1, z2}); await shot('n9-last'); }
     await tapSel('touch', '#ch [data-k="sel"]'); await wait(300);
     check(await field('2 364') === 'ok', 'Д13: поле открыто (#zkb)'); await typeKb('2364');
     { const r = await rows(); check(r.zur === 'zpb', 'Д13: после своей клавиатуры ↶↷🗑 — в нижней строке', r); }
