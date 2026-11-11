@@ -6,7 +6,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbsfq6ls87",
+        "sid": "bmwbukthmhjm",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -32,7 +32,7 @@
       "ok": true,
       "name": "photo: фото — справка подложки (картинка в базе), без экрана распознавания; ⌗ в нижней строке, плавающей плашки нет",
       "detail": {
-        "id": "rmwbsfqawaw8",
+        "id": "rmwbuktmra6f",
         "w": 600,
         "blob": 133444,
         "rsel": true,
@@ -54,7 +54,7 @@
       "name": "dim: размер на фото пером — в подложке (фото не сдвинуто)",
       "detail": {
         "n": 1,
-        "id": "dmwbsfqtli1l",
+        "id": "dmwbuku5nxoe",
         "ref": 22,
         "kind": "board"
       }
@@ -102,10 +102,10 @@
       "ok": true,
       "name": "wall: стена С1 «Кухня» 2391 × 2700 над фото, связь фото → wid, область плана",
       "detail": {
-        "wid": "wiv74y0x",
-        "room": "r1794381538032",
-        "w": "w1794381538032_1",
-        "sid": "smwbsfrx0pgr",
+        "wid": "w7hpyykn",
+        "room": "r1794385134884",
+        "w": "w1794385134884_1",
+        "sid": "smwbukv9q4bq",
         "q4": [
           2391,
           2700
@@ -161,7 +161,7 @@
         "nW": 0,
         "act": "wall",
         "dms": 1,
-        "sid": "smwbsfrx0pgr"
+        "sid": "smwbukv9q4bq"
       }
     },
     {
@@ -177,8 +177,8 @@
         },
         "a6": {
           "act": "board",
-          "rsel": "rmwbsfqawaw8",
-          "ref": "rmwbsfqawaw8",
+          "rsel": "rmwbuktmra6f",
+          "ref": "rmwbuktmra6f",
           "els": 0,
           "dms": 2,
           "drw": 2,
@@ -217,7 +217,7 @@
       "detail": {
         "on": true,
         "act": "wall",
-        "sid": "smwbsfrx0pgr",
+        "sid": "smwbukv9q4bq",
         "mode": "wall",
         "tool": "mk",
         "list": false
@@ -242,7 +242,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbsfq6ls87",
+        "sid": "bmwbukthmhjm",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -282,7 +282,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbsfq6ls87",
+        "sid": "bmwbukthmhjm",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -294,7 +294,7 @@
       "name": "🗑: область стены выбрана заголовком → удалена (вид стены в «Удалённые») → ↶ на месте",
       "detail": {
         "sel": {
-          "sel": "wiv74y0x",
+          "sel": "w7hpyykn",
           "has": true
         },
         "del": {
@@ -358,7 +358,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbsfq6ls87",
+        "sid": "bmwbukthmhjm",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -425,7 +425,7 @@
       "name": "restart: раскладка, вид и активная поверхность — как были",
       "detail": {
         "before": {
-          "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794381538032\",\"w1794381538032_1\",22]]",
+          "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794385134884\",\"w1794385134884_1\",22]]",
           "view": {
             "s": 0.09868667293302082,
             "ox": 192.67953821555741,
@@ -434,7 +434,7 @@
           "act": "board"
         },
         "after": {
-          "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794381538032\",\"w1794381538032_1\",22]]",
+          "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794385134884\",\"w1794385134884_1\",22]]",
           "view": {
             "s": 0.09868667293302082,
             "ox": 192.67953821555741,
@@ -448,7 +448,7 @@
       "ok": true,
       "name": "restart: фото (картинка), размер 1250, текст, снимки областей — на месте",
       "detail": {
-        "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794381538032\",\"w1794381538032_1\",22]]",
+        "items": "[[\"plan\",\"\",\"\",-1618],[\"wall\",\"r1794385134884\",\"w1794385134884_1\",22]]",
         "view": {
           "s": 0.09868667293302082,
           "ox": 192.67953821555741,
