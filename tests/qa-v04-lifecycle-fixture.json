@@ -1,0 +1,4388 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "real trusted touch drag creates defaultL1 magnet dimension",
+      "detail": {
+        "id": "dmw8cfvpd6ma",
+        "a": [
+          599.9999801973697,
+          904.686712903884
+        ],
+        "b": [
+          2614.57,
+          913.61
+        ],
+        "t": "both",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "real pen drag creates magnet arrow with orthogonal constraint",
+      "detail": {
+        "id": "dmw8cfwduxxw",
+        "k": "arr",
+        "a": [
+          599.9999801973697,
+          904.686712903884
+        ],
+        "b": [
+          2471.97,
+          913.61
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1,
+        "labAnchors": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "test uses trusted touch AND stylus events",
+      "detail": [
+        {
+          "type": "touch",
+          "trusted": true
+        },
+        {
+          "type": "pen",
+          "trusted": true
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.1",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          149.45260344664027,
+          999.0675031778657
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.1",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          75.53260344664028,
+          999.0675031778657
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          980.0239707826087
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.35",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.35,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          281.984112063241,
+          951.4586721897233
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.35",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.35",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.35,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          208.06411206324103,
+          951.4586721897233
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.35",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.5",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.5,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          361.5030172332015,
+          922.8933735968379
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.5",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.5",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.5,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          287.58301723320153,
+          922.8933735968379
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.5",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          827.6757116205533
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at2",
+      "detail": {
+        "stage": "initial",
+        "factor": 2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          1156.6920689328063,
+          637.2403876679842
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at2",
+      "detail": {
+        "stage": "initial",
+        "factor": 2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          1082.7720689328062,
+          637.2403876679842
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at4",
+      "detail": {
+        "stage": "initial",
+        "factor": 4,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          2239.431992411067,
+          256.36973976284594
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at4",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at4",
+      "detail": {
+        "stage": "initial",
+        "factor": 4,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          2120.536283320158,
+          256.36973976284594
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at4",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          827.6757116205533
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at1",
+      "detail": {
+        "stage": "initial",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          827.6757116205533
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at1",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "dim actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          980.0239707826087
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph dim at0.2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "arr actualhead+handle remains on fractionalgroup post at0.2",
+      "detail": {
+        "stage": "initial",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          980.0239707826087
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "expectedpost equals actually drawn glyph arr at0.2",
+      "detail": 0
+    },
+    {
+      "ok": true,
+      "name": "actual gestures survive save/reload",
+      "detail": {
+        "dim": {
+          "id": "dmw8cfvpd6ma",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            913.61
+          ],
+          "t": "both",
+          "labAnchorVersion": 1,
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          }
+        },
+        "arr": {
+          "id": "dmw8cfwduxxw",
+          "k": "arr",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2471.97,
+            913.61
+          ],
+          "c": "#e07a00",
+          "labAnchorVersion": 1,
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 1,
+              "n": 3
+            }
+          }
+        },
+        "group": {
+          "id": "group3",
+          "k": "roz",
+          "c": [
+            2543.27,
+            913.61
+          ],
+          "N": 3,
+          "st": 71.3
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "durable endpoint bindings survive storage",
+      "detail": {
+        "dim": {
+          "id": "dmw8cfvpd6ma",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2614.57,
+            913.61
+          ],
+          "t": "both",
+          "labAnchorVersion": 1,
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          }
+        },
+        "arr": {
+          "id": "dmw8cfwduxxw",
+          "k": "arr",
+          "a": [
+            599.9999801973697,
+            904.686712903884
+          ],
+          "b": [
+            2471.97,
+            913.61
+          ],
+          "c": "#e07a00",
+          "labAnchorVersion": 1,
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 1,
+              "n": 3
+            }
+          }
+        },
+        "group": {
+          "id": "group3",
+          "k": "roz",
+          "c": [
+            2543.27,
+            913.61
+          ],
+          "N": 3,
+          "st": 71.3
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at0.1",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          149.45260344664027,
+          955.0675031778657
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at0.1",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          75.53260344664028,
+          955.0675031778657
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          936.0239707826087
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          936.0239707826087
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at0.35",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.35,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          281.984112063241,
+          907.4586721897233
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at0.35",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.35,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          208.06411206324103,
+          907.4586721897233
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at0.5",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.5,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          361.5030172332015,
+          878.8933735968379
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at0.5",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.5,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          287.58301723320153,
+          878.8933735968379
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          783.6757116205533
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          783.6757116205533
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at2",
+      "detail": {
+        "stage": "reload",
+        "factor": 2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          1156.6920689328063,
+          593.2403876679842
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at2",
+      "detail": {
+        "stage": "reload",
+        "factor": 2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          1082.7720689328062,
+          593.2403876679842
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at4",
+      "detail": {
+        "stage": "reload",
+        "factor": 4,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          2239.431992411067,
+          212.36973976284594
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at4",
+      "detail": {
+        "stage": "reload",
+        "factor": 4,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          2120.536283320158,
+          212.36973976284594
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          626.5660344664032,
+          783.6757116205533
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at1",
+      "detail": {
+        "stage": "reload",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          552.6460344664031,
+          783.6757116205533
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded dim head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          202.4652068932806,
+          936.0239707826087
+        ],
+        "world": [
+          2614.57,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reloaded arr head/handle follows post at0.2",
+      "detail": {
+        "stage": "reload",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          128.54520689328058,
+          936.0239707826087
+        ],
+        "world": [
+          2471.97,
+          913.61
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "reference movement occurs in actual markup mode"
+    },
+    {
+      "ok": true,
+      "name": "real pen selects referenced outlet group for movement"
+    },
+    {
+      "ok": true,
+      "name": "real pen drag moves referenced outlet group",
+      "detail": {
+        "oldGroup": [
+          2543.27,
+          913.61
+        ],
+        "newGroup": [
+          2802.3340169902913,
+          1047.9394902912622
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at0.1",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          154.85260344664027,
+          952.2675031778656
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at0.1",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          80.93260344664029,
+          952.2675031778656
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          213.2652068932806,
+          930.4239707826086
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          139.3452068932806,
+          930.4239707826086
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at0.35",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.35,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          300.88411206324105,
+          897.6586721897233
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at0.35",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.35,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          226.96411206324106,
+          897.6586721897233
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at0.5",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.5,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          388.5030172332015,
+          864.8933735968379
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at0.5",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.5,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          314.58301723320153,
+          864.8933735968379
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          680.5660344664032,
+          755.6757116205533
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          606.6460344664031,
+          755.6757116205533
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at2",
+      "detail": {
+        "stage": "moved",
+        "factor": 2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          1264.6920689328063,
+          537.2403876679841
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at2",
+      "detail": {
+        "stage": "moved",
+        "factor": 2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          1190.7720689328062,
+          537.2403876679841
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at4",
+      "detail": {
+        "stage": "moved",
+        "factor": 4,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          2455.431992411067,
+          100.36973976284582
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at4",
+      "detail": {
+        "stage": "moved",
+        "factor": 4,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          2336.536283320158,
+          100.36973976284582
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          680.5660344664032,
+          755.6757116205533
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at1",
+      "detail": {
+        "stage": "moved",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          606.6460344664031,
+          755.6757116205533
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group dim binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          213.2652068932806,
+          930.4239707826086
+        ],
+        "world": [
+          2873.6340169902915,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "moved group arr binding follows actual glyph at0.2",
+      "detail": {
+        "stage": "moved",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          139.3452068932806,
+          930.4239707826086
+        ],
+        "world": [
+          2731.034016990291,
+          1047.9394902912622
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "magnetoff actualpen arrow near post remains explicitly free",
+      "detail": {
+        "id": "dmw8cfywygmz",
+        "k": "arr",
+        "a": [
+          500.0000166835139,
+          1800.0000626462179
+        ],
+        "b": [
+          2876.03402258123,
+          1049.7393831790073
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "JSON export preserves intentional-free marker without references",
+      "detail": {
+        "id": "dmw8cfywygmz",
+        "k": "arr",
+        "a": [
+          500,
+          1800
+        ],
+        "b": [
+          2876,
+          1049.7
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "real object export carries both identity bindings",
+      "detail": {
+        "dim": {
+          "id": "dmw8cfvpd6ma",
+          "a": [
+            600,
+            904.7
+          ],
+          "b": [
+            2873.6,
+            1047.9
+          ],
+          "v": 2278,
+          "t": "both",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          },
+          "labAnchorVersion": 1
+        },
+        "arr": {
+          "id": "dmw8cfwduxxw",
+          "k": "arr",
+          "a": [
+            600,
+            904.7
+          ],
+          "b": [
+            2731,
+            1047.9
+          ],
+          "c": "#e07a00",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 1,
+              "n": 3
+            }
+          },
+          "labAnchorVersion": 1
+        }
+      }
+    },
+    {
+      "ok": true,
+      "name": "wall export/import preserves first and third post identities through orientation flip",
+      "detail": {
+        "dim": {
+          "id": "dmw8cfvpd6ma",
+          "labAnchorVersion": 1,
+          "a": [
+            600,
+            904.7
+          ],
+          "b": [
+            2873.6,
+            1047.9
+          ],
+          "t": "both",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 3,
+              "n": 3
+            }
+          }
+        },
+        "arr": {
+          "id": "dmw8cfwduxxw",
+          "k": "arr",
+          "a": [
+            600,
+            904.7
+          ],
+          "b": [
+            2731,
+            1047.9
+          ],
+          "c": "#e07a00",
+          "labAnchors": {
+            "b": {
+              "v": 1,
+              "e": "group3",
+              "kind": "post",
+              "p": 1,
+              "n": 3
+            }
+          },
+          "labAnchorVersion": 1
+        },
+        "free": {
+          "id": "dmw8cfywygmz",
+          "k": "arr",
+          "a": [
+            500,
+            1800
+          ],
+          "b": [
+            2876,
+            1049.7
+          ],
+          "c": "#e07a00",
+          "labAnchorVersion": 1
+        },
+        "migrations": []
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored deliberatefree nearpost does not silently migrate to binding",
+      "detail": {
+        "id": "dmw8cfywygmz",
+        "k": "arr",
+        "a": [
+          500,
+          1800
+        ],
+        "b": [
+          2876,
+          1049.7
+        ],
+        "c": "#e07a00",
+        "labAnchorVersion": 1
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at0.1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          189.96732205533598,
+          852.6605993148879
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at0.1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          116.04732205533597,
+          852.6605993148879
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at0.2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          242.29464411067195,
+          833.0931722793148
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at0.2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          168.37464411067194,
+          833.0931722793148
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at0.35",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.35,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          320.7856271936759,
+          803.7420317259551
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at0.35",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.35,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          246.86562719367592,
+          803.7420317259551
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at0.5",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.5,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          399.27661027667983,
+          774.3908911725954
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at0.5",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.5,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          325.3566102766799,
+          774.3908911725954
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          660.9132205533597,
+          676.5537559947298
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          586.9932205533596,
+          676.5537559947298
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          1184.1864411067195,
+          480.8794856389986
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          1110.2664411067194,
+          480.8794856389986
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at4",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 4,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          2247.028251910408,
+          89.5309449275361
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at4",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 4,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          2140.5175125164687,
+          89.5309449275361
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 1,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          660.9132205533597,
+          676.5537559947298
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at1",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 1,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          586.9932205533596,
+          676.5537559947298
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored dim actualhead+handle follows identity at0.2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.2,
+        "id": "dmw8cfvpd6ma",
+        "kind": "dim",
+        "tip": [
+          242.29464411067195,
+          833.0931722793148
+        ],
+        "world": [
+          2873.6,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 3,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "restored arr actualhead+handle follows identity at0.2",
+      "detail": {
+        "stage": "jsonrestore",
+        "factor": 0.2,
+        "id": "dmw8cfwduxxw",
+        "kind": "arr",
+        "tip": [
+          168.37464411067194,
+          833.0931722793148
+        ],
+        "world": [
+          2731,
+          1047.9
+        ],
+        "anchor": {
+          "b": {
+            "v": 1,
+            "e": "group3",
+            "kind": "post",
+            "p": 1,
+            "n": 3
+          }
+        },
+        "headGap": 0,
+        "handleGap": 0,
+        "glyphGap": 0
+      }
+    },
+    {
+      "ok": true,
+      "name": "no page errors",
+      "detail": []
+    }
+  ],
+  "dim": {
+    "id": "dmw8cfvpd6ma",
+    "a": [
+      599.9999801973697,
+      904.686712903884
+    ],
+    "b": [
+      2614.57,
+      913.61
+    ],
+    "t": "both",
+    "labAnchorVersion": 1,
+    "labAnchors": {
+      "b": {
+        "v": 1,
+        "e": "group3",
+        "kind": "post",
+        "p": 3,
+        "n": 3
+      }
+    }
+  },
+  "arr": {
+    "id": "dmw8cfwduxxw",
+    "k": "arr",
+    "a": [
+      599.9999801973697,
+      904.686712903884
+    ],
+    "b": [
+      2471.97,
+      913.61
+    ],
+    "c": "#e07a00",
+    "labAnchorVersion": 1,
+    "labAnchors": {
+      "b": {
+        "v": 1,
+        "e": "group3",
+        "kind": "post",
+        "p": 1,
+        "n": 3
+      }
+    }
+  },
+  "events": [
+    {
+      "type": "touch",
+      "trusted": true
+    },
+    {
+      "type": "pen",
+      "trusted": true
+    }
+  ],
+  "frames": [
+    {
+      "stage": "initial",
+      "factor": 0.1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        149.45260344664027,
+        999.0675031778657
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        75.53260344664028,
+        999.0675031778657
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        980.0239707826087
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.35,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        281.984112063241,
+        951.4586721897233
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.35,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        208.06411206324103,
+        951.4586721897233
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.5,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        361.5030172332015,
+        922.8933735968379
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.5,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        287.58301723320153,
+        922.8933735968379
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        827.6757116205533
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        1156.6920689328063,
+        637.2403876679842
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        1082.7720689328062,
+        637.2403876679842
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 4,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        2239.431992411067,
+        256.36973976284594
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 4,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        2120.536283320158,
+        256.36973976284594
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        827.6757116205533
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        827.6757116205533
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        980.0239707826087
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "initial",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        980.0239707826087
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    }
+  ],
+  "reload": {
+    "dim": {
+      "id": "dmw8cfvpd6ma",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2614.57,
+        913.61
+      ],
+      "t": "both",
+      "labAnchorVersion": 1,
+      "labAnchors": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      }
+    },
+    "arr": {
+      "id": "dmw8cfwduxxw",
+      "k": "arr",
+      "a": [
+        599.9999801973697,
+        904.686712903884
+      ],
+      "b": [
+        2471.97,
+        913.61
+      ],
+      "c": "#e07a00",
+      "labAnchorVersion": 1,
+      "labAnchors": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      }
+    },
+    "group": {
+      "id": "group3",
+      "k": "roz",
+      "c": [
+        2543.27,
+        913.61
+      ],
+      "N": 3,
+      "st": 71.3
+    }
+  },
+  "reloadFrames": [
+    {
+      "stage": "reload",
+      "factor": 0.1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        149.45260344664027,
+        955.0675031778657
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        75.53260344664028,
+        955.0675031778657
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        936.0239707826087
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        936.0239707826087
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.35,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        281.984112063241,
+        907.4586721897233
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.35,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        208.06411206324103,
+        907.4586721897233
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.5,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        361.5030172332015,
+        878.8933735968379
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.5,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        287.58301723320153,
+        878.8933735968379
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        783.6757116205533
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        783.6757116205533
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        1156.6920689328063,
+        593.2403876679842
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        1082.7720689328062,
+        593.2403876679842
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 4,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        2239.431992411067,
+        212.36973976284594
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 4,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        2120.536283320158,
+        212.36973976284594
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        626.5660344664032,
+        783.6757116205533
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        552.6460344664031,
+        783.6757116205533
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        202.4652068932806,
+        936.0239707826087
+      ],
+      "world": [
+        2614.57,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "reload",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        128.54520689328058,
+        936.0239707826087
+      ],
+      "world": [
+        2471.97,
+        913.61
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    }
+  ],
+  "movedFrames": [
+    {
+      "stage": "moved",
+      "factor": 0.1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        154.85260344664027,
+        952.2675031778656
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        80.93260344664029,
+        952.2675031778656
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        213.2652068932806,
+        930.4239707826086
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        139.3452068932806,
+        930.4239707826086
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.35,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        300.88411206324105,
+        897.6586721897233
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.35,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        226.96411206324106,
+        897.6586721897233
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.5,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        388.5030172332015,
+        864.8933735968379
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.5,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        314.58301723320153,
+        864.8933735968379
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        680.5660344664032,
+        755.6757116205533
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        606.6460344664031,
+        755.6757116205533
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        1264.6920689328063,
+        537.2403876679841
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        1190.7720689328062,
+        537.2403876679841
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 4,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        2455.431992411067,
+        100.36973976284582
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 4,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        2336.536283320158,
+        100.36973976284582
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        680.5660344664032,
+        755.6757116205533
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 1,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        606.6460344664031,
+        755.6757116205533
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8cfvpd6ma",
+      "kind": "dim",
+      "tip": [
+        213.2652068932806,
+        930.4239707826086
+      ],
+      "world": [
+        2873.6340169902915,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 3,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    },
+    {
+      "stage": "moved",
+      "factor": 0.2,
+      "id": "dmw8cfwduxxw",
+      "kind": "arr",
+      "tip": [
+        139.3452068932806,
+        930.4239707826086
+      ],
+      "world": [
+        2731.034016990291,
+        1047.9394902912622
+      ],
+      "anchor": {
+        "b": {
+          "v": 1,
+          "e": "group3",
+          "kind": "post",
+          "p": 1,
+          "n": 3
+        }
+      },
+      "headGap": 0,
+      "handleGap": 0,
+      "glyphGap": 0
+    }
+  ],
+  "contract": {
+    "app": "akrix-zamer",
+    "v": 3,
+    "kind": "object",
+    "date": "2026-11-08T21:27:54.887Z",
+    "obj": "QA04 fractional",
+    "oid": "o_lab_plane_s1794173269395",
+    "rooms": [
+      {
+        "app": "akrix-zamer",
+        "v": 3,
+        "kind": "room",
+        "id": "r_lab_plane_s1794173269395",
+        "date": "2026-11-08T21:27:54.887Z",
+        "obj": "QA04 fractional",
+        "name": "Actual touch and pen",
+        "ms": {
+          "v": 1,
+          "lvl": "d",
+          "pts": [
+            [
+              0,
+              0
+            ],
+            [
+              3795,
+              0
+            ]
+          ],
+          "closed": false,
+          "dims": [
+            {
+              "id": "d_lab_plane_s1794173269395",
+              "a": {
+                "p": 0
+              },
+              "b": {
+                "p": 1
+              },
+              "v": 3795
+            }
+          ],
+          "angs": {},
+          "ink": [],
+          "H": 2573,
+          "wl": {
+            "0": {
+              "ph": [],
+              "H": 2573,
+              "yf": [
+                null,
+                null,
+                null
+              ],
+              "yc": [
+                2573,
+                2573,
+                2573
+              ],
+              "pl": {
+                "d": [
+                  null,
+                  null,
+                  null
+                ],
+                "u": [
+                  null,
+                  null,
+                  null
+                ]
+              },
+              "els": [],
+              "pts": [
+                {
+                  "id": "group3",
+                  "t": "so",
+                  "x": 2802.3,
+                  "y": 1047.9,
+                  "D": null,
+                  "N": 3,
+                  "st": 71.3,
+                  "note": ""
+                },
+                {
+                  "id": "point-a",
+                  "t": "so",
+                  "x": 1478.4,
+                  "y": 536.8,
+                  "D": null,
+                  "N": null,
+                  "st": null,
+                  "note": ""
+                },
+                {
+                  "id": "point-b",
+                  "t": "wa",
+                  "x": 903.1,
+                  "y": 536.8,
+                  "D": null,
+                  "N": null,
+                  "st": null,
+                  "note": ""
+                }
+              ],
+              "zn": [],
+              "photo": {
+                "rms": null,
+                "fit": false,
+                "frames": null,
+                "L": 3795,
+                "src": "фото"
+              },
+              "gn": 1,
+              "id": "w_lab_plane_s1794173269395",
+              "dm": [
+                {
+                  "id": "dmw8cfvpd6ma",
+                  "a": [
+                    600,
+                    904.7
+                  ],
+                  "b": [
+                    2873.6,
+                    1047.9
+                  ],
+                  "v": 2278,
+                  "t": "both",
+                  "labAnchors": {
+                    "b": {
+                      "v": 1,
+                      "e": "group3",
+                      "kind": "post",
+                      "p": 3,
+                      "n": 3
+                    }
+                  },
+                  "labAnchorVersion": 1
+                }
+              ],
+              "drw": [
+                {
+                  "id": "dmw8cfwduxxw",
+                  "k": "arr",
+                  "a": [
+                    600,
+                    904.7
+                  ],
+                  "b": [
+                    2731,
+                    1047.9
+                  ],
+                  "c": "#e07a00",
+                  "labAnchors": {
+                    "b": {
+                      "v": 1,
+                      "e": "group3",
+                      "kind": "post",
+                      "p": 1,
+                      "n": 3
+                    }
+                  },
+                  "labAnchorVersion": 1
+                },
+                {
+                  "id": "dmw8cfywygmz",
+                  "k": "arr",
+                  "a": [
+                    500,
+                    1800
+                  ],
+                  "b": [
+                    2876,
+                    1049.7
+                  ],
+                  "c": "#e07a00",
+                  "labAnchorVersion": 1
+                }
+              ],
+              "notes": [],
+              "L": 3795
+            }
+          },
+          "ccw": true,
+          "arcs": {},
+          "rnd": {},
+          "gn": {
+            "0": 1
+          },
+          "wid": {
+            "0": "w_lab_plane_s1794173269395"
+          },
+          "geo": {
+            "v": 1,
+            "rules": "zamer-18",
+            "walls": [
+              {
+                "k": 0,
+                "gn": 1,
+                "id": "w_lab_plane_s1794173269395",
+                "a": [
+                  0,
+                  0
+                ],
+                "b": [
+                  3795,
+                  0
+                ],
+                "L": 3795,
+                "ok": 1
+              }
+            ],
+            "err": null,
+            "rnd": {},
+            "mm": 0
+          },
+          "wsd": {
+            "0": -1
+          }
+        }
+      }
+    ],
+    "gnMax": 1
+  },
+  "errors": []
+}

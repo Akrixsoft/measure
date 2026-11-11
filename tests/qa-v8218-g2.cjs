@@ -96,7 +96,7 @@ fs.mkdirSync(SHOT, {recursive: true});
     check(await ev(() => S.mk) === 'roz', 'Д5: инструмент «розетка»');
     await ev(() => { S.sel = null; mkPanel(); draw(); });
     const freeOf = async w => { const c = await wallPt(w), L = await labels(); return L.every(l => { const dx = c[0] - l.x, dy = c[1] - l.y, ca = Math.cos(l.an), sa = Math.sin(l.an), u = dx * ca + dy * sa, v = -dx * sa + dy * ca; return Math.abs(u) > l.w / 2 + 6 || Math.abs(v) > l.h / 2 + 6; }); };
-    const cand = [[300, 2000], [500, 700], [1650, 450], [1200, 600], [300, 1500], [1650, 1800], [1200, 2050], [600, 1200], [1950, 1200], [350, 150]];
+    const cand = [[300, 2000], [500, 700], [1650, 450], [1200, 600], [300, 1500], [1650, 1800], [1200, 2050], [600, 1200], [1950, 1200], [350, 150], [1300, 300], [750, 1800], [1950, 1700], [150, 1200], [1600, 1100], [1200, 1800]];
     const tries = []; let n = 0;
     for (const w of cand) { if (n >= 6) break; if (!(await freeOf(w))) continue; n++;
       const n0 = await ev(() => S.els.filter(e => e.k === 'roz').length); await tap('pen', await wallPt(w)); await wait(200);
@@ -108,13 +108,32 @@ fs.mkdirSync(SHOT, {recursive: true});
       const r = await ev(() => ({n: S.els.filter(e => e.k === 'roz').length, f: document.getElementById('w3f').classList.contains('on')})); check(r.f && r.n === n0 && await kbOn(), 'Д5: точное касание подписи «2 364» при инструменте розетки — поле с #zkb', r); await closeField(); await wait(200); }
     { const sel = await ev(() => S.sel), c = await wallPt([1950, 600]); await tap('pen', c); const r = await ev(() => ({sel: S.sel && S.els.find(e => e.id === S.sel).k})); check(r.sel === 'roz', 'Д5: касание поверх колонны при выбранной розетке — новая розетка, колонна не выбрана', {before: sel, ...r}); }
 
+    // ── Н8: поля размеров не на значках розеток и внутри рамки области (∠° 90 / 180 / 45) ──
+    { const res = [];
+      for (const a of [90, 180, 45]) { const r = await ev(a => { W3.a = a; draw(); const it = MeasureLabSketch.active(), R = MeasureLabSketch.region(it), A = MeasureLabSketch.map.toScrK(R.x, R.y), B = MeasureLabSketch.map.toScrK(R.x + R.w, R.y + R.h), F = {x0: Math.min(A[0], B[0]), x1: Math.max(A[0], B[0]), y0: Math.min(A[1], B[1]), y1: Math.max(A[1], B[1])};
+        const z = w3IcZ() * 0.6, ic = S.els.filter(e => e.k === 'roz').map(e => toScr(...e.c)), over = [], out = [];
+        for (const l of S.w3L) { const ca = Math.cos(l.an || 0), sa = Math.sin(l.an || 0);
+          for (const c of ic) { const dx = c[0] - l.c[0], dy = c[1] - l.c[1], u = dx * ca + dy * sa, v = -dx * sa + dy * ca; if (Math.hypot(Math.max(Math.abs(u) - l.w / 2, 0), Math.max(Math.abs(v) - l.h / 2, 0)) < z * 0.8) over.push(l.t); }
+          const cs = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => [l.c[0] + u * l.w / 2 * ca - v * l.h / 2 * sa, l.c[1] + u * l.w / 2 * sa + v * l.h / 2 * ca]);
+          if (cs.some(q => q[0] < F.x0 - 3 || q[0] > F.x1 + 3 || q[1] < F.y0 - 3 || q[1] > F.y1 + 3)) out.push(l.t); }
+        return {a, n: S.w3L.length, roz: ic.length, over, out}; }, a); res.push(r); await shot('n8-' + a); }
+      await ev(() => { W3.a = 90; draw(); });
+      check(res.every(r => r.roz >= 5 && r.n > 8 && !r.over.length && !r.out.length), 'Н8: поля размеров не накрывают розетки и не выходят за рамку области (∠° 90 / 180 / 45)', res); }
     // ── Д13: строки — «+» не на 7-м инструменте, ↶↷🗑 на месте после поля / выбора, первый цвет целый ──
     const rows = () => ev(() => { const R = e => e && e.getBoundingClientRect(), a = R(document.getElementById('chAll')); const tools = [...document.querySelectorAll('#ch .pb')].filter(e => e.getClientRects().length).map(R);
       const zc = document.querySelector('#zpb .zcols'), zr = zc && R(zc), first = zc && [...zc.children].filter(c => c.offsetWidth).map(R).find(r => r.right > zr.left + .5);
-      return {plusOver: tools.filter(b => a && b.right > a.left + 1 && b.left < a.right - 1).length, zur: document.getElementById('zur').parentElement.id, firstClip: first ? +(zr.left - first.left).toFixed(1) : null, sl: zc ? zc.scrollLeft : null}; });
+      const f0 = zc && zc.firstElementChild && R(zc.firstElementChild); return {plusOver: tools.filter(b => a && b.right > a.left + 1 && b.left < a.right - 1).length, zur: document.getElementById('zur').parentElement.id, firstClip: first ? +(zr.left - first.left).toFixed(1) : null, sl: zc ? zc.scrollLeft : null, black: !!(f0 && zc.firstElementChild.dataset.zc === '#1a2027' && f0.left >= zr.left - .5 && f0.right <= zr.right + .5), more: zc ? zc.scrollWidth <= zc.clientWidth + 2 || zc.classList.contains('lab-more-r') : null}; });
     await tapSel('touch', '#ch [data-k="dim"]'); await wait(400);
     { const r = await rows(); check(r.plusOver === 0, 'Д13: инструмент «размер» (плашка ∟∥↔⛓🧲) — «+» не налезает на инструменты', r);
-      check(r.firstClip != null && Math.abs(r.firstClip) < 1, 'Д13: первый видимый цвет строки пера не обрезан', r); await shot('d13-dim'); }
+      check(r.sl === 0 && r.black && r.more, 'Д13 / Н9: лента цветов с первого цвета (чёрный виден целиком), не помещается — явная прокрутка (lab-more-r)', r); await shot('d13-dim'); }
+    // Н9: лента прокручена пальцем до конца → касание последнего цвета → он виден и отмечен; перерисовка строки — положение сохраняется
+    { const zs = () => ev(() => { const zc = document.querySelector('#zpb .zcols'), r = zc.getBoundingClientRect(), K = [...zc.children], on = zc.querySelector('.cl.on'), q = on && on.getBoundingClientRect(); return {sl: zc.scrollLeft, last: K[K.length - 1].dataset.zc, on: on && on.dataset.zc, onVis: !!(q && q.left >= r.left - 1 && q.right <= r.right + 1), more: zc.classList.contains('lab-more-r') || zc.classList.contains('lab-more-l'), box: [r.left, r.top, r.width, r.height]}; });
+      let z = await zs(); const y = z.box[1] + z.box[3] / 2;
+      for (let i = 0; i < 3; i++) { await drag('touch', [z.box[0] + z.box[2] - 6, y], [z.box[0] + 6, y]); await wait(200); }
+      const lc = await ev(() => { const K = [...document.querySelectorAll('#zpb .zcols > *')], r = K[K.length - 1].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+      await tap('touch', lc); await wait(500); const z1 = await zs();
+      await tapSel('touch', '#ch [data-k="sel"]'); await wait(300); await tapSel('touch', '#ch [data-k="dim"]'); await wait(400); const z2 = await zs();
+      check(z1.on === z1.last && z1.onVis && z1.more && z2.on === z2.last && z2.onVis && Math.abs(z2.sl - z1.sl) < 2, 'Н9: последний цвет выбран касанием ленты — виден и отмечен; после перерисовки строки положение ленты то же', {z1, z2}); await shot('n9-last'); }
     await tapSel('touch', '#ch [data-k="sel"]'); await wait(300);
     check(await field('2 364') === 'ok', 'Д13: поле открыто (#zkb)'); await typeKb('2364');
     { const r = await rows(); check(r.zur === 'zpb', 'Д13: после своей клавиатуры ↶↷🗑 — в нижней строке', r); }
@@ -123,6 +142,18 @@ fs.mkdirSync(SHOT, {recursive: true});
     { const r = await rows(), k = await ev(() => ({sel: S.sel && S.els.find(e => e.id === S.sel).k, mk: S.mk, roz: S.els.filter(e => e.k === 'roz').map(e => toW(e.c, wf()).map(Math.round))})); check(k.sel === 'kol' && r.zur === 'zpb', 'Д13: выбор объекта — ↶↷🗑 на месте', {k, ...r}); }
     await shot('d13-rows');
 
+    // ── Н1: протяжка инструмента от подписи размера рисует объект; Z колонны полем #pp пером и пальцем ──
+    { await caseTool('.tl[data-k="kol"]'); await ev(() => { S.sel = null; mkPanel(); draw(); });
+      const lab = (await labels()).find(l => l.t === '2 364'), n0 = await ev(() => S.els.filter(e => e.k === 'kol').length);
+      const b = [lab.x + 40, lab.y + 150]; await drag('pen', [lab.x, lab.y], b); await wait(300);
+      const r = await ev(() => ({n: S.els.filter(e => e.k === 'kol').length, sel: S.sel && S.els.find(e => e.id === S.sel).k, f: document.getElementById('w3f').classList.contains('on')}));
+      check(r.n === n0 + 1 && r.sel === 'kol' && !r.f, 'Н1: протяжка колонны от подписи «2 364» — колонна создана, поле не открыто', r);
+      for (const [t, v] of [['pen', 300], ['touch', 250]]) {
+        const zb = await box('#pp [data-lab-z]'); if (!zb) { check(false, 'Н1: поле Z в #pp (' + t + ')', 'нет поля'); break; }
+        await tap(t, zb); await wait(250);
+        if (await kbOn()) await typeKb(String(v)); else { await p.keyboard.press('Control+A'); await p.keyboard.type(String(v)); await p.keyboard.press('Enter'); await wait(250); }
+        const D = await ev(() => +(S.els.find(e => e.id === S.sel) || {}).D); check(D === v, `Н1: Z колонны полем #pp [data-lab-z] (${t === 'pen' ? 'перо' : 'палец'}) = ${v}`, {D}); }
+      await ev(() => { S.sel = null; mkPanel(); draw(); }); }
     // ── Д7: ∠° — активация стены касанием области, бегунок держится, 0–180, угол на экране ──
     await ev(() => { S.sel = null; mkPanel(); draw(); });
     await ev(() => MeasureLabSketch.activate('board')); await wait(900);

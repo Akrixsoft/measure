@@ -208,16 +208,24 @@
   new MutationObserver(() => { if (!document.body.classList.contains('kb')) requestAnimationFrame(zurHome); }).observe(document.body, {attributes: true, attributeFilter: ['class']});
   if (typeof stripShow === 'function') {
     const ss0 = stripShow;
-    const snapStrip = (box, it) => { try {   // сдвиг ленты — к левому краю целого кружка (позиции по рамкам, без допущений о шаге)
-      if (!box || !box.classList.contains('zcols')) return; const K = [...box.children].filter(c => c.offsetWidth > 0); if (!K.length) return;
-      const br = box.getBoundingClientRect(), sl = box.scrollLeft; if (sl < 1) return;
-      const pos = K.map(c => c.getBoundingClientRect().left - br.left - box.clientLeft + sl);
-      let n = pos.reduce((a, q) => Math.abs(q - sl) < Math.abs(a - sl) ? q : a, 0);
-      if (it) { const a = it.getBoundingClientRect().left - br.left - box.clientLeft + sl, e = a + it.offsetWidth;
-        if (e > n + box.clientWidth) n = pos.find(q => q + box.clientWidth >= e) ?? n; if (a < n) n = a; }
-      box.scrollLeft = Math.max(0, Math.round(n));
+    /* r2b (QA2 Н9): лента цветов строки пера — одна строка с явной прокруткой (край гаснет, «›» / «‹»: lab-more-r / lab-more-l).
+       Первый показ — с первого цвета (чёрный); при перерисовке строки положение прокрутки сохраняется (api.zcolsX);
+       выбранный касанием цвет (.cl.on) после перерисовки не уходит из видимой части — лента докручивается к нему до целого кружка. */
+    const moreUpd = box => { try { const m = box.scrollWidth - box.clientWidth; box.classList.toggle('lab-more-r', m > 2 && box.scrollLeft < m - 2); box.classList.toggle('lab-more-l', m > 2 && box.scrollLeft > 2); } catch (e) { } };
+    api.zcolsX = 0; api.zcolsPick = 0;
+    document.addEventListener('click', ev => { const b = ev.target && ev.target.closest && ev.target.closest('.zcols [data-zc]'); if (b) { api.zcolsPick = 1; const zc = b.closest('.zcols'); if (zc) api.zcolsX = zc.scrollLeft; } }, true);   // выбор цвета касанием ленты — после перерисовки он в видимой части
+    const keepOn = box => {   // выбранный — целиком в видимой части (сдвиг к краю кружка)
+      const it = box.querySelector('.cl.on'); if (!it) return; const br = box.getBoundingClientRect(), r = it.getBoundingClientRect(), pad = 0;
+      if (r.left < br.left) box.scrollLeft -= br.left - r.left + 2; else if (r.right > br.right - pad) box.scrollLeft += r.right - (br.right - pad) + 2;
+    };
+    const snapStrip = box => { try {
+      if (!box || !box.classList.contains('zcols')) return;
+      if (!box._labInit) { box._labInit = 1; box.scrollLeft = api.zcolsX || 0; if (api.zcolsPick) { api.zcolsPick = 0; keepOn(box); }
+        box.addEventListener('scroll', () => { moreUpd(box); if (box.isConnected && box.offsetWidth) api.zcolsX = box.scrollLeft; }, {passive: true}); }
+      api.zcolsX = box.scrollLeft; moreUpd(box);
     } catch (e) { } };
-    stripShow = function (box, it) { const r = ss0.apply(this, arguments); requestAnimationFrame(() => requestAnimationFrame(() => snapStrip(box, it))); return r; };
+    api.moreUpd = moreUpd;
+    stripShow = function (box, it) { if (box && box.classList && box.classList.contains('zcols')) { requestAnimationFrame(() => snapStrip(box)); return; } return ss0.apply(this, arguments); };
     api.snapStrip = snapStrip;
   }
   PM.labTb = api;
