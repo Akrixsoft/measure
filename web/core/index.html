@@ -6,38 +6,46 @@
 <title>Measure — ядро холста (AKX-2026-0015)</title>
 <link rel="stylesheet" href="core.css">
 </head>
-<body>
-<!-- [BLOCK C-HTML] разметка ядра: шапка, холст, нижний ряд. Своих экранов/рамок нет. -->
-<header id="cHd">
-  <button id="cOk" title="Сохранить">✓</button>
-  <input id="cName" placeholder="клиент · проект" autocomplete="off">
-  <label id="cHl">H<input id="cH" inputmode="numeric" placeholder="мм" autocomplete="off"></label>
-  <button id="cFit" title="Показать всё">⤢</button>
-</header>
+<body class="m-plan">
+<!-- [BLOCK C-HTML] разметка ядра на штатной компоновке 82.18 / v81: шапка #top, строка инструментов #ch + #zur, строка действий #zpb, режимы #zm, ⤢ #bFit, клавиатура v81.
+     Значки — штатные SVG v81 (kIco: sel, dim, arr, rf; символы h-check, h-more, h-undo, h-redo, h-trash, t-wallseg). Нерабочих кнопок нет. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="h-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"></circle><path d="M7 12.5l3.3 3.3L17.2 8.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></symbol><symbol id="h-undo" viewBox="0 0 24 24"><path d="M9 6L4 10.5 9 15" fill="none" stroke="#4DA3FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.5 10.5H14a5 5 0 010 10h-3" fill="none" stroke="#4DA3FF" stroke-width="2.4" stroke-linecap="round"></path></symbol><symbol id="h-redo" viewBox="0 0 24 24"><g transform="matrix(-1 0 0 1 24 0)"><path d="M9 6L4 10.5 9 15" fill="none" stroke="#4DA3FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.5 10.5H14a5 5 0 010 10h-3" fill="none" stroke="#4DA3FF" stroke-width="2.4" stroke-linecap="round"></path></g></symbol><symbol id="h-trash" viewBox="0 0 24 24"><path d="M4.5 7h15" stroke="#E0442B" stroke-width="2.2" stroke-linecap="round"></path><path d="M9.5 7V4.8h5V7" fill="none" stroke="#E0442B" stroke-width="2"></path><path d="M6.5 7.5l1 13h9l1-13z" fill="#E0442B"></path><path d="M10 11v6.5M14 11v6.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"></path></symbol><symbol id="h-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="#E8EBEF"></circle><circle cx="12" cy="12" r="2" fill="#E8EBEF"></circle><circle cx="12" cy="18.5" r="2" fill="#E8EBEF"></circle></symbol><symbol id="t-wallseg" viewBox="0 0 32 32"><path d="M1 10l6 -6h24l-6 6z" fill="#E39470" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"></path><path d="M25 10l6 -6v20l-6 6z" fill="#94452A" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"></path><rect x="1" y="10" width="24" height="20" fill="#C8643B" stroke="#fff" stroke-width="1.1"></rect><path d="M1 14.2h24 M1 18.4h24 M1 22.6h24 M1 26.8h24 M8.0 10.0V14.2 M15.0 10.0V14.2 M22.0 10.0V14.2 M4.5 14.2V18.4 M11.5 14.2V18.4 M18.5 14.2V18.4 M8.0 18.4V22.6 M15.0 18.4V22.6 M22.0 18.4V22.6 M4.5 22.6V26.8 M11.5 22.6V26.8 M18.5 22.6V26.8 M8.0 26.8V30.0 M15.0 26.8V30.0 M22.0 26.8V30.0" stroke="#F6E7D8" stroke-width="0.9"></path></symbol></svg>
+<div id="top">
+  <button id="bDone" class="ok" title="Готово: сохранить"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#h-check"/></svg></button>
+  <input id="labPrjT" placeholder="клиент · проект" autocomplete="off" title="Проект: имя">
+  <span class="sp"></span>
+  <button id="bMore" title="Ещё"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#h-more"/></svg></button>
+</div>
+<div id="zMenu"><button id="bUpdChk">⟳ Проверить обновления</button></div>
 <canvas id="cCv"></canvas>
-<div id="cCtx"></div>
-<nav id="cTb">
-  <div class="grp">
-    <button data-t="sel" title="Выбор">↖</button>
-    <button data-t="wall" title="Стена плана">／</button>
-    <button data-t="dim" title="Размер / стрелка">↔</button>
-    <button id="cPh" title="Фото">📷</button>
+<button id="bFit" title="Показать всё">⤢</button>
+<div id="zf">
+  <div id="zpb"></div>
+  <div id="zb">
+    <div id="ch">
+      <button class="pb" data-t="sel" title="выбор" style="--c:#1f6fd1"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M8 4l14 10-6 1.5 3.5 6-2.6 1.5-3.5-6L9 22z" fill="#fff" stroke="#1a2027" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
+      <button class="pb pl" data-t="wall" title="штрих: провести — стена плана (0 / 90°)" style="--c:#7a3cc8"><b>✎</b></button>
+      <button class="pb" data-t="dim" title="размер" style="--c:#1f6fd1"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M4 18h20M4 13v10M24 13v10" stroke="#1f6fd1" stroke-width="2"/><path d="M4 18l4-3v6zM24 18l-4-3v6z" fill="#1f6fd1"/><rect x="9" y="5" width="10" height="7" rx="1.5" fill="#fff" stroke="#1a2027" stroke-width="1.2"/></svg></button>
+      <button class="pb" data-t="arr" title="стрелка" style="--c:#e07a00"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M5 22L21 7" stroke="#e07a00" stroke-width="2.6"/><path d="M23 5l-9 2 7 7z" fill="#e07a00"/></svg></button>
+      <button class="pb" id="cPh" title="фото-справка: камера / галерея" style="--c:#2e9e4f"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="20" rx="3" fill="#E9F3FF" stroke="#1F6FD1" stroke-width="2"/><circle cx="11" cy="12" r="2.6" fill="#F2C200"/><path d="M6 24l7-8 5 5 4-4 6 7z" fill="#2E9E4F"/></svg></button>
+    </div>
+    <div id="zur"><button id="bUnd" title="Отменить"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#h-undo"/></svg></button><button id="bRed" title="Повторить"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#h-redo"/></svg></button><button id="bDelS" title="Удалить выделенное (↶ — вернуть)"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#h-trash"/></svg></button></div>
   </div>
-  <div class="grp">
-    <button id="cUn" title="Отменить">↶</button>
-    <button id="cRe" title="Повторить">↷</button>
-    <button id="cDel" title="Удалить">🗑</button>
-  </div>
-</nav>
+</div>
+<div id="zm">
+  <button id="zmP" data-zm="plan" title="План помещения: стены"><i>⌂</i></button>
+  <button id="bMk" data-zm="mk" title="Стена: элементы, коммуникации"><i>⌖</i></button>
+</div>
+<div id="labCrop"><button id="labCrX">✕</button><button id="labCrRs">Сброс</button><button id="labCrOk">✓ Подрезать</button></div>
 <input id="cFile" type="file" accept="image/*" multiple hidden>
 <input id="cCam" type="file" accept="image/*" capture="environment" hidden>
-<div id="cUpd"><span></span><button></button></div>
 <div id="cKb">
 <button data-kk="1">1</button><button data-kk="2">2</button><button data-kk="3">3</button><button data-kk="bs">⌫</button>
 <button data-kk="4">4</button><button data-kk="5">5</button><button data-kk="6">6</button><button data-kk="ok" class="ok">Готово</button>
 <button data-kk="7">7</button><button data-kk="8">8</button><button data-kk="9">9</button>
 <button data-kk=",">,</button><button data-kk="0">0</button><button data-kk="pm">±</button>
 </div>
+<div id="cUpd"><span></span><button></button></div>
 <div id="cToast"></div>
 <script src="lab-version.js"></script>
 <script src="core.js"></script>

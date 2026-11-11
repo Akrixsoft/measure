@@ -25,19 +25,19 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   const M = js => p.evaluate(js);
   const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
   const box = sel => p.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
-  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#cCtx button')].find(e => e.textContent.includes(t)); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
-  const CT = 52;                                                      // верх холста, px
+  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
+  const CT = 48;                                                      // верх холста, px
   const scr = (x, y) => M(`MeasureCore.toS(${x},${y})`).then(([a, b]) => [a, b + CT]);
 
   await p.goto('http://127.0.0.1:9341/index.html'); await p.waitForFunction('window.MeasureCore && MeasureCore.ready');
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  ok('версия в бандле 82.20', (await M('window.MeasureVersion')) === '82.20');
+  ok('версия в бандле 82.21', (await M('window.MeasureVersion')) === '82.21');
   const [bx, by] = await box('#cPh'); await tap(bx, by);
-  ok('📷 → выбор «Камера / Галерея»', !!(await ctxBtn('Камера')) && !!(await ctxBtn('Галерея')));
+  ok('фото-справка → строка «камера / галерея»', !!(await ctxBtn('камера')) && !!(await ctxBtn('галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));
-  const fcP = p.waitForEvent('filechooser'); const gb = await ctxBtn('Галерея'); await tap(gb[0], gb[1]); const fc = await fcP;
+  const fcP = p.waitForEvent('filechooser'); const gb = await ctxBtn('галерея'); await tap(gb[0], gb[1]); const fc = await fcP;
   ok('выбор фото — множественный', fc.isMultiple());
   await fc.setFiles(['p1.jpg', 'p2.jpg', 'p3.jpg'].map(f => path.join(IMG, f))); await p.waitForFunction('MeasureCore.doc.photos.length===3', null, {timeout: 8000}).catch(() => {});
   let d = await doc(); ok('3 фото на холсте', d.photos.length === 3, d.photos.length);
@@ -53,7 +53,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   // 3. Стены плана — справа от фото, одним инструментом, без рамки
   const [, , ] = []; const b = await M('(()=>{const d=MeasureCore.doc;let x1=-1e9;for(const q of d.photos)x1=Math.max(x1,q.x+q.w);return x1})()');
   const [rx] = await scr(b, 0); const X0 = Math.min(rx + 40, 250), Y0 = 260;
-  const [tx, ty] = await box('#cTb [data-t=wall]'); await tap(tx, ty);
+  const [tx, ty] = await box('#ch [data-t=wall]'); await tap(tx, ty);
   ok('инструмент «стена» включён', (await M('MeasureCore.tool')) === 'wall');
   await drag([X0, Y0], [X0 + 130, Y0 + 3]);                              // С1 (3 px наклона — привязка 0°)
   await drag([X0 + 130, Y0], [X0 + 132, Y0 + 150]);                      // С2 от конца С1
@@ -79,12 +79,13 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('len-3200');
 
   // 5. H и развёртка С2 на холст
-  await p.fill('#cH', '2700'); await p.dispatchEvent('#cH', 'change'); await W(100);
-  const [sx, sy] = await box('#cTb [data-t=sel]'); await tap(sx, sy);
+  const [sx, sy] = await box('#ch [data-t=sel]'); await tap(sx, sy);
   d = await doc(); const w2 = d.walls[1], a2 = d.nodes.find(q => q.id === w2.a), b2 = d.nodes.find(q => q.id === w2.b);
   const m2 = await scr((a2.x + b2.x) / 2, (a2.y + b2.y) / 2 + ((b2.y - a2.y) * 0.25)); await tap(m2[0], m2[1]);
+  await shot('wall-selected');
   ok('касание стены выбирает её', JSON.stringify(await M('MeasureCore.sel')) === JSON.stringify({t: 'wall', id: w2.id}));
-  const eb = await ctxBtn('на холст'); ok('кнопка «Стена С2 на холст»', !!eb); if (eb) await tap(eb[0], eb[1]);
+  const eb = await ctxBtn('на холст'); ok('кнопка «Стена С2 на холст» (значок t-wallseg)', !!eb); if (eb) await tap(eb[0], eb[1]);
+  ok('H не задана — открыта клавиатура H', await M('document.body.classList.contains("kb")')); await shot('kb-H'); await key('2700ok');
   d = await doc(); ok('развёртка С2 создана, L из плана, H проекта', d.elev.length === 1 && d.elev[0].wall === w2.id && d.H === 2700);
   await shot('elev');
 
@@ -95,15 +96,18 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('elev-moved');
 
   // 7. Фото: выбор, масштаб за угол, подрезка
+  const sy0 = (await box('#ch [data-t=sel]'))[1];
   await M('MeasureCore.fitAll()'); await W(200);
   d = await doc(); const f0 = d.photos[0], fc0 = await scr(f0.x + f0.w / 2, f0.y + 30); await tap(fc0[0], fc0[1]);
   ok('фото выбрано касанием', JSON.stringify(await M('MeasureCore.sel')) === JSON.stringify({t: 'photo', id: f0.id}));
+  ok('выбор фото не сдвигает строку инструментов', (await box('#ch [data-t=sel]'))[1] === (await box('#ch [data-t=sel]'), sy0));
+  await shot('photo-selected');
   const br = await scr(f0.x + f0.w, f0.y + await M(`MeasureCore.phH(MeasureCore.doc.photos[0])`));
   await drag(br, [br[0] + 30, br[1] + 22]);
   d = await doc(); ok('масштаб за угол, пропорция сохранена, левый верх на месте', d.photos[0].w > f0.w && d.photos[0].x === f0.x && d.photos[0].y === f0.y, {w0: f0.w, w1: d.photos[0].w});
   const cb = await ctxBtn('Подрезать'); await tap(cb[0], cb[1]);
   const fp = d.photos[0], tl = await scr(fp.x, fp.y); await drag(tl, [tl[0] + 25, tl[1] + 18]);
-  const done = await ctxBtn('Готово'); await shot('crop'); await tap(done[0], done[1]);
+  const done = await ctxBtn('✓ Подрезать'); await shot('crop'); await tap(done[0], done[1]);
   d = await doc(); ok('подрезка: окно уменьшено, правый низ на месте', d.photos[0].cr[0] > 0.05 && d.photos[0].cr[1] > 0.05 && Math.abs((d.photos[0].x + d.photos[0].w) - (fp.x + fp.w)) <= 2, d.photos[0].cr);
   await shot('cropped');
 
@@ -116,7 +120,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await W(400); await tap(sx, sy); ok('после щипка кнопка «выбор» срабатывает', (await M('MeasureCore.tool')) === 'sel', await M('__pl.join(" ")'));
 
   // 8a. Размеры: на фото (значение вводом), на плане (по геометрии), фото двигается — размер следует
-  const [mx2, my2] = await box('#cTb [data-t=dim]'); await tap(mx2, my2);
+  const [mx2, my2] = await box('#ch [data-t=dim]'); await tap(mx2, my2);
   ok('инструмент «размер» включён', (await M('MeasureCore.tool')) === 'dim');
   await M('MeasureCore.fitAll()'); await W(200);
   d = await doc(); const ph = d.photos[2], phh = await M('MeasureCore.phH(MeasureCore.doc.photos[2])');
@@ -137,42 +141,42 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('dim-photo');
   // фото переносится — размер вместе с ним
   const A0 = await M(`MeasureCore.endPos(MeasureCore.doc.dims.find(q=>q.id==='${dm.id}').a)`);
-  const [sx2, sy2] = await box('#cTb [data-t=sel]'); await tap(sx2, sy2);
+  const [sx2, sy2] = await box('#ch [data-t=sel]'); await tap(sx2, sy2);
   const pc = await scr(ph.x + ph.w * 0.5, ph.y + phh * 0.15); await drag(pc, [pc[0] - 50, pc[1] + 30]);
   d = await doc(); const ph2 = d.photos[2], A1 = await M(`MeasureCore.endPos(MeasureCore.doc.dims.find(q=>q.id==='${dm.id}').a)`);
   ok('фото перенесено — конец размера сместился так же', Math.abs((A1.x - A0.x) - (ph2.x - ph.x)) < 1 && Math.abs((A1.y - A0.y) - (ph2.y - ph.y)) < 1, {dx: A1.x - A0.x, px: ph2.x - ph.x});
   // размер на плане между узлами С1 — по геометрии
-  { const [fx, fy] = await box('#cFit'); await tap(fx, fy); }
+  { const [fx, fy] = await box('#bFit'); await tap(fx, fy); }
   await tap(mx2, my2); d = await doc(); const w1n = d.walls[0], n1 = d.nodes.find(q => q.id === w1n.a), n2 = d.nodes.find(q => q.id === w1n.b);
   const s1 = await scr(n1.x, n1.y), s2 = await scr(n2.x, n2.y); await drag(s1, s2);
   d = await doc(); const dp = d.dims[d.dims.length - 1];
   ok('размер на плане привязан к узлам', dp.a.t === 'node' && dp.b.t === 'node', [dp.a.t, dp.b.t]);
   ok('значение на плане = длина С1', (await M(`MeasureCore.dimVal(MeasureCore.doc.dims[${d.dims.length - 1}]).txt`)).replace(/\s/g, '') === String(Math.round(await M('MeasureCore.wLen(MeasureCore.doc.walls[0])'))));
-  const tb = await ctxBtn('Размер'); if (tb) await tap(tb[0], tb[1]);
-  ok('↔ → стрелка', (await doc()).dims.find(q => q.id === dp.id).k === 'arr');
+  { const [ax2, ay2] = await box('#ch [data-t=arr]'); await tap(ax2, ay2); const nd0 = (await doc()).dims.length;
+    await drag([120, 300], [200, 250]); const dd = await doc(); ok('инструмент «стрелка» — стрелка', dd.dims.length === nd0 + 1 && dd.dims[dd.dims.length - 1].k === 'arr'); }
   await shot('dim-plan');
   await tap(sx2, sy2);
 
   // 9. ↶ / ↷
   const crBefore = (await doc()).photos[0].cr; 
-  let [ux, uy] = await box('#cUn'); for (let i = 0; i < 12 && (await doc()).photos[0].cr.join() !== '0,0,1,1'; i++) await tap(ux, uy);
+  let [ux, uy] = await box('#bUnd'); for (let i = 0; i < 12 && (await doc()).photos[0].cr.join() !== '0,0,1,1'; i++) await tap(ux, uy);
   ok('↶ возвращает подрезку', (await doc()).photos[0].cr.join() === '0,0,1,1');
-  let [qx, qy] = await box('#cRe'); await tap(qx, qy);
+  let [qx, qy] = await box('#bRed'); await tap(qx, qy);
   ok('↷ повторяет', (await doc()).photos[0].cr.join() === crBefore.join());
   for (let i = 0; i < 12 && (await M('MeasureCore.hs.r.length')); i++) await tap(qx, qy);
-  ok('↷ до конца — размеры вернулись', (await doc()).dims.length === 2);
+  ok('↷ до конца — размеры и стрелка вернулись', (await doc()).dims.length === 3);
 
   // 10. 🗑 фото и возврат
   d = await doc(); const f1 = d.photos[1];
   const fc1 = await M(`(()=>{const c=document.getElementById('cCv');for(let y=20;y<c.clientHeight-20;y+=6)for(let x=10;x<c.clientWidth-10;x+=6){const h=MeasureCore.hit(x,y);if(h&&h.t==='photo'&&h.id==='${f1.id}')return [x,y+52]}return null})()`);
   ok('видимая часть фото 2 найдена', !!fc1, fc1); await tap(fc1[0], fc1[1]); ok('фото 2 выбрано', (await M('MeasureCore.sel')||{}).id === f1.id, await M('MeasureCore.sel'));
-  const [dx, dy] = await box('#cDel'); await tap(dx, dy);
+  const [dx, dy] = await box('#bDelS'); await tap(dx, dy);
   ok('🗑 удаляет выбранное фото', (await doc()).photos.length === 2);
   await tap(ux, uy); ok('↶ возвращает фото', (await doc()).photos.length === 3);
   await shot('restored');
 
   // 11. Перезапуск: всё на месте, ↶ доступна
-  const vb = await M('({...MeasureCore.view})'), before = await doc(), hs = await M('MeasureCore.hs.u.length'); const [ox, oy] = await box('#cOk'); await tap(ox, oy); await W(300);
+  const vb = await M('({...MeasureCore.view})'), before = await doc(), hs = await M('MeasureCore.hs.u.length'); const [ox, oy] = await box('#bDone'); await tap(ox, oy); await W(300);
   await p.reload(); await p.waitForFunction('window.MeasureCore && MeasureCore.ready'); await W(800);
   const after = await doc();
   ok('после перезапуска документ тот же', JSON.stringify(after) === JSON.stringify(before));

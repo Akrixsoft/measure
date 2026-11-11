@@ -4,7 +4,7 @@
        Формат: 82.18 или 82.18.1 (третья цифра — только веб-обновление, versionCode тот же).
    ═══ [BLOCK MIN-APK] MeasureMinApk — минимальный versionCode APK, нативный мост которого (AkrixUpdate v1, AkrixBT, AkrixApp, AkrixLab)
        подходит этой веб-части. Повышать только при изменении нативного моста; веб-обновление не ставится на более старый APK. */
-window.MeasureVersion = '82.20';
+window.MeasureVersion = '82.21';
 window.MeasureMinApk = 82018;
 /* ═══ [BLOCK BOOT-ERR] 82.18 (аудит m6): исключения web/lab-*.js при старте — первым скриптом Lab, чтобы lab-update.js не отправил ready
        (натив откатит бандл). Только запись первой ошибки; поведение страницы не меняется. */

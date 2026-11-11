@@ -27,7 +27,7 @@
   const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: []});
   let D = null;
   let V = {ox: 40, oy: 60, s: 0.1};                    // вид: px CSS на мм
-  const C = {tool: 'sel', sel: null, crop: null, phm: false};      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
+  const C = {tool: 'sel', mode: 'plan', sel: null, crop: null, phm: false};      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
   const node = id => D.nodes.find(n => n.id === id);
   const wall = id => D.walls.find(w => w.id === id);
   const photo = id => D.photos.find(p => p.id === id);
@@ -51,7 +51,7 @@
   function redo() { if (!HS.r.length) return; HS.u.push(snap()); D = JSON.parse(HS.r.pop()); afterHist('↷ повторено'); }
   function afterHist(t) {
     const s = C.sel; if (s && !({photo, wall, node, elev, dim})[s.t](s.id)) C.sel = null;
-    C.crop = null; $('cName').value = D.name; $('cH').value = D.H; dirty(); ui(); toast(t);
+    C.crop = null; $('labPrjT').value = D.name; dirty(); ui(); toast(t);
   }
 
   /* ═══ [BLOCK C-DB] IndexedDB akrix-core: prj (документ + вид + журнал), img (картинки), meta ═══ */
@@ -113,7 +113,7 @@
   }
 
   /* ═══ [BLOCK C-DRAW] отрисовка: сетка → фото → развёртки → план → выделение ═══ */
-  let raf = 0; const LBL = new Map();          // id стены → прямоугольник подписи (px), для касаний
+  let raf = 0; const LBL = new Map(), ELBL = new Map();          // id стены → прямоугольник подписи (px), для касаний
   function draw() { if (!raf) raf = requestAnimationFrame(paint); }
   const COL = {wall: '#7a3cc8', sel: '#1f6fd1', node: '#0e7f93', elev: '#223', grid: '#e2e4e7', grid2: '#cfd3d8'};
   function paint() {
@@ -121,7 +121,7 @@
     cx.setTransform(d, 0, 0, d, 0, 0); cx.fillStyle = '#f6f5f1'; cx.fillRect(0, 0, W, Hh);
     const gst = grid(W, Hh);
     for (const p of D.photos) drawPhoto(p);
-    for (const e of D.elev) drawElev(e);
+    ELBL.clear(); for (const e of D.elev) drawElev(e);
     drawPlan();
     drawDims();
     drawOverlay();
@@ -159,7 +159,8 @@
     cx.fillStyle = '#ffffffd9'; cx.fillRect(x, y, W, H);
     cx.strokeStyle = on ? COL.sel : COL.elev; cx.lineWidth = on ? 2.5 : 1.5; cx.strokeRect(x, y, W, H);
     cx.lineWidth = on ? 4 : 3; cx.beginPath(); cx.moveTo(x, y + H); cx.lineTo(x + W, y + H); cx.stroke();
-    label(`С${w.gn} · ${rnd(r.w)} × ${rnd(r.h)}`, x + W / 2, y - 12, on ? COL.sel : COL.elev);
+    const edH = KB.tg && KB.tg.t === 'H';
+    ELBL.set(e.id, label(`С${w.gn} · ${rnd(r.w)} × ${edH ? (KB.buf || ' ') + '▏' : rnd(r.h)}`, x + W / 2, y - 12, on ? COL.sel : COL.elev));
   }
   function label(t, X, Y, col) {
     cx.font = '600 13px system-ui'; const tw = cx.measureText(t).width + 10, r = {x: X - tw / 2, y: Y - 11, w: tw, h: 22};
@@ -249,8 +250,10 @@
     const pt = (x, y, e) => { const [X, Y] = toS(x, y), dd = hyp(X - sx, Y - sy); if (dd < bd) { bd = dd; best = {...e, x: rnd(x * 10) / 10, y: rnd(y * 10) / 10}; } };
     for (const n of D.nodes) pt(n.x, n.y, {t: 'node', id: n.id});
     for (const o of D.elev) { const r = elevRect(o); [[0, 0], [1, 0], [1, 1], [0, 1]].forEach(([u, v]) => pt(r.x + r.w * u, r.y + r.h * v, {t: 'elev', id: o.id, u, v})); }
+    for (const d of D.dims) if (d.id !== skipDim) for (const e of [d.a, d.b]) if (e.t === 'node' || e.t === 'wall' || e.t === 'elev') { const P = endPos(e); pt(P.x, P.y, {...e}); }
+    if (best) return best;                                       // геометрия плана и развёрток важнее углов фото
     for (const p of D.photos) { const F = phFull(p); [[p.cr[0], p.cr[1]], [p.cr[2], p.cr[1]], [p.cr[2], p.cr[3]], [p.cr[0], p.cr[3]]].forEach(([u, v]) => pt(F.x + F.w * u, F.y + F.h * v, {t: 'photo', id: p.id, u, v})); }
-    for (const d of D.dims) if (d.id !== skipDim) for (const e of [d.a, d.b]) { const P = endPos(e); pt(P.x, P.y, {...e}); }
+    for (const d of D.dims) if (d.id !== skipDim) for (const e of [d.a, d.b]) if (!(e.t === 'node' || e.t === 'wall' || e.t === 'elev')) { const P = endPos(e); pt(P.x, P.y, {...e}); }
     if (best) return best;
     bd = 14; const seg = (A, B, mk) => { const [ax, ay] = toS(A.x, A.y), [bx, by] = toS(B.x, B.y), dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy; if (!L2) return;
       const t = clamp(((sx - ax) * dx + (sy - ay) * dy) / L2, 0, 1), dd = hyp(ax + dx * t - sx, ay + dy * t - sy); if (dd < bd) { bd = dd; best = mk(t, A.x + (B.x - A.x) * t, A.y + (B.y - A.y) * t); } };
@@ -269,7 +272,7 @@
   }
   function addDim(a, b) {
     const A = endPos(a), B = endPos(b); if (hyp(B.x - A.x, B.y - A.y) * V.s < 12) return null;
-    begin(); const d = {id: uid('d'), k: C.dimK || 'dim', a, b, v: ''}; D.dims.push(d); commit(); return d;
+    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: ''}; D.dims.push(d); commit(); return d;
   }
 
   /* ═══ [BLOCK C-HIT] что под пальцем (px) — порядок: маркеры → подписи → узлы → стены → развёртки → фото ═══ */
@@ -283,6 +286,7 @@
     if (s && s.t === 'dim') { const d = dim(s.id); if (d) for (const [k, e] of [['a', d.a], ['b', d.b]]) { const P = endPos(e), [x, y] = toS(P.x, P.y); if (hyp(x - sx, y - sy) < HR.handle) return {t: 'dim-h', id: d.id, end: k}; } }
     for (const [id, r] of DLBL) if (hyp(r.x - sx, r.y - sy) < r.r) return {t: 'dlabel', id};
     for (const d of D.dims) { const A = endPos(d.a), B = endPos(d.b); if (segDist([sx, sy], toS(A.x, A.y), toS(B.x, B.y)) < 12) return {t: 'dim', id: d.id}; }
+    for (const [id, r] of ELBL) if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 6 && sy <= r.y + r.h + 6) return {t: 'elabel', id};
     for (const [id, r] of LBL) if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 6 && sy <= r.y + r.h + 6) return {t: 'label', id};
     let best = null, bd = HR.node;
     for (const n of D.nodes) { const [x, y] = toS(n.x, n.y), dd = hyp(x - sx, y - sy); if (dd < bd) { bd = dd; best = {t: 'node', id: n.id}; } }
@@ -348,7 +352,7 @@
     dropOrphans(); C.sel = null; C.crop = null; commit(); toast('Удалено · ↶ — вернуть');
   }
   function addElev(w) {
-    if (!Hmm()) { $('cH').classList.add('need'); toast('Укажи высоту H'); $('cH').focus(); return; }
+    if (!Hmm()) { KB.after = () => { if (Hmm()) addElev(w); }; openKb('H', null); toast('Высота H'); return; }
     const ex = D.elev.find(e => e.wall === w.id);
     if (ex) { const r = elevRect(ex); V.ox = cssW() / 2 - (r.x + r.w / 2) * V.s; V.oy = cssH() / 2 - (r.y + r.h / 2) * V.s; C.sel = {t: 'elev', id: ex.id}; viewChanged(); ui(); return; }
     const L = wLen(w), c = toW(cssW() / 2, cssH() * 0.4);
@@ -380,7 +384,7 @@
   const P = new Map(); let G = null; const TAP = 8;
   const pos = e => { const r = cv.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
   cv.addEventListener('pointerdown', e => {
-    e.preventDefault(); closeEd(true); if (C.phm) { C.phm = false; ui(); } try { cv.setPointerCapture(e.pointerId); } catch (_) { }
+    e.preventDefault(); closeEd(true); $('zMenu').classList.remove('on'); if (C.phm) { C.phm = false; ui(); } try { cv.setPointerCapture(e.pointerId); } catch (_) { }
     P.set(e.pointerId, pos(e));
     if (P.size === 2) startPinch(); else if (P.size === 1) startOne(pos(e));
   });
@@ -410,11 +414,11 @@
     const h = hit(p.x, p.y); G = {t: 'tap', p0: p, h, moved: false, V0: {...V}};
     if (C.crop) { if (h && h.t === 'crop-h') G.t = 'crop'; else if (h && h.t === 'crop-in') G.t = 'cropmove'; else G.t = 'pan'; return; }
     if (h && h.t === 'dim-h') { G.t = 'dimend'; return; }
-    if (C.tool === 'dim' && !(h && (h.t === 'dlabel' || h.t === 'label'))) { G.t = 'dimdraw'; G.a = snapDim(p.x, p.y, null, null); G.cur = null; return; }
-    if (C.tool === 'wall' && !(h && h.t === 'label')) {
+    if ((C.tool === 'dim' || C.tool === 'arr') && !(h && (h.t === 'dlabel' || h.t === 'label' || h.t === 'elabel'))) { G.t = 'dimdraw'; G.a = snapDim(p.x, p.y, null, null); G.cur = null; return; }
+    if (C.tool === 'wall' && !(h && (h.t === 'label' || h.t === 'elabel'))) {
       const a = snapEnd(null, p.x, p.y); G.t = 'draw'; G.a = a; G.b = null; return;
     }
-    if (!h || h.t === 'label' || h.t === 'dlabel') { G.t = 'pan'; return; }
+    if (!h || h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel') { G.t = 'pan'; return; }
     G.t = {dim: 'dmove', 'ph-h': 'scale', photo: 'move', elev: 'move', node: 'nmove', wall: 'wmove'}[h.t] || 'pan';
   }
   function oneMove(p) {
@@ -461,7 +465,8 @@
     if (C.crop) return;
     if (h && h.t === 'label') { C.sel = {t: 'wall', id: h.id}; ui(); draw(); openEd(h.id); return; }
     if (h && h.t === 'dlabel') { C.sel = {t: 'dim', id: h.id}; ui(); draw(); openKb('dim', h.id); return; }
-    if (C.tool === 'dim') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'dim' || hh.t === 'dim-h') ? {t: 'dim', id: hh.id} : null; ui(); draw(); return; }
+    if (h && h.t === 'elabel') { C.sel = {t: 'elev', id: h.id}; ui(); draw(); openKb('H', null); return; }
+    if (C.tool === 'dim' || C.tool === 'arr') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'dim' || hh.t === 'dim-h') ? {t: 'dim', id: hh.id} : null; ui(); draw(); return; }
     if (C.tool === 'wall') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'wall' || hh.t === 'node') ? {t: hh.t, id: hh.id} : null; ui(); draw(); return; }
     C.sel = h && h.t !== 'ph-h' && h.t !== 'dim-h' ? {t: h.t, id: h.id} : (h && (h.t === 'ph-h' || h.t === 'dim-h') ? C.sel : null); ui(); draw();
   }
@@ -491,8 +496,8 @@
      стена — длина плана (геометрия меняется); размер — введённое значение (геометрия не меняется; пусто — снять) */
   const KB = {tg: null, buf: ''}, kbEl = $('cKb');
   function openKb(t, id) {
-    const o = t === 'wall' ? wall(id) : dim(id); if (!o) return;
-    KB.tg = {t, id}; KB.buf = t === 'wall' ? String(rnd(wLen(o))) : (o.v !== '' && o.v != null ? String(o.v) : ''); KB.fresh = true;
+    const o = t === 'wall' ? wall(id) : t === 'dim' ? dim(id) : D; if (!o) return;
+    KB.tg = {t, id}; KB.buf = t === 'wall' ? String(rnd(wLen(o))) : t === 'H' ? String(D.H || '') : (o.v !== '' && o.v != null ? String(o.v) : ''); KB.fresh = true;
     document.body.classList.add('kb'); ui(); draw();
   }
   const openEd = id => openKb('wall', id);
@@ -500,7 +505,9 @@
     if (!KB.tg) return; const tg = KB.tg, raw = KB.buf.replace(',', '.'); KB.tg = null; document.body.classList.remove('kb');
     if (apply) { const v = parseFloat(raw);
       if (tg.t === 'wall') { const w = wall(tg.id); if (w && v > 0 && Math.abs(v - wLen(w)) >= 0.5) setLen(w, v); }
+      else if (tg.t === 'H') { if (v > 0 && v !== +D.H) { begin(); D.H = rnd(v); commit(); } else if (!(v > 0) && !D.elev.length) { begin(); D.H = ''; commit(); } }
       else { const d = dim(tg.id); if (d) { begin(); d.v = raw === '' || raw === '-' || isNaN(v) ? '' : v; commit(); } } }
+    const after = KB.after; KB.after = null; if (apply && after) after();
     ui(); draw();
   }
   function kbKey(k) {
@@ -523,32 +530,36 @@
     el.addEventListener('pointercancel', () => { el._pd = null; });
   }
   function ui() {
-    document.querySelectorAll('#cTb [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === C.tool));
-    $('cUn').disabled = !HS.u.length; $('cRe').disabled = !HS.r.length; $('cDel').disabled = !C.sel || !!C.crop;
-    const box = $('cCtx'), s = C.sel, B = []; box.innerHTML = '';
-    if (C.phm) B.push(['📷 Камера', () => { C.phm = false; ui(); $('cCam').click(); }, 'pri'], ['🖼 Галерея', () => { C.phm = false; ui(); $('cFile').click(); }]);
-    else if (C.crop) B.push(['✓ Готово', cropEnd, 'pri'], ['Весь кадр', cropReset]);
-    else if (KB.tg) { /* клавиатура открыта — без контекстных кнопок */ }
-    else if (s && s.t === 'photo') B.push(['✂ Подрезать', cropStart]);
-    else if (s && s.t === 'dim') { const d = dim(s.id); if (d) B.push([d.k === 'arr' ? '→ Стрелка' : '↔ Размер', () => { begin(); d.k = d.k === 'arr' ? 'dim' : 'arr'; C.dimK = d.k; commit(); }], ['Значение', () => openKb('dim', d.id), 'pri']); }
-    else if (s && s.t === 'wall') { const w = wall(s.id); if (w) B.push([D.elev.some(e => e.wall === w.id) ? `▭ К стене С${w.gn}` : `▭ Стена С${w.gn} на холст`, () => addElev(w), 'pri'], [`L ${rnd(wLen(w))}`, () => openEd(w.id)]); }
-    for (const [t, fn, c] of B) { const b = document.createElement('button'); b.textContent = t; if (c) b.className = c; act(b, fn); box.appendChild(b); }
+    document.body.classList.toggle('m-plan', C.mode === 'plan');
+    document.querySelectorAll('#ch [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === C.tool));
+    document.querySelectorAll('#zm [data-zm]').forEach(b => b.classList.toggle('on', b.dataset.zm === C.mode));
+    $('bUnd').classList.toggle('dis', !HS.u.length); $('bRed').classList.toggle('dis', !HS.r.length); $('bDelS').classList.toggle('dis', !C.sel || !!C.crop);
+    $('labCrop').classList.toggle('on', !!C.crop);
+    const box = $('zpb'), s = C.sel, B = []; box.innerHTML = '';
+    if (KB.tg || C.crop) { /* клавиатура / подрезка — строки нет */ }
+    else if (C.phm) B.push(['<span class="tx">📷 камера</span>', () => { C.phm = false; ui(); $('cCam').click(); }, 'Камера — снять'], ['<span class="tx">🖼 галерея</span>', () => { C.phm = false; ui(); $('cFile').click(); }, 'Галерея — несколько фото']);
+    else if (s && s.t === 'photo') B.push(['✂', cropStart, 'Подрезать фото (рамка; исходник сохраняется)']);
+    else if (s && s.t === 'wall') { const w = wall(s.id); if (w) { const has = D.elev.some(e => e.wall === w.id);
+      B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => addElev(w), has ? `Стена С${w.gn} на холсте — показать` : `Стена С${w.gn} на холст`], [`<span class="tx">С${w.gn} · L ${rnd(wLen(w))}</span>`, () => openEd(w.id), 'Длина стены']); } }
+    for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; if (h.startsWith('<span')) b.style.cssText = 'width:auto;border:0'; act(b, fn); box.appendChild(b); }
+    box.classList.toggle('on', B.length > 0);
   }
-  document.querySelectorAll('#cTb [data-t]').forEach(b => act(b, () => { if (C.crop) cropEnd(); C.tool = b.dataset.t; ui(); draw(); }));
+  document.querySelectorAll('#ch [data-t]').forEach(b => act(b, () => { if (C.crop) cropEnd(); C.tool = b.dataset.t; C.phm = false; ui(); draw(); }));
+  document.querySelectorAll('#zm [data-zm]').forEach(b => act(b, () => { C.mode = b.dataset.zm; if (C.mode !== 'plan' && C.tool === 'wall') C.tool = 'sel'; ui(); draw(); }));
   act($('cPh'), () => { C.phm = !C.phm; ui(); });
   $('cCam').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   $('cFile').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
-  act($('cUn'), () => { if (C.crop) cropEnd(); undo(); });
-  act($('cRe'), () => { if (C.crop) cropEnd(); redo(); });
-  act($('cDel'), del);
-  act($('cFit'), fitAll);
-  act($('cOk'), () => { closeEd(true); if (C.crop) cropEnd(); save().then(() => toast('Сохранено')); });
-  $('cName').onchange = e => { begin(); D.name = e.target.value.trim(); commit(); };
-  $('cH').onchange = e => {
-    const v = parseInt(e.target.value, 10);
-    if (!(v > 0) && D.elev.length) { e.target.value = D.H; toast('H нужна развёрткам стен'); return; }
-    e.target.classList.remove('need'); begin(); D.H = v > 0 ? v : ''; commit(); e.target.value = D.H;
-  };
+  act($('bUnd'), () => { if (C.crop) cropEnd(); undo(); });
+  act($('bRed'), () => { if (C.crop) cropEnd(); redo(); });
+  act($('bDelS'), () => { if (!$('bDelS').classList.contains('dis')) del(); });
+  act($('bFit'), fitAll);
+  act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); save().then(() => toast('Сохранено')); });
+  act($('bMore'), () => $('zMenu').classList.toggle('on'));
+  act($('bUpdChk'), () => { $('zMenu').classList.remove('on'); const N = window.AkrixUpdate; if (N && N.check) N.check(); else toast('Обновление — только в приложении'); });
+  act($('labCrX'), () => { cancel(); C.crop = null; ui(); draw(); });
+  act($('labCrRs'), () => { cropReset(); cropEnd(); });
+  act($('labCrOk'), cropEnd);
+  $('labPrjT').onchange = e => { begin(); D.name = e.target.value.trim(); commit(); };
   addEventListener('resize', resize);
   document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 
@@ -581,7 +592,7 @@
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
     try { await dbOpen(); await load(); } catch (e) { console.error(e); D = newDoc(); }
-    $('cName').value = D.name; $('cH').value = D.H; resize(); ui();
+    $('labPrjT').value = D.name; resize(); ui();
     window.MeasureCore.ready = true; updReady();
   })();
 })();
