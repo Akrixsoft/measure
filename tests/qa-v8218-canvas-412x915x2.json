@@ -6,7 +6,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbmjq7jw32",
+        "sid": "bmwbrhtv58xw",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -32,7 +32,7 @@
       "ok": true,
       "name": "photo: фото — справка подложки (картинка в базе), без экрана распознавания; ⌗ в нижней строке, плавающей плашки нет",
       "detail": {
-        "id": "rmwbmjqat05z",
+        "id": "rmwbrhtzu9vh",
         "w": 600,
         "blob": 133444,
         "rsel": true,
@@ -54,7 +54,7 @@
       "name": "dim: размер на фото пером — в подложке (фото не сдвинуто)",
       "detail": {
         "n": 1,
-        "id": "dmwbmjqstysj",
+        "id": "dmwbrhuht4jq",
         "ref": 32.4,
         "kind": "board"
       }
@@ -102,10 +102,10 @@
       "ok": true,
       "name": "wall: стена С1 «Кухня» 2391 × 2700 над фото, связь фото → wid, область плана",
       "detail": {
-        "wid": "wvlsfyqh",
-        "room": "r1794371646851",
-        "w": "w1794371646851_1",
-        "sid": "smwbmjrtlmdi",
+        "wid": "wkcijf13",
+        "room": "r1794379956404",
+        "w": "w1794379956404_1",
+        "sid": "smwbrhviq1c8",
         "q4": [
           2391,
           2700
@@ -161,7 +161,7 @@
         "nW": 0,
         "act": "wall",
         "dms": 1,
-        "sid": "smwbmjrtlmdi"
+        "sid": "smwbrhviq1c8"
       }
     },
     {
@@ -177,8 +177,8 @@
         },
         "a6": {
           "act": "board",
-          "rsel": "rmwbmjqat05z",
-          "ref": "rmwbmjqat05z",
+          "rsel": "rmwbrhtzu9vh",
+          "ref": "rmwbrhtzu9vh",
           "els": 0,
           "dms": 2,
           "drw": 2,
@@ -223,7 +223,7 @@
       "detail": {
         "on": true,
         "act": "wall",
-        "sid": "smwbmjrtlmdi",
+        "sid": "smwbrhviq1c8",
         "mode": "wall",
         "tool": "mk",
         "list": false
@@ -248,7 +248,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbmjq7jw32",
+        "sid": "bmwbrhtv58xw",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -288,7 +288,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbmjq7jw32",
+        "sid": "bmwbrhtv58xw",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -300,7 +300,7 @@
       "name": "🗑: область стены выбрана заголовком → удалена (вид стены в «Удалённые») → ↶ на месте",
       "detail": {
         "sel": {
-          "sel": "wvlsfyqh",
+          "sel": "wkcijf13",
           "has": true
         },
         "del": {
@@ -364,7 +364,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbmjq7jw32",
+        "sid": "bmwbrhtv58xw",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -431,7 +431,7 @@
       "name": "restart: раскладка, вид и активная поверхность — как были",
       "detail": {
         "before": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794371646851\",\"w1794371646851_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794379956404\",\"w1794379956404_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -440,7 +440,7 @@
           "act": "board"
         },
         "after": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794371646851\",\"w1794371646851_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794379956404\",\"w1794379956404_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -454,7 +454,7 @@
       "ok": true,
       "name": "restart: фото (картинка), размер 1250, текст, снимки областей — на месте",
       "detail": {
-        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794371646851\",\"w1794371646851_1\",32]]",
+        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794379956404\",\"w1794379956404_1\",32]]",
         "view": {
           "s": 0.20445318792657594,
           "ox": 203.64640262410444,
