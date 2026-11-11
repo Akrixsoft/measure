@@ -783,7 +783,9 @@
     const msg = n => { ov.textContent = `Подготовка холста… ${n}/${L.length}`; }; msg(0);
     for (const t of ['pointerdown', 'pointermove', 'pointerup', 'click', 'touchstart', 'touchmove', 'wheel']) ov.addEventListener(t, e => { e.stopPropagation(); if (e.cancelable) e.preventDefault(); }, {passive: false});
     document.body.appendChild(ov);
-    try { return await snapMissing(a || BOARD, () => !K.on, msg); } catch (e) { console.error(e); return 0; } finally { ov.remove(); prepOn = 0; }
+    let wantList = 0; const onL = e => { if (e.detail && e.detail.on) wantList = 1; }; addEventListener('measure-lab-projects', onL);   // список открыли (кнопка «назад», программно) — подготовка прерывается, список возвращается
+    try { return await snapMissing(a || BOARD, () => !K.on || wantList || listOn(), msg); } catch (e) { console.error(e); return 0; }
+    finally { ov.remove(); prepOn = 0; removeEventListener('measure-lab-projects', onL); if (wantList && !listOn() && window.MeasureLabProjects && MeasureLabProjects.show) { try { MeasureLabProjects.show(); } catch (e) { } } }
   }
   api.prep = prep;
   api.bgBusy = () => !!(prepOn || actP || F.on);   // тесты: подготовка / переход идут
@@ -793,7 +795,7 @@
     const L = K.items.filter(it => it !== back && snapStale(it)); if (!L.length) return 0;
     const v0 = {...K.view}; K.quiet++;   // вид холста не меняется (активация внутри — с syncToS, без подстройки вида под поверхность)
     let n = 0; try { for (const it of L) { if (stop && stop()) break; const ok = await activate(it, {force: 1}).catch(() => false); if (!ok) continue; if (it.t === 'wall') await wallReady(it.sid); else await new Promise(z => setTimeout(z, 150)); draw(); n++; if (step) try { step(n); } catch (e) { } }
-    if (back) await activate(back, {force: 1}).catch(() => false); } finally { K.view = v0; { const a = active(); if (a) syncToS(a); } draw();
+    if (back && !listOn()) await activate(back, {force: 1}).catch(() => false); } finally { K.view = v0; { const a = active(); if (a) syncToS(a); } draw();
       setTimeout(() => { K.quiet--; }, 700); }   // отложенные fit() v81 после тихих открытий — без вписывания холста
     return n;
   }
