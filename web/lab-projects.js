@@ -321,9 +321,9 @@
     mo.observe(sh, {attributes: true}); mo.observe(dg, {attributes: true});
   };
   /* 82.18 fix (аудит m9): заголовок — не на каждое изменение класса body (lab-tb/lab-prd/lab-v012 меняют их при отрисовке, titleUpd читает IndexedDB),
-     а только при смене «холст открыт» / «список открыт» и при переходе холста (measure-lab-activate); один раз за кадр. */
+     а только при смене «холст открыт» / «список открыт» и при переходе холста (measure-lab-activate); подряд идущие — одним вызовом. */
   let tuR = 0, tuK = '';
-  const titleSoon = () => { if (tuR) return; tuR = requestAnimationFrame(() => { tuR = 0; titleUpd(); }); };
+  const titleSoon = () => { if (tuR) return; tuR = 1; queueMicrotask(() => { tuR = 0; titleUpd(); }); };
   new MutationObserver(() => { const b = document.body.classList, k = (b.contains('lab-sketch') ? 1 : 0) + ',' + (b.contains('lab-prj-on') ? 1 : 0); if (k !== tuK) { tuK = k; titleSoon(); } }).observe(document.body, {attributes: true, attributeFilter: ['class']});
   addEventListener('measure-lab-activate', titleSoon);
   addEventListener('measure-lab-project', e => { const d = e.detail || {}; if (d.pid && d.pid === V.cur) titleUpd(); if (d.op === 'purge' && d.pid === V.cur) V.cur = null; });
