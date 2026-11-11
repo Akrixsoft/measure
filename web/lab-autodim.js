@@ -156,7 +156,7 @@
      Поверх неизменной v81 (обёртки w3FPs, w3Free). ═══ */
   const fp0 = w3FPs; w3FPs = function () {
     const r = fp0.apply(this, arguments);
-    try { const RO = S.w3RO; if (Array.isArray(RO)) { const z = w3IcZ() * 0.6 + 2 * (devicePixelRatio || 1); for (const e of S.els) if ((KD[e.k] || {}).pt && layOn(e) && !e.cand) RO.push([toScr(...e.c), z]); } } catch (e) { }
+    try { const RO = S.w3RO; if (Array.isArray(RO)) { const d = devicePixelRatio || 1, z = w3IcZ() * 0.7 + 5 * d; for (const e of S.els) if ((KD[e.k] || {}).pt && layOn(e) && !e.cand) RO.push([toScr(...e.c), z]); /* с рамкой выбора; от выбора не зависит — поля не прыгают */ } } catch (e) { }
     return r;
   };
   function frame() {   // рамка активной области стены на холсте, px холста; null — вне холста / снимок
