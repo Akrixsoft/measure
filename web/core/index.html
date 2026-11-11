@@ -20,6 +20,7 @@
   <div class="grp">
     <button data-t="sel" title="Выбор">↖</button>
     <button data-t="wall" title="Стена плана">／</button>
+    <button data-t="dim" title="Размер / стрелка">↔</button>
     <button id="cPh" title="Фото">📷</button>
   </div>
   <div class="grp">
@@ -31,7 +32,12 @@
 <input id="cFile" type="file" accept="image/*" multiple hidden>
 <input id="cCam" type="file" accept="image/*" capture="environment" hidden>
 <div id="cUpd"><span></span><button></button></div>
-<input id="cEd" inputmode="numeric" autocomplete="off">
+<div id="cKb">
+<button data-kk="1">1</button><button data-kk="2">2</button><button data-kk="3">3</button><button data-kk="bs">⌫</button>
+<button data-kk="4">4</button><button data-kk="5">5</button><button data-kk="6">6</button><button data-kk="ok" class="ok">Готово</button>
+<button data-kk="7">7</button><button data-kk="8">8</button><button data-kk="9">9</button>
+<button data-kk=",">,</button><button data-kk="0">0</button><button data-kk="pm">±</button>
+</div>
 <div id="cToast"></div>
 <script src="lab-version.js"></script>
 <script src="core.js"></script>

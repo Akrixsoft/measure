@@ -20,6 +20,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   const tap = async (x, y) => { await T('touchStart', [[x, y]]); await W(40); await T('touchEnd', []); await W(250); };
   const drag = async (a, b, k = 12) => { await T('touchStart', [a]); for (let i = 1; i <= k; i++) { await T('touchMove', [[a[0] + (b[0] - a[0]) * i / k, a[1] + (b[1] - a[1]) * i / k]]); await W(12); } await T('touchEnd', []); await W(250); };
   const pinch = async (c, d0, d1, k = 10) => { const P = d => [[c[0] - d / 2, c[1]], [c[0] + d / 2, c[1]]]; await T('touchStart', P(d0)); for (let i = 1; i <= k; i++) { await T('touchMove', P(d0 + (d1 - d0) * i / k)); await W(12); } await T('touchEnd', []); await W(300); };
+  const key = async seq => { for (const k of seq.match(/ok|bs|pm|./g)) { const b = await p.evaluate(k => { const e = document.querySelector('#cKb [data-kk="' + k + '"]'); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, k); await tap(b[0], b[1]); } };
   const shot = async name => { const f = path.join(OUT, String(++n).padStart(2, '0') + '-' + name + '.png'); await p.screenshot({path: f}); return f; };
   const M = js => p.evaluate(js);
   const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
@@ -32,7 +33,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  ok('версия в бандле 82.19.1', (await M('window.MeasureVersion')) === '82.19.1');
+  ok('версия в бандле 82.20', (await M('window.MeasureVersion')) === '82.20');
   const [bx, by] = await box('#cPh'); await tap(bx, by);
   ok('📷 → выбор «Камера / Галерея»', !!(await ctxBtn('Камера')) && !!(await ctxBtn('Галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));
@@ -69,8 +70,8 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   // 4. Длина С1 — касанием подписи, ввод значения
   const lb = (await M('MeasureCore.labels()')).find(l => l.id === w1.id);
   await tap(lb.x + lb.w / 2, lb.y + lb.h / 2 + CT);
-  ok('поле длины открыто только по касанию подписи', await M('getComputedStyle(document.getElementById("cEd")).display!=="none"'));
-  await p.fill('#cEd', '3200'); await p.keyboard.press('Enter'); await W(200);
+  ok('клавиатура открыта только по касанию подписи', await M('document.body.classList.contains("kb")'));
+  await key('3200ok');
   d = await doc(); const L1 = await M(`MeasureCore.wLen(MeasureCore.doc.walls[0])`);
   ok('С1 = 3200 мм', Math.abs(L1 - 3200) < 1, L1);
   { const d2 = await doc(), N = id => d2.nodes.find(q => q.id === id), w2 = d2.walls[1], w3 = d2.walls[2];
@@ -114,12 +115,52 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   ok('щипок посреди рисования — стена не создана', (await doc()).walls.length === nW);
   await W(400); await tap(sx, sy); ok('после щипка кнопка «выбор» срабатывает', (await M('MeasureCore.tool')) === 'sel', await M('__pl.join(" ")'));
 
+  // 8a. Размеры: на фото (значение вводом), на плане (по геометрии), фото двигается — размер следует
+  const [mx2, my2] = await box('#cTb [data-t=dim]'); await tap(mx2, my2);
+  ok('инструмент «размер» включён', (await M('MeasureCore.tool')) === 'dim');
+  await M('MeasureCore.fitAll()'); await W(200);
+  d = await doc(); const ph = d.photos[2], phh = await M('MeasureCore.phH(MeasureCore.doc.photos[2])');
+  { const c3 = await scr(ph.x + ph.w / 2, ph.y + phh * 0.75); await pinch(c3, 60, 220); }
+  // ряд, где фото 3 видно сплошь на 110 px и рядом нет углов (касание по видимой части)
+  const seg3 = await M(`(()=>{const c=document.getElementById('cCv');for(let y=30;y<c.clientHeight-30;y+=4){let run=0;for(let x=20;x<c.clientWidth-20;x+=2){const ok3=yy=>{const h=MeasureCore.hit(x,yy);return h&&h.t==='photo'&&h.id==='${ph.id}'};if(ok3(y)&&ok3(y-24)&&ok3(y+24)){run+=2;if(run>=90)return [x-75,y,x-15]}else run=0}}return null})()`);
+  ok('видимая часть фото 3 для размера', !!seg3, seg3);
+  const pa = [seg3[0], seg3[1] + CT], pb = [seg3[2], seg3[1] + CT + 2];
+  await drag(pa, pb);
+  d = await doc(); const dm = d.dims[d.dims.length - 1];
+  ok('размер на фото создан, концы привязаны к фото', dm && dm.a.t === 'photo' && dm.b.t === 'photo' && dm.a.id === ph.id, dm);
+  ok('значение на фото — «?» до ввода', (await M(`MeasureCore.dimVal(MeasureCore.doc.dims[${d.dims.length - 1}]).txt`)) === '?');
+  ok('после создания клавиатура не открывается', !(await M('document.body.classList.contains("kb")')));
+  const dl = (await M('MeasureCore.dlabels()')).find(l => l.id === dm.id); await tap(dl.x, dl.y + CT);
+  ok('касание подписи размера — клавиатура', await M('document.body.classList.contains("kb")'));
+  await key('1250ok');
+  d = await doc(); ok('значение размера 1250', d.dims.find(q => q.id === dm.id).v === 1250);
+  await shot('dim-photo');
+  // фото переносится — размер вместе с ним
+  const A0 = await M(`MeasureCore.endPos(MeasureCore.doc.dims.find(q=>q.id==='${dm.id}').a)`);
+  const [sx2, sy2] = await box('#cTb [data-t=sel]'); await tap(sx2, sy2);
+  const pc = await scr(ph.x + ph.w * 0.5, ph.y + phh * 0.15); await drag(pc, [pc[0] - 50, pc[1] + 30]);
+  d = await doc(); const ph2 = d.photos[2], A1 = await M(`MeasureCore.endPos(MeasureCore.doc.dims.find(q=>q.id==='${dm.id}').a)`);
+  ok('фото перенесено — конец размера сместился так же', Math.abs((A1.x - A0.x) - (ph2.x - ph.x)) < 1 && Math.abs((A1.y - A0.y) - (ph2.y - ph.y)) < 1, {dx: A1.x - A0.x, px: ph2.x - ph.x});
+  // размер на плане между узлами С1 — по геометрии
+  { const [fx, fy] = await box('#cFit'); await tap(fx, fy); }
+  await tap(mx2, my2); d = await doc(); const w1n = d.walls[0], n1 = d.nodes.find(q => q.id === w1n.a), n2 = d.nodes.find(q => q.id === w1n.b);
+  const s1 = await scr(n1.x, n1.y), s2 = await scr(n2.x, n2.y); await drag(s1, s2);
+  d = await doc(); const dp = d.dims[d.dims.length - 1];
+  ok('размер на плане привязан к узлам', dp.a.t === 'node' && dp.b.t === 'node', [dp.a.t, dp.b.t]);
+  ok('значение на плане = длина С1', (await M(`MeasureCore.dimVal(MeasureCore.doc.dims[${d.dims.length - 1}]).txt`)).replace(/\s/g, '') === String(Math.round(await M('MeasureCore.wLen(MeasureCore.doc.walls[0])'))));
+  const tb = await ctxBtn('Размер'); if (tb) await tap(tb[0], tb[1]);
+  ok('↔ → стрелка', (await doc()).dims.find(q => q.id === dp.id).k === 'arr');
+  await shot('dim-plan');
+  await tap(sx2, sy2);
+
   // 9. ↶ / ↷
-  const crBefore = (await doc()).photos[0].cr;
-  let [ux, uy] = await box('#cUn'); await tap(ux, uy);
+  const crBefore = (await doc()).photos[0].cr; 
+  let [ux, uy] = await box('#cUn'); for (let i = 0; i < 12 && (await doc()).photos[0].cr.join() !== '0,0,1,1'; i++) await tap(ux, uy);
   ok('↶ возвращает подрезку', (await doc()).photos[0].cr.join() === '0,0,1,1');
   let [qx, qy] = await box('#cRe'); await tap(qx, qy);
   ok('↷ повторяет', (await doc()).photos[0].cr.join() === crBefore.join());
+  for (let i = 0; i < 12 && (await M('MeasureCore.hs.r.length')); i++) await tap(qx, qy);
+  ok('↷ до конца — размеры вернулись', (await doc()).dims.length === 2);
 
   // 10. 🗑 фото и возврат
   d = await doc(); const f1 = d.photos[1];
