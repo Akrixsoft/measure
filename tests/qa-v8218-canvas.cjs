@@ -100,6 +100,23 @@ const {start} = require('./qa-v011-harness.cjs');
     await h.drag('pen', await cssK(wr[0]), await cssK(wr[1]), {css: true}); await settle(300);
     const fw2 = await p.evaluate(() => ({act: MeasureLabSketch.active().t, dms: S.dms.length, sid: S.sess.id}));
     check(fw2.act === 'wall' && fw2.sid === w1.sid && fw2.dms === nW + 1, 'forward: жест в области стены при активной подложке — стена активна, размер на стене тем же жестом', {nW, ...fw2});
+    // ── 6б (QA Д6). стена активна, инструмент коммуникации «розетка» → касание фото: подложка активна, фото выбрано, на подложке ничего не создано
+    const roz = await p.evaluate(() => { const k = (typeof KINDS !== 'undefined' ? KINDS : []).find(x => x.pt) || null; return k ? k.k : null; });
+    await p.evaluate(sid => MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.t === 'wall' && i.sid === sid)), w1.sid); await settle(300);
+    if (roz) await p.evaluate(k => pickTool(k), roz);
+    const b6 = await p.evaluate(async () => { const b = await dbGet('sess', MeasureLabSketch.state.board); return {els: (b.els || []).length, dms: (b.dms || []).length, drw: (b.drw || []).length}; });
+    const mk6 = await p.evaluate(() => S.mk);
+    await tap(await cssB(...await refAt(.5, .4))); await settle(500);
+    const a6 = await p.evaluate(() => ({act: MeasureLabSketch.active().t, rsel: S.rsel, ref: (window.__ref || {}).id, els: (S.els || []).length, dms: S.dms.length, drw: S.drw.length, mk: S.mk}));
+    check(roz && mk6 === roz && a6.act === 'board' && a6.rsel === a6.ref && a6.els === b6.els && a6.dms === b6.dms && a6.drw === b6.drw && a6.mk === 'sel', 'Д6: касание фото при активной стене с «розеткой» — подложка активна, фото выбрано, объект не создан, инструмент «выбор»', {roz, mk6, b6, a6});
+    // ── 6в (QA Д15). подложка активна, касание пальцем по подписи размера маленькой неактивной стены — только активация, без поля и клавиатуры
+    await p.evaluate(sid => MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.t === 'wall' && i.sid === sid)), w1.sid); await settle(300);
+    const lp = await p.evaluate(() => { pickTool('sel'); draw(); const l = S.w3L.find(x => { try { return !!w3FKind(x); } catch (e) { return false; } }), d = devicePixelRatio, r = cv.getBoundingClientRect(); return l ? {c: [l.c[0] / d + r.left, l.c[1] / d + r.top], t: l.t} : null; });
+    await p.evaluate(() => MeasureLabSketch.activate('board')); await settle(300);
+    await p.evaluate(() => { pickTool('sel'); S.rsel = null; draw(); });
+    if (lp) { await h.down('touch', lp.c); await h.up('touch', lp.c); } await settle(500);
+    const a15 = await p.evaluate(() => { const k = $('zkb'), f = $('w3f'); return {act: MeasureLabSketch.active().t, kb: !!(k && k.getClientRects().length && getComputedStyle(k).display !== 'none' && k.getBoundingClientRect().height > 50), w3f: !!(f && f.classList.contains('on')), dmIn: $('dmIn').classList.contains('on'), focus: document.activeElement && document.activeElement.tagName}; });
+    check(!!lp && a15.act === 'wall' && !a15.kb && !a15.w3f && !a15.dmIn && a15.focus !== 'INPUT', 'Д15: первое касание неактивной стены по подписи поля — только активация (без поля размера и клавиатуры)', {lp, ...a15});
     // ── 7. переходы план / стена / фото без «закрытия»
     await p.evaluate(() => mdGo('plan')); await settle(300); s = await st();
     check(s.on && s.act === 'plan' && !s.list, 'nav: ⌂ — план внутри холста', s);

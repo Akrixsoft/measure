@@ -277,19 +277,35 @@
 
   /* ═══ [BLOCK SK-INPUT] касания: активная поверхность — штатно; другая — активировать и передать начатый жест (§2.3);
      заголовок области — перенос / выбор области (🗑); 4 угла фото. Щипок и колесо вне активной области — вид холста ═══ */
-  const ours = new Map(), nat = new Set(), F = {on: 0, id: null, buf: [], drop: 0, t0: 0, swallow: new Set()}; let G = null;
+  const ours = new Map(), nat = new Set(), F = {on: 0, hold: 0, tgt: null, id: null, buf: [], drop: 0, t0: 0, swallow: new Set()}; let G = null;
   const ptK = ev => { const r = cv.getBoundingClientRect(), d = DPR(); return toK((ev.clientX - r.left) * d, (ev.clientY - r.top) * d); };
   { const spc = cv.setPointerCapture; cv.setPointerCapture = function (id) { try { return spc.call(this, id); } catch (e) { } }; }   // повтор жеста после активации: указатель мог уже отпуститься
   function hitTitle(w) { for (const it of [...K.items].reverse()) if (inR(titleR(it), w)) return it; return null; }
   function hitArea(w) { for (const it of [...K.items].reverse()) if (inR(region(it), w)) return it; return BOARD; }
   api.hitArea = (x, y) => { const a = hitArea([x, y]); return a === BOARD ? 'board' : a.id; };
   const evInit = ev => ({pointerId: ev.pointerId, pointerType: ev.pointerType, isPrimary: ev.isPrimary, clientX: ev.clientX, clientY: ev.clientY, screenX: ev.screenX, screenY: ev.screenY, button: ev.button, buttons: ev.buttons, pressure: ev.pressure, width: ev.width, height: ev.height, tiltX: ev.tiltX, tiltY: ev.tiltY, ctrlKey: ev.ctrlKey, shiftKey: ev.shiftKey, bubbles: true, cancelable: true, composed: true});
+  /* 82.18 fix (QA Д6, Д15): касание (без сдвига) неактивной области — только активация; на подложке — выбор фото под пальцем.
+     Жест передаётся, только когда это протяжка (сдвиг > 8 px). На подложку жест передаётся лишь инструментам рисования
+     (коммуникации, элементы, проёмы на подложке выключены — инструмент сбрасывается на «выбор»). */
+  const BOARD_MK = new Set(['sel', 'rsel', 'pen', 'ln', 'arr', 'pl', 'dim', 'rect', 'circ', 'arc', 'er', 'txt', 'pin', 'vyn', 'rf']);
+  const boardTool = () => S.tool === 'mk' && BOARD_MK.has(S.mk);
+  const MOVE_PX = 8;
+  const movedBuf = buf => { const a = buf[0] && buf[0][1]; return !!a && buf.some(([t, b]) => t === 'pointermove' && Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY) > MOVE_PX); };
+  function tapBoard(init) {   // касание подложки: фото под пальцем — выбрано
+    try { const r = cv.getBoundingClientRect(), d = DPR(), w = toK((init.clientX - r.left) * d, (init.clientY - r.top) * d), R = boardRefs();
+      const hit = [...R].reverse().find(x => inR(refR(x), w)); S.sel = null; S.dsel = null; S.msel = []; S.rsel = hit ? hit.id : null; draw(); try { zLay(); } catch (e) { } ui(); } catch (e) { }
+  }
+  function replay() { const buf = F.buf, up = buf.some(b => b[0] === 'pointerup' || b[0] === 'pointercancel'); F.on = 0; F.hold = 0; nat.add(F.id); for (const [t, init] of buf) cv.dispatchEvent(new PointerEvent(t, init)); if (up) nat.delete(F.id); }
+  function tapEnd() { const tgt = F.tgt, init = F.buf[0] && F.buf[0][1]; F.on = 0; F.hold = 0; if (tgt === BOARD && init) tapBoard(init); }
   function forward(ev, tgt) {   // активация с передачей жеста; > 400 мс или второй палец — «первое касание активирует»
-    Object.assign(F, {on: 1, id: ev.pointerId, buf: [['pointerdown', evInit(ev)]], drop: 0, t0: Date.now()});
+    Object.assign(F, {on: 1, hold: 0, tgt, id: ev.pointerId, buf: [['pointerdown', evInit(ev)]], drop: 0, t0: Date.now()});
     activate(tgt).then(ok => {
-      const late = Date.now() - F.t0 > 400, buf = F.buf, up = buf.some(b => b[0] === 'pointerup' || b[0] === 'pointercancel'); F.on = 0;
-      if (!ok || F.drop || late) { if (!up) F.swallow.add(F.id); return; }
-      nat.add(F.id); for (const [t, init] of buf) cv.dispatchEvent(new PointerEvent(t, init)); if (up) nat.delete(F.id);
+      const late = Date.now() - F.t0 > 400, buf = F.buf, up = buf.some(b => b[0] === 'pointerup' || b[0] === 'pointercancel'), mv = movedBuf(buf);
+      if (!ok || F.drop || late) { F.on = 0; if (!up) F.swallow.add(F.id); else if (ok && !F.drop && !mv && tgt === BOARD) tapBoard(buf[0][1]); return; }
+      if (tgt === BOARD && !boardTool()) { try { pickTool('sel'); } catch (e) { } F.on = 0; if (!up) F.swallow.add(F.id); else if (!mv) tapBoard(buf[0][1]); return; }
+      if (up && !mv) return tapEnd();
+      if (!up && !mv) { F.hold = 1; return; }   // палец ещё на экране: сдвиг — передать жест, отпускание — касание
+      replay();
     });
   }
   api.forwardState = () => ({...F, swallow: [...F.swallow]});
@@ -306,7 +322,9 @@
     if (tgt === act) { if (K.sel) { K.sel = null; draw(); } nat.add(ev.pointerId); return; }   // штатно
     ev.stopImmediatePropagation(); ev.preventDefault(); K.sel = null; forward(ev, tgt);
   }, true);
-  const swallowEv = ev => { if (F.on && ev.pointerId === F.id) { ev.stopImmediatePropagation(); F.buf.push([ev.type, evInit(ev)]); return true; } if (F.swallow.has(ev.pointerId)) { ev.stopImmediatePropagation(); if (ev.type !== 'pointermove') F.swallow.delete(ev.pointerId); return true; } return false; };
+  const swallowEv = ev => { if (F.on && ev.pointerId === F.id) { ev.stopImmediatePropagation(); F.buf.push([ev.type, evInit(ev)]);
+      if (F.hold) { if (ev.type === 'pointerup' || ev.type === 'pointercancel') tapEnd(); else if (movedBuf(F.buf)) replay(); }
+      return true; } if (F.swallow.has(ev.pointerId)) { ev.stopImmediatePropagation(); if (ev.type !== 'pointermove') F.swallow.delete(ev.pointerId); return true; } return false; };
   window.addEventListener('pointermove', ev => {
     if (swallowEv(ev)) return;
     if (!ours.has(ev.pointerId)) return; ev.stopImmediatePropagation(); ours.set(ev.pointerId, [ev.clientX, ev.clientY]); if (!G) return;

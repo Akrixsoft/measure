@@ -162,6 +162,15 @@ fs.mkdirSync(SHOT, {recursive: true});
     await tapSel('touch', '#labprd-plan [data-labprd="close"]').catch(() => p.evaluate(() => MeasureLabPrd.close()));
     await cp('конструкция');
     await shot('end');
+    // QA Д15 (телефонный режим): касание пальцем подписи поля неактивной стены — только активация, без поля и клавиатуры
+    { await p.evaluate(() => MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.t === 'wall'))); await wait(400);
+      const lp = await p.evaluate(() => { MeasureLabSketch.fitAll(); pickTool('sel'); draw(); const d = devicePixelRatio, r = cv.getBoundingClientRect(), css = l => [l.c[0] / d + r.left, l.c[1] / d + r.top]; const l = S.w3L.find(x => { try { const c = css(x); return !!w3FKind(x) && c[0] > 20 && c[0] < innerWidth - 20 && c[1] > 90 && c[1] < innerHeight - 220; } catch (e) { return false; } }); return l ? {c: css(l), t: l.t} : null; });
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(400);
+      if (lp) await tap('touch', lp.c); await wait(500);
+      const a15 = await p.evaluate(() => { const f = document.getElementById('w3f'); return {act: MeasureLabSketch.active().t, w3f: !!(f && f.classList.contains('on')), focus: document.activeElement && document.activeElement.tagName}; });
+      check(!!lp && a15.act === 'wall' && !(await kbOn()) && !a15.w3f && a15.focus !== 'INPUT', 'Д15: первое касание подписи поля неактивной стены — только активация, без клавиатуры', {lp, ...a15});
+      await p.evaluate(() => { try { KB && KB.el && KB.el.blur(); } catch (e) { } document.activeElement && document.activeElement.blur && document.activeElement.blur(); mdGo('plan'); }); await wait(500);
+      const dd = await digest(); check(dd === CP[CP.length - 1].d, 'после Д15: данные не изменились', null); }
     info.cp = CP.map(c => c.name);
     const D = CP.map(c => c.d), END = D[D.length - 1];
     // ── ↶ до начала (стоя на плане), перезапуск посередине
