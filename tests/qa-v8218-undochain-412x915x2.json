@@ -13,7 +13,7 @@
       "name": "подготовка: ригель"
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "подготовка: колонна Z 300"
     },
     {
@@ -34,10 +34,10 @@
       "detail": {
         "lp": {
           "c": [
-            286.7441109029695,
-            317.8722496640523
+            366.26234008471937,
+            282.99317384551097
           ],
-          "t": "300"
+          "t": "38"
         },
         "act": "wall",
         "w3f": false,
@@ -79,14 +79,17 @@
           "rooms": [],
           "items": []
         },
-        "steps": 15
+        "steps": 13
       }
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "↶: пройдены все шаги всех поверхностей в обратном порядке",
       "detail": {
-        "missing": []
+        "missing": [
+          "колонна",
+          "ригель"
+        ]
       }
     },
     {
@@ -101,7 +104,7 @@
           "board": {
             "refs": [
               [
-                "rmwbez733172",
+                "rmwbhrk6kkid",
                 true,
                 true
               ]
@@ -109,7 +112,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbez8hg6m7",
+                "dmwbhrlorhme",
                 1250
               ]
             ],
@@ -126,14 +129,6 @@
                   2358,
                   380,
                   0,
-                  0,
-                  0
-                ],
-                [
-                  "kol",
-                  400,
-                  2280,
-                  300,
                   0,
                   0
                 ]
@@ -171,14 +166,14 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbezfk944o"
+            "wall:smwbhrtd97ul"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbez733172",
+                "rmwbhrk6kkid",
                 true,
                 true
               ]
@@ -186,7 +181,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbez8hg6m7",
+                "dmwbhrlorhme",
                 1250
               ]
             ],
@@ -203,14 +198,6 @@
                   2358,
                   380,
                   0,
-                  0,
-                  0
-                ],
-                [
-                  "kol",
-                  400,
-                  2280,
-                  300,
                   0,
                   0
                 ]
@@ -248,16 +235,19 @@
           ],
           "items": [
             "plan:",
-            "wall:smwbezfk944o"
+            "wall:smwbhrtd97ul"
           ]
         }
       }
     },
     {
-      "ok": true,
+      "ok": false,
       "name": "↷: пройдены все шаги в прямом порядке",
       "detail": {
-        "missing": []
+        "missing": [
+          "колонна",
+          "Z колонны"
+        ]
       }
     },
     {
@@ -265,7 +255,7 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:smwbezfk944o"
+        "wall:smwbhrtd97ul"
       ]
     },
     {
@@ -284,7 +274,7 @@
       "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
       "detail": [
         [
-          "smwbezfk944o",
+          "smwbhrtd97ul",
           2364,
           2698
         ]
@@ -332,10 +322,8 @@
       "↶ отменено",
       "↶ отменено",
       "↶ отменено",
-      "↶ отменено",
-      "↻",
-      "↶ отменено",
       null,
+      "↻",
       "↶ отменено",
       "↶ отменено",
       "↶ отменено",
@@ -352,8 +340,6 @@
       null,
       "↷ повторено",
       "↻",
-      "↷ повторено",
-      "↷ повторено",
       "↷ повторено",
       "↷ повторено",
       "↷ повторено",
@@ -384,7 +370,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               false,
               false
             ]
@@ -406,7 +392,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               false,
               false
             ]
@@ -414,7 +400,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               0
             ]
           ],
@@ -433,7 +419,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               false,
               false
             ]
@@ -441,7 +427,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -460,7 +446,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               false,
               false
             ]
@@ -468,7 +454,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -487,7 +473,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               false
             ]
@@ -495,7 +481,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -514,7 +500,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -522,7 +508,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -563,7 +549,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -573,7 +559,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -581,7 +567,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -631,7 +617,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -641,7 +627,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -649,7 +635,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -665,14 +651,6 @@
                 "rig",
                 2358,
                 380,
-                0,
-                0,
-                0
-              ],
-              [
-                "kol",
-                400,
-                2280,
                 0,
                 0,
                 0
@@ -707,7 +685,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -717,7 +695,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -725,7 +703,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -742,14 +720,6 @@
                 2358,
                 380,
                 0,
-                0,
-                0
-              ],
-              [
-                "kol",
-                400,
-                2280,
-                300,
                 0,
                 0
               ]
@@ -783,7 +753,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -793,7 +763,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -801,7 +771,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -818,14 +788,6 @@
                 2358,
                 380,
                 0,
-                0,
-                0
-              ],
-              [
-                "kol",
-                400,
-                2280,
-                300,
                 0,
                 0
               ]
@@ -859,7 +821,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -869,7 +831,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -877,7 +839,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -894,14 +856,6 @@
                 2358,
                 380,
                 0,
-                0,
-                0
-              ],
-              [
-                "kol",
-                400,
-                2280,
-                300,
                 0,
                 0
               ]
@@ -937,7 +891,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     },
@@ -947,7 +901,7 @@
         "board": {
           "refs": [
             [
-              "rmwbez733172",
+              "rmwbhrk6kkid",
               true,
               true
             ]
@@ -955,7 +909,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbez8hg6m7",
+              "dmwbhrlorhme",
               1250
             ]
           ],
@@ -972,14 +926,6 @@
                 2358,
                 380,
                 0,
-                0,
-                0
-              ],
-              [
-                "kol",
-                400,
-                2280,
-                300,
                 0,
                 0
               ]
@@ -1017,7 +963,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbezfk944o"
+          "wall:smwbhrtd97ul"
         ]
       }
     }

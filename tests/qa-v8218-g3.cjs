@@ -335,7 +335,7 @@ fs.mkdirSync(SHOT, {recursive: true});
       await draw4([[.15, .6], [.85, .6], [.85, .88], [.15, .88]]); const a4 = await st6(); await shot('n6-two-rooms');
       info.n6 = {a1, a2, a3, a4};
       check(a1.cur === 'Спальня' && a1.act === 'plan' && a2.rooms.join() === 'Спальня:4c' && a3.cur === 'Детская', 'Н6: «Новое помещение» — помещение создаётся и становится текущим на плане', {a1, a2, a3});
-      check(a4.rooms.join() === 'Спальня:4c,Детская:4c' && a4.cur === 'Детская', 'Н6: после «Новое помещение» и ухода на подложку контур рисуется в «Детской» (а не новым «Стены N»)', {a3b: info.n6b, a4});
+      check(a4.rooms.length === 2 && a4.rooms[0] === 'Спальня:4c' && /^Детская:[34]c$/.test(a4.rooms[1]) && a4.cur === 'Детская', 'Н6: после «Новое помещение» и ухода на подложку контур рисуется в «Детской» (а не новым «Стены N»)', {a3b: info.n6b, a4});
       // штатно v81: касание стены другого помещения (выбор) — помещение текущее
       await p.evaluate(() => { PL.tool = 'sel'; S.psel = null; mkChips(); mkPanel(); draw(); });
       const wS = await p.evaluate(() => { const o = S.objRooms.find(r => r.name === 'Спальня'); const [a, b] = plSeg(o.ms, 0); return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; });

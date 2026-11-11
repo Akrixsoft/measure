@@ -6,7 +6,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbexzp1ots",
+        "sid": "bmwbhpp1yxw3",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -32,7 +32,7 @@
       "ok": true,
       "name": "photo: фото — справка подложки (картинка в базе), без экрана распознавания; ⌗ в нижней строке, плавающей плашки нет",
       "detail": {
-        "id": "rmwbexzsbdgb",
+        "id": "rmwbhppc0b0i",
         "w": 600,
         "blob": 133444,
         "rsel": true,
@@ -54,7 +54,7 @@
       "name": "dim: размер на фото пером — в подложке (фото не сдвинуто)",
       "detail": {
         "n": 1,
-        "id": "dmwbey09vb7h",
+        "id": "dmwbhppz1d5t",
         "ref": 32.4,
         "kind": "board"
       }
@@ -102,10 +102,10 @@
       "ok": true,
       "name": "wall: стена С1 «Кухня» 2391 × 2700 над фото, связь фото → wid, область плана",
       "detail": {
-        "wid": "wwxx6ifq",
-        "room": "r1794358875282",
-        "w": "w1794358875282_1",
-        "sid": "smwbey17s6e2",
+        "wid": "w5oq1wbb",
+        "room": "r1794363528926",
+        "w": "w1794363528926_1",
+        "sid": "smwbhps07of0",
         "q4": [
           2391,
           2700
@@ -161,7 +161,7 @@
         "nW": 0,
         "act": "wall",
         "dms": 1,
-        "sid": "smwbey17s6e2"
+        "sid": "smwbhps07of0"
       }
     },
     {
@@ -177,8 +177,8 @@
         },
         "a6": {
           "act": "board",
-          "rsel": "rmwbexzsbdgb",
-          "ref": "rmwbexzsbdgb",
+          "rsel": "rmwbhppc0b0i",
+          "ref": "rmwbhppc0b0i",
           "els": 0,
           "dms": 2,
           "drw": 2,
@@ -223,7 +223,7 @@
       "detail": {
         "on": true,
         "act": "wall",
-        "sid": "smwbey17s6e2",
+        "sid": "smwbhps07of0",
         "mode": "wall",
         "tool": "mk",
         "list": false
@@ -248,7 +248,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbexzp1ots",
+        "sid": "bmwbhpp1yxw3",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -261,7 +261,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbexzp1ots",
+        "sid": "bmwbhpp1yxw3",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -273,7 +273,7 @@
       "name": "🗑: область стены выбрана заголовком → удалена (вид стены в «Удалённые») → ↶ на месте",
       "detail": {
         "sel": {
-          "sel": "wwxx6ifq",
+          "sel": "w5oq1wbb",
           "has": true
         },
         "del": {
@@ -288,7 +288,7 @@
     },
     {
       "ok": true,
-      "name": "back: поле → угол → футляр → выделение → «Ещё раз — к проектам» → список (холст открыт); из списка — false (оболочка)",
+      "name": "back: поле → угол → футляр → выделение → «Ещё раз — к проектам» → список (холст открыт); из списка — «Ещё раз — выход», затем false (оболочка)",
       "detail": {
         "bk": [
           [
@@ -325,6 +325,8 @@
         "bk2": {
           "list": true,
           "open": true,
+          "arm": true,
+          "toast": "Ещё раз — выход",
           "off": false
         }
       }
@@ -335,7 +337,7 @@
       "detail": {
         "on": true,
         "act": "board",
-        "sid": "bmwbexzp1ots",
+        "sid": "bmwbhpp1yxw3",
         "kind": "board",
         "mode": "wall",
         "tool": "mk",
@@ -402,7 +404,7 @@
       "name": "restart: раскладка, вид и активная поверхность — как были",
       "detail": {
         "before": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794358875282\",\"w1794358875282_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794363528926\",\"w1794363528926_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -411,7 +413,7 @@
           "act": "board"
         },
         "after": {
-          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794358875282\",\"w1794358875282_1\",32]]",
+          "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794363528926\",\"w1794363528926_1\",32]]",
           "view": {
             "s": 0.20445318792657594,
             "ox": 203.64640262410444,
@@ -425,7 +427,7 @@
       "ok": true,
       "name": "restart: фото (картинка), размер 1250, текст, снимки областей — на месте",
       "detail": {
-        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794358875282\",\"w1794358875282_1\",32]]",
+        "items": "[[\"plan\",\"\",\"\",-667],[\"wall\",\"r1794363528926\",\"w1794363528926_1\",32]]",
         "view": {
           "s": 0.20445318792657594,
           "ox": 203.64640262410444,
@@ -450,7 +452,7 @@
       "name": "export: перенос холста measure-sketch v3 — раскладка, подложка, картинки",
       "detail": {
         "v": 3,
-        "app": "Measure 82.17",
+        "app": "Measure 82.18",
         "refs": 1,
         "img": 1,
         "dms": 2,
