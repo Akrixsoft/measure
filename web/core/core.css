@@ -115,3 +115,20 @@ body.kb #cKb{display:grid}
 #zpAct .opt{font:700 18px system-ui;color:#C9CED6}
 #zpAct .opt.on{color:#F2B233}
 #zpE.off{opacity:.45}
+
+/* [BLOCK C-B6-CSS] Б6: листы «Проекты» и «План помещений», меню строки; лазер подключён */
+.sheet{position:fixed;left:8px;right:8px;top:54px;max-height:70vh;overflow:auto;z-index:40;display:none;background:#fff;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.3);font:15px system-ui;color:#1a2027}
+.sheet.on{display:block}
+.sheet .hd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e2e4e7;position:sticky;top:0;background:#fff}
+.sheet .hd b{flex:1}
+.sheet button{font:600 14px system-ui;background:#f1f3f5;border:1px solid #c9ced6;border-radius:8px;padding:6px 10px;color:#1a2027}
+.sheet .row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f0f1f3;position:relative;width:100%;box-sizing:border-box;text-align:left;background:#fff;border-radius:0;border-width:0 0 1px}
+.sheet .row.cur{background:#eef5ff}
+.sheet .row .nm{flex:1;text-align:left;background:none;border:0;padding:4px 0}
+.sheet .row .mn{background:none;border:0;font-size:18px}
+.sheet .row span:first-child{flex:1}
+.sheet .mu{color:#8a9099;font-size:12px}
+.sheet .ft{display:flex;gap:8px;padding:10px 12px}
+.pjm{position:absolute;right:40px;top:6px;display:flex;gap:6px;background:#fff;padding:4px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:2}
+#bBtH.bt-on{color:#2e9e4f;filter:drop-shadow(0 0 3px #2e9e4f)}
+#bBtH.bt-wait{opacity:.6}
