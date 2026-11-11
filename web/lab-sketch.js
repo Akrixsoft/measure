@@ -155,6 +155,9 @@
     try { const r = region(act), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h), sx = Math.max(0, a[0]), sy = Math.max(0, a[1]), ex = Math.min(cv.width, b[0]), ey = Math.min(cv.height, b[1]);
       if (ex - sx < 40 || ey - sy < 40) return; const cover = sx === a[0] && sy === a[1] && ex === b[0] && ey === b[1], old = K.snaps[act.id];
       if (old && old.cover && !cover) return;   // частичный вид не заменяет полный снимок
+      if (!wantSnapGood) { if ((ex - sx) < cv.width * .5 && (ey - sy) < cv.height * .4) return; }   // r3: снимок по простою — только при крупном виде области
+      if (old && old.img && old.cover && !(act.t === 'wall' && old.L > 0 && (Math.abs(old.L - (+act.L || 0)) > .5 || Math.abs(old.H - (+act.H || 0)) > .5))) {
+        const q0 = old.img.width / old.w, q1 = Math.min(1, 1400 / Math.max(ex - sx, ey - sy)) * (ex - sx) / (toK(ex, 0)[0] - toK(sx, 0)[0]); if (q1 < q0 * .8) return; }   // r3 (М2): мельче прежнего — не заменяет
       const k = Math.min(1, 1400 / Math.max(ex - sx, ey - sy)), c = document.createElement('canvas'); c.width = Math.round((ex - sx) * k); c.height = Math.round((ey - sy) * k);
       c.getContext('2d').drawImage(cv, sx, sy, ex - sx, ey - sy, 0, 0, c.width, c.height);
       const w0 = toK(sx, sy), w1 = toK(ex, ey), sn = {img: c, x: w0[0], y: w0[1], w: w1[0] - w0[0], h: w1[1] - w0[1], cover, L: +act.L || 0, H: +act.H || 0};
@@ -162,8 +165,18 @@
       c.toBlob(b => { if (!b || K.snaps[act.id] !== sn) return; const fr = new FileReader(); fr.onload = () => { act.snap = {src: fr.result, x: sn.x, y: sn.y, w: sn.w, h: sn.h, cover, L: sn.L, H: sn.H}; save(); }; fr.readAsDataURL(b); }, 'image/jpeg', .82); } catch (e) { }
   }
   api.snapNow = snapNow;
+  /* r3 (QA-3 М1, М2): снимок уходящей области — в читаемом масштабе (область вписана в экран: подписи и ручки v81 не крупнее стены, подписи плана у своих стен),
+     без выделения и ручек (инструмент на время снимка — «перо»), не во время поворота; вид холста возвращает вызывающий (K.view = v0). */
+  function snapGood(cur) {
+    if (Date.now() - RZ.at < 1500) return;
+    const r = region(cur), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h), W = cv.width, Hf = freeH() * DPR(), full = a[0] >= 0 && a[1] >= 0 && b[0] <= W && b[1] <= cv.height;
+    if (!full || ((b[0] - a[0]) < W * .7 && (b[1] - a[1]) < Hf * .6)) fitRegion(cur);
+    const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel, rsel: S.rsel, mk: S.mk, pend: S.pend}; S.sel = null; S.dsel = null; S.nsel = null; S.msel = []; S.rsel = null; S.pend = null; if (S.mode !== 'plan' && S.tool === 'mk') S.mk = 'pen';
+    const pts0 = window.__w3pts; window.__w3pts = false;   // угловые точки развёртки v81 (window.__w3pts) — не в снимке
+    wantSnap = 1; wantSnapGood = 1; try { draw(); } finally { wantSnap = 0; wantSnapGood = 0; Object.assign(S, keep); if (pts0 === undefined) delete window.__w3pts; else window.__w3pts = pts0; }
+  }
   /* снимок — по деактивации области и по простою ≥ 1,5 с без касаний; без выделения и ручек, до подложки */
-  let idleT = 0, wantSnap = 0;
+  let idleT = 0, wantSnap = 0, wantSnapGood = 0;
   function snapIdle(act) { clearTimeout(idleT); idleT = setTimeout(() => {
     if (!K.on || K.quiet || active() !== act || ours.size || nat.size || F.on) return;
     const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; wantSnap = 1;
@@ -209,22 +222,30 @@
   function fitRect(x0, y0, x1, y1) { const W = cv.width / DPR(), T = topInset(), H = freeH() - T, s = clamp(Math.min(W / Math.max(1, x1 - x0), H / Math.max(1, y1 - y0)) * .94, .01, 20); K.view = {s, ox: (W - (x1 - x0) * s) / 2 - x0 * s, oy: T + (H - (y1 - y0) * s) / 2 - y0 * s}; }
   function fitRegion(it) { if (!it) return; if (it === BOARD) return fitAll(); const r = region(it), f = fsz(15) * 2 / K.view.s; fitRect(r.x, r.y - f, r.x + r.w, r.y + r.h); if (active() === it) syncToS(it); }
   function boardBox() { const P = []; for (const r of boardRefs()) { const R = refR(r); P.push([R.x, R.y], [R.x + R.w, R.y + R.h]); } const B = activeKind() === 'board' ? S : K.boardRec || {};
-    for (const k of ['dms', 'drw']) for (const q of B[k] || []) for (const p of [q.a, q.b, ...(q.pts || [])]) if (Array.isArray(p) && typeof p[0] === 'number') P.push([p[0], -p[1]]); return P; }
+    for (const k of ['dms', 'drw']) for (const q of B[k] || []) for (const p of [q.a, q.b, ...(q.pts || [])]) if (Array.isArray(p) && typeof p[0] === 'number') P.push([p[0], -p[1]]);
+    try { const d = DPR(); cx.save(); cx.font = `700 ${fsz(16) * d}px system-ui`;   // r3 (м1): текст подложки — по ширине надписи (px экрана → холст)
+      for (const q of B.drw || []) if ((q.k === 'txt' || q.k === 'pin') && q.tx && Array.isArray(q.a)) { const w = cx.measureText(String(q.tx)).width / d / K.view.s; P.push([q.a[0] + w + 12 / K.view.s, -q.a[1]]); }
+      for (const n of B.notes || []) if (n.tx && Array.isArray(n.t)) { const w = cx.measureText(String(n.tx)).width / d / K.view.s; P.push([n.t[0] + w + 12 / K.view.s, -n.t[1]]); }
+      cx.restore(); } catch (e) { }
+    return P; }
   /* 82.18 fix (QA Д11): «вписать всё» — план не мельче стен, области и их заголовки не накрывают фото и друг друга.
      planScale: масштаб области плана — сторона не меньше 0,7 и не больше 1,6 стороны самой крупной области стены (верхний левый угол на месте).
      tidy: область (вместе с заголовком при текущем масштабе) накрывает фото или уже разложенную область — сдвиг вниз или вправо, что меньше. */
-  function planScale() {
-    const pl = K.items.find(i => i.t === 'plan'); if (!pl || !K.rooms.length) return;
-    const walls = K.items.filter(i => i.t === 'wall').map(region), side = r => Math.max(r.w, r.h), T = walls.length ? Math.max(...walls.map(side)) : 1000, r0 = region(pl), cur = side(r0);
-    if (!(cur > 0) || (cur >= T * .7 && cur <= T * 1.6)) return;
-    const k = clamp(pl.k * T / cur, .03, .8); if (Math.abs(k - pl.k) < 1e-6) return;
-    const f = k / pl.k; pl.k = k; const r1 = region(pl); pl.ax += r0.x - r1.x; pl.ay += r0.y - r1.y;
-    for (const sn of [K.snaps[pl.id], pl.snap]) if (sn) { sn.x = r0.x + (sn.x - r0.x) * f; sn.y = r0.y + (sn.y - r0.y) * f; sn.w *= f; sn.h *= f; }   // снимок — вместе с областью
-  }
+  /* r3 (QA-3 М1): один масштаб мм → холст для всех областей (стены и план): K0. Масштаб меняется вокруг верхнего левого угла области, снимок — вместе. */
+  const K0 = 0.25;
+  function scaleItem(it, k) { const r0 = region(it), f = k / it.k; it.k = k; const r1 = region(it); it.ax += r0.x - r1.x; it.ay += r0.y - r1.y;
+    for (const sn of [K.snaps[it.id], it.snap]) if (sn) { sn.x = r0.x + (sn.x - r0.x) * f; sn.y = r0.y + (sn.y - r0.y) * f; sn.w *= f; sn.h *= f; } }
+  function unifyScale() { let n = 0; for (const it of K.items) if ((it.t === 'wall' || it.t === 'plan') && Math.abs((+it.k || 0) - K0) > 1e-9) { scaleItem(it, K0); n++; } return n; }
+  const planScale = unifyScale;
+  function textBoxes() {   // r3: надписи подложки (текст, выноски) — препятствия раскладки, как фото (px экрана → холст при текущем масштабе)
+    const B = activeKind() === 'board' ? S : K.boardRec || {}, out = []; try { const d = DPR(), f = fsz(16); cx.save(); cx.font = `700 ${f * d}px system-ui`;
+      for (const q of B.drw || []) if ((q.k === 'txt' || q.k === 'pin') && q.tx && Array.isArray(q.a)) { const w = (cx.measureText(String(q.tx)).width / d + 12) / K.view.s, h = f * 1.6 / K.view.s; out.push({x: q.a[0] - 4 / K.view.s, y: -q.a[1] - h, w, h: h * 1.4}); }
+      cx.restore(); } catch (e) { } return out; }
+  api.textBoxes = () => textBoxes();
   function shiftItem(it, dx, dy) { it.ax += dx; it.ay += dy; const sn = K.snaps[it.id]; if (sn) { sn.x += dx; sn.y += dy; } if (it.snap) { it.snap.x += dx; it.snap.y += dy; } }
   function tidy() {
     const gap = 60, boxOf = it => { const r = region(it), t = titleR(it), x0 = Math.min(r.x, t.x), y0 = Math.min(r.y, t.y); return {x: x0, y: y0, w: Math.max(r.x + r.w, t.x + t.w) - x0, h: r.y + r.h - y0}; };
-    const obst = boardRefs().map(refR), order = [...K.items].sort((a, b) => region(a).y - region(b).y || region(a).x - region(b).x); let moved = 0;
+    const obst = [...boardRefs().map(refR), ...textBoxes()], order = [...K.items].sort((a, b) => region(a).y - region(b).y || region(a).x - region(b).x); let moved = 0;
     for (const it of order) {
       for (let n = 0; n < 60; n++) {
         const b = boxOf(it), o = obst.find(q => ovl(b, q)); if (!o) break;
@@ -261,10 +282,25 @@
   }
   api.refreshDims = refreshDims;
   function fitStable() { for (let k = 0; k < 4; k++) { const s0 = K.view.s; fitAll0(); if (Math.abs(K.view.s - s0) / s0 < .005) break; } }   // заголовки — в px: ширина в единицах холста зависит от масштаба
-  function fitAll() { try { planScale(); } catch (e) { } fitStable(); for (let i = 0; i < 6; i++) { let mv = 0; try { mv = tidy(); } catch (e) { } if (!mv) break; fitStable(); } save(); }   // r2 (Н4): заголовки — в px экрана, после вписывания масштаб меняется — до устойчивости
+  /* r3 (QA-3 М1): раскладка разрежена (рамка всего холста > 3 × суммы площадей областей и фото) — области упаковываются рядами справа от фото
+     (порядок — по положению сверху вниз, слева направо), иначе вписанный холст мелкий и нечитаемый. Плотная раскладка не трогается. */
+  function pack() {
+    const its = K.items.filter(i => i.t === 'wall' || i.t === 'plan'); if (!its.length) return 0;
+    const boxOf = it => { const r = region(it), t = titleR(it); return {x: r.x, y: t.y, w: r.w, h: r.y + r.h - t.y}; };
+    const R = boardRefs().map(refR), B = its.map(boxOf), all = [...R, ...B], area = all.reduce((a, q) => a + q.w * q.h, 0);
+    const X0 = Math.min(...all.map(q => q.x)), Y0 = Math.min(...all.map(q => q.y)), X1 = Math.max(...all.map(q => q.x + q.w)), Y1 = Math.max(...all.map(q => q.y + q.h));
+    if ((X1 - X0) * (Y1 - Y0) <= area * 3) return 0;
+    const gap = 80, P = R.length ? {x0: Math.min(...R.map(q => q.x)), y0: Math.min(...R.map(q => q.y)), x1: Math.max(...R.map(q => q.x + q.w))} : {x0: 0, y0: 0, x1: -gap};
+    const ia = B.reduce((a, q) => a + q.w * q.h, 0), rowW = Math.max(...B.map(q => q.w), Math.sqrt(ia) * 1.5);
+    const order = its.map((it, i) => [it, B[i]]).sort((a, b) => (a[0].t === 'plan') - (b[0].t === 'plan') || a[1].y - b[1].y || a[1].x - b[1].x);
+    let x = P.x1 + gap, y = P.y0, rowH = 0; const xs = x;
+    for (const [it, b] of order) { if (x > xs && x + b.w > xs + rowW) { x = xs; y += rowH + gap; rowH = 0; } shiftItem(it, x - b.x, y - b.y); x += b.w + gap; rowH = Math.max(rowH, b.h); }
+    return 1;
+  }
+  function fitAll() { try { planScale(); } catch (e) { } try { if (pack()) fitStable(); } catch (e) { } fitStable(); for (let i = 0; i < 6; i++) { let mv = 0; try { mv = tidy(); } catch (e) { } if (!mv) break; fitStable(); } save(); }   // r2 (Н4): заголовки — в px экрана, после вписывания масштаб меняется — до устойчивости
   function fitAll0() { const P = boardBox(); for (const it of K.items) { const r = region(it), t = titleR(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [Math.max(r.x + r.w, t.x + t.w), r.y + r.h]); /* r2 (Н4): заголовок шире области — в кадре */ } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
   api.fitAll = fitAll; api.fitRegion = fitRegion;
-  const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet && Date.now() - (K.actT || 0) > 900) fitRegion(a); syncToS(a); } return draw(); };   // r2: отложенный fit() v81 сразу после перехода — без вписывания (вид холста держится)
+  const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet && Date.now() - (K.actT || 0) > 2500) fitRegion(a); syncToS(a); } return draw(); };   // отложенный fit() v81 сразу после перехода — без вписывания; вписывание открытой области — явно (вкладка, касание: r3 М3); r2: отложенный fit() v81 сразу после перехода — без вписывания (вид холста держится)
   fit = function () { return K.on && !nativeOnly() && !listOn() ? fitK() : fit81.apply(this, arguments); };
   plFit = function () { return K.on && !nativeOnly() && !listOn() ? fitK() : plFit81.apply(this, arguments); };
 
@@ -272,9 +308,9 @@
   function bbox() { const R = K.items.map(region).concat(boardRefs().map(refR)); if (!R.length) return null; return {x0: Math.min(...R.map(r => r.x)), y0: Math.min(...R.map(r => r.y)), x1: Math.max(...R.map(r => r.x + r.w)), y1: Math.max(...R.map(r => r.y + r.h))}; }
   function free(r, skip) { return !K.items.some(i => i !== skip && ovl(region(i), r)) && !boardRefs().some(x => x !== skip && ovl(refR(x), r)); }
   api.freeBoard = ref => { const r = refR(ref); for (let i = 0; i < 80 && !free(r, ref); i++) r.y += Math.max(60, r.h * .25); return [r.x, -r.y]; };   // фото — на свободное место подложки (lab-board)
-  function planItem() { const B = bbox(), [x0, , x1, y1] = planBox(), it = {id: 'n' + uid(), t: 'plan', k: PLAN_K, ax: 0, ay: 0};
-    it.ax = (B ? B.x0 - (x1 - x0) * PLAN_K - 140 : 0) - x0 * PLAN_K; it.ay = (B ? B.y0 : 0) + y1 * PLAN_K + 40; K.items.push(it); save(); return it; }
-  function wallItem(o, r) { const L = +(o.q4 && o.q4.L) || 3000, H = +(o.q4 && o.q4.H) || 2700, k = 600 / L, seg = o.seg; return {id: 'w' + uid(), t: 'wall', room: r ? r.id : null, wid: r && r.wid ? r.wid[seg] : null, sid: o.id, k, L, H, name: r ? (r.name || 'Помещение') + ' · С' + wN(r, seg) : (o.name || 'Плоскость'), ax: 0, ay: 0}; }
+  function planItem() { const B = bbox(), [x0, , x1, y1] = planBox(), it = {id: 'n' + uid(), t: 'plan', k: K0, ax: 0, ay: 0};
+    it.ax = (B ? B.x0 - (x1 - x0) * K0 - 140 : 0) - x0 * K0; it.ay = (B ? B.y0 : 0) + y1 * K0 + 40; K.items.push(it); save(); return it; }
+  function wallItem(o, r) { const L = +(o.q4 && o.q4.L) || 3000, H = +(o.q4 && o.q4.H) || 2700, k = K0, seg = o.seg; return {id: 'w' + uid(), t: 'wall', room: r ? r.id : null, wid: r && r.wid ? r.wid[seg] : null, sid: o.id, k, L, H, name: r ? (r.name || 'Помещение') + ' · С' + wN(r, seg) : (o.name || 'Плоскость'), ax: 0, ay: 0}; }
   function adopt() {   // открытая штатно стена / план без области — новая область
     const t = activeKind(); if (!t || t === 'board') return t === 'board' ? BOARD : null;
     if (t === 'plan') return planItem();
@@ -283,7 +319,7 @@
     const B = bbox(), it = wallItem(S.sess, r); it.ax = (B ? B.x1 + 140 : 0) + WM.x * it.k; it.ay = (B ? B.y0 : 0) + (it.H + WM.t) * it.k + 40; K.items.push(it); save(); return it;
   }
   function placeWall(R, it) {   // стена над фото по ширине фото; места нет — под фото
-    const L = +it.L, H = +it.H; it.k = R.w / L; const k = it.k, f = fsz(15) * 2 / K.view.s;
+    const L = +it.L, H = +it.H; it.k = K0; const k = it.k, f = fsz(15) * 2 / K.view.s;   // r3: один масштаб областей
     it.ax = R.x; it.ay = R.y - GAP - WM.b * k;
     if (!free(region(it), it) || !free(titleR(it), it)) it.ay = R.y + R.h + GAP + (H + WM.t) * k + f;
   }
@@ -302,16 +338,14 @@
       K.quiet++; const v0 = {...K.view};
       try {
         const cur = active(); if (cur && cur !== BOARD) {
-          { const r = region(cur), a = toScrK(r.x, r.y), b = toScrK(r.x + r.w, r.y + r.h); if (a[0] < 0 || a[1] < 0 || b[0] > cv.width || b[1] > cv.height) fitRegion(cur); }   // QA Д11: снимок — всей области (вид вернётся ниже, K.view = v0)
-          const keep = {sel: S.sel, dsel: S.dsel, nsel: S.nsel, msel: S.msel}; S.sel = null; S.dsel = null; S.nsel = null; S.msel = [];
-          wantSnap = 1; try { draw(); } finally { wantSnap = 0; Object.assign(S, keep); } }
+          snapGood(cur); }
         try { await flushAll(); } catch (e) { }   // текущая поверхность — в базу сразу (saveRoom отложен на 250 мс)
         if (cur === BOARD || (S.sess && S.sess.kind === 'board')) K.boardRec = await dbGet('sess', K.board).catch(() => K.boardRec) || K.boardRec;
         if (it === BOARD) { await openSess(K.board); }
         else if (it.t === 'wall') { let sid = sidOf(it); if (!sid) { await loadRooms(); sid = sidOf(it); } const o = sid && await dbGet('sess', sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return false; } await openSess(sid); K.lastWall = it.id; }
         else { await loadRooms(); const r = (window.MeasureLabStore && MeasureLabStore.curRoom && K.rooms.find(x => x.id === MeasureLabStore.curRoom(K.pid))) || K.rooms[0]; if (!r) { roomNew(); return false; } await openRoom(r.id, null, true); }   /* r2c Н6: план — текущее помещение проекта (MeasureLabStore.curRoom), иначе первое */
         if (S.mode !== 'plan' && S.tool !== 'mk') { try { await zmSet('mk'); } catch (e) { } }   // любая поверхность — в разметке: ряд инструментов и футляр
-        K.view = v0; K.sel = null; syncToS(it); K.act = it === BOARD ? {t: 'board'} : {t: it.t, id: it.id}; K.actT = Date.now(); save(); draw();
+        K.view = v0; if (opt.fit && it !== BOARD) fitRegion(it); /* r3 (М3): вкладка / касание — область вписана в экран */ K.sel = null; syncToS(it); K.act = it === BOARD ? {t: 'board'} : {t: it.t, id: it.id}; K.actT = Date.now(); save(); draw();
         dispatchEvent(new CustomEvent('measure-lab-activate', {detail: it === BOARD ? {t: 'board', sid: K.board} : it.t === 'plan' ? {t: 'plan', rid: S.room && S.room.id} : {t: 'wall', sid: S.sess && S.sess.id}}));
         return true;
       } finally { K.quiet--; }
@@ -321,17 +355,17 @@
   api.activate = t => activate(t === 'board' ? BOARD : typeof t === 'string' ? byId(t) : t);
   async function loadRooms() { const all = (await dbAll('sess').catch(() => [])) || []; K.rooms = all.filter(o => o.kind === 'room' && !o.del && !o.pstub && o.obj === K.obj).sort((a, b) => a.created - b.created); return K.rooms; }
   function roomNew() { dlg('Новое помещение', `<label>Помещение</label><input type="text" data-sk-name value="Помещение ${K.rooms.length + 1}">`, [{t: 'Отмена'}, {t: 'Создать', pr: 1, fn: B => roomCreate(B.querySelector('[data-sk-name]').value.trim() || 'Помещение')}]); }
-  async function roomCreate(n) { K.quiet++; const v0 = {...K.view}; try { try { await flushAll(); } catch (e) { } await newRoom(K.obj, n, true); if (S.room) { S.room.oid = K.pid; try { saveRoom(); } catch (e) { } } await loadRooms(); const it = K.items.find(i => i.t === 'plan') || planItem(); K.view = v0; syncToS(it); draw(); return it; } finally { K.quiet--; } }
+  async function roomCreate(n) { K.quiet++; const v0 = {...K.view}; try { try { await flushAll(); } catch (e) { } await newRoom(K.obj, n, true); if (S.room) { S.room.oid = K.pid; try { saveRoom(); } catch (e) { } } await loadRooms(); const it = K.items.find(i => i.t === 'plan') || planItem(); K.view = v0; fitRegion(it); syncToS(it); K.actT = Date.now(); draw(); return it; } finally { K.quiet--; } }   // r3: новое помещение — область плана вписана (чертить сразу)
   api.roomCreate = roomCreate;
   function panTo(it) { const r = it === BOARD ? null : region(it); if (!r) return; const W = cv.width / DPR(), H = freeH(), s = K.view.s; if (r.w * s > W || r.h * s > H) return fitRegion(it);
     const x0 = r.x * s + K.view.ox, y0 = r.y * s + K.view.oy; if (x0 >= 0 && y0 >= 0 && x0 + r.w * s <= W && y0 + r.h * s <= H) return; K.view = {s, ox: (W - r.w * s) / 2 - r.x * s, oy: (H - r.h * s) / 2 - r.y * s}; }
-  async function goWall(r, k) {   // ряд С№ / ⌂-стена: область стены (room, wid); вида стены ещё нет — штатно, затем область
+  async function goWall(r, k) { const userGo = !actP && !K.quiet && !opening;   // r3: не вложенный вызов v81 во время другого перехода   // ряд С№ / ⌂-стена: область стены (room, wid); вида стены ещё нет — штатно, затем область
     if (!r) return; try { if (gnFix(r)) saveRoom(); } catch (e) { } const wid = r.wid && r.wid[k];
     let it = K.items.find(i => i.t === 'wall' && i.room === r.id && i.wid === wid);
     if (!it && r.segs && r.segs[k]) { const o = await dbGet('sess', r.segs[k]).catch(() => null); if (o && !o.del && o.q4 && o.q4.ok) { it = wallItem(o, r); const B = bbox(); it.ax = (B ? B.x1 + 140 : 0) + WM.x * it.k; it.ay = (B ? B.y0 : 0) + (it.H + WM.t) * it.k + 40; K.items.push(it); } }
-    if (it) { panTo(it); return activate(it); }
+    if (it) { panTo(it); return activate(it, {fit: userGo ? 1 : 0}); }
     K.quiet++; try { if (S.mode !== 'plan' || !S.room || S.room.id !== r.id) await openRoom(r.id, null, true); S.psel = {t: 's', i: k}; await zmSet('mk'); } finally { K.quiet--; }
-    const a = active() || adopt(); if (a) { panTo(a); syncToS(a); draw(); }
+    const a = active() || adopt(); if (a) { if (userGo) fitRegion(a); else panTo(a); syncToS(a); draw(); }   // r3 (М3): вкладка пользователя — вписать
   }
   api.goWall = goWall;
 
@@ -356,12 +390,12 @@
       const hit = [...R].reverse().find(x => inR(refR(x), w)); S.sel = null; S.dsel = null; S.msel = []; S.rsel = hit ? hit.id : null; draw(); try { zLay(); } catch (e) { } ui(); } catch (e) { }
   }
   function replay() { const buf = F.buf, up = buf.some(b => b[0] === 'pointerup' || b[0] === 'pointercancel'); F.on = 0; F.hold = 0; nat.add(F.id); for (const [t, init] of buf) cv.dispatchEvent(new PointerEvent(t, init)); if (up) nat.delete(F.id); }
-  function tapEnd() { const tgt = F.tgt, init = F.buf[0] && F.buf[0][1]; F.on = 0; F.hold = 0; if (tgt === BOARD && init) tapBoard(init); }
+  function tapEnd() { const tgt = F.tgt, init = F.buf[0] && F.buf[0][1]; F.on = 0; F.hold = 0; if (tgt === BOARD && init) tapBoard(init); else if (tgt && tgt !== BOARD && active() === tgt) { fitRegion(tgt); draw(); save(); } }   // r3 (М3): касание области — вписать её
   function forward(ev, tgt) {   // активация с передачей жеста; > 400 мс или второй палец — «первое касание активирует»
     Object.assign(F, {on: 1, hold: 0, tgt, id: ev.pointerId, buf: [['pointerdown', evInit(ev)]], drop: 0, t0: Date.now()});
     activate(tgt).then(ok => {
       const late = Date.now() - F.t0 > 400, buf = F.buf, up = buf.some(b => b[0] === 'pointerup' || b[0] === 'pointercancel'), mv = movedBuf(buf);
-      if (!ok || F.drop || late) { F.on = 0; if (!up) F.swallow.add(F.id); else if (ok && !F.drop && !mv && tgt === BOARD) tapBoard(buf[0][1]); return; }
+      if (!ok || F.drop || late) { F.on = 0; if (!up) F.swallow.add(F.id); else if (ok && !F.drop && !mv && tgt === BOARD) tapBoard(buf[0][1]); else if (ok && !F.drop && !mv && tgt !== BOARD && active() === tgt) { fitRegion(tgt); draw(); save(); } return; }
       if (tgt === BOARD && !boardTool()) { try { pickTool('sel'); } catch (e) { } F.on = 0; if (!up) F.swallow.add(F.id); else if (!mv) tapBoard(buf[0][1]); return; }
       if (up && !mv) return tapEnd();
       if (!up && !mv) { F.hold = 1; return; }   // палец ещё на экране: сдвиг — передать жест, отпускание — касание
@@ -424,8 +458,8 @@
 
   /* 82.18 fix (QA Д12): поворот экрана (смена ширины / ориентации) — холст вписывается заново под новые нижние строки.
      Смена только высоты (клавиатура) — без вписывания. */
-  const RZ = {w: innerWidth, h: innerHeight, t: 0};   // r2: размер окна на момент открытия проекта (resize при загрузке страницы — не поворот)
-  { addEventListener('resize', () => { clearTimeout(RZ.t); RZ.t = setTimeout(() => { const w = innerWidth, h = innerHeight, turned = Math.abs(w - RZ.w) > 40 || (w > h) !== (RZ.w > RZ.h); RZ.w = w; RZ.h = h;
+  const RZ = {w: innerWidth, h: innerHeight, t: 0, at: 0};   // r2: размер окна на момент открытия проекта (resize при загрузке страницы — не поворот)
+  { addEventListener('resize', () => { RZ.at = Date.now(); lastIn = Date.now(); clearTimeout(RZ.t); RZ.t = setTimeout(() => { const w = innerWidth, h = innerHeight, turned = Math.abs(w - RZ.w) > 40 || (w > h) !== (RZ.w > RZ.h); RZ.w = w; RZ.h = h;
       if (!K.on || opening || !turned || listOn()) return; try { zLay(); } catch (e) { } fitAll(); draw(); save(); }, 250); }); }
 
   /* ═══ [BLOCK SK-NAV] навигация внутри холста: ✓, 📁, ряд С№, ⌂ / стена, «План» v81 — без закрытия холста ═══ */
@@ -433,7 +467,7 @@
     if (S.zSheet) return zSheet(false);
     const tb = document.getElementById('tb'); if (tb && tb.classList.contains('on')) { tb.classList.remove('on'); return; }
     doneBusy++; try { if (smP) { try { await smP; } catch (e) { } }   // фоновые снимки — сначала дождаться (их вид не должен затереть вписывание)
-    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } try { const a = active(); if (K.items.some(it => it !== a && snapStale(it))) await snapMissing(a || BOARD); } catch (e) { } } finally { doneBusy--; } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
+    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } try { const a = active(); if (K.items.some(it => it !== a && snapStale(it))) await snapMissing(a || BOARD); } catch (e) { } } finally { doneBusy--; } try { const a = active(); if (a && a !== BOARD) await activate(BOARD); } catch (e) { }   /* r3 (М1): ✓ — все области снимками (активная мелкая область v81 путает подписи) */ K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
   }
   api.done = done;
   async function toProjects() {   // 📁: список проектов; холст остаётся открытым под списком
@@ -721,7 +755,7 @@
     await loadRooms();
     if (!cvr) { const old = await sGet('sk', pr0.obj).catch(() => null); if (old) { cvr = await migrateCanvas(pr0.pid, old, b.id); K.boardRec = await dbGet('sess', b.id); } }
     if (cvr) { const {pid, v, obj, board, view, act, items, upd, ...rest} = cvr; K.extra = rest; K.items = (items || []).filter(i => i.t === 'wall' || i.t === 'plan'); if (view && view.s > 0) K.view = view; if (act) K.act = act; }
-    const all = (await dbAll('sess').catch(() => [])) || [], walls = []; if (cvr) pruneItems(all);
+    const all = (await dbAll('sess').catch(() => [])) || [], walls = []; if (cvr) { pruneItems(all); if (unifyScale()) { try { tidy(); } catch (e) { } } }   // r3: один масштаб областей (раскладки 82.18 до r3, импорт)
     for (const r of K.rooms) for (const [k, sid] of Object.entries(r.segs || {})) { const o = all.find(x => x.id === sid); if (o && !o.del && o.q4 && o.q4.ok) { o.seg = +k; walls.push([o, r]); } }
     if (!cvr) { autoLayout(walls); }
     else for (const it of K.items) { const w = it.t === 'wall' && walls.find(([o]) => o.id === it.sid); if (w && w[0].q4) { it.L = +w[0].q4.L || it.L; it.H = +w[0].q4.H || it.H; } }   // QA Д11: L × H — из записи
