@@ -26,10 +26,10 @@
              конец: {t:'node', id} | {t:'wall', id, s} | {t:'elev', id, u, v} | {t:'photo', id, u, v} (доли полного кадра) | {t:'free'}; x,y — последнее место (мм)
      drw:    {id, k, c, h:{t:'photo'|'elev',id}|null, p:[[u,v]|[x,y]…], tx, n, dash, fill, wp} — Б3: рисунок; p — доли основы (фото — полный кадр, развёртка) или мм холста (h=null); wp — мм на случай удаления основы
      frames: {id, ph, q:[[u,v]×4], wall}                   — Б2: рамка «4 угла» на фото (доли полного кадра; ЛВ, ПВ, ПН, ЛН); wall — стена, построенная по рамке */
-  const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: [], frames: [], drw: []});
+  const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: [], frames: [], drw: [], com: []});
   let D = null;
   let V = {ox: 40, oy: 60, s: 0.1};                    // вид: px CSS на мм
-  const C = {tool: 'sel', mode: 'wall', sel: null, crop: null, phm: false, msel: [], ptsP: null, zdp: [], phHide: false};   // Б2: msel — группа [{t,id}]; ptsP — начатая рамка {ph, q}      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
+  const C = {tool: 'sel', mode: 'wall', sel: null, crop: null, phm: false, msel: [], ptsP: null, zdp: [], phHide: false, rt: 'el', cpg: null};   // Б2: msel — группа [{t,id}]; ptsP — начатая рамка {ph, q}      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
   const node = id => D.nodes.find(n => n.id === id);
   const wall = id => D.walls.find(w => w.id === id);
   const photo = id => D.photos.find(p => p.id === id);
@@ -54,7 +54,7 @@
   function undo() { if (!HS.u.length) return; HS.r.push(snap()); D = JSON.parse(HS.u.pop()); afterHist('↶ отменено'); }
   function redo() { if (!HS.r.length) return; HS.u.push(snap()); D = JSON.parse(HS.r.pop()); afterHist('↷ повторено'); }
   function afterHist(t) {
-    const s = C.sel, F = {photo, wall, node, elev, dim, frame, drw}; if (s && !F[s.t](s.id)) C.sel = null; C.msel = C.msel.filter(m => F[m.t] && F[m.t](m.id)); C.ptsP = null; C.zdp = [];
+    const s = C.sel, F = {photo, wall, node, elev, dim, frame, drw, com: id => D.com.find(c => c.id === id)}; if (s && !F[s.t](s.id)) C.sel = null; C.msel = C.msel.filter(m => F[m.t] && F[m.t](m.id)); C.ptsP = null; C.zdp = [];
     C.crop = null; $('labPrjT').value = D.name; dirty(); ui(); toast(t);
   }
 
@@ -82,7 +82,7 @@
     const last = await get('meta', 'last'); const r = last ? await get('prj', last) : null;
     if (r) { if (r.view) V = r.view; HS.u = (r.hist && r.hist.u) || []; HS.r = (r.hist && r.hist.r) || []; delete r.view; delete r.hist; delete r.upd; D = r; }
     else D = newDoc();
-    D.dims = D.dims || []; D.frames = D.frames || []; D.drw = D.drw || [];
+    D.dims = D.dims || []; D.frames = D.frames || []; D.drw = D.drw || []; D.com = D.com || [];
   }
 
   /* ═══ [BLOCK C-IMG] кэш картинок ═══ */
@@ -126,6 +126,7 @@
     const gst = grid(W, Hh);
     for (const p of D.photos) drawPhoto(p);
     ELBL.clear(); for (const e of D.elev) drawElev(e);
+    drawCom();
     drawPlan();
     drawDrw();
     drawDims();
@@ -223,9 +224,10 @@
     else if (e.t === 'wall') { const w = wall(e.id), a = w && node(w.a), b = w && node(w.b); if (a && b) q = {x: a.x + (b.x - a.x) * e.s, y: a.y + (b.y - a.y) * e.s}; }
     else if (e.t === 'elev') { const o = elev(e.id); if (o) { const r = elevRect(o); q = {x: r.x + r.w * e.u, y: r.y + r.h * e.v}; } }
     else if (e.t === 'photo') { const p = photo(e.id); if (p) { const F = phFull(p); q = {x: F.x + F.w * e.u, y: F.y + F.h * e.v}; } }
+    else if (e.t === 'com') q = comEnd(e);
     return q || {x: e.x, y: e.y};
   }
-  const surf = e => (e.t === 'node' || e.t === 'wall') && endPos(e) ? 'plan' : e.t === 'elev' && elev(e.id) ? 'e:' + e.id : null;
+  const surf = e => (e.t === 'node' || e.t === 'wall') && endPos(e) ? 'plan' : e.t === 'elev' && elev(e.id) ? 'e:' + e.id : e.t === 'com' && com(e.id) && elev(com(e.id).e) ? 'e:' + com(e.id).e : null;
   function dimVal(d) {                                           // {txt, kind:'man'|'geo'|'none'}
     if (d.v !== '' && d.v != null) return {txt: num(d.v), kind: 'man'};
     const sa = surf(d.a); if (sa && sa === surf(d.b)) { const A = endPos(d.a), B = endPos(d.b); return {txt: num(hyp(B.x - A.x, B.y - A.y)), kind: 'geo'}; }
@@ -258,6 +260,7 @@
     const pt = (x, y, e) => { const [X, Y] = toS(x, y), dd = hyp(X - sx, Y - sy); if (dd < bd) { bd = dd; best = {...e, x: rnd(x * 10) / 10, y: rnd(y * 10) / 10}; } };
     for (const n of D.nodes) pt(n.x, n.y, {t: 'node', id: n.id});
     for (const o of D.elev) { const r = elevRect(o); [[0, 0], [1, 0], [1, 1], [0, 1]].forEach(([u, v]) => pt(r.x + r.w * u, r.y + r.h * v, {t: 'elev', id: o.id, u, v})); }
+    for (const e of comSnapPts()) { const P = comEnd(e); if (P) pt(P.x, P.y, e); }
     for (const d of D.dims) if (d.id !== skipDim) for (const e of [d.a, d.b]) if (e.t === 'node' || e.t === 'wall' || e.t === 'elev') { const P = endPos(e); pt(P.x, P.y, {...e}); }
     if (best) return best;                                       // геометрия плана и развёрток важнее углов фото
     for (const p of D.photos) { const F = phFull(p); [[p.cr[0], p.cr[1]], [p.cr[2], p.cr[1]], [p.cr[2], p.cr[3]], [p.cr[0], p.cr[3]]].forEach(([u, v]) => pt(F.x + F.w * u, F.y + F.h * v, {t: 'photo', id: p.id, u, v})); }
@@ -311,6 +314,7 @@
     if (m.t === 'wall') { const w = wall(m.id), a = w && node(w.a), b = w && node(w.b); return a && b && {seg: [a, b]}; }
     if (m.t === 'dim') { const d = dim(m.id); return d && {seg: [endPos(d.a), endPos(d.b)]}; }
     if (m.t === 'frame') { const f = frame(m.id), Q = f && frPts(f); return Q && {poly: Q}; }
+    if (m.t === 'com') { const c = D.com.find(x => x.id === m.id); return c ? comBoxW(c) : null; }
     if (typeof B3box === 'function') return B3box(m);
     return null;
   }
@@ -340,12 +344,12 @@
   function rsPick(a, b) {
     const R = {x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y)}, out = [];
     const all = [...D.photos.map(o => ({t: 'photo', id: o.id})), ...D.elev.map(o => ({t: 'elev', id: o.id})), ...D.walls.map(o => ({t: 'wall', id: o.id})),
-      ...D.dims.map(o => ({t: 'dim', id: o.id})), ...D.frames.map(o => ({t: 'frame', id: o.id})), ...(typeof B3all === 'function' ? B3all() : [])];
+      ...D.dims.map(o => ({t: 'dim', id: o.id})), ...D.frames.map(o => ({t: 'frame', id: o.id})), ...(typeof B3all === 'function' ? B3all() : []), ...D.com.map(o => ({t: 'com', id: o.id}))];
     for (const m of all) { const o = objBox(m); if (o && rsTouch(o, R)) out.push(m); }
     return out;
   }
   const normHit = h => !h ? null : h.t === 'label' ? {t: 'wall', id: h.id} : h.t === 'dlabel' || h.t === 'dim-h' ? {t: 'dim', id: h.id} : h.t === 'elabel' ? {t: 'elev', id: h.id}
-    : h.t === 'ph-h' ? {t: 'photo', id: h.id} : h.t === 'fr-h' ? {t: 'frame', id: h.id} : h.t === 'drw-h' ? {t: 'drw', id: h.id} : h.t === 'node' ? null : {t: h.t, id: h.id};
+    : h.t === 'ph-h' ? {t: 'photo', id: h.id} : h.t === 'fr-h' ? {t: 'frame', id: h.id} : h.t === 'drw-h' ? {t: 'drw', id: h.id} : h.t === 'com-h' || h.t === 'cofl' ? {t: 'com', id: h.id} : h.t === 'node' ? null : {t: h.t, id: h.id};
   /* перенос группы */
   function gStart(g) {
     begin(); const nodes = new Set(), o = {ph: {}, el: {}, nd: {}, dm: {}};
@@ -374,7 +378,7 @@
     begin(); dimCache(); const has = t => new Set(C.msel.filter(m => m.t === t).map(m => m.id));
     const ph = has('photo'), el = has('elev'), dm = has('dim'), wl = has('wall'), fr = has('frame');
     D.photos = D.photos.filter(p => !ph.has(p.id)); D.elev = D.elev.filter(e => !el.has(e.id)); D.dims = D.dims.filter(d => !dm.has(d.id));
-    D.walls = D.walls.filter(w => !wl.has(w.id)); D.frames = D.frames.filter(f => !fr.has(f.id)); D.drw = D.drw.filter(q => !inMsel('drw', q.id));
+    D.walls = D.walls.filter(w => !wl.has(w.id)); D.frames = D.frames.filter(f => !fr.has(f.id)); D.drw = D.drw.filter(q => !inMsel('drw', q.id)); D.com = D.com.filter(c => !inMsel('com', c.id));
     if (typeof B3delGroup === 'function') B3delGroup();
     dropOrphans(); const n = C.msel.length; C.msel = []; C.sel = null; commit(); toast('Удалено: ' + n + ' · ↶ — вернуть');
   }
@@ -418,6 +422,7 @@
      касание последней точки или ✓ — готово; текст/пин — касание, ввод подписи; ластик — касание/протяжка по рисунку; инструмент остаётся.
      Рисунок лежит на основе под первой точкой (развёртка → фото → холст) и следует за её переносом, масштабом и подрезкой.
      Толщина — одна на все рисунки (футляр, 0,5…12, по умолчанию 3, как v81); цвет — выбранный в строке/футляре, у выбранного рисунка — меняется. ═══ */
+  const isLbl = h => !!h && (h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel');   // подписи (длина, размер, H) — ввод значения в любом инструменте
   const DRWK = new Set(['pen', 'ln', 'pl', 'rect', 'circ', 'arc', 'er', 'txt', 'pin', 'vyn']);
   const DRW_N = {pen: 'перо', ln: 'линия', pl: 'ломаная', rect: 'прямоугольник', circ: 'круг', arc: 'дуга', txt: 'текст', pin: 'пин', vyn: 'выноска'};
   C.col = (() => { try { return localStorage.getItem('akx-core-col') || '#1f6fd1'; } catch (e) { return '#1f6fd1'; } })();
@@ -511,14 +516,17 @@
       for (let i = 0; i <= 20; i++) { const a = a0 + (a1 - a0) * i / 20, P = toW(o.x + o.r * Math.cos(a), o.y + o.r * Math.sin(a)); pts.push(P); } return {pts}; }
     return {pts: W};
   }
-  function B3gStart(g) { g.go.dr = {}; for (const m of C.msel) if (m.t === 'drw') { const q = drw(m.id); if (q && !(q.h && inMsel(q.h.t, q.h.id))) g.go.dr[q.id] = drwW(q); } }
-  function B3gMove(g, mx, my) { for (const id in g.go.dr) { const q = drw(id); q.h = null; q.p = g.go.dr[id].map(t => [rnd((t.x + mx) * 10) / 10, rnd((t.y + my) * 10) / 10]); } }
-  function B3del(s) { if (s.t === 'drw') D.drw = D.drw.filter(q => q.id !== s.id); }
-  function B3moveKind(h) { return h.t === 'drw' ? 'drmove' : h.t === 'drw-h' ? 'drwh' : null; }
+  function B3gStart(g) { g.go.cm = {}; for (const m of C.msel) if (m.t === 'com') { const c = com(m.id); if (c && !inMsel('elev', c.e)) g.go.cm[c.id] = clone(c); }
+    g.go.dr = {}; for (const m of C.msel) if (m.t === 'drw') { const q = drw(m.id); if (q && !(q.h && inMsel(q.h.t, q.h.id))) g.go.dr[q.id] = drwW(q); } }
+  function B3gMove(g, mx, my) {
+    for (const id in g.go.cm) { const c = com(id), o = g.go.cm[id], dx = rnd(mx), dy = -rnd(my);
+      if (c.a) { c.a = [o.a[0] + dx, o.a[1] + dy]; c.b = [o.b[0] + dx, o.b[1] + dy]; } else if (c.pts) c.pts = o.pts.map(t => [t[0] + dx, t[1] + dy]); else { c.x = o.x + dx; c.y = o.y + dy; if (o.ex) c.xv = o.xv - dx; if (o.ey) c.yv = o.yv - dy; } } for (const id in g.go.dr) { const q = drw(id); q.h = null; q.p = g.go.dr[id].map(t => [rnd((t.x + mx) * 10) / 10, rnd((t.y + my) * 10) / 10]); } }
+  function B3del(s) { if (s.t === 'drw') D.drw = D.drw.filter(q => q.id !== s.id); if (s.t === 'com') D.com = D.com.filter(c => c.id !== s.id); }
+  function B3moveKind(h) { return h.t === 'drw' ? 'drmove' : h.t === 'drw-h' ? 'drwh' : h.t === 'com' ? 'cmove' : h.t === 'com-h' ? 'cres' : null; }
   const eraseAt = (sx, sy) => { const h = B3hit(sx, sy); if (!h) return false; begin(); D.drw = D.drw.filter(q => q.id !== h.id); if (C.sel && C.sel.id === h.id) C.sel = null; return true; };
   function B3start(g, p, h) {
     if (h && h.t === 'drw-h') { g.t = 'drwh'; return true; }
-    if (!DRWK.has(C.tool)) return false;
+    if (!DRWK.has(C.tool) || isLbl(h)) return false;
     const q = toW(p.x, p.y);
     if (C.tool === 'pen') { g.t = 'pen'; g.pts = [q]; return true; }
     if (C.tool === 'ln' || C.tool === 'rect' || C.tool === 'circ' || C.tool === 'vyn') { g.t = 'zd2'; g.a = q; g.b = null; return true; }
@@ -544,7 +552,7 @@
     return false;
   }
   function B3tap(g, h) {
-    if (!DRWK.has(C.tool)) return false;
+    if (!DRWK.has(C.tool) || isLbl(h)) return false;
     const k = C.tool, q = toW(g.p0.x, g.p0.y), hd = h && h.t === 'drw' ? drw(h.id) : null;
     if (k === 'er') { if (eraseAt(g.p0.x, g.p0.y)) { commit(); toast('Стёрто · ↶ — вернуть'); } return true; }
     if (k === 'txt' || k === 'pin') {
@@ -601,6 +609,171 @@
   /* фото: видно / скрыто */
   act($('zpE'), () => { C.phHide = !C.phHide; if (C.phHide && C.sel && C.sel.t === 'photo') C.sel = null; $('zpE').classList.toggle('off', C.phHide); ui(); draw(); toast(C.phHide ? 'Фото скрыты' : 'Фото видны'); });
 
+  /* ═══ [BLOCK C-B4] Б4/Б5 «Коммуникации» и «Проёмы и элементы» на развёртке стены (как v81 / 82.18).
+     Объект лежит на развёртке: координаты — мм стены (x — от левого края, y — от пола вверх), следует за переносом развёртки, L — из плана, H — проекта.
+     Точечные (розетка, выключатель, выводы, провод): касание — поставить; значок по виду; посты 1…5, шаг 71 мм (розетка, выключатель).
+     Прямоугольные (не сверлить, зона, электрощит; окно, дверь, ниша, колонна, ригель, короб, техника, фартук): протяжка — рамка, касание — 300×300;
+       выбранный — углы тянутся; отступы ← → ↓ ↑ (от краёв стены / пола / потолка) — касание числа: ввод, отступ от правого края / потолка держится при смене L / H (82.18);
+       Z — глубина со знаком: выступ +, ниша − (82.14).
+     Обозначения — утверждённые: значки точечных и прямоугольных — из футляра (82.18), провод — фиолетовая точка, не сверлить — красная зона, зона — фиолетовый пунктир,
+       трасса — легенда 0.11 (цвет + рисунок + буквенный код), розетка/выключатель — от центра первого подрозетника, шаг 71 мм.
+     Трасса: протяжка, 0/90°; тип — 10 условных обозначений 82.18 (цвет + рисунок + код), выбранной — меняется; концы тянутся.
+     Автоматических размерных стрелок нет (уточнение 0.3); размеры — инструментом ↔, концы цепляются за посты и углы объектов. ═══ */
+  const CK = {
+    roz: {n: 'розетка', c: '#f0a020', pt: 1, ps: 1}, vyk: {n: 'выключатель', c: '#7b3fc4', pt: 1, ps: 1}, svet: {n: 'вывод света', c: '#d4a300', pt: 1}, slab: {n: 'ТВ / интернет', c: '#3d7be0', pt: 1},
+    hvs: {n: 'ХВС', c: '#3d9bff', pt: 1}, gvs: {n: 'ГВС', c: '#ff5c5c', pt: 1}, kan: {n: 'канализация', c: '#8d6e63', pt: 1}, gaz: {n: 'газ', c: '#c98a00', pt: 1}, vent: {n: 'вентиляция', c: '#1fa98f', pt: 1},
+    wire: {n: 'провод', c: '#7b3fc4', pt: 1},
+    znd: {n: 'не сверлить', c: '#d93025', rc: 1}, zon: {n: 'зона', c: '#b44cc0', rc: 1}, shield: {n: 'электрощит', c: '#7b3fc4', rc: 1, D: 1}, wrt: {n: 'трасса', c: '#E07A00', ln: 1},
+    win: {n: 'окно', c: '#2e9e4f', rc: 1}, door: {n: 'дверь', c: '#1f8a78', rc: 1}, nis: {n: 'ниша', c: '#5b5bd0', rc: 1, D: 1}, kol: {n: 'колонна', c: '#b8602e', rc: 1, D: 1},
+    rig: {n: 'ригель', c: '#a07a10', rc: 1, D: 1}, kor: {n: 'короб', c: '#6b7785', rc: 1, D: 1}, znt: {n: 'техника', c: '#1f6fd1', rc: 1}, znf: {n: 'фартук', c: '#2bb673', rc: 1},
+    poly: {n: 'фасон', c: '#6b7785', pg: 1, D: 1}};
+  const RTT = [['el', 'Электрика', 'ЭЛ', '#E07A00', [20, 4]], ['lo', 'Слаботочка', 'СС', '#7B3FC4', [8, 4]], ['wa', 'ХВС', 'ХВ', '#3D9BFF', [14, 4]], ['wh', 'ГВС', 'ГВ', '#FF5C5C', [14, 3, 2, 3]],
+    ['dr', 'Канализация', 'К', '#8D6E63', [3, 4]], ['ht', 'Отопление', 'ОТ', '#D455B0', [14, 3, 2, 3, 2, 3]], ['ufh', 'Тёплый пол', 'ТП', '#D93263', [8, 3, 8, 7]], ['ga', 'Газ', 'Г', '#C98A00', [18, 4, 3, 4]],
+    ['ve', 'Вентиляция', 'ВЕН', '#1FA98F', [2, 3, 2, 7]], ['ot', 'Другое', 'ДР', '#7B8795', [6, 6]]];       // условные обозначения приложения (82.18), не ГОСТ
+  const rtt = t => RTT.find(r => r[0] === t) || RTT[0];
+  const com = id => D.com.find(c => c.id === id);
+  const PSTEP = 71, PTS = k => (CK[k] && CK[k].ps ? 71 : 60);
+  const ICO = new Map();
+  function ico(k) { let im = ICO.get(k); if (im) return im.complete && im.naturalWidth ? im : null;
+    const r = typeof REG !== 'undefined' && REG[k]; if (!r || !r.icon) return null; im = new Image(); im.onload = () => draw();
+    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.icon.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"').replace(/ aria-hidden="true"/, '')); ICO.set(k, im); return null; }
+  function cRect(c) {                                            // прямоугольник объекта, мм стены: {x, y (низ), w, h}
+    const e = elev(c.e); if (!e) return null; const R = elevRect(e);
+    let x = c.x, y = c.y; if (c.ex === 'R') x = R.w - c.xv - c.w; if (c.ey === 'C') y = R.h - c.yv - c.h; return {x, y, w: c.w, h: c.h, R};
+  }
+  const w2s = (R, x, y) => toS(R.x + x, R.y + R.h - y);                     // мм стены → px
+  const s2w = (R, sx, sy) => { const q = toW(sx, sy); return {x: q.x - R.x, y: R.y + R.h - q.y}; };
+  function postsW(c) { const R = elevRect(elev(c.e)), N = Math.max(1, Math.min(5, c.N || 1)), st = N > 1 ? PSTEP : 0; return [...Array(N)].map((_, i) => ({x: c.x + i * st, y: c.y, R})); }   // x, y — центр первого подрозетника, посты вправо с шагом 71 (82.14)
+  function elevOf(sx, sy) { const q = toW(sx, sy); for (let i = D.elev.length - 1; i >= 0; i--) { const o = D.elev[i], r = elevRect(o); if (r.w && r.h && q.x >= r.x && q.x <= r.x + r.w && q.y >= r.y && q.y <= r.y + r.h) return o; } return null; }
+  const OFL = new Map();                                         // подписи отступов выбранного: [{id, side, r}]
+  function drawCom() {
+    OFL.clear();
+    for (const c of D.com) {
+      const e = elev(c.e); if (!e) continue; const R = elevRect(e), K = CK[c.k] || CK.roz, sel = (C.sel && C.sel.t === 'com' && C.sel.id === c.id) || inMsel('com', c.id), col = sel ? COL.sel : K.c;
+      if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);
+        const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return [m[0] + i * z * 0.84, m[1]]; });
+        if (sel) { const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]); cx.fillStyle = '#fff'; cx.strokeStyle = '#D4A300'; cx.lineWidth = 2; cx.fillRect(Math.min(...xs) - z / 2 - 3, Math.min(...ys) - z / 2 - 3, Math.max(...xs) - Math.min(...xs) + z + 6, z + 6); cx.strokeRect(Math.min(...xs) - z / 2 - 3, Math.min(...ys) - z / 2 - 3, Math.max(...xs) - Math.min(...xs) + z + 6, z + 6); }
+        for (const [x, y] of Q) { if (im) cx.drawImage(im, x - z / 2, y - z / 2, z, z); else { cx.fillStyle = col; cx.beginPath(); cx.arc(x, y, z / 3, 0, 7); cx.fill(); } }
+        continue; }
+      if (K.ln) { const T = rtt(c.t), A = w2s(R, c.a[0], c.a[1]), B = w2s(R, c.b[0], c.b[1]); cx.strokeStyle = sel ? COL.sel : T[3]; cx.lineWidth = sel ? 4 : 3; cx.setLineDash(T[4]); cx.lineCap = 'butt';
+        cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); cx.setLineDash([]);
+        cx.font = '700 11px system-ui'; const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, tw = cx.measureText(T[2]).width + 6; cx.fillStyle = '#fff'; cx.fillRect(mx - tw / 2, my - 8, tw, 16); cx.fillStyle = T[3]; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(T[2], mx, my + 0.5);
+        if (sel) for (const [x, y] of [A, B]) { cx.fillStyle = '#fff'; cx.strokeStyle = COL.sel; cx.lineWidth = 2; cx.beginPath(); cx.arc(x, y, 6, 0, 7); cx.fill(); cx.stroke(); }
+        continue; }
+      if (K.pg) { const P = c.pts.map(t => w2s(R, t[0], t[1])); cx.beginPath(); P.forEach(([x, y], i) => (i ? cx.lineTo(x, y) : cx.moveTo(x, y))); cx.closePath(); cx.fillStyle = K.c + '33'; cx.fill(); cx.strokeStyle = col; cx.lineWidth = sel ? 2.6 : 2; cx.setLineDash([6, 4]); cx.stroke(); cx.setLineDash([]);
+        if (sel) for (const [x, y] of P) { cx.fillStyle = '#fff'; cx.strokeStyle = COL.sel; cx.lineWidth = 2; cx.beginPath(); cx.arc(x, y, 6, 0, 7); cx.fill(); cx.stroke(); }
+        continue; }
+      const r = cRect(c), A = w2s(R, r.x, r.y + r.h), B = w2s(R, r.x + r.w, r.y), x0 = A[0], y0 = A[1], W2 = B[0] - A[0], H2 = B[1] - A[1];
+      cx.fillStyle = K.c + '33'; cx.fillRect(x0, y0, W2, H2); cx.strokeStyle = col; cx.lineWidth = sel ? 2.6 : 2; cx.setLineDash([6, 4]); cx.strokeRect(x0, y0, W2, H2); cx.setLineDash([]);
+      const im = ico(c.k), z = 22; if (im && Math.min(W2, H2) >= z * 1.5) cx.drawImage(im, x0 + W2 / 2 - z / 2, y0 + H2 / 2 - z / 2, z, z);
+      if (c.D) { cx.font = '600 11px system-ui'; cx.fillStyle = col; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('Z ' + (c.D > 0 ? '+' : '−') + num(Math.abs(c.D)), x0 + 3, y0 + 3); }
+      if (sel && C.sel && C.sel.id === c.id) { for (const [x, y] of [[x0, y0], [x0 + W2, y0], [x0 + W2, y0 + H2], [x0, y0 + H2]]) { cx.fillStyle = COL.sel; cx.fillRect(x - 5, y - 5, 10, 10); }
+        const o = {L: r.x, R: r.R.w - r.x - r.w, F: r.y, C: r.R.h - r.y - r.h}, ed = KB.tg && KB.tg.t === 'cOf' && KB.tg.id === c.id ? KB.tg.side : null;
+        const put = (side, X, Y, ar) => { const t = ar + ' ' + (ed === side ? (KB.buf || ' ') + '▏' : num(o[side])) + ((c.ex === 'R' && side === 'R') || (c.ey === 'C' && side === 'C') || (c.ex !== 'R' && side === 'L' && c.ex) ? ' 📌' : '');
+          cx.font = '600 12px system-ui'; const tw = cx.measureText(t).width + 8, rr = {x: X - tw / 2, y: Y - 10, w: tw, h: 20}; cx.fillStyle = ed === side ? '#fff7d1' : '#ffffffe8'; cx.fillRect(rr.x, rr.y, rr.w, rr.h);
+          cx.strokeStyle = '#8a9099'; cx.lineWidth = 1; cx.strokeRect(rr.x + 0.5, rr.y + 0.5, rr.w - 1, rr.h - 1); cx.fillStyle = '#3a4150'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); OFL.set(side, {id: c.id, side, r: rr}); };
+        put('L', x0 - 34, y0 + H2 / 2, '←'); put('R', x0 + W2 + 34, y0 + H2 / 2, '→'); put('F', x0 + W2 / 2, y0 + H2 + 16, '↓'); put('C', x0 + W2 / 2, y0 - 16, '↑'); }
+    }
+    const g = G; if (g && g.t === 'cdraw' && g.b) { const R = elevRect(elev(g.e)), K = CK[C.tool];
+      if (K.ln) { const A = w2s(R, g.a.x, g.a.y), B = w2s(R, g.b.x, g.b.y); cx.strokeStyle = rtt(C.rt)[3]; cx.lineWidth = 3; cx.setLineDash(rtt(C.rt)[4]); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); cx.setLineDash([]); }
+      else { const A = w2s(R, Math.min(g.a.x, g.b.x), Math.max(g.a.y, g.b.y)), B = w2s(R, Math.max(g.a.x, g.b.x), Math.min(g.a.y, g.b.y)); cx.strokeStyle = K.c; cx.lineWidth = 2; cx.setLineDash([6, 4]); cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); cx.setLineDash([]); } }
+    if (C.cpg && C.cpg.pts.length) { const R = elevRect(elev(C.cpg.e)), P = C.cpg.pts.map(t => w2s(R, t[0], t[1])); cx.strokeStyle = CK.poly.c; cx.lineWidth = 2; cx.setLineDash([6, 4]); cx.beginPath(); P.forEach(([x, y], i) => (i ? cx.lineTo(x, y) : cx.moveTo(x, y))); cx.stroke(); cx.setLineDash([]);
+      for (const [x, y] of P) { cx.fillStyle = CK.poly.c; cx.beginPath(); cx.arc(x, y, 5, 0, 7); cx.fill(); } }
+  }
+  function comPx(c) {                                            // для касаний и рамки выделения: {pts px, box px}
+    const e = elev(c.e); if (!e) return null; const R = elevRect(e), K = CK[c.k] || CK.roz;
+    if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)); const xs = P.map(q => q[0]); return {box: [Math.min(...xs) - z / 2, P[0][1] - z / 2, Math.max(...xs) + z / 2, P[0][1] + z / 2]}; }
+    if (K.ln) return {line: [w2s(R, c.a[0], c.a[1]), w2s(R, c.b[0], c.b[1])]};
+    if (K.pg) return {poly: c.pts.map(t => w2s(R, t[0], t[1]))};
+    const r = cRect(c), A = w2s(R, r.x, r.y + r.h), B = w2s(R, r.x + r.w, r.y); return {box: [A[0], A[1], B[0], B[1]]};
+  }
+  function B4hit(sx, sy) {
+    for (const [side, o] of OFL) { const r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'cofl', id: o.id, side}; }
+    for (let i = D.com.length - 1; i >= 0; i--) { const c = D.com[i], g = comPx(c); if (!g) continue;
+      if (g.box && sx >= g.box[0] - 4 && sx <= g.box[2] + 4 && sy >= g.box[1] - 4 && sy <= g.box[3] + 4) return {t: 'com', id: c.id};
+      if (g.line && segDist([sx, sy], g.line[0], g.line[1]) < 12) return {t: 'com', id: c.id};
+      if (g.poly && inPoly({x: sx, y: sy}, g.poly.map(([x, y]) => ({x, y})))) return {t: 'com', id: c.id}; }
+    return null;
+  }
+  function B4handle(id, sx, sy) {
+    const c = com(id), g = c && comPx(c); if (!g) return null; const K = CK[c.k];
+    const pts = K.ln ? g.line : K.pg ? g.poly : K.rc ? [[g.box[0], g.box[1]], [g.box[2], g.box[1]], [g.box[2], g.box[3]], [g.box[0], g.box[3]]] : [];
+    const i = pts.findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); return i >= 0 ? {t: 'com-h', id, i} : null;
+  }
+  function comBoxW(c) { const g = comPx(c); if (!g) return null; if (g.line) return {seg: g.line.map(([x, y]) => toW(x, y))}; if (g.poly) return {poly: g.poly.map(([x, y]) => toW(x, y))}; const a = toW(g.box[0], g.box[1]), b = toW(g.box[2], g.box[3]); return {x0: a.x, y0: a.y, x1: b.x, y1: b.y}; }
+  function comNew(k, e, o) { begin(); const c = {id: uid('c'), k, e: e.id, ...o}; D.com.push(c); C.sel = {t: 'com', id: c.id}; commit(); return c; }
+  const snapE = (R, p) => { const t = 10 / V.s; return {x: Math.abs(p.x) < t ? 0 : Math.abs(p.x - R.w) < t ? R.w : p.x, y: Math.abs(p.y) < t ? 0 : Math.abs(p.y - R.h) < t ? R.h : p.y}; };   // магнит к краям стены, пол, потолок
+  function B4start(g, p, h) {
+    if (h && h.t === 'com-h') { g.t = 'cres'; return true; }
+    if (h && h.t === 'cofl') { g.t = 'pan'; return true; }
+    const K = CK[C.tool]; if (!K || isLbl(h)) return false;
+    const e = elevOf(p.x, p.y); if (!e) { g.t = 'pan'; return true; }
+    if (K.pt || K.pg) { g.t = 'pan'; return true; }              // касанием
+    const R = elevRect(e); g.t = 'cdraw'; g.e = e.id; g.a = snapE(R, s2w(R, p.x, p.y)); g.b = null; return true;
+  }
+  function B4drag(g) {
+    if (g.t === 'cmove') { begin(); const c = com(g.h.id); g.o = clone(c); const r = cRect(c); if (r && (c.ex || c.ey)) { g.o.x = r.x; g.o.y = r.y; delete c.ex; delete c.ey; } C.sel = {t: 'com', id: c.id}; ui(); }
+    if (g.t === 'cres') { begin(); const c = com(g.h.id); const r = cRect(c); if (r && CK[c.k].rc) { c.x = r.x; c.y = r.y; delete c.ex; delete c.ey; } g.o = clone(c); C.sel = {t: 'com', id: c.id}; ui(); }
+  }
+  function B4move(g, p, q) {
+    if (g.t === 'cdraw') { const R = elevRect(elev(g.e)); let b = snapE(R, s2w(R, p.x, p.y)); if (CK[C.tool].ln) { const dx = b.x - g.a.x, dy = b.y - g.a.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; if (m < 6 || m > 84) b = Math.abs(dx) >= Math.abs(dy) ? {x: b.x, y: g.a.y} : {x: g.a.x, y: b.y}; } g.b = b; draw(); return true; }
+    if (g.t === 'cmove') { const c = com(g.h.id), e = elev(c.e), R = elevRect(e), w0 = s2w(R, g.p0.x, g.p0.y), w1 = s2w(R, p.x, p.y), dx = rnd(w1.x - w0.x), dy = rnd(w1.y - w0.y), o = g.o, K = CK[c.k];
+      if (K.ln) { c.a = [o.a[0] + dx, o.a[1] + dy]; c.b = [o.b[0] + dx, o.b[1] + dy]; } else if (K.pg) c.pts = o.pts.map(t => [t[0] + dx, t[1] + dy]); else { c.x = o.x + dx; c.y = o.y + dy; if (K.rc) { const s = snapE(R, {x: c.x, y: c.y}), s2 = snapE(R, {x: c.x + c.w, y: c.y + c.h}); if (s.x !== c.x) c.x = s.x; else if (s2.x !== c.x + c.w) c.x = s2.x - c.w; if (s.y !== c.y) c.y = s.y; else if (s2.y !== c.y + c.h) c.y = s2.y - c.h; } }
+      draw(); return true; }
+    if (g.t === 'cres') { const c = com(g.h.id), R = elevRect(elev(c.e)), w = snapE(R, s2w(R, p.x, p.y)), K = CK[c.k], o = g.o, X = rnd(w.x), Y = rnd(w.y);
+      if (K.ln) c[g.h.i ? 'b' : 'a'] = [X, Y]; else if (K.pg) c.pts[g.h.i] = [X, Y];
+      else { const i = g.h.i, xl = i === 0 || i === 3 ? X : o.x, xr = i === 1 || i === 2 ? X : o.x + o.w, yt = i === 0 || i === 1 ? Y : o.y + o.h, yb = i === 2 || i === 3 ? Y : o.y;
+        c.x = Math.min(xl, xr); c.w = Math.max(10, Math.abs(xr - xl)); c.y = Math.min(yb, yt); c.h = Math.max(10, Math.abs(yt - yb)); }
+      draw(); return true; }
+    return false;
+  }
+  function B4end(g) {
+    if (g.t !== 'cdraw') return false; const K = CK[C.tool]; if (!g.b) return true; const e = elev(g.e); if (!e) return true;
+    const d = hyp(g.b.x - g.a.x, g.b.y - g.a.y) * V.s; if (d < 12) return true;
+    if (K.ln) comNew(C.tool, e, {a: [rnd(g.a.x), rnd(g.a.y)], b: [rnd(g.b.x), rnd(g.b.y)], t: C.rt});
+    else comNew(C.tool, e, {x: rnd(Math.min(g.a.x, g.b.x)), y: rnd(Math.min(g.a.y, g.b.y)), w: rnd(Math.abs(g.b.x - g.a.x)), h: rnd(Math.abs(g.b.y - g.a.y))});
+    ui(); draw(); return true;
+  }
+  function B4tap(g, h) {
+    if (h && h.t === 'cofl') { C.sel = {t: 'com', id: h.id}; openKb('cOf', h.id); KB.tg.side = h.side; const c = com(h.id), r = cRect(c), o = {L: r.x, R: r.R.w - r.x - r.w, F: r.y, C: r.R.h - r.y - r.h}; KB.buf = String(rnd(o[h.side])); ui(); draw(); return true; }
+    const K = CK[C.tool]; if (!K || isLbl(h)) return false;
+    if (h && h.t === 'com' && !C.cpg) { C.sel = {t: 'com', id: h.id}; ui(); draw(); return true; }
+    const e = elevOf(g.p0.x, g.p0.y); if (!e) { toast('«' + K.n + '» — на развёртке стены'); return true; }
+    const R = elevRect(e), w = s2w(R, g.p0.x, g.p0.y);
+    if (K.pt) { comNew(C.tool, e, {x: rnd(w.x), y: rnd(w.y), N: 1}); ui(); draw(); return true; }
+    if (K.rc) { const s = 300; comNew(C.tool, e, {x: rnd(w.x - s / 2), y: rnd(w.y - s / 2), w: s, h: s}); ui(); draw(); return true; }
+    if (K.pg) { if (C.cpg && C.cpg.e !== e.id) C.cpg = null; if (!C.cpg) C.cpg = {e: e.id, pts: []};
+      const P = C.cpg.pts; if (P.length >= 3) { const [fx, fy] = w2s(R, P[0][0], P[0][1]); if (hyp(fx - g.p0.x, fy - g.p0.y) < 16) { polyDone(); return true; } }
+      const sw = snapE(R, w); P.push([rnd(sw.x), rnd(sw.y)]); ui(); draw(); return true; }
+    if (K.ln) { C.sel = null; ui(); draw(); return true; }
+    return false;
+  }
+  function polyDone() { const P = C.cpg; C.cpg = null; if (P && P.pts.length >= 3 && elev(P.e)) comNew('poly', elev(P.e), {pts: P.pts}); ui(); draw(); }
+  function B4act(s, B) {
+    if (C.cpg && C.cpg.pts.length >= 3) B.push(['✓', polyDone, 'Фасон: готово']);
+    const c = s && s.t === 'com' && com(s.id); if (!c) return; const K = CK[c.k];
+    if (K.ps) for (let n = 1; n <= 5; n++) B.push([`<span class="opt${(c.N || 1) === n ? ' on' : ''}">${n}</span>`, () => { if ((c.N || 1) === n) return; begin(); c.N = n; commit(); ui(); }, n + ' — шаг 71 мм']);
+    if (K.ln) { const T = rtt(c.t); B.push([`<span class="opt on" style="color:${T[3]}">${T[2]}</span>`, () => { begin(); const i = RTT.findIndex(r => r[0] === c.t); c.t = RTT[(i + 1) % RTT.length][0]; C.rt = c.t; commit(); ui(); toast('Трасса: ' + rtt(c.t)[1]); }, 'Тип трассы: ' + T[1]]); }
+    if (K.D) B.push([`<span class="opt${c.D ? ' on' : ''}">Z</span>`, () => { openKb('cD', c.id); ui(); draw(); }, 'Z — глубина, мм: выступ +, ниша −']);
+  }
+  function B4kbObj(t, id) { return t === 'cD' || t === 'cOf' ? com(id) : null; }
+  function B4kbBuf(t, o) { return t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' ? '' : null; }
+  function B4kbApply(tg, v, raw) {
+    if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
+    if (tg.t === 'cOf') { const c = com(tg.id); if (!c || !(v >= 0)) return true; begin();
+      if (tg.side === 'L') { c.x = rnd(v); delete c.ex; } if (tg.side === 'R') { c.ex = 'R'; c.xv = rnd(v); }
+      if (tg.side === 'F') { c.y = rnd(v); delete c.ey; } if (tg.side === 'C') { c.ey = 'C'; c.yv = rnd(v); }
+      commit(); return true; }
+    return false;
+  }
+  /* концы размеров: посты точечных и углы прямоугольных — размер на развёртке считается по геометрии (отступы, Z) */
+  function comEnd(e) { const c = com(e.id); if (!c) return null; const R = elevRect(elev(c.e)), K = CK[c.k];
+    if (K.pt) { const P = postsW(c)[Math.min(e.i, (c.N || 1) - 1)]; return {x: R.x + P.x, y: R.y + R.h - P.y}; }
+    if (K.rc) { const r = cRect(c), cs = [[r.x, r.y + r.h], [r.x + r.w, r.y + r.h], [r.x + r.w, r.y], [r.x, r.y]][e.i % 4]; return {x: R.x + cs[0], y: R.y + R.h - cs[1]}; }
+    return null; }
+  function comSnapPts() { const out = []; for (const c of D.com) { const e = elev(c.e); if (!e) continue; const K = CK[c.k];
+    if (K.pt) postsW(c).forEach((_, i) => out.push({t: 'com', id: c.id, i})); else if (K.rc) for (let i = 0; i < 4; i++) out.push({t: 'com', id: c.id, i}); } return out; }
+
   /* ═══ [BLOCK C-HIT] что под пальцем (px) — порядок: маркеры → подписи → узлы → стены → развёртки → фото ═══ */
   const HR = {handle: 22, node: 20, wall: 14};
   function photoCorners(p) { const [x, y] = toS(p.x, p.y), w = p.w * V.s, h = phH(p) * V.s; return [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]; }
@@ -610,10 +783,12 @@
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
     if (s && s.t === 'photo') { const p = photo(s.id); if (p) { const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'ph-h', id: p.id, c}; } }
     if (s && s.t === 'drw' && typeof B3handle === 'function') { const hh = B3handle(s.id, sx, sy); if (hh) return hh; }
+    if (s && s.t === 'com') { const hh = B4handle(s.id, sx, sy); if (hh) return hh; }
     if (s && s.t === 'frame') { const Q = frame(s.id) && frPts(frame(s.id)); if (Q) { const c = Q.findIndex(q => { const [x, y] = toS(q.x, q.y); return hyp(x - sx, y - sy) < HR.handle; }); if (c >= 0) return {t: 'fr-h', id: s.id, c}; } }
     if (s && s.t === 'dim') { const d = dim(s.id); if (d) for (const [k, e] of [['a', d.a], ['b', d.b]]) { const P = endPos(e), [x, y] = toS(P.x, P.y); if (hyp(x - sx, y - sy) < HR.handle) return {t: 'dim-h', id: d.id, end: k}; } }
     for (const [id, r] of DLBL) if (hyp(r.x - sx, r.y - sy) < r.r) return {t: 'dlabel', id};
     for (const d of D.dims) { const A = endPos(d.a), B = endPos(d.b); if (segDist([sx, sy], toS(A.x, A.y), toS(B.x, B.y)) < 12) return {t: 'dim', id: d.id}; }
+    { const h4 = B4hit(sx, sy); if (h4) return h4; }
     if (typeof B3hit === 'function') { const h3 = B3hit(sx, sy); if (h3) return h3; }
     for (const [id, r] of ELBL) if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 6 && sy <= r.y + r.h + 6) return {t: 'elabel', id};
     for (const [id, r] of LBL) if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 6 && sy <= r.y + r.h + 6) return {t: 'label', id};
@@ -754,6 +929,7 @@
     if (C.msel.length && (C.tool === 'sel' || C.tool === 'rsel')) { const m = normHit(h); if (m && inMsel(m.t, m.id)) { G.t = 'gmove'; return; } }
     if (C.tool === 'rsel') { G.t = 'rs'; return; }
     if (C.tool === 'pts') { G.t = 'pan'; return; }
+    if (B4start(G, p, h)) return;
     if (typeof B3start === 'function' && B3start(G, p, h)) return;
     if ((C.tool === 'dim' || C.tool === 'arr') && !(h && (h.t === 'dlabel' || h.t === 'label' || h.t === 'elabel'))) { G.t = 'dimdraw'; G.a = snapDim(p.x, p.y, null, null); G.cur = null; return; }
     if (C.tool === 'wall' && !(h && (h.t === 'label' || h.t === 'elabel'))) {
@@ -781,7 +957,7 @@
       case 'gmove': gMove(g, mx, my); break;
       case 'rs': g.r = [q0, q]; draw(); break;
       case 'fcorner': frameCornerDrag(g, q); break;
-      default: if (typeof B3move === 'function') B3move(g, p, q, mx, my); break;
+      default: if (!B4move(g, p, q) && typeof B3move === 'function') B3move(g, p, q, mx, my); break;
       case 'cropmove': cropMove(g, mx, my); break;
     }
   }
@@ -790,6 +966,7 @@
     if (g.t === 'gmove') gStart(g);
     if (g.t === 'fcorner') { begin(); C.sel = {t: 'frame', id: h.id}; ui(); }
     if (typeof B3drag === 'function') B3drag(g);
+    B4drag(g);
     if (g.t === 'move') { begin(); const o = movObj(h); g.o = {x: o.x, y: o.y}; C.sel = {t: h.t, id: h.id}; ui(); }
     if (g.t === 'wmove') { begin(); g.w = wall(h.id); g.o = {a: [node(g.w.a).x, node(g.w.a).y], b: [node(g.w.b).x, node(g.w.b).y]}; C.sel = {t: 'wall', id: h.id}; ui(); }
     if (g.t === 'nmove') { begin(); C.sel = {t: 'node', id: h.id}; ui(); }
@@ -808,6 +985,7 @@
     if (g.t === 'nmove') { const n = node(g.h.id); if (g.snapN && n) { mergeNode(n.id, g.snapN); C.sel = {t: 'node', id: g.snapN}; } }
     if (g.t === 'pan') { viewChanged(); return; }
     if (g.t === 'rs') { C.msel = g.r ? rsPick(g.r[0], g.r[1]) : []; C.sel = null; ui(); draw(); if (C.msel.length) toast('В группе: ' + C.msel.length); return; }
+    if (B4end(g)) return;
     if (typeof B3end === 'function' && B3end(g, p)) return;
     commit();
   }
@@ -817,13 +995,14 @@
     if (C.tool === 'rsel') { const m = normHit(h); if (m) C.msel = inMsel(m.t, m.id) ? C.msel.filter(x => !(x.t === m.t && x.id === m.id)) : [...C.msel, m]; else C.msel = []; C.sel = null; ui(); draw(); return; }
     if (C.tool === 'pts') { if (!C.ptsP && h && (h.t === 'frame' || h.t === 'fr-h')) { C.sel = {t: 'frame', id: h.id}; ui(); draw(); return; } ptsTap(g.p0.x, g.p0.y); return; }
     if (C.msel.length) C.msel = [];
+    if (B4tap(g, h)) return;
     if (typeof B3tap === 'function' && B3tap(g, h)) return;
     if (h && h.t === 'label') { C.sel = {t: 'wall', id: h.id}; ui(); draw(); openEd(h.id); return; }
     if (h && h.t === 'dlabel') { C.sel = {t: 'dim', id: h.id}; ui(); draw(); openKb('dim', h.id); return; }
     if (h && h.t === 'elabel') { C.sel = {t: 'elev', id: h.id}; ui(); draw(); openKb('H', null); return; }
     if (C.tool === 'dim' || C.tool === 'arr') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'dim' || hh.t === 'dim-h') ? {t: 'dim', id: hh.id} : null; ui(); draw(); return; }
     if (C.tool === 'wall') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'wall' || hh.t === 'node') ? {t: hh.t, id: hh.id} : null; ui(); draw(); return; }
-    C.sel = h && h.t !== 'ph-h' && h.t !== 'dim-h' && h.t !== 'fr-h' && h.t !== 'drw-h' ? {t: h.t, id: h.id} : (h && (h.t === 'ph-h' || h.t === 'dim-h' || h.t === 'fr-h' || h.t === 'drw-h') ? C.sel : null); ui(); draw();
+    C.sel = h && h.t !== 'ph-h' && h.t !== 'dim-h' && h.t !== 'fr-h' && h.t !== 'drw-h' && h.t !== 'com-h' ? {t: h.t, id: h.id} : (h && (h.t === 'ph-h' || h.t === 'dim-h' || h.t === 'fr-h' || h.t === 'drw-h' || h.t === 'com-h') ? C.sel : null); ui(); draw();
   }
 
   /* ═══ [BLOCK C-CROP] подрезка выбранного фото — прямоугольная, по углам; кадр не теряется ═══ */
@@ -851,8 +1030,8 @@
      стена — длина плана (геометрия меняется); размер — введённое значение (геометрия не меняется; пусто — снять) */
   const KB = {tg: null, buf: ''}, kbEl = $('cKb');
   function openKb(t, id) {
-    const o = t === 'wall' ? wall(id) : t === 'dim' ? dim(id) : t === 'fL' ? frame(id) : typeof B3kbObj === 'function' && B3kbObj(t, id) || D; if (!o) return;
-    KB.tg = {t, id}; KB.buf = t === 'wall' ? String(rnd(wLen(o))) : t === 'H' ? String(D.H || '') : t === 'fL' ? '' : typeof B3kbBuf === 'function' && B3kbBuf(t, o) != null ? B3kbBuf(t, o) : (o.v !== '' && o.v != null ? String(o.v) : ''); KB.fresh = true;
+    const o = t === 'wall' ? wall(id) : t === 'dim' ? dim(id) : t === 'fL' ? frame(id) : B4kbObj(t, id) || D; if (!o) return;
+    KB.tg = {t, id}; KB.buf = t === 'wall' ? String(rnd(wLen(o))) : t === 'H' ? String(D.H || '') : t === 'fL' ? '' : B4kbBuf(t, o) != null ? B4kbBuf(t, o) : (o.v !== '' && o.v != null ? String(o.v) : ''); KB.fresh = true;
     document.body.classList.add('kb'); ui(); draw();
   }
   const openEd = id => openKb('wall', id);
@@ -861,7 +1040,7 @@
     if (apply) { const v = parseFloat(raw);
       if (tg.t === 'wall') { const w = wall(tg.id); if (w && v > 0 && Math.abs(v - wLen(w)) >= 0.5) setLen(w, v); }
       else if (tg.t === 'fL') { const f = frame(tg.id); if (f && v > 0) mkFrameWall(f, v); }
-      else if (typeof B3kbApply === 'function' && B3kbApply(tg, v, raw)) { }
+      else if (B4kbApply(tg, v, raw)) { }
       else if (tg.t === 'H') { if (v > 0 && v !== +D.H) { begin(); D.H = rnd(v); commit(); } else if (!(v > 0) && !D.elev.length) { begin(); D.H = ''; commit(); } }
       else { const d = dim(tg.id); if (d) { begin(); d.v = raw === '' || raw === '-' || isNaN(v) ? '' : v; commit(); } } }
     const after = KB.after; KB.after = null; if (apply && after) after();
@@ -895,11 +1074,12 @@
   const SKEY = 'akx-core-strips';
   let ST = (() => { try { const v = JSON.parse(localStorage.getItem(SKEY)); if (v && v.wall && v.plan && v.row2) return v; } catch (e) { } return clone(SDEF); })();
   const stSave = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) { } };
-  const TOOLK = {sel: 'sel', dim: 'dim', arr: 'arr', st: 'wall', rsel: 'rsel', pts: 'pts', pen: 'pen', ln: 'ln', pl: 'pl', rect: 'rect', circ: 'circ', arc: 'arc', er: 'er', txt: 'txt', pin: 'pin', vyn: 'vyn'};               // ключ футляра → инструмент ядра
+  const TOOLK = {sel: 'sel', dim: 'dim', arr: 'arr', st: 'wall', rsel: 'rsel', pts: 'pts', pen: 'pen', ln: 'ln', pl: 'pl', rect: 'rect', circ: 'circ', arc: 'arc', er: 'er', txt: 'txt', pin: 'pin', vyn: 'vyn',
+    ...Object.fromEntries(Object.keys(CK).map(k => [k, k]))};               // ключ футляра → инструмент ядра
   const IMPL = {sel: 1, dim: 1, arr: 1, st: 1, rf: () => { C.phm = !C.phm; ui(); }, cam: () => $('cCam').click(), gal: () => $('cFile').click()};
   function useKey(k) {
     if (C.crop) cropEnd();
-    C.ptsP = null; C.zdp = [];
+    C.ptsP = null; C.zdp = []; C.cpg = null;
     if (typeof B3tool === 'function' && B3tool(k)) { if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
     if (TOOLK[k]) { C.tool = TOOLK[k]; if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
     if (typeof IMPL[k] === 'function') { IMPL[k](); return; }
@@ -999,6 +1179,7 @@
     if (C.crop) { cropEnd(); return true; }
     if (C.ptsP) { C.ptsP = null; draw(); return true; }
     if (C.zdp.length) { C.zdp = []; ui(); draw(); return true; }
+    if (C.cpg) { C.cpg = null; ui(); draw(); return true; }
     if (C.msel.length) { C.msel = []; ui(); draw(); return true; }
     if (G && !G.pinch) { cancel(); G = null; draw(); return true; }
     if (C.sel) { C.sel = null; ui(); draw(); return true; }
@@ -1019,7 +1200,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
