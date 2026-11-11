@@ -107,3 +107,79 @@
   window.MeasureLabUI={settings,rooms:roomList,close:closeModal,apply:applySettings,versionChooser,layout};
   applySettings();layout();
 })();
+
+/* ═══ [BLOCK UI-R4C] AKX-2026-0012 r4c — решение владельца: высота помещения не прячется за «⋯»; м3, м4 (QA-3).
+   1) «Новое помещение» (плитка футляра → MeasureLabSketch.cmd('room')): окно с именем и высотой H, мм (поле — своя клавиатура #zkb),
+      по умолчанию H предыдущего помещения проекта или 2 700; 0 / минус / пусто — не создаётся, сообщение.
+   2) План: строка помещения v81 (имя · H · ⋯) видна без «⋯», пока ничего не выбрано; поле H — штатное (data-pf="H", шаг ↶ — plSnap v81).
+   3) м3: подпись С№ другой стены не перехватывает касание стены под пальцем (маленькое помещение: подписи сдвинуты на соседние стены).
+   4) м4: число на ✓ — что не введено; касание ✓ с числом — подсказка списком (длины стен, высоты помещений, размеры). ═══ */
+(() => {
+  'use strict';
+  if (!window.PM) return;
+  const $ = id => document.getElementById(id), say = t => { try { toast(t); } catch (e) { } };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+  const st = document.createElement('style');
+  st.textContent = 'body.pla #zf.c-plan>#pp.lab-rmrow:not(.pps){display:flex!important}'
+    + 'body.kb.lab-kbdlg #zkb{z-index:40!important}body.kb.lab-kbdlg #labSketch .sk-dlg.on{align-items:flex-start!important;padding-top:56px!important}';   // своя клавиатура над окном холста (поле H / L × H стены), окно — выше клавиатуры
+  const inDlg = a => !!(a && a.closest && a.closest('#labSketch .sk-dlg.on'));
+  addEventListener('focusin', e => document.body.classList.toggle('lab-kbdlg', inDlg(e.target)));
+  addEventListener('focusout', () => setTimeout(() => document.body.classList.toggle('lab-kbdlg', inDlg(document.activeElement)), 0));
+  document.head.appendChild(st);
+
+  /* ── 2) строка помещения на плане ── */
+  function rmRow() {
+    const pp = $('pp'); if (!pp) return;
+    const on = S.mode === 'plan' && !!S.room && !S.psel && !S.ppsel && !!pp.querySelector('.row>.t+label>input[data-pf="H"]');
+    pp.classList.toggle('lab-rmrow', on);
+  }
+  const plP0 = plPanel; plPanel = function () { const r = plP0.apply(this, arguments); try { rmRow(); } catch (e) { } return r; };
+  const mkP0 = mkPanel; mkPanel = function () { const r = mkP0.apply(this, arguments); try { rmRow(); } catch (e) { } return r; };
+  PM.mkPanel = (...a) => mkPanel(...a);
+
+  /* ── 3) м3: своя стена под пальцем важнее чужой подписи С№ ── */
+  const lab0 = cvLabAt;
+  cvLabAt = function (p) {
+    const L = lab0.apply(this, arguments);
+    try { if (L && !L.st && S.mode === 'plan' && S.room && L.r === S.room) { const h = plHit(p); if (h && h.t === 's' && h.i !== L.k) return null; } } catch (e) { }
+    return L;
+  };
+
+  /* ── 4) м4: что значит число на ✓ ── */
+  function openList() {
+    const out = [];
+    try {
+      if (S.mode === 'plan') { for (const r of (typeof f81Rooms === 'function' ? f81Rooms() : [S.room])) { const m = r && r.ms; if (!m || m.pts.length < 2) continue;
+        const nm = r.name || 'помещение', L = []; for (let k = 0; k < plN(m); k++) { const d = m.dims && plDim(m, k); if (!(d && d.v > 0)) L.push('С' + wN(r, k)); }
+        if (L.length) out.push(nm + ': длина ' + L.join(', ')); if (!(+m.H > 0)) out.push(nm + ': высота H'); } }
+      else { const n = (S.dms || []).filter(d => !(+d.vm > 0)).length; if (n) out.push('размеры без числа: ' + n);
+        if (S.mosaic && typeof manV === 'function') { if (!manV('Lb')) out.push('длина L стены'); if (!manV('Hl') && !manV('Hr')) out.push('высота H стены'); } }
+    } catch (e) { }
+    return out;
+  }
+  const bD = $('bDone');
+  if (bD) { bD.title = 'Готово: сохранить и показать весь холст · число — сколько не введено (длины стен, высоты, размеры); касание — список';
+    bD.addEventListener('click', () => { const c = $('hCnt'), n = c && c.textContent; if (!n) return; const L = openList(); if (!L.length) return;
+      setTimeout(() => say('Не введено (' + n + '): ' + L.slice(0, 4).join(' · ') + (L.length > 4 ? ' …' : '')), 450); }, true); }
+  PM.labOpenList = openList;
+
+  /* ── 1) окно «Новое помещение»: имя + H ── */
+  async function roomDlg() {
+    const SK = window.MeasureLabSketch, K = SK.state, R = ((await dbAll('sess').catch(() => [])) || []).filter(o => o.kind === 'room' && !o.del && !o.pstub && o.obj === K.obj);
+    const prev = [...R].sort((a, b) => (b.created || 0) - (a.created || 0)).find(r => +((r.ms || {}).H) > 0), H0 = prev ? +prev.ms.H : 2700;
+    const d = SK.dialog('Новое помещение', `<label>Помещение</label><input type="text" data-sk-name value="${esc('Помещение ' + (R.length + 1))}"><label>Высота H, мм</label><input data-sk-rh inputmode="decimal" value="${H0}">`,
+      [{t: 'Отмена'}, {t: 'Создать', pr: 1, keep: 1, fn: async B => {
+        const n = B.querySelector('[data-sk-name]').value.trim() || 'Помещение', v = String(B.querySelector('[data-sk-rh]').value).trim(), h = v ? (typeof evalN === 'function' ? evalN(v) : parseFloat(v.replace(',', '.'))) : null;
+        if (!(h > 0)) { say('Высота H помещения — больше 0 мм'); return; }
+        d.close(); await SK.roomCreate(n);
+        if (S.room && S.room.name === n) { S.room.ms.H = r1(h); saveRoom(); try { mkPanel(); status(); draw(); } catch (e) { } }
+        say('Помещение «' + n + '» · H ' + Math.round(h) + ' — контур рисуется в нём');
+      }}]);
+    return d;
+  }
+  addEventListener('load', () => {
+    const SK = window.MeasureLabSketch; if (!SK || typeof SK.cmd !== 'function' || SK.cmd.labR4c) return;
+    const cmd0 = SK.cmd; SK.cmd = function (a) { if (a === 'room' && SK.isOpen && SK.isOpen()) { roomDlg(); return true; } return cmd0.apply(this, arguments); };
+    SK.cmd.labR4c = 1; SK.roomDlg = roomDlg;
+  });
+})();
