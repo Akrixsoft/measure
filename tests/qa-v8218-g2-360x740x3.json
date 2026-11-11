@@ -1,7 +1,7 @@
 {
  "tag": "360x740x3",
- "pass": 36,
- "fail": 1,
+ "pass": 37,
+ "fail": 0,
  "checks": [
   {
    "ok": true,
@@ -344,15 +344,15 @@
    "ok": true,
    "name": "Д5: касание поверх колонны при выбранной розетке — новая розетка, колонна не выбрана",
    "detail": {
-    "before": "emwbe7h0k5dx",
+    "before": "emwbecqcdmh9",
     "sel": "roz"
    }
   },
   {
-   "ok": false,
+   "ok": true,
    "name": "Д13: инструмент «размер» (плашка ∟∥↔⛓🧲) — «+» не налезает на инструменты",
    "detail": {
-    "plusOver": 1,
+    "plusOver": 0,
     "zur": "zpb",
     "firstClip": 0.5,
     "sl": 86
@@ -362,7 +362,7 @@
    "ok": true,
    "name": "Д13: первый видимый цвет строки пера не обрезан",
    "detail": {
-    "plusOver": 1,
+    "plusOver": 0,
     "zur": "zpb",
     "firstClip": 0.5,
     "sl": 86

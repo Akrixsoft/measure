@@ -39,7 +39,7 @@ body:not(.tz) #zf>#lab12-plan.lab-tb-off,#zf>#lab12-plan:empty{display:none!impo
 body.rz #zpb#zpb #rzT{position:static!important;right:auto;bottom:auto}   /* F7: в потоке нижней строки, не поверх ряда коммуникаций */
 
 /* ═══ [BLOCK TB-ROWS2-CSS] 82.18 g2 (QA Д13): ряд инструментов не сжимается под плашку модификаторов #zopt — «+» (#chAll, липкий)
-   не ложится на 7-й инструмент; модификаторы получают остаток и прокручиваются. Ряд длиннее экрана — по-прежнему лента. ═══ */
-#zf>#zb:has(>#zopt.on:not(:empty))>#ch#ch{flex:1 0 auto!important;width:max-content!important;max-width:calc(100% - 96px)!important}
-#zf>#zb>#zopt#zopt{flex:0 1 auto!important;min-width:0;max-width:none!important}
-#zb>#zopt.on>button{flex:0 0 auto}
+   не ложится на инструменты. Помещаются оба — в одной строке; нет — #zopt переносится строкой ниже (справа), ряд целиком. ═══ */
+#zf>#zb:has(>#zopt.on:not(:empty)){flex-wrap:wrap!important;row-gap:4px;justify-content:flex-end}
+#zf>#zb:has(>#zopt.on:not(:empty))>#ch#ch{flex:1 0 auto!important;width:max-content!important;max-width:100%!important}
+#zf>#zb>#zopt#zopt{flex:0 0 auto!important;min-width:0;max-width:100%!important}
