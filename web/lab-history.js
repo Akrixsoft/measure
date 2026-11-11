@@ -124,6 +124,12 @@
     if (S.sess && S.sess.id === K.board) { fn(S.refs || []); saveSess(); return; }
     const o = await dbGet('sess', K.board).catch(() => null); if (!o) return; fn(o.refs || []); await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { }); K.boardRec = o;
   }
+  async function boardRec(fn) {   // r5: запись подложки целиком (фото и разметка) — живая (подложка активна) или в базе
+    const sk = SKh(), K = sk && sk.state; if (!K || !K.board) return;
+    if (S.sess && S.sess.id === K.board) { fn(S); saveSess(); return; }
+    const o = await dbGet('sess', K.board).catch(() => null); if (!o) return; fn(o); await dbPut('sess', JSON.parse(JSON.stringify(o))).catch(() => { }); K.boardRec = o;
+  }
+  const phSet = async (ph, w) => { const B = window.MeasureLabBoard; if (ph && B && B.phApply) await boardRec(o => B.phApply(o, ph[w], ph.id)); };   // r5 (правило 6): масштаб фото по рамке — в шаге 'wall'
   async function sessDel(sid, on, why) { if (!sid) return null; const o = await dbGet('sess', sid).catch(() => null); if (!o) return null; if (on) { o.del = Date.now(); o.delWhy = why; } else { delete o.del; delete o.delWhy; } await dbPut('sess', o).catch(() => { }); return o; }
   const itemsOf = () => { const sk = SKh(); return sk && sk.state && sk.state.items; };
   const fin = () => { const sk = SKh(); try { sk && sk.refreshDims && sk.refreshDims(); } catch (e) { } try { sk && sk.saveNow && sk.saveNow(); } catch (e) { } try { draw(); zLay(); } catch (e) { } };
@@ -154,10 +160,10 @@
         await leaveRoom(e.b.room); await leave(e.b.sid, true); await areaPut(e.it || e.b, false); if (e.b.plan) await areaPut(e.b.plan, false);
         await sessDel(e.b.sid, true, 'холст: ↶ стена по фото'); await sessDel(e.b.room, true, 'холст: ↶ стена по фото');
         if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) delete q.labWall; });
-        await roomsAgain(); fin(); return;
+        await phSet(e.b.ph, 'a'); await roomsAgain(); fin(); return;
       }
       if (e.op === 'wall') { await leave(e.b.sid); await areaPut(e.it || e.b, false); await sessDel(e.b.sid, true, 'холст: ↶ стена по фото'); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && r.segs) { for (const k of Object.keys(r.segs)) if (r.segs[k] === e.b.sid) delete r.segs[k]; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
-        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) delete q.labWall; }); }
+        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) delete q.labWall; }); await phSet(e.b.ph, 'a'); }
       fin();
     },
     redo: async e => {
@@ -165,10 +171,10 @@
       if (e.op === 'wall' && e.b.fresh) {
         await sessDel(e.b.room, false); await sessDel(e.b.sid, false); if (e.b.plan) await areaPut(e.b.plan, true); await areaPut(e.it || e.b, true);
         if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) q.labWall = e.b.wid || e.b.sid; });
-        await roomsAgain(); fin(); return;
+        await phSet(e.b.ph, 'b'); await roomsAgain(); fin(); return;
       }
       if (e.op === 'wall') { await areaPut(e.it || e.b, true); const o = await sessDel(e.b.sid, false); const r = await dbGet('sess', e.b.room).catch(() => null); if (r && o && o.seg != null) { r.segs = r.segs || {}; r.segs[o.seg] = e.b.sid; await dbPut('sess', r).catch(() => { }); if (S.room && S.room.id === r.id) S.room.segs = r.segs; }
-        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) q.labWall = e.b.wid || e.b.sid; }); }
+        if (e.b.photo) await boardRefs(R => { const q = R.find(x => x.id === e.b.photo); if (q) q.labWall = e.b.wid || e.b.sid; }); await phSet(e.b.ph, 'b'); }
       fin();
     }
   });

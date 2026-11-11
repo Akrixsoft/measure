@@ -340,7 +340,7 @@
       const sk = sks.find(x => x.obj === P.obj);
       if (sk) await canvasFrom(P, sk, sdb);
       await api.layout(P.id);   // нет холста — авто; есть — недостающие стены проекта добавляются
-      if (sk) await refsFree(P);
+      /* r5 (правило 1, Д8): фото при миграции не сдвигаются — новые области layout() ставит в свободное место (фото и текст — препятствия) */
     }
     for (const sk of sks) if (sk.obj && !L.some(p => p.obj === sk.obj) && ((sk.items || []).length || (sk.photos || []).length || (sk.notes || []).length)) {   // холст без замеров — свой проект
       const P = await create({client: sk.obj}); await lDel('cv', P.id); await canvasFrom(P, sk, sdb); if (!(await api.cv(P.id))) await api.layout(P.id); }
