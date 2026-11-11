@@ -45,7 +45,7 @@
     const state=gest?.labPlacement;
     if(gest&&gest.labField&&!gest.moved&&(!state||state.field)){const f=gest.labField;return w3FOpen(f);}
     if(state&&state.field)return;   /* 82.18 F2: поле размера открывается при любом инструменте */
-    if(state&&state.handle){return;}
+    if(state&&state.handle){const h=mkHit(p);if(!h||h.id!==state.id){S.sel=null;S.pend=null;mkPanel();draw();return nativeTap.apply(this,arguments);}return;}   /* r2b: касание без протяжки у ручки, мимо тела выбранного — как касание мимо (выбор снят, жест инструменту); ручка тянется только протяжкой */
     if(!state&&S.mode!=='plan'&&S.tool==='mk'&&S.show<0&&S.mosaic&&!q4Need()&&typeof w3FHit==='function'){const f=S.mk==='sel'||S.mk==='rsel'?w3FHit(p):fieldHit(p);if(f)return w3FOpen(f);}   /* 82.18 F2: и в «выборе» — поле поверх объекта открывается (v81: только вне объекта) */
     if(state){if(state.clearOnTap)S.sel=null;S.pend=null;mkPanel();draw();return;}
     return nativeTap.apply(this,arguments);
