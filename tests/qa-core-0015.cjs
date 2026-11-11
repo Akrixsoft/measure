@@ -25,7 +25,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   const M = js => p.evaluate(js);
   const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
   const box = sel => p.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
-  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
+  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button, #fws button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
   const CT = 48;                                                      // верх холста, px
   const scr = (x, y) => M(`MeasureCore.toS(${x},${y})`).then(([a, b]) => [a, b + CT]);
 
@@ -35,7 +35,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
   ok('версия в бандле 82.21', (await M('window.MeasureVersion')) === '82.21');
   const [bx, by] = await box('#cPh'); await tap(bx, by);
-  ok('фото-справка → строка «камера / галерея»', !!(await ctxBtn('камера')) && !!(await ctxBtn('галерея')));
+  ok('фото-справка → плашка «камера / галерея»', !!(await ctxBtn('камера')) && !!(await ctxBtn('галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));
   const fcP = p.waitForEvent('filechooser'); const gb = await ctxBtn('галерея'); await tap(gb[0], gb[1]); const fc = await fcP;
   ok('выбор фото — множественный', fc.isMultiple());
@@ -53,6 +53,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   // 3. Стены плана — справа от фото, одним инструментом, без рамки
   const [, , ] = []; const b = await M('(()=>{const d=MeasureCore.doc;let x1=-1e9;for(const q of d.photos)x1=Math.max(x1,q.x+q.w);return x1})()');
   const [rx] = await scr(b, 0); const X0 = Math.min(rx + 40, 250), Y0 = 260;
+  const mdP = await box('#mdT [data-md=plan]'), mdW = await box('#mdT [data-md=wall]'); await tap(mdP[0], mdP[1]);
   const [tx, ty] = await box('#ch [data-t=wall]'); await tap(tx, ty);
   ok('инструмент «стена» включён', (await M('MeasureCore.tool')) === 'wall');
   await drag([X0, Y0], [X0 + 130, Y0 + 3]);                              // С1 (3 px наклона — привязка 0°)
@@ -112,13 +113,14 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('cropped');
 
   // 8. Второй палец во время рисования стены — стена не создаётся, вид масштабируется
-  await tap(tx, ty); const nW = (await doc()).walls.length;
+  await tap(mdP[0], mdP[1]); await tap(tx, ty); const nW = (await doc()).walls.length;
   await M(`window.__pl=[];for(const t of ['pointerdown','pointerup','pointercancel'])addEventListener(t,e=>__pl.push(t[7]+e.pointerId),true)`);
   await T('touchStart', [[60, 600]]); await T('touchMove', [[90, 600]]); await T('touchMove', [[120, 600]]); await T('touchStart', [[120, 600], [220, 600]]);
   await T('touchMove', [[110, 600], [240, 600]]); await T('touchMove', [[100, 600], [260, 600]]); await T('touchEnd', []); await W(250);
   ok('щипок посреди рисования — стена не создана', (await doc()).walls.length === nW);
   await W(400); await tap(sx, sy); ok('после щипка кнопка «выбор» срабатывает', (await M('MeasureCore.tool')) === 'sel', await M('__pl.join(" ")'));
 
+  await tap(mdW[0], mdW[1]);
   // 8a. Размеры: на фото (значение вводом), на плане (по геометрии), фото двигается — размер следует
   const [mx2, my2] = await box('#ch [data-t=dim]'); await tap(mx2, my2);
   ok('инструмент «размер» включён', (await M('MeasureCore.tool')) === 'dim');

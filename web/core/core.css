@@ -13,34 +13,42 @@ button{font-family:inherit;cursor:pointer}
 #zMenu.on{display:flex}
 #zMenu button{background:none;border:0;color:#e8ebef;font:14px system-ui;text-align:left;padding:10px 12px;border-radius:7px}
 /* холст */
-#cCv{position:fixed;left:0;top:48px;width:100%;height:calc(100% - 92px);display:block;touch-action:none}
+#cCv{position:fixed;left:0;top:48px;width:100%;height:calc(100% - 48px);display:block;touch-action:none}
 #bFit{position:fixed;right:8px;top:100px;width:38px;height:38px;display:grid;place-items:center;padding:1px 6px;background:#2b2f35;border:1px solid #3a4150;border-radius:10px;color:#e8ebef;font:18px Arial;box-shadow:0 2px 8px rgba(26,32,39,.15);z-index:4}
-/* строки над режимами #zf */
-#zf{position:fixed;left:2px;right:2px;bottom:46px;display:flex;flex-direction:column;gap:4px;z-index:5;pointer-events:none}
+/* переключатель вида #mdT (82.18) */
+#mdT{position:fixed;right:8px;top:56px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#mdT button{width:28px;height:28px;border-radius:7px;border:none;background:none;color:#CFD4DC;display:grid;place-items:center;padding:0}
+#mdT button svg{width:20px;height:20px}
+#mdT button.on{background:#F6E08A;color:#1A2027}
+#bFit{top:96px}
+/* две постоянные строки внизу */
+#zf{position:fixed;left:2px;right:2px;bottom:2px;display:flex;flex-direction:column;gap:4px;z-index:5}
 #zb{display:flex;gap:4px;align-items:center}
-#ch,#zur,#zpb{pointer-events:auto;display:flex;align-items:center;background:#2b2f35;border:1px solid #2a2f37;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.45);box-sizing:border-box}
+#ch,#zpb{display:flex;align-items:center;background:#2b2f35;border:1px solid #2a2f37;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.45);box-sizing:border-box}
 #ch{flex:1;height:40px;padding:5px 8px;gap:4px;overflow-x:auto}
-#zur{height:40px;padding:0 6px;gap:3px}
-#zpb{height:36px;padding:5px 6px;gap:4px;display:none;align-self:flex-start}
-#zpb.on{display:flex}
+#zpb{height:36px;padding:5px 6px;gap:1px}
 #ch .pb{flex:none;position:relative;display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;background:#3a3f47;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef}
 #ch .pb svg{width:20px;height:20px;display:block}
 #ch .pb b{font:700 17px/1 system-ui;color:#e8ebef}
 #ch .pb.on{background:#f6e08a;border-color:#d4a300;box-shadow:inset 0 0 0 1px #d4a300;z-index:1}
 #ch .pb.on b{color:#1a2027}
-body:not(.m-plan) #ch .pb.pl{display:none}
-#zur button,#zpb button{display:grid;place-items:center;width:28px;height:28px;padding:0;background:transparent;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:18px system-ui}
-#zur button svg,#zpb button svg{width:20px;height:20px;display:block}
-#zur button.dis{opacity:.35}
+body.m-wall #ch .vp,body.m-plan #ch .vw{display:none}
+#ch .pa{flex:none;width:24px;height:28px;padding:0;display:grid;place-items:center;background:none;border:0;color:#4ea1ff;font:300 30px/1 Arial}
+#zpb button{flex:none;display:grid;place-items:center;width:24px;height:24px;padding:0;background:transparent;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:16px system-ui}
+#zpb button svg{width:20px;height:20px;display:block}
 #zpb button.on{background:#f6e08a;border-color:#d4a300;color:#1a2027}
-#zpb .sep{width:1px;height:20px;background:#4a515a;margin:0 2px}
-#zpb .tx{font:600 13px system-ui;color:#cfd4dc;padding:0 6px;white-space:nowrap}
-/* режимы #zm */
-#zm{position:fixed;left:0;right:0;bottom:0;height:44px;display:flex;background:#1b1e23;border-top:1px solid #2a2f37;z-index:6}
-#zm button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;border:0;background:none;color:#9aa3ad;font:11px Arial}
-#zm button i{font-style:normal;font:17px/22px Arial;width:40px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center}
-#zm button.on{color:#4da3ff;font-weight:600}
-#zm button.on i{background:rgba(77,163,255,.16);box-shadow:inset 0 0 0 2px #4da3ff}
+#zpb .sep{flex:none;width:1px;height:20px;background:#4a515a;margin:0 3px}
+#zpAct{display:contents}
+#zpb .zcols{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;padding:0 2px}
+#zpb .cl{width:24px;height:24px;border-radius:50%;border:1px solid #c9ced6}
+#zpb .cl.on{border-radius:4px}
+#zur{flex:none;display:flex;gap:1px;padding-left:2px;background:#2b2f35}
+#zur button.dis{opacity:.35}
+/* камера / галерея — штатная плашка v79 #fws */
+#fws{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:20;display:none;gap:8px;background:#fff;border-radius:12px;padding:6px 8px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+#fws.on{display:flex}
+#fws button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:84px;padding:6px 10px;background:#f1f3f5;border:1px solid #c9ced6;border-radius:9px;color:#1a2027;font:600 13px system-ui}
+#fws button span{font-size:24px}
 /* подрезка — штатная плашка 82.18 (lab-board crBar) */
 #labCrop{position:fixed;left:50%;transform:translateX(-50%);bottom:150px;z-index:60;display:none;gap:8px;background:#fff;border-radius:12px;padding:6px 8px;box-shadow:0 4px 16px rgba(0,0,0,.25);font:600 15px system-ui}
 #labCrop.on{display:flex}

@@ -27,7 +27,7 @@
   const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: [], dims: []});
   let D = null;
   let V = {ox: 40, oy: 60, s: 0.1};                    // вид: px CSS на мм
-  const C = {tool: 'sel', mode: 'plan', sel: null, crop: null, phm: false};      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
+  const C = {tool: 'sel', mode: 'wall', sel: null, crop: null, phm: false};      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
   const node = id => D.nodes.find(n => n.id === id);
   const wall = id => D.walls.find(w => w.id === id);
   const photo = id => D.photos.find(p => p.id === id);
@@ -139,9 +139,9 @@
     }
     return st;
   }
-  /* [BLOCK C-SCALE] размер клетки сетки — серым в правом верхнем углу: «□ 1 000» */
+  /* [BLOCK C-SCALE] размер клетки сетки — серым слева вверху под версией: «□ 1 000» (справа — переключатель вида) */
   const num = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  function scaleBar(W, Hh, st) { cx.font = '600 13px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'right'; cx.textBaseline = 'top'; cx.fillText('□ ' + num(st), W - 8, 6); }
+  function scaleBar(W, Hh, st) { cx.font = '600 13px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('□ ' + num(st), 6, 24); }
   function drawPhoto(p) {
     const bm = bmp(p.img), cr = C.crop && C.crop.id === p.id ? C.crop : null;
     if (cr && bm) {                                            // подрезка: полный кадр приглушён, окно — ярко
@@ -529,23 +529,24 @@
       if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { e.preventDefault(); fn(e); } });
     el.addEventListener('pointercancel', () => { el._pd = null; });
   }
+  const TOOLS = {wall: ['sel', 'dim', 'arr'], plan: ['sel', 'wall']};       // инструменты ядра по виду (#mdT), как строка #ch 82.18
   function ui() {
-    document.body.classList.toggle('m-plan', C.mode === 'plan');
+    document.body.classList.toggle('m-plan', C.mode === 'plan'); document.body.classList.toggle('m-wall', C.mode === 'wall');
     document.querySelectorAll('#ch [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === C.tool));
-    document.querySelectorAll('#zm [data-zm]').forEach(b => b.classList.toggle('on', b.dataset.zm === C.mode));
+    document.querySelectorAll('#mdT [data-md]').forEach(b => b.classList.toggle('on', b.dataset.md === C.mode));
     $('bUnd').classList.toggle('dis', !HS.u.length); $('bRed').classList.toggle('dis', !HS.r.length); $('bDelS').classList.toggle('dis', !C.sel || !!C.crop);
-    $('labCrop').classList.toggle('on', !!C.crop);
-    const box = $('zpb'), s = C.sel, B = []; box.innerHTML = '';
-    if (KB.tg || C.crop) { /* клавиатура / подрезка — строки нет */ }
-    else if (C.phm) B.push(['<span class="tx">📷 камера</span>', () => { C.phm = false; ui(); $('cCam').click(); }, 'Камера — снять'], ['<span class="tx">🖼 галерея</span>', () => { C.phm = false; ui(); $('cFile').click(); }, 'Галерея — несколько фото']);
-    else if (s && s.t === 'photo') B.push(['✂', cropStart, 'Подрезать фото (рамка; исходник сохраняется)']);
+    $('labCrop').classList.toggle('on', !!C.crop); $('fws').classList.toggle('on', !!C.phm && !C.crop && !KB.tg);
+    const box = $('zpAct'), s = C.sel, B = []; box.innerHTML = '';
+    if (s && s.t === 'photo' && !C.crop) B.push(['✂', cropStart, 'Подрезать фото (рамка; исходник сохраняется)']);
     else if (s && s.t === 'wall') { const w = wall(s.id); if (w) { const has = D.elev.some(e => e.wall === w.id);
-      B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => addElev(w), has ? `Стена С${w.gn} на холсте — показать` : `Стена С${w.gn} на холст`], [`<span class="tx">С${w.gn} · L ${rnd(wLen(w))}</span>`, () => openEd(w.id), 'Длина стены']); } }
-    for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; if (h.startsWith('<span')) b.style.cssText = 'width:auto;border:0'; act(b, fn); box.appendChild(b); }
-    box.classList.toggle('on', B.length > 0);
+      B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => addElev(w), has ? `Стена С${w.gn} на холсте — показать` : `Стена С${w.gn} на холст`]); } }
+    if (B.length) { const sp = document.createElement('span'); sp.className = 'sep'; box.appendChild(sp); }
+    for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; act(b, fn); box.appendChild(b); }
   }
   document.querySelectorAll('#ch [data-t]').forEach(b => act(b, () => { if (C.crop) cropEnd(); C.tool = b.dataset.t; C.phm = false; ui(); draw(); }));
-  document.querySelectorAll('#zm [data-zm]').forEach(b => act(b, () => { C.mode = b.dataset.zm; if (C.mode !== 'plan' && C.tool === 'wall') C.tool = 'sel'; ui(); draw(); }));
+  document.querySelectorAll('#mdT [data-md]').forEach(b => act(b, () => { C.mode = b.dataset.md; if (!TOOLS[C.mode].includes(C.tool)) C.tool = 'sel'; C.phm = false; ui(); draw(); }));
+  document.querySelectorAll('[data-soon]').forEach(b => act(b, () => toast('«' + b.dataset.soon + '» — переносится на ядро следующими этапами')));
+  document.querySelectorAll('#fws [data-rf]').forEach(b => act(b, () => { C.phm = false; ui(); $(b.dataset.rf === 'c' ? 'cCam' : 'cFile').click(); }));
   act($('cPh'), () => { C.phm = !C.phm; ui(); });
   $('cCam').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   $('cFile').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
