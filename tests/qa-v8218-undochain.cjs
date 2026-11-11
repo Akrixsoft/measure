@@ -171,7 +171,7 @@ fs.mkdirSync(SHOT, {recursive: true});
     await shot('end');
     // QA Д15 (телефонный режим): касание пальцем подписи поля неактивной стены — только активация, без поля и клавиатуры
     { await p.evaluate(() => MeasureLabSketch.activate(MeasureLabSketch.state.items.find(i => i.t === 'wall'))); await wait(400);
-      const lp = await p.evaluate(() => { MeasureLabSketch.fitAll(); pickTool('sel'); draw(); const d = devicePixelRatio, r = cv.getBoundingClientRect(), css = l => [l.c[0] / d + r.left, l.c[1] / d + r.top]; const l = S.w3L.find(x => { try { const c = css(x); return !!w3FKind(x) && c[0] > 20 && c[0] < innerWidth - 20 && c[1] > 90 && c[1] < innerHeight - 220; } catch (e) { return false; } }); return l ? {c: css(l), t: l.t} : null; });
+      const lp = await p.evaluate(() => { MeasureLabSketch.fitRegion(MeasureLabSketch.active()); pickTool('sel'); draw(); const d = devicePixelRatio, r = cv.getBoundingClientRect(), css = l => [l.c[0] / d + r.left, l.c[1] / d + r.top]; const l = S.w3L.find(x => { try { const c = css(x); const a = MeasureLabSketch.active(), w = MeasureLabSketch.map.toK(x.c[0], x.c[1]); return !!w3FKind(x) && c[0] > 20 && c[0] < innerWidth - 20 && c[1] > 90 && c[1] < innerHeight - 220 && MeasureLabSketch.hitArea(w[0], w[1]) === a.id; } catch (e) { return false; } }); return l ? {c: css(l), t: l.t} : null; });
       await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(400);
       if (lp) await tap('touch', lp.c); await wait(500);
       const a15 = await p.evaluate(() => { const f = document.getElementById('w3f'); return {act: MeasureLabSketch.active().t, w3f: !!(f && f.classList.contains('on')), focus: document.activeElement && document.activeElement.tagName}; });
@@ -211,23 +211,51 @@ fs.mkdirSync(SHOT, {recursive: true});
     await reopen();
     const after = await digest();
     check(after === END && !(JSON.parse(after).items.length !== new Set(JSON.parse(after).items).size), 'после перезапуска: данные = конечные, без дублей');
-    // ── QA Д11: после ↶ ↷ и перезапуска → ✓ «вписать всё»: снимки стен есть, L × H заголовка — из записи, план не мельче стен, области и заголовки не накрывают фото и друг друга
-    const geo = () => p.evaluate(() => { const K = MeasureLabSketch.state, R = MeasureLabSketch.region, f = 15 * 1.7 / K.view.s;
-      const box = it => { const r = R(it); return {x: r.x, y: r.y - f, w: r.w, h: r.h + f, t: it.t}; }, ov = (a, b) => a.x < b.x + b.w - 1e-6 && a.x + a.w > b.x + 1e-6 && a.y < b.y + b.h - 1e-6 && a.y + a.h > b.y + 1e-6;
-      const B = K.items.map(box), refs = ((MeasureLabSketch.active() && MeasureLabSketch.active().t === 'board' ? S.refs : (K.boardRec || {}).refs) || []).map(r => MeasureLabSketch.refRegion(r.id)).filter(Boolean);
-      const hit = []; B.forEach((b, i) => { refs.forEach((q, j) => { if (ov(b, q)) hit.push(b.t + '×фото' + j); }); B.forEach((c, j) => { if (j > i && ov(b, c)) hit.push(b.t + '×' + c.t); }); });
-      const side = r => Math.max(r.w, r.h), pl = K.items.find(i => i.t === 'plan'), wl = K.items.filter(i => i.t === 'wall');
-      return {hit, plan: pl ? Math.round(side(R(pl))) : 0, wall: wl.length ? Math.round(Math.max(...wl.map(i => side(R(i))))) : 0, snaps: wl.map(i => !!(K.snaps[i.id] && K.snaps[i.id].img)), titles: wl.map(i => [i.sid, Math.round(i.L), Math.round(i.H)])}; });
-    const g0 = await geo();
-    check(g0.snaps.length && g0.snaps.every(Boolean), 'Д11: после перезапуска у областей стен — снимки, не заглушки', g0.snaps);
-    // высота стены изменилась вне стены (запись), стена неактивна → ✓: заголовок L × H — из записи
+    // ── QA Д11 / Н4: после ✓, ↶ ↷, перезапуска, импорта и поворота холст читаем — проверка геометрии + снимок экрана
+    const geo = () => p.evaluate(() => { const K = MeasureLabSketch.state, R = MeasureLabSketch.region, d = devicePixelRatio, cr = cv.getBoundingClientRect(), fh = (typeof zFreeH === 'function' ? zFreeH() : cv.height) / d;
+      const scr = r => { const a = MeasureLabSketch.map.toScrK(r.x, r.y), b = MeasureLabSketch.map.toScrK(r.x + r.w, r.y + r.h); return {x: a[0] / d, y: a[1] / d, w: (b[0] - a[0]) / d, h: (b[1] - a[1]) / d}; };
+      cx.save(); cx.font = `700 ${15 * d}px system-ui`; const tw = it => cx.measureText(MeasureLabSketch.title ? MeasureLabSketch.title(it) : '').width / d + 8; cx.restore();
+      const ov = (a, b) => a.x < b.x + b.w - .5 && a.x + a.w > b.x + .5 && a.y < b.y + b.h - .5 && a.y + a.h > b.y + .5;
+      const B = K.items.map(it => { const r = scr(R(it)), t = scr(MeasureLabSketch.titleBox(it)); return {id: it.id, t: it.t, sid: it.sid, r, ti: t, box: {x: r.x, y: t.y, w: Math.max(r.w, t.w), h: r.h + (r.y - t.y)}}; });
+      const refs = ((MeasureLabSketch.active() && MeasureLabSketch.active().t === 'board' ? S.refs : (K.boardRec || {}).refs) || []).map(q => scr(MeasureLabSketch.refRegion(q.id)));
+      const out = [], hit = [], snap = [];
+      for (const b of B) { const q = b.box; if (q.x < -1 || q.y < -1 || q.x + q.w > cr.width + 1 || q.y + q.h > fh + 1) out.push(b.t + ':' + [q.x, q.y, q.x + q.w, q.y + q.h].map(Math.round).join(','));
+        refs.forEach((r, j) => { if (ov(q, r)) hit.push(b.t + '×фото' + j); }); for (const c of B) if (c !== b && c.id > b.id && ov(q, c.box)) hit.push(b.t + '×' + c.t);
+        const it = K.items.find(i => i.id === b.id), sn = K.snaps[b.id], st = MeasureLabSketch.snapStale ? MeasureLabSketch.snapStale(b.id) : null, rr = R(it);
+        if (b.t === 'wall' || b.t === 'plan') { const inside = sn && sn.img && sn.x >= rr.x - rr.w * .02 && sn.y >= rr.y - rr.h * .02 && sn.x + sn.w <= rr.x + rr.w * 1.02 && sn.y + sn.h <= rr.y + rr.h * 1.02; if (!sn || !sn.img || st || !inside) snap.push(b.t + (b.sid ? ':' + b.sid.slice(-4) : '') + (!sn || !sn.img ? ' заглушка' : st ? ' устарел' : ' вне рамки')); } }
+      return {out, hit, snap, n: B.length, boxes: hit.length || out.length ? B.map(b => [b.t, ...[b.box.x, b.box.y, b.box.w, b.box.h].map(Math.round)]) : undefined, s: K.view.s}; });
+    const readable = async (name, fit = true) => { if (fit) { await tapSel('touch', '#bDone'); await wait(1200); } await p.evaluate(() => { document.getElementById('toast').classList.remove('on'); }); const g = await geo(); await shot('h4-' + name);
+      check(!g.out.length && !g.hit.length && !g.snap.length, 'Н4: ' + name + ' — рамки и заголовки в экране, без наложений; снимки вписаны, без заглушек', g); return g; };
+    await readable('после ↷ и перезапуска, ✓');
+    // высота стены изменилась вне стены (запись) → ✓: заголовок L × H по записи, снимок перестроен
     const eSid = await p.evaluate(async () => { await MeasureLabSketch.activate('board'); const it = MeasureLabSketch.state.items.find(i => i.t === 'wall' && /С1/.test(i.name || '')) || MeasureLabSketch.state.items.find(i => i.t === 'wall'), o = await dbGet('sess', it.sid); o.q4.H = 2698; await dbPut('sess', o); return it.sid; });
-    await tapSel('touch', '#bDone'); await wait(900);
-    const g1 = await geo();
+    await readable('изменена H стены, ✓');
+    const g1 = await p.evaluate(() => { const K = MeasureLabSketch.state, side = r => Math.max(r.w, r.h), R = MeasureLabSketch.region, pl = K.items.find(i => i.t === 'plan'), wl = K.items.filter(i => i.t === 'wall');
+      return {plan: pl ? Math.round(side(R(pl))) : 0, wall: wl.length ? Math.round(Math.max(...wl.map(i => side(R(i))))) : 0, titles: wl.map(i => [i.sid, Math.round(i.L), Math.round(i.H)])}; });
     check(g1.titles.some(t => t[0] === eSid && t[2] === 2698), 'Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший', g1.titles);
-    check(g1.plan >= g1.wall * .69, 'Д11: ✓ — область плана не мельче 0,7 области стены', {plan: g1.plan, wall: g1.wall});
-    check(g1.hit.length === 0, 'Д11: ✓ — области и заголовки не накрывают фото и друг друга', g1.hit);
-    await shot('fit-after');
+    check(g1.plan >= g1.wall * .69, 'Д11: ✓ — область плана не мельче 0,7 области стены', g1);
+    // ↶ ×3 / ↷ ×3 → ✓
+    for (let i = 0; i < 3; i++) await press(-1); for (let i = 0; i < 3; i++) await press(1);
+    await readable('↶ ↷, ✓');
+    // поворот: альбом (вписывание само) и обратно
+    await p.setViewportSize({width: VH, height: VW}); await wait(1200); await readable('альбом', false);
+    await p.setViewportSize({width: VW, height: VH}); await wait(1200); await readable('книжная снова', false);
+    // импорт своей выгрузки «Новым проектом» (список → ⋮ → Восстановить из копии)
+    { await p.evaluate(() => { window.__saved = null; window.AkrixApp = Object.assign(window.AkrixApp || {}, {save: (fn, type, txt) => { window.__saved = {fn, txt}; }}); });
+      await p.evaluate(async () => { try { await MeasureLabSketch.goPlan(); await cvShare81(); } catch (e) { } });
+      const txt = await p.evaluate(() => window.__saved && window.__saved.txt);
+      if (txt) { const F = path.join(SHOT, 'undochain-export.json'); fs.writeFileSync(F, txt);
+        await p.evaluate(() => MeasureLabProjects.show()); await wait(400);
+        await tapSel('touch', '#labPrj [data-lp="menu"]'); await wait(300);
+        const fc = p.waitForEvent('filechooser', {timeout: 8000});
+        const c = await p.evaluate(() => { const e = [...document.querySelectorAll('#labPrj button,#labPrj [role=button],#labPrj .lp-it')].find(e => e.getClientRects().length && e.textContent.includes('Восстановить из копии')); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+        if (c) { await tap('touch', c); await (await fc).setFiles(F); await wait(800);
+          const nb = await p.evaluate(() => { const e = [...document.querySelectorAll('#labPrj .lp-dg.on button')].find(e => /Новым проектом/.test(e.textContent)); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+          if (nb) await tap('pen', nb);
+          await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}).catch(() => {}); await wait(1500);
+          await readable('импорт выгрузки новым проектом, ✓'); }
+        else check(false, 'Н4: импорт — нет пункта «Восстановить из копии»', null); }
+      else check(false, 'Н4: импорт — выгрузка не получена', null); }
     check(errors.length === 0, 'нет ошибок страницы', errors);
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }

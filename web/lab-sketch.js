@@ -105,8 +105,7 @@
   api.refRegion = id => { const r = boardRefs().find(x => x.id === id); return r ? refR(r) : null; };
   const inR = (r, p, m = 0) => p[0] >= r.x - m && p[0] <= r.x + r.w + m && p[1] >= r.y - m && p[1] <= r.y + r.h + m;
   const ovl = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-  function titleR(it) { const r = region(it), f = fsz(15) / K.view.s; let tw = 0; try { const d = DPR(); cx.save(); cx.font = `700 ${fsz(15) * d}px system-ui`; tw = (cx.measureText(title(it)).width / d + 8) / K.view.s; cx.restore(); } catch (e) { }
-    return {x: r.x, y: r.y - f * 1.7, w: Math.max(r.w * .6, 160 / K.view.s, tw), h: f * 1.6}; }   // QA Д11: ширина — по тексту заголовка
+  function titleR(it) { const r = region(it), f = fsz(15) / K.view.s; return {x: r.x, y: r.y - f * 1.7, w: r.w, h: f * 1.6}; }   // r2 (Н4): заголовок — в ширину области (текст укорачивается), не шире
   function title(it) { if (it.t === 'plan') return 'План помещений'; const L = Math.round(+it.L || 0), H = Math.round(+it.H || 0); return (it.name || 'Стена') + (L && H ? ` · ${L} × ${H}` : ''); }
 
   /* ═══ [BLOCK SK-DRAW] фон и сетка → снимки неактивных областей → активная стена / план (в своей рамке) → подложка поверх (векторно) → рамки ═══ */
@@ -129,7 +128,9 @@
     cx.restore();
     for (const it of K.items) { if (it === act || (K.snaps[it.id] && K.snaps[it.id].img)) continue; const r = region(it); label(r.x + 12 / K.view.s, r.y + r.h / 2, it.t === 'plan' ? (K.rooms.length ? ['Коснитесь — план помещений', 'Коснитесь — план', 'План'] : ['Коснитесь — новое помещение', 'Новое помещение', '＋']) : ['Коснитесь — стена', 'Коснитесь', 'Стена'], '#6B7380', 13, r); }
   }
-  function paintTitles(act) { for (const it of K.items) { const r = region(it); label(r.x, r.y - fsz(15) * .5 / K.view.s, title(it), it === act ? '#1F6FD1' : K.sel === it.id ? '#1F6FD1' : '#3E4954', 15); } }
+  function titles(it) { const t = title(it); if (it.t === 'plan') return [t, 'План']; const nm = it.name || 'Стена', m = /С\d+$/.exec(nm); return [t, nm, m ? m[0] : nm]; }   // полный → имя → С№
+  function paintTitles(act) { for (const it of K.items) { const r = region(it), tr = titleR(it), clip = {x: tr.x - 4 / K.view.s, y: tr.y - tr.h, w: tr.w + 8 / K.view.s, h: tr.h * 2.2};
+    label(r.x, r.y - fsz(15) * .5 / K.view.s, titles(it), it === act ? '#1F6FD1' : K.sel === it.id ? '#1F6FD1' : '#3E4954', 15, clip); } }
   function paintOver(act) {   // рамка активной области, выбранная область, 4 угла выбранного фото
     const d = DPR(), s = K.view.s * d; cx.save(); cx.setTransform(s, 0, 0, s, K.view.ox * d, K.view.oy * d); const px = 1 / K.view.s;
     if (act && act !== BOARD) { const r = region(act); cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2 * px; cx.strokeRect(r.x, r.y, r.w, r.h); }
@@ -156,9 +157,9 @@
       if (old && old.cover && !cover) return;   // частичный вид не заменяет полный снимок
       const k = Math.min(1, 1400 / Math.max(ex - sx, ey - sy)), c = document.createElement('canvas'); c.width = Math.round((ex - sx) * k); c.height = Math.round((ey - sy) * k);
       c.getContext('2d').drawImage(cv, sx, sy, ex - sx, ey - sy, 0, 0, c.width, c.height);
-      const w0 = toK(sx, sy), w1 = toK(ex, ey), sn = {img: c, x: w0[0], y: w0[1], w: w1[0] - w0[0], h: w1[1] - w0[1], cover};
+      const w0 = toK(sx, sy), w1 = toK(ex, ey), sn = {img: c, x: w0[0], y: w0[1], w: w1[0] - w0[0], h: w1[1] - w0[1], cover, L: +act.L || 0, H: +act.H || 0};
       K.snaps[act.id] = sn;
-      c.toBlob(b => { if (!b || K.snaps[act.id] !== sn) return; const fr = new FileReader(); fr.onload = () => { act.snap = {src: fr.result, x: sn.x, y: sn.y, w: sn.w, h: sn.h, cover}; save(); }; fr.readAsDataURL(b); }, 'image/jpeg', .82); } catch (e) { }
+      c.toBlob(b => { if (!b || K.snaps[act.id] !== sn) return; const fr = new FileReader(); fr.onload = () => { act.snap = {src: fr.result, x: sn.x, y: sn.y, w: sn.w, h: sn.h, cover, L: sn.L, H: sn.H}; save(); }; fr.readAsDataURL(b); }, 'image/jpeg', .82); } catch (e) { }
   }
   api.snapNow = snapNow;
   /* снимок — по деактивации области и по простою ≥ 1,5 с без касаний; без выделения и ручек, до подложки */
@@ -222,16 +223,17 @@
   }
   function shiftItem(it, dx, dy) { it.ax += dx; it.ay += dy; const sn = K.snaps[it.id]; if (sn) { sn.x += dx; sn.y += dy; } if (it.snap) { it.snap.x += dx; it.snap.y += dy; } }
   function tidy() {
-    const gap = 12 / K.view.s, boxOf = it => { const r = region(it), t = titleR(it), x0 = Math.min(r.x, t.x), y0 = Math.min(r.y, t.y); return {x: x0, y: y0, w: Math.max(r.x + r.w, t.x + t.w) - x0, h: r.y + r.h - y0}; };
-    const obst = boardRefs().map(refR), order = [...K.items].sort((a, b) => region(a).y - region(b).y || region(a).x - region(b).x);
+    const gap = 60, boxOf = it => { const r = region(it), t = titleR(it), x0 = Math.min(r.x, t.x), y0 = Math.min(r.y, t.y); return {x: x0, y: y0, w: Math.max(r.x + r.w, t.x + t.w) - x0, h: r.y + r.h - y0}; };
+    const obst = boardRefs().map(refR), order = [...K.items].sort((a, b) => region(a).y - region(b).y || region(a).x - region(b).x); let moved = 0;
     for (const it of order) {
       for (let n = 0; n < 60; n++) {
         const b = boxOf(it), o = obst.find(q => ovl(b, q)); if (!o) break;
         const dy = o.y + o.h + gap - b.y, dx = o.x + o.w + gap - b.x;
-        if (dx < dy) shiftItem(it, dx, 0); else shiftItem(it, 0, dy);
+        if (dx < dy) shiftItem(it, dx, 0); else shiftItem(it, 0, dy); moved++;
       }
       obst.push(boxOf(it));
     }
+    return moved;
   }
   /* 82.18 r2 (QA Н1 g3 Д9, Н5): область стены — только у живой стены (запись есть, не удалена, помещение не удалено), одна на sid и на (помещение, wid).
      Импорт «Обновить», ↶ всей цепочки, adopt во время открытия оставляли вторую область или область удалённого помещения. */
@@ -258,10 +260,11 @@
     if (ch) { save(); draw(); } return ch;
   }
   api.refreshDims = refreshDims;
-  function fitAll() { try { planScale(); tidy(); } catch (e) { } fitAll0(); try { tidy(); } catch (e) { } fitAll0(); save(); }
-  function fitAll0() { const P = boardBox(); for (const it of K.items) { const r = region(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [r.x + r.w, r.y + r.h]); } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
+  function fitStable() { for (let k = 0; k < 4; k++) { const s0 = K.view.s; fitAll0(); if (Math.abs(K.view.s - s0) / s0 < .005) break; } }   // заголовки — в px: ширина в единицах холста зависит от масштаба
+  function fitAll() { try { planScale(); } catch (e) { } fitStable(); for (let i = 0; i < 6; i++) { let mv = 0; try { mv = tidy(); } catch (e) { } if (!mv) break; fitStable(); } save(); }   // r2 (Н4): заголовки — в px экрана, после вписывания масштаб меняется — до устойчивости
+  function fitAll0() { const P = boardBox(); for (const it of K.items) { const r = region(it), t = titleR(it); P.push([r.x, r.y - fsz(15) * 2 / K.view.s], [Math.max(r.x + r.w, t.x + t.w), r.y + r.h]); /* r2 (Н4): заголовок шире области — в кадре */ } if (!P.length) return; fitRect(Math.min(...P.map(p => p[0])), Math.min(...P.map(p => p[1])), Math.max(...P.map(p => p[0])), Math.max(...P.map(p => p[1]))); const a = active(); if (a) syncToS(a); }
   api.fitAll = fitAll; api.fitRegion = fitRegion;
-  const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet) fitRegion(a); syncToS(a); } return draw(); };
+  const fitK = () => { const a = active() || (activeKind() && adopt()); if (a) { if (!K.quiet && Date.now() - (K.actT || 0) > 900) fitRegion(a); syncToS(a); } return draw(); };   // r2: отложенный fit() v81 сразу после перехода — без вписывания (вид холста держится)
   fit = function () { return K.on && !nativeOnly() && !listOn() ? fitK() : fit81.apply(this, arguments); };
   plFit = function () { return K.on && !nativeOnly() && !listOn() ? fitK() : plFit81.apply(this, arguments); };
 
@@ -308,7 +311,7 @@
         else if (it.t === 'wall') { let sid = sidOf(it); if (!sid) { await loadRooms(); sid = sidOf(it); } const o = sid && await dbGet('sess', sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return false; } await openSess(sid); K.lastWall = it.id; }
         else { await loadRooms(); const r = K.rooms[0]; if (!r) { roomNew(); return false; } await openRoom(r.id, null, true); }
         if (S.mode !== 'plan' && S.tool !== 'mk') { try { await zmSet('mk'); } catch (e) { } }   // любая поверхность — в разметке: ряд инструментов и футляр
-        K.view = v0; K.sel = null; syncToS(it); K.act = it === BOARD ? {t: 'board'} : {t: it.t, id: it.id}; save(); draw();
+        K.view = v0; K.sel = null; syncToS(it); K.act = it === BOARD ? {t: 'board'} : {t: it.t, id: it.id}; K.actT = Date.now(); save(); draw();
         dispatchEvent(new CustomEvent('measure-lab-activate', {detail: it === BOARD ? {t: 'board', sid: K.board} : it.t === 'plan' ? {t: 'plan', rid: S.room && S.room.id} : {t: 'wall', sid: S.sess && S.sess.id}}));
         return true;
       } finally { K.quiet--; }
@@ -421,15 +424,15 @@
 
   /* 82.18 fix (QA Д12): поворот экрана (смена ширины / ориентации) — холст вписывается заново под новые нижние строки.
      Смена только высоты (клавиатура) — без вписывания. */
-  { let rzW = innerWidth, rzH = innerHeight, rzT = 0;
-    addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { const w = innerWidth, h = innerHeight, turned = Math.abs(w - rzW) > 40 || (w > h) !== (rzW > rzH); rzW = w; rzH = h;
-      if (!K.on || !turned || listOn()) return; try { zLay(); } catch (e) { } fitAll(); draw(); save(); }, 250); }); }
+  const RZ = {w: innerWidth, h: innerHeight, t: 0};   // r2: размер окна на момент открытия проекта (resize при загрузке страницы — не поворот)
+  { addEventListener('resize', () => { clearTimeout(RZ.t); RZ.t = setTimeout(() => { const w = innerWidth, h = innerHeight, turned = Math.abs(w - RZ.w) > 40 || (w > h) !== (RZ.w > RZ.h); RZ.w = w; RZ.h = h;
+      if (!K.on || opening || !turned || listOn()) return; try { zLay(); } catch (e) { } fitAll(); draw(); save(); }, 250); }); }
 
   /* ═══ [BLOCK SK-NAV] навигация внутри холста: ✓, 📁, ряд С№, ⌂ / стена, «План» v81 — без закрытия холста ═══ */
   async function done() {   // ✓: футляр / меню — свернуть; иначе сохранить и показать весь холст
     if (S.zSheet) return zSheet(false);
     const tb = document.getElementById('tb'); if (tb && tb.classList.contains('on')) { tb.classList.remove('on'); return; }
-    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
+    try { await flushAll(); } catch (e) { } await saveNowSk(); try { await refreshDims(); } catch (e) { } try { const a = active(); if (K.items.some(it => it !== a && snapStale(it))) await snapMissing(a || BOARD); } catch (e) { } K.sel = null; K.cor = null; S.sel = null; S.dsel = null; S.msel = []; S.rsel = null; fitAll(); draw(); say('Сохранено');
   }
   api.done = done;
   async function toProjects() {   // 📁: список проектов; холст остаётся открытым под списком
@@ -728,8 +731,32 @@
     const tgt = K.act.t === 'wall' && byId(K.act.id) || K.act.t === 'plan' && byId(K.act.id) || BOARD;
     if (!opt.fromNative || !activeKind()) { const ok = await activate(tgt, {force: 1}); if (!ok && tgt !== BOARD) await activate(BOARD, {force: 1}); }
     if (!cvr) { fitAll(); const a = active(); if (a) syncToS(a); }
+    RZ.w = innerWidth; RZ.h = innerHeight;
+    bgSnaps(K.pid);   // r2 (Н4): снимки областей без снимка (миграция, импорт, ↷) — фоном, после открытия
     await saveNowSk(); draw(); return K;
   }
+  /* r2 (QA Н4): снимок области строится, когда его нет или он устарел (L × H стены изменились, снимок неполный) — при открытии проекта и по ✓,
+     не дожидаясь посещения: области по очереди открываются тихо (вид холста не меняется), снимок делается при уходе с области (вся область). */
+  const snapStale = it => { if (it.t !== 'wall' && it.t !== 'plan') return false; const sn = K.snaps[it.id]; if (!sn || !sn.img) return true; if (sn.cover === false) return true;
+    return it.t === 'wall' && sn.L > 0 && (Math.abs(sn.L - (+it.L || 0)) > .5 || Math.abs(sn.H - (+it.H || 0)) > .5); };
+  async function wallReady(sid) { for (let i = 0; i < 30; i++) { if (S.sess && S.sess.id === sid && S.mosaic && S.q4 && S.q4.ok && !S.recomp) return true; await new Promise(z => setTimeout(z, 50)); } return false; }
+  let bgT = 0, bgN = 0;
+  function bgSnaps(pid, tries) {   // фоном: холст открыт, список закрыт, пальцы/перо не на экране; иначе — позже (до 20 попыток)
+    clearTimeout(bgT); bgN = tries || 0;
+    bgT = setTimeout(async () => { if (!K.on || K.pid !== pid) return; const a = active();
+      if (listOn() || F.on || ours.size || nat.size || actP || opening || !K.items.some(it => it !== a && snapStale(it))) { if (bgN < 20 && K.items.some(it => it !== a && snapStale(it))) bgSnaps(pid, bgN + 1); return; }
+      try { await snapMissing(a || BOARD, () => listOn() || F.on || ours.size > 0 || nat.size > 0 || K.pid !== pid); } catch (e) { } }, 400);
+  }
+  api.bgSnaps = () => bgSnaps(K.pid);
+  async function snapMissing(back, stop) {
+    const L = K.items.filter(it => it !== back && snapStale(it)); if (!L.length) return 0;
+    const v0 = {...K.view}; K.quiet++;   // вид холста не меняется (активация внутри — с syncToS, без подстройки вида под поверхность)
+    let n = 0; try { for (const it of L) { if (stop && stop()) break; const ok = await activate(it, {force: 1}).catch(() => false); if (!ok) continue; if (it.t === 'wall') await wallReady(it.sid); else await new Promise(z => setTimeout(z, 150)); draw(); n++; }
+    if (back) await activate(back, {force: 1}).catch(() => false); } finally { K.view = v0; { const a = active(); if (a) syncToS(a); } draw();
+      setTimeout(() => { K.quiet--; }, 700); }   // отложенные fit() v81 после тихих открытий — без вписывания холста
+    return n;
+  }
+  api.title = title; api.titleBox = it => titleR(typeof it === 'string' ? byId(it) : it); api.snapMissing = snapMissing; api.snapStale = id => { const it = byId(id); return it ? snapStale(it) : null; };
   function curObj() { return (S.room && S.room.obj) || (S.room0 && S.room0.obj) || (S.sess && S.sess.obj) || ((document.getElementById('nObj') || {}).value || '').trim(); }
   api.open = open; api.loadRooms = loadRooms; api.isOpen = () => K.on; api.pid = () => K.pid; api.region = region;
   api.close = () => false;   // холст не закрывается (решение владельца 11.11.2026)
