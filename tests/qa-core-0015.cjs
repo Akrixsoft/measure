@@ -33,7 +33,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  ok('версия в бандле 82.21.2', (await M('window.MeasureVersion')) === '82.21.2');
+  ok('версия в бандле', (await M('window.MeasureVersion')) === require('fs').readFileSync(path.join(__dirname,'../web/lab-version.js'),'utf8').match(/MeasureVersion = '([^']+)'/)[1]);
   const [bx, by] = await box('#ch [data-q=rf]'); await tap(bx, by);
   ok('фото-справка → плашка «камера / галерея»', !!(await ctxBtn('камера')) && !!(await ctxBtn('галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));

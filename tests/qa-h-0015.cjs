@@ -1,0 +1,34 @@
+// AKX-2026-0015 — общая обвязка проверок касаниями (CDP touch), 412×797×3; страница — бандл как в APK.
+const fs = require('fs'), path = require('path'), http = require('http');
+const {chromium} = require(process.env.PW || 'playwright');
+module.exports = async function harness(OUT, port) {
+  const ROOT = fs.mkdtempSync('/tmp/core-bundle-'); require('child_process').execFileSync('python3', [path.join(__dirname, '../scripts/web_bundle.py'), 'stage', ROOT]);
+  fs.mkdirSync(OUT, {recursive: true});
+  const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}); console.log((cond ? 'PASS ' : 'FAIL ') + name + (info !== undefined ? ' · ' + JSON.stringify(info) : '')); };
+  const st = http.createServer((q, r) => { const f = decodeURIComponent(q.url.split('?')[0]).slice(1);
+    try { r.setHeader('Content-Type', f.endsWith('.js') ? 'application/javascript' : f.endsWith('.css') ? 'text/css' : 'text/html'); r.end(fs.readFileSync(path.join(ROOT, f))); } catch { r.writeHead(404).end(); } });
+  await new Promise(r => st.listen(port, '127.0.0.1', r));
+  const browser = await chromium.launch({headless: true, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox']});
+  const ctx = await browser.newContext({viewport: {width: 412, height: 797}, deviceScaleFactor: 3, isMobile: true, hasTouch: true});
+  const p = await ctx.newPage(), cdp = await ctx.newCDPSession(p), errs = []; let n = 0;
+  p.on('pageerror', e => errs.push(String(e.stack || e).slice(0, 300)));
+  const T = (type, pts) => cdp.send('Input.dispatchTouchEvent', {type, touchPoints: pts.map((a, i) => ({x: a[0], y: a[1], id: 7 + i}))});
+  const W = ms => p.waitForTimeout(ms);
+  const tap = async (x, y) => { await T('touchStart', [[x, y]]); await W(40); await T('touchEnd', []); await W(220); };
+  const drag = async (a, b, k = 12) => { await T('touchStart', [a]); for (let i = 1; i <= k; i++) { await T('touchMove', [[a[0] + (b[0] - a[0]) * i / k, a[1] + (b[1] - a[1]) * i / k]]); await W(12); } await T('touchEnd', []); await W(220); };
+  const path_ = async (pts) => { await T('touchStart', [pts[0]]); for (const q of pts.slice(1)) { await T('touchMove', [q]); await W(10); } await T('touchEnd', []); await W(220); };
+  const M = js => p.evaluate(js);
+  const box = sel => p.evaluate(s => { const e = document.querySelector(s); if (!e || !e.offsetParent) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
+  const btn = async sel => { const b = await box(sel); if (!b) throw new Error('нет кнопки ' + sel); await tap(b[0], b[1]); };
+  const key = async seq => { for (const k of seq.match(/ok|bs|pm|./g)) await btn('#cKb [data-kk="' + k + '"]'); };
+  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button, #fws button, .ctxp button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
+  const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
+  const CT = await (async () => 0)();
+  const scr = async (x, y) => { const [a, b] = await M(`MeasureCore.toS(${x},${y})`); const t = await M('document.getElementById("cCv").getBoundingClientRect().top'); return [a, b + t]; };
+  const shot = async name => { const f = path.join(OUT, String(++n).padStart(2, '0') + '-' + name + '.png'); await p.screenshot({path: f}); return f; };
+  const tool = async k => { let b = await box('#ch [data-q=' + k + '], #zpSlots [data-q=' + k + ']'); if (!b) { await btn('#zpF'); await W(150); b = await box('#tb .tl[data-k=' + k + ']'); } await tap(b[0], b[1]); };
+  const addPhotos = async (files) => { await tool('rf'); const fcP = p.waitForEvent('filechooser'); const gb = await ctxBtn('галерея'); await tap(gb[0], gb[1]); const fc = await fcP; const n0 = (await doc()).photos.length; await fc.setFiles(files); await p.waitForFunction(n => MeasureCore.doc.photos.length >= n, n0 + files.length, {timeout: 8000}).catch(() => {}); await W(300); };
+  const finish = async () => { ok('ошибок страницы нет', !errs.length, errs); const pass = R.filter(r => r.ok).length; fs.writeFileSync(path.join(OUT, 'result.json'), JSON.stringify({pass, total: R.length, errs, R}, null, 1)); console.log(`ИТОГ ${pass}/${R.length}`); await browser.close(); st.close(); process.exit(pass === R.length ? 0 : 1); };
+  await p.goto(`http://127.0.0.1:${port}/index.html`); await p.waitForFunction('window.MeasureCore && MeasureCore.ready');
+  return {p, ok, T, W, tap, drag, path: path_, M, box, btn, key, ctxBtn, doc, scr, shot, tool, addPhotos, finish, errs};
+};
