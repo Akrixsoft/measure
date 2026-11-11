@@ -526,13 +526,20 @@
     if (how === 'upd') await staleOut(P);   // r2c (QA-2 Д9): области стен прежних (удалённых) записей — вон, иначе «Обновить» давал две области
     await api.layout(P.id);
     /* r5 (QA-5 D2): «Обновить» — файл источник; история ↶ ↷ проекта начинается заново (стеки записей и журнал холста), иначе ↶ откатывал план к данным до импорта */
-    if (how === 'upd') { try { const R = await api.records(P.id); for (const o of (R && R.all) || []) if ((o.und || []).length || (o.red || []).length || o.labRed || (o.pund || []).length || (o.pred || []).length || o._labPred)
-      await zEdit(o.id, x => { x.und = []; x.red = []; delete x.labRed; x.pund = []; x.pred = []; delete x._labPred; }); } catch (e) { console.warn('Measure 82.18 import und', e); } }
+    if (how === 'upd') { try { const R = await api.records(P.id); const nz = v => !!v && (Array.isArray(v) ? v.length > 0 : (Array.isArray(v.E) ? v.E.length > 0 : true));   /* QA-5b D2r: история плана — объект {v:81,E:[…]} без length */
+      for (const o of (R && R.all) || []) if (nz(o.und) || nz(o.red) || o.labRed || nz(o.pund) || nz(o.pred) || o._labPred)
+      await zEdit(o.id, x => { x.und = []; x.red = []; delete x.labRed; x.pund = []; x.pred = []; delete x._labPred; delete x.undT; }); } catch (e) { console.warn('Measure 82.18 import und', e); }
+      try { if (window.S) { S.pund = []; S.pred = []; S.und = []; S.red = []; for (const o of [S.room, S.room0, ...(S.objRooms || [])]) if (o) { o.und = []; o.red = []; delete o.undT; } } } catch (e) { } }   /* QA-5b D2r: и история в памяти (открытый план сохранил бы её обратно в запись) */
     emit(how === 'upd' ? 'import-update' : 'import', {pid: P.id});
     try { localStorage.setItem('measure.lastPrj', P.id); } catch (e) { }
     if (SK && typeof SK.open === 'function') {
       if (window.MeasureLabProjects && MeasureLabProjects.open) await MeasureLabProjects.open(P.id); else await SK.open(P.id);
     }
+    /* QA-5b D2r: открытие холста могло вернуть историю плана из памяти (подмена S при отрисовке областей) — после открытия ещё раз пусто и в базу */
+    if (how === 'upd') { try { await new Promise(r => setTimeout(r, 300)); S.pund = []; S.pred = []; S.und = []; S.red = [];
+      for (const o of [S.room, S.room0, ...(S.objRooms || [])]) if (o) { o.und = []; o.red = []; delete o.undT; }
+      if (typeof flushAll === 'function') await flushAll();
+      const R2 = await api.records(P.id); for (const o of (R2 && R2.all) || []) if (o.und && !Array.isArray(o.und)) await zEdit(o.id, x => { x.und = []; delete x.undT; }); } catch (e) { console.warn('Measure 82.18 import und2', e); } }
     toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n + (how === 'upd' ? ' · история ↶ начата заново' : ''));
     return n;
   };

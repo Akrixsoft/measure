@@ -248,11 +248,16 @@ fs.mkdirSync(SHOT, {recursive: true});
       const raw = await p.evaluate(async () => (await dbGet('sess', MeasureLabSketch.state.board)).drw.filter(q => 'labRef' in q).length);
       const after = await p.evaluate(async () => { await MeasureLabSketch.activate('board'); draw(); return S.drw.filter(q => q.k === 'txt').map(q => [q.id, q.labRef]); });
       check(raw === 0 && JSON.stringify(after) === JSON.stringify(before), 'D1: миграция — разметка без привязки привязана по геометрии при открытии (как была)', {raw, before, after}); }
+    // QA-5b D2r: до «Обновить» у плана есть история ↶ (в памяти и в записи — сжатый объект {v:81,E})
+    const pundBefore = await p.evaluate(async () => { const it = MeasureLabSketch.state.items.find(i => i.t === 'plan'); if (it) await MeasureLabSketch.activate(it); plSnap(); plSnap(); await flushAll(); return S.pund.length; });
     const D9 = await data(); await restore('Обновить'); await shot('09-импорт Обновить');
     { const D10 = await data(), gone = Object.keys(D9.items).filter(id => !(id in D0.items) && !(id in D10.items)); info.updGone = gone;   // стены, которых нет в файле, «Обновить» снимает (r2c QA-2 Д9)
       same('правило 1: импорт «Обновить» — места и размеры объектов холста те же', D9, D10, gone); }
     // QA-5 D2: после «Обновить» история начата заново: тост; ↶ не откатывает к данным до импорта; новые шаги ↶ работают
     { const tl = await p.evaluate(() => (window.__toastLog || []).slice(-4)); check(tl.some(t => t.includes('история ↶ начата заново')), 'D2: «Обновить» — тост «история ↶ начата заново»', tl);
+      { const left = await p.evaluate(async () => { const nz = v => !!v && (Array.isArray(v) ? v.length > 0 : (Array.isArray(v.E) ? v.E.length > 0 : true)); return (await dbAll('sess')).filter(o => !o.del && o.oid === MeasureLabSketch.state.pid && (nz(o.und) || nz(o.red))).map(o => o.id + ':' + (Array.isArray(o.und) ? 'arr' : 'obj')); });
+        check(!left.length, 'D2r: «Обновить» — история ↶ всех записей пуста (и в форме объекта {v:81,E})', left); }
+      { const mem = await p.evaluate(() => [S.pund.length, S.pred.length]); check(pundBefore > 0 && mem[0] === 0 && mem[1] === 0, 'D2r: «Обновить» — история плана в памяти пуста (было ' + pundBefore + ')', mem); }
       const rooms = () => p.evaluate(async () => (await dbAll('sess')).filter(o => o.kind === 'room' && !o.del && o.oid === MeasureLabSketch.state.pid).map(o => JSON.stringify(o.ms.pts)).sort());
       const Du = await data(), r0 = await rooms(); for (let i = 0; i < 3; i++) { await p.evaluate(() => zUndo()); await wait(600); }
       same('D2: ↶ после «Обновить» — холст не откатывается к данным до импорта', Du, await data()); check(JSON.stringify(await rooms()) === JSON.stringify(r0), 'D2: ↶ после «Обновить» — план не откатывается к данным до импорта', null);
