@@ -192,21 +192,26 @@
     const L = +(o.q4 || {}).L || 3000, H = +(o.q4 || {}).H || 2700;
     return {id: 'w' + Math.random().toString(36).slice(2, 9), t: 'wall', room: r ? r.id : null, wid: wid || null, sid: o.id, ax: 0, ay: 0, k: 600 / L, L, H, name: r ? (r.name || 'Помещение') + ' · С' + nW(r, k) : (o.name || 'Плоскость')};
   }
+  /* Д8 (QA 82.18, g3): фото и заметки подложки — препятствия раскладки: новые области ставятся рядом с ними, а не поверх
+     (миграция 82.17: в скетче были только фото и заметка — область стены ложилась на фото) */
+  const refBox = r => ({x: +r.x || 0, y: -(+r.y || 0), w: +r.w || 600, h: (+r.w || 600) * ((+r.ih || 1) / (+r.iw || 1))});
+  const txtBox = q => ({x: q.a[0], y: -q.a[1] - 120, w: Math.max(240, String(q.tx || '').length * 60), h: 180});
+  function obstacles(R) { const out = []; for (const b of (R && R.boards) || []) { if (b.del) continue; for (const r of b.refs || []) if (r && r.iw) out.push(refBox(r)); for (const q of b.drw || []) if (q && q.k === 'txt' && Array.isArray(q.a)) out.push(txtBox(q)); } return out; }
   function layout(c, R) {   // недостающие области: план слева, стены сеткой справа (решение 10.11: все стены проекта видны сразу)
-    const rooms = R.rooms.filter(r => !r.pstub && !r.del);
-    if (rooms.length && !c.items.some(i => i.t === 'plan')) { const [x0, , x1, y1] = planBox(rooms), B = bbox(c, rooms);
+    const rooms = R.rooms.filter(r => !r.pstub && !r.del), OB = obstacles(R);
+    if (rooms.length && !c.items.some(i => i.t === 'plan')) { const [x0, , x1, y1] = planBox(rooms), B = bbox(c, rooms, OB);
       c.items.push({id: 'n' + Math.random().toString(36).slice(2, 9), t: 'plan', k: PLAN_K, ax: (B ? B.x0 - (x1 - x0) * PLAN_K - GAP : 0) - x0 * PLAN_K, ay: (B ? B.y0 : 0) + y1 * PLAN_K}); }
     const have = new Set(c.items.filter(i => i.t === 'wall').map(i => i.room ? i.room + '|' + i.wid : 's|' + i.sid)), add = [];
     for (const r of rooms) { const n = segN(r.ms); for (let k = 0; k < n; k++) { const sid = (r.segs || {})[k], o = sid && R.walls.find(w => w.id === sid && !w.del); if (!o) continue; const wid = (r.wid || {})[k]; if (have.has(r.id + '|' + wid)) continue; add.push(wallItem(r, k, o, wid)); } }
     for (const o of R.planes.filter(o => !o.del && o.q4)) if (!have.has('s|' + o.id)) add.push(wallItem(null, 0, o, null));
     if (!add.length) return c;
-    const B = bbox(c, rooms), x0 = B ? B.x1 + GAP : 0, y0 = B ? B.y0 : 0, COLS = 3; let x = x0, y = y0, rowH = 0, col = 0;
+    const B = bbox(c, rooms, OB), x0 = B ? B.x1 + GAP : 0, y0 = B ? B.y0 : 0, COLS = 3; let x = x0, y = y0, rowH = 0, col = 0;
     for (const it of add) { const w = (it.L + 2 * WM.x) * it.k, h = (it.H + WM.t + WM.b) * it.k;
       if (col === COLS) { col = 0; x = x0; y += rowH + GAP + 60; rowH = 0; }
       it.ax = x + WM.x * it.k; it.ay = y + 60 + (it.H + WM.t) * it.k; x += w + GAP; rowH = Math.max(rowH, h); col++; c.items.push(it); }
     return c;
   }
-  function bbox(c, rooms) { const R = c.items.map(i => regionOf(i, rooms)).filter(Boolean); if (!R.length) return null; return {x0: Math.min(...R.map(r => r.x)), y0: Math.min(...R.map(r => r.y)), x1: Math.max(...R.map(r => r.x + r.w)), y1: Math.max(...R.map(r => r.y + r.h))}; }
+  function bbox(c, rooms, extra) { const R = c.items.map(i => regionOf(i, rooms)).filter(Boolean).concat(extra || []); if (!R.length) return null; return {x0: Math.min(...R.map(r => r.x)), y0: Math.min(...R.map(r => r.y)), x1: Math.max(...R.map(r => r.x + r.w)), y1: Math.max(...R.map(r => r.y + r.h))}; }
   api.layout = async pid => { const P = await get(pid); if (!P) return null; const c = (await api.cv(pid)) || cv0(pid); layout(c, owns(P, await zAll())); await api.putCv(c); return c; };
 
   async function sync(opt) {   // записи без проекта → проекты (группы по oid, затем по obj); oid — во все помещения, labOid — в плоскости
@@ -284,6 +289,23 @@
       for (const ref of b.refs || []) if ((ref.labFrom === ph.id || ref.id === ph.id) && !ref.labWall) { ref.labWall = lw; ch++; } }
     if (ch) await zEdit(b.id, x => { x.refs = b.refs; });
   }
+  /* Д8: области 82.18 шире областей 82.17 (поля размеров вокруг стены) — фото, легшее на область, сдвигается вниз в свободное место
+     вместе с рисунками и размерами, целиком лежащими на нём (как перенос фото на подложке) */
+  async function refsFree(P) {
+    const all = await zAll(), R = owns(P, all), rooms = R.rooms.filter(r => !r.pstub && !r.del), c = await api.cv(P.id), b = R.boards.find(x => !x.del); if (!c || !b || !(b.refs || []).length) return 0;
+    const ov = (a, q) => a.x < q.x + q.w && q.x < a.x + a.w && a.y < q.y + q.h && q.y < a.y + a.h, REG = c.items.map(i => regionOf(i, rooms)).filter(Boolean); let n = 0;
+    for (const r of b.refs) {
+      const B0 = refBox(r), B = {...B0}, others = () => b.refs.filter(x => x !== r).map(refBox);
+      const hit = () => REG.some(q => ov(B, q)) || others().some(q => ov(B, q)); if (!REG.some(q => ov(B, q))) continue;
+      for (let i = 0; i < 200 && hit(); i++) B.y += Math.max(60, B.h * .25);
+      const dy = B.y - B0.y; if (!dy) continue; r.y = -(B.y); n++;
+      const inside = p => Array.isArray(p) && p.length === 2 && p[0] >= B0.x && p[0] <= B0.x + B0.w && -p[1] >= B0.y && -p[1] <= B0.y + B0.h, mv = p => [p[0], p[1] - dy];
+      for (const k of ['dms', 'drw']) for (const q of b[k] || []) { const pts = [q.a, q.b, ...(q.pts || [])].filter(Boolean); if (pts.length && pts.every(inside)) { if (q.a) q.a = mv(q.a); if (q.b) q.b = mv(q.b); if (q.pts) q.pts = q.pts.map(mv); } }
+    }
+    if (n) await zEdit(b.id, x => { x.refs = b.refs; x.dms = b.dms || x.dms; x.drw = b.drw || x.drw; });
+    return n;
+  }
+  api.refsFree = async pid => { const P = await get(pid); return P ? refsFree(P) : 0; };
   let migP = null;
   async function mig82_18() {
     await ldb(); const m = await lGet('meta', 'mig'); if (m && m.v === '82.18') { await sync(); return {done: false, at: m.at}; }
@@ -296,6 +318,7 @@
       const sk = sks.find(x => x.obj === P.obj);
       if (sk) await canvasFrom(P, sk, sdb);
       await api.layout(P.id);   // нет холста — авто; есть — недостающие стены проекта добавляются
+      if (sk) await refsFree(P);
     }
     for (const sk of sks) if (sk.obj && !L.some(p => p.obj === sk.obj) && ((sk.items || []).length || (sk.photos || []).length || (sk.notes || []).length)) {   // холст без замеров — свой проект
       const P = await create({client: sk.obj}); await lDel('cv', P.id); await canvasFrom(P, sk, sdb); if (!(await api.cv(P.id))) await api.layout(P.id); }

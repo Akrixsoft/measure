@@ -243,6 +243,35 @@ fs.mkdirSync(SHOT, {recursive: true});
         } catch (e) { check(false, 'конструктор v898: импорт', String(e.stderr || e).slice(0, 800)); }
       }
     }
+    /* ════ Д8: миграция 82.17 → 82.18 — фото старого скетча не ложится на области стен / плана ════ */
+    async function d8(variant) {
+      await fresh(); errors = [];
+      await p.goto(base + '/old/web/experimental.html?nolist'); await p.waitForFunction(() => window.MeasureLabSketch && window.PM, null, {timeout: 20000});
+      const old = await p.evaluate(async variant => {
+        await PM.newRoom('Иванов', 'Кухня'); Object.assign(S.room.ms, {pts: [[0, 0], [3000, 0], [3000, 2500], [0, 2500]], closed: true, H: 2700, dims: [3000, 2500, 3000, 2500].map((v, i) => ({id: 'qd' + i, a: {p: i}, b: {p: (i + 1) % 4}, v}))});
+        PM.gnFix(); await PM.flushAll(); const r1 = S.room.id;
+        await PM.openWall(3); PM.bwSet(2500, 2700); S.els.push({id: 'qa-rig', k: 'roz', c: [600, 300], N: 1}); await PM.saveNow();
+        await MeasureLabSketch.open('Иванов');
+        const blob = await (await fetch('/prototypes/sketch/sample.jpg')).blob();
+        await MeasureLabSketch.addPhotos([new File([blob], 'sample.jpg', {type: 'image/jpeg'})]);
+        const K = MeasureLabSketch.state; K.cor = null;
+        if (variant === 'a') { K.items = K.items.filter(i => i.t === 'photo'); Object.assign(K.items[0], {x: 760, y: 0}); } else { const ph = K.items.find(i => i.t === 'photo'), w = K.items.find(i => i.t === 'wall'); Object.assign(ph, {x: w.ax + 800, y: w.ay - 600}); }   // как у QA: в скетче 82.17 — только фото и заметка (областей стен / плана нет)
+        K.items.push({id: 'nqa8', t: 'note', x: 40, y: -300, tx: 'узел ригеля'}); await MeasureLabSketch.saveNow();
+        return {items: K.items.map(i => ({t: i.t, x: Math.round(i.x || i.ax || 0), y: Math.round(i.y || i.ay || 0), w: Math.round(i.w || 0)}))};
+      }, variant);
+      info['d8old' + variant] = old;
+      await p.goto(url); await p.waitForFunction(() => window.MeasureLabSketch && (MeasureLabSketch.isOpen() || (window.MeasureLabProjects && MeasureLabProjects.isOpen())), null, {timeout: 20000}); await wait(1500);
+      if (await p.evaluate(() => MeasureLabProjects.isOpen())) { await p.evaluate(async () => { const P = (await MeasureLabStore.projects()).find(x => x.client === 'Иванов' || /Иванов/.test(x.obj)); await MeasureLabProjects.open(P.id); }); await wait(1200); }
+      await p.evaluate(() => { MeasureLabSketch.fitAll(); draw(); }); await wait(300); await shot('d8' + variant + '-migrated');
+      const ov = await p.evaluate(() => { const K = MeasureLabSketch.state, R = K.items.map(i => ({t: i.t, id: i.id, r: MeasureLabSketch.region(i)})), refs = (S.sess && S.sess.kind === 'board' ? S.refs : K.boardRec.refs || []).map(r => ({id: r.id, r: MeasureLabSketch.refRegion(r.id)}));
+        const o = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+        return {items: R.map(x => ({t: x.t, r: Object.fromEntries(Object.entries(x.r).map(([k, v]) => [k, Math.round(v)]))})), refs: refs.map(x => ({r: Object.fromEntries(Object.entries(x.r || {}).map(([k, v]) => [k, Math.round(v)]))})), hits: refs.flatMap(f => R.filter(x => f.r && o(f.r, x.r)).map(x => x.t))}; });
+      info['d8' + variant] = ov;
+      check(ov.refs.length === 1 && ov.items.some(i => i.t === 'wall') && ov.hits.length === 0, 'Д8' + variant + ': после миграции фото 82.17 не перекрывает области стены / плана (' + (variant === 'a' ? 'в скетче только фото и заметка' : 'фото у области стены 82.17 — область 82.18 шире') + ')', ov);
+      // активная стена видна (не под фото): касание области стены → стена активна, фото не над ней
+      check(errors.length === 0, 'Д8' + variant + ': нет ошибок страницы', errors);
+    }
+    if (run('d8')) { await d8('a'); await d8('b'); }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }
