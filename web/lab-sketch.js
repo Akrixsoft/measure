@@ -376,6 +376,13 @@
     const tt = hitTitle(w), ref = K.cor && act === BOARD ? S.refs.find(x => x.id === K.cor.id) : null, corHit = !K.cor && act === BOARD && S.rsel && S.tool === 'mk' && ['sel', 'rsel'].includes(S.mk) && corNear(w);
     if (tt || (ref && inR(refR(ref), w)) || corHit) { ev.stopImmediatePropagation(); ev.preventDefault(); ours.set(ev.pointerId, [ev.clientX, ev.clientY]); down(w, ev, tt, corHit); return; }
     const tgt = hitArea(w);
+    /* r2 (QA Н7): палец на пустой подложке при другой активной поверхности — сдвиг холста (поверхность и панели остаются); касание без сдвига — активация подложки */
+    if (tgt === BOARD && act && act !== BOARD && ev.pointerType === 'touch' && !boardRefs().some(x => inR(refR(x), w))) {
+      ev.stopImmediatePropagation(); ev.preventDefault(); ours.set(ev.pointerId, [ev.clientX, ev.clientY]); const v0 = {...K.view}, c0 = [ev.clientX, ev.clientY]; let moved = 0;
+      G = {move: (q, e) => { const dx = e.clientX - c0[0], dy = e.clientY - c0[1]; if (!moved && Math.hypot(dx, dy) < MOVE_PX) return; moved = 1; K.view = {...K.view, ox: v0.ox + dx, oy: v0.oy + dy}; pushView(); },
+        end: () => { if (!moved) { K.sel = null; activate(BOARD); } }};
+      return;
+    }
     if (tgt === act) { if (K.sel) { K.sel = null; draw(); } nat.add(ev.pointerId); return; }   // штатно
     ev.stopImmediatePropagation(); ev.preventDefault(); K.sel = null; forward(ev, tgt);
   }, true);
