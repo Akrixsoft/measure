@@ -175,7 +175,21 @@
     }
     return room;
   }
-  exportRoomObj = async function (rIn) { const room = await roomNo81.apply(this, arguments); try { await elNo(rIn || S.room, room); } catch (error) { console.warn('Measure 82.18 els.no', error); } return room; };
+  /* r3c (QA-3 м2): photo.src стены — источник длины L, как manV v81 на момент выгрузки: рулетка (man.Lb) → план (длина стены на плане
+     замерена) → снимок вида стены (out.dims.Lb.src) → 'план'. Снимок out пишется при открытии стены и устаревал: стена, открытая
+     до ввода длины на плане, выгружалась «фото», после импорта — «план». */
+  async function srcFix(r, room) {
+    const wl = room && room.ms && room.ms.wl; if (!r || !wl) return room;
+    for (const W of Object.values(wl)) {
+      if (!W || !W.photo) continue;
+      const j = Object.keys(r.wid || {}).find(k => r.wid[k] === W.id); if (j == null) continue;
+      const sid = (r.segs || {})[j], o = sid ? (S.sess && S.sess.id === sid ? S.sess : await dbGet('sess', sid).catch(() => null)) : null;
+      const man = o && S.sess === o ? S.man || {} : (o && o.man) || {}, pl = plLen(r.ms, +j);
+      W.photo.src = man.Lb != null && +man.Lb > 0 ? 'рулетка' : pl && pl.ok ? 'план' : (o && o.out && o.out.dims && o.out.dims.Lb && o.out.dims.Lb.src) || 'план';
+    }
+    return room;
+  }
+  exportRoomObj = async function (rIn) { const room = await roomNo81.apply(this, arguments); try { await elNo(rIn || S.room, room); } catch (error) { console.warn('Measure 82.18 els.no', error); } try { await srcFix(rIn || S.room, room); } catch (error) { console.warn('Measure 82.18 photo.src', error); } return room; };
   const objNo81 = exportObjObj;
   exportObjObj = async function () {
     const ST = window.MeasureLabStore;

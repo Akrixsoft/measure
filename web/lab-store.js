@@ -447,11 +447,23 @@
         n++; } }
     return n;
   }
+  /* r3c м2: длина стены «рулетка» (photo.src) — обратно в man.Lb вида стены (штатный импорт кладёт man = {}), иначе после импорта источник стал бы «план» */
+  async function lbBack(P, RS) {
+    const L = new Map(); for (const R of RS) for (const [k, W] of Object.entries((R.ms || {}).wl || {})) { const wid = W.id || ((R.ms || {}).wid || {})[k]; if (wid && W.photo && W.photo.src === 'рулетка' && +W.photo.L > 0) L.set(wid, +W.photo.L); }
+    if (!L.size) return 0; const R2 = owns(P, await zAll()); let n = 0;
+    for (const r of R2.rooms) { if (r.del || r.pstub) continue; for (const [k, sid] of Object.entries(r.segs || {})) { const v = L.get((r.wid || {})[k]); if (!v) continue;
+      await zEdit(sid, y => { y.man = y.man || {}; if (+y.man.Lb === v) return false; y.man.Lb = v; if (y.out && y.out.dims) y.out.dims.Lb = {v, src: 'рулетка'}; }); n++; } }
+    return n;
+  }
   async function staleOut(P) {   // раскладка: области стен, чьи записи удалены (или помещение удалено), — убрать
     const all = await zAll(), c = await api.cv(P.id); if (!c) return 0;
     const live = id => { const o = id && all.find(x => x.id === id); return !!(o && !o.del); };
+    let ch = 0;
+    for (const i of c.items) if (i.t === 'wall' && i.room && !live(i.sid) && live(i.room)) {   // r3c: то же помещение (id сохранён) и та же стена (wid) — область остаётся на месте, вид стены — новый
+      const r = all.find(x => x.id === i.room), k = Object.keys(r.wid || {}).find(j => r.wid[j] === i.wid), sid = k != null && (r.segs || {})[k];
+      if (sid && live(sid)) { i.sid = sid; delete i.snap; ch++; } }
     const n0 = c.items.length; c.items = c.items.filter(i => i.t !== 'wall' || (live(i.sid) && (!i.room || live(i.room))));
-    if (c.items.length !== n0) await api.putCv(c); return n0 - c.items.length;
+    if (ch || c.items.length !== n0) await api.putCv(c); return n0 - c.items.length;
   }
   const imp81 = zImpExp;
   zImpExp = async function (o) {
@@ -467,11 +479,24 @@
     try { await flushAll(); } catch (e) { }
     if (SK && SK.isOpen && SK.isOpen()) { try { await SK.saveNow(); } catch (e) { } }
     if (how === 'upd') {
-      const t = now(), R = owns(P, await zAll());
-      for (const x of [...R.rooms, ...R.walls]) if (!x.del) await zEdit(x.id, y => { if (y.del) return false; y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; });
+      const t = now(), R = owns(P, await zAll()), keepIds = new Set(RS.map(x => x && x.id).filter(Boolean));
+      /* r3c (QA-3 м2): помещения из файла сохраняют свои id (конструктор сопоставляет по rooms[].id): прежняя запись с тем же id уходит
+         в «Удалённые» копией с новым id (обратимо, labWas — прежний id), её виды стен и заготовки ссылаются на копию; штатный импорт
+         занимает освободившийся id. Открытое помещение / вид стены прежней записи — сначала подложка (иначе openRoom записал бы старое поверх). */
+      const arch = R.rooms.filter(r => keepIds.has(r.id));
+      if (arch.length && [S.room, S.room0].some(x => x && arch.some(r => r.id === x.id))) { if (SK && SK.isOpen && SK.isOpen()) { try { await SK.activate('board'); } catch (e) { } } }
+      if (S.room && arch.some(r => r.id === S.room.id)) { try { await flushAll(); } catch (e) { } S.room = null; }
+      for (const r of arch) {
+        const nid = r.id + '~' + t.toString(36), cpy = {...clone(r), id: nid, del: r.del || t, delWhy: r.delWhy || 'импорт: заменено выгрузкой', labWas: r.id};
+        await dbPut('sess', cpy);
+        for (const w of R.walls.filter(w => w.room === r.id)) await zEdit(w.id, y => { y.room = nid; if (!y.del) { y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; } });
+        for (const x of R.rooms.filter(x => x.pstub && x.pstub.r === r.id)) await zEdit(x.id, y => { y.pstub.r = nid; if (!y.del) { y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; } });
+        await dbDel('sess', r.id).catch(() => { });
+        S.objRooms = (S.objRooms || []).filter(x => x.id !== r.id);
+      }
+      for (const x of [...R.rooms, ...R.walls]) if (!x.del && !arch.includes(x)) await zEdit(x.id, y => { if (y.del) return false; y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; });
       if (P.del) { P.del = null; }
       P.upd = t; await put(P);
-      const c = (await api.cv(P.id)) || cv0(P.id); c.items = (c.items || []).filter(i => !(i.t === 'wall' && i.room)); await api.putCv(c);   // области стен — заново по новым записям
     } else {
       const sp = splitObj(objF);
       P = await create({id: o.oid && !(await get(o.oid)) ? o.oid : undefined, client: sp.client, name: sp.name});
@@ -484,6 +509,7 @@
     const same = !!(SK && SK.isOpen && SK.isOpen() && SK.pid() === P.id && SK.state);
     if (same) SK.state.pid = '';   // тот же проект открыт: холст не пишет старую раскладку поверх (перечитывается ниже)
     try { await elsBack(P, RS); } catch (e) { console.warn('Measure 82.18 import els', e); }
+    try { await lbBack(P, RS); } catch (e) { console.warn('Measure 82.18 import man.Lb', e); }
     try { const zn = Math.max(0, ...RS.flatMap(R => (R.ms.labRooms || []).map(q => +q.zn || 0))); const P2 = await get(P.id); if (P2 && zn > (+P2.znHi || 0)) { P2.znHi = zn; await put(P2); } } catch (e) { }
     try { await number(P.id); } catch (e) { }
     if (how === 'upd') await staleOut(P);   // r2c (QA-2 Д9): области стен прежних (удалённых) записей — вон, иначе «Обновить» давал две области
