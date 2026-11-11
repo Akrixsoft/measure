@@ -19,8 +19,8 @@
       "ok": true,
       "name": "касание области сразу после подготовки — активна она",
       "detail": {
-        "tgt": "wfgf9zyg",
-        "act": "wfgf9zyg"
+        "tgt": "wbs35dyz",
+        "act": "wbs35dyz"
       }
     },
     {
@@ -72,7 +72,7 @@
       "ok": true,
       "name": "подготовка: текст на фото 2 — разметка фото",
       "detail": {
-        "txtId": "dmwcco3j742u"
+        "txtId": "dmwcft0sfdh6"
       }
     },
     {
@@ -102,8 +102,8 @@
       "ok": true,
       "name": "правило 3: рамка выделения — группа фото 2 и 3",
       "detail": [
-        "rmwcco1huhtg",
-        "rmwcco1jcj36"
+        "rmwcfsyqsc4i",
+        "rmwcfsys6jao"
       ]
     },
     {
@@ -249,7 +249,7 @@
       "ok": true,
       "name": "10 с простоя — без переключений активной области",
       "detail": [
-        "board:~board|bmwccnx0xt2u"
+        "board:~board|bmwcfsuckcut"
       ]
     },
     {
@@ -293,7 +293,7 @@
         "k": 0.25,
         "w": 937.5001255409932,
         "hits": [],
-        "wall": "wiuu2zhj"
+        "wall": "wx44m300"
       }
     },
     {
@@ -345,8 +345,8 @@
       "ok": true,
       "name": "D1: разметка привязана к фото, на котором её поставили (верхнее фото под точкой; в зоне перекрытия — фото 2)",
       "detail": {
-        "T1": "rmwcco1gh8ku",
-        "T2": "rmwcco1huhtg"
+        "T1": "rmwcfsyppss2",
+        "T2": "rmwcfsyqsc4i"
       }
     },
     {
@@ -509,30 +509,30 @@
         "raw": 0,
         "before": [
           [
-            "dmwcco3j742u",
-            "rmwcco1huhtg"
+            "dmwcft0sfdh6",
+            "rmwcfsyqsc4i"
           ],
           [
-            "dmwccoxsdjma",
-            "rmwcco1huhtg"
+            "dmwcftuycub4",
+            "rmwcfsyqsc4i"
           ],
           [
-            "dmwccoyf2l0r",
-            "rmwcco1gh8ku"
+            "dmwcftvl1lc8",
+            "rmwcfsyppss2"
           ]
         ],
         "after": [
           [
-            "dmwcco3j742u",
-            "rmwcco1huhtg"
+            "dmwcft0sfdh6",
+            "rmwcfsyqsc4i"
           ],
           [
-            "dmwccoxsdjma",
-            "rmwcco1huhtg"
+            "dmwcftuycub4",
+            "rmwcfsyqsc4i"
           ],
           [
-            "dmwccoyf2l0r",
-            "rmwcco1gh8ku"
+            "dmwcftvl1lc8",
+            "rmwcfsyppss2"
           ]
         ]
       }
@@ -552,6 +552,19 @@
       "detail": [
         "Импорт: помещений 2, видов стен 3",
         "Проект обновлён: Сидоровы · Кухня-гостиная · помещений 2 · история ↶ начата заново"
+      ]
+    },
+    {
+      "ok": true,
+      "name": "D2r: «Обновить» — история ↶ всех записей пуста (и в форме объекта {v:81,E})",
+      "detail": []
+    },
+    {
+      "ok": true,
+      "name": "D2r: «Обновить» — история плана в памяти пуста (было 3)",
+      "detail": [
+        0,
+        0
       ]
     },
     {
@@ -600,8 +613,8 @@
   "errors": [],
   "info": {
     "updGone": [
-      "wiuu2zhj",
-      "wd5hamnn"
+      "wx44m300",
+      "wiocnech"
     ]
   }
 }
