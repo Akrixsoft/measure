@@ -11,14 +11,14 @@ module.exports = async function harness(OUT, port) {
   const browser = await chromium.launch({headless: true, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox']});
   const ctx = await browser.newContext({viewport: {width: 412, height: 797}, deviceScaleFactor: 3, isMobile: true, hasTouch: true});
   const p = await ctx.newPage(), cdp = await ctx.newCDPSession(p), errs = []; let n = 0;
-  p.on('pageerror', e => errs.push(String(e.stack || e).slice(0, 300)));
+  p.on('pageerror', e => { if (errs.length < 3) errs.push(String(e.stack || e).slice(0, 300)); });
   const T = (type, pts) => cdp.send('Input.dispatchTouchEvent', {type, touchPoints: pts.map((a, i) => ({x: a[0], y: a[1], id: 7 + i}))});
   const W = ms => p.waitForTimeout(ms);
   const tap = async (x, y) => { await T('touchStart', [[x, y]]); await W(40); await T('touchEnd', []); await W(220); };
   const drag = async (a, b, k = 12) => { await T('touchStart', [a]); for (let i = 1; i <= k; i++) { await T('touchMove', [[a[0] + (b[0] - a[0]) * i / k, a[1] + (b[1] - a[1]) * i / k]]); await W(12); } await T('touchEnd', []); await W(220); };
   const path_ = async (pts) => { await T('touchStart', [pts[0]]); for (const q of pts.slice(1)) { await T('touchMove', [q]); await W(10); } await T('touchEnd', []); await W(220); };
   const M = js => p.evaluate(js);
-  const box = sel => p.evaluate(s => { const e = document.querySelector(s); if (!e || !e.offsetParent) return null; const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
+  const box = sel => p.evaluate(s => { const e = document.querySelector(s); if (!e || !e.offsetParent) return null; if (e.closest('.zcols')) e.scrollIntoView({block: 'nearest', inline: 'nearest'}); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
   const btn = async sel => { const b = await box(sel); if (!b) throw new Error('нет кнопки ' + sel); await tap(b[0], b[1]); };
   const key = async seq => { for (const k of seq.match(/ok|bs|pm|./g)) await btn('#cKb [data-kk="' + k + '"]'); };
   const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button, #fws button, .ctxp button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);

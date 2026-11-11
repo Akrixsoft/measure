@@ -106,3 +106,12 @@ body.kb #cKb{display:grid}
 #bDelS.dg-del{background:#e0442b!important;border-color:#e0442b!important}
 #ch.dg-over,#zpb.dg-over{outline:2px dashed #f6e08a;outline-offset:1px}
 #zMenu button{display:block;width:100%}
+
+/* [BLOCK C-B3-CSS] Б3: поле подписи (текст, пин, выноска) — под шапкой, чтобы системная клавиатура не закрывала; опции рисунка; фото скрыты */
+#cTx{position:fixed;left:8px;right:8px;top:54px;z-index:30;display:none;gap:6px;background:#fff;border-radius:12px;padding:6px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+#cTx.on{display:flex}
+#cTxI{flex:1;min-width:0;font:600 16px system-ui;padding:8px 10px;border:1px solid #c9ced6;border-radius:8px;color:#1a2027}
+#cTxOk{font:600 15px system-ui;background:#1f6fd1;color:#fff;border:0;border-radius:8px;padding:0 14px}
+#zpAct .opt{font:700 18px system-ui;color:#C9CED6}
+#zpAct .opt.on{color:#F2B233}
+#zpE.off{opacity:.45}
