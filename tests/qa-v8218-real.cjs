@@ -70,7 +70,7 @@ fs.mkdirSync(SHOT, {recursive: true});
     await T('touchEnd', [a2]); await wait(30); await T('touchEnd', []); await wait(400); };
   const viewOnRefs = ids => p.evaluate(ids => { const B = ids.map(id => MeasureLabSketch.refRegion(id)), x0 = Math.min(...B.map(b => b.x)), y0 = Math.min(...B.map(b => b.y)), x1 = Math.max(...B.map(b => b.x + b.w)), y1 = Math.max(...B.map(b => b.y + b.h)), m = (x1 - x0) * .35;
     MeasureLabSketch.showRect(x0 - m, y0 - m * .3, x1 + m, y1 + m * .3); }, ids);
-  const settle = async () => { await wait(200); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(300); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); };
+  const settle = async () => { await wait(200); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); await p.evaluate(async () => { await MeasureLabSketch.activate('board'); await MeasureLabSketch.snapMissing(MeasureLabSketch.active()); await MeasureLabSketch.activate('board'); }); await wait(300); await p.waitForFunction(() => !MeasureLabSketch.bgBusy(), null, {timeout: 30000}); };   // снимки свежие — фоновые снимки не перехватывают жест
   const toList = async () => { await tapSel('touch', '#bDone'); await p.waitForFunction(() => MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(600); };
   const reopen = async () => { const pid = await p.evaluate(() => MeasureLabSketch.state.pid); await p.evaluate(pid => MeasureLabProjects.open(pid), pid); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 20000}); await wait(1500); };
   try {

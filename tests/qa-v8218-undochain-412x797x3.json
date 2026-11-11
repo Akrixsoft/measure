@@ -38,8 +38,8 @@
       "detail": {
         "lp": {
           "c": [
-            297.47553552123617,
-            305.10720000000003
+            297.4755391906314,
+            307.80719999999997
           ],
           "t": "38"
         },
@@ -105,7 +105,7 @@
           "board": {
             "refs": [
               [
-                "rmwbuidam0kq",
+                "rmwbxzdctv4w",
                 true,
                 true
               ]
@@ -113,7 +113,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbuieq3rqb",
+                "dmwbxzesche2",
                 1250
               ]
             ],
@@ -178,15 +178,15 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794385040861",
-            "wall:smwbuilv4pg7"
+            "wall:s1794390873050",
+            "wall:smwbxzm01ha6"
           ]
         },
         "want": {
           "board": {
             "refs": [
               [
-                "rmwbuidam0kq",
+                "rmwbxzdctv4w",
                 true,
                 true
               ]
@@ -194,7 +194,7 @@
             "els": [],
             "dms": [
               [
-                "dmwbuieq3rqb",
+                "dmwbxzesche2",
                 1250
               ]
             ],
@@ -259,8 +259,8 @@
           ],
           "items": [
             "plan:",
-            "wall:s1794385040861",
-            "wall:smwbuilv4pg7"
+            "wall:s1794390873050",
+            "wall:smwbxzm01ha6"
           ]
         }
       }
@@ -277,8 +277,8 @@
       "name": "↷: без дублей областей (одна область С1)",
       "detail": [
         "plan:",
-        "wall:s1794385040861",
-        "wall:smwbuilv4pg7"
+        "wall:s1794390873050",
+        "wall:smwbxzm01ha6"
       ]
     },
     {
@@ -293,7 +293,7 @@
         "hit": [],
         "snap": [],
         "n": 3,
-        "s": 0.09814495691839836
+        "s": 0.09067665652072114
       }
     },
     {
@@ -304,7 +304,7 @@
         "hit": [],
         "snap": [],
         "n": 3,
-        "s": 0.09814495691839836
+        "s": 0.09067665652072114
       }
     },
     {
@@ -312,12 +312,12 @@
       "name": "Д11: ✓ — заголовок стены L × H по записи (2698), не устаревший",
       "detail": [
         [
-          "smwbuilv4pg7",
+          "smwbxzm01ha6",
           2364,
           2698
         ],
         [
-          "s1794385040861",
+          "s1794390873050",
           1500,
           2700
         ]
@@ -331,12 +331,12 @@
         "wall": 1241,
         "titles": [
           [
-            "smwbuilv4pg7",
+            "smwbxzm01ha6",
             2364,
             2698
           ],
           [
-            "s1794385040861",
+            "s1794390873050",
             1500,
             2700
           ]
@@ -351,29 +351,18 @@
         "hit": [],
         "snap": [],
         "n": 3,
-        "s": 0.09814495691839836
+        "s": 0.09067665652072114
       }
     },
     {
       "ok": true,
-      "name": "Н4: альбом — рамки и заголовки в экране, без наложений; снимки вписаны, без заглушек",
+      "name": "Н4: высота окна туда-обратно — рамки и заголовки в экране, без наложений; снимки вписаны, без заглушек",
       "detail": {
         "out": [],
         "hit": [],
         "snap": [],
         "n": 3,
-        "s": 0.09545650907374646
-      }
-    },
-    {
-      "ok": true,
-      "name": "Н4: книжная снова — рамки и заголовки в экране, без наложений; снимки вписаны, без заглушек",
-      "detail": {
-        "out": [],
-        "hit": [],
-        "snap": [],
-        "n": 3,
-        "s": 0.09814495691839836
+        "s": 0.09067665652072114
       }
     },
     {
@@ -471,7 +460,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               false,
               false
             ]
@@ -493,7 +482,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               false,
               false
             ]
@@ -501,7 +490,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               0
             ]
           ],
@@ -520,7 +509,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               false,
               false
             ]
@@ -528,7 +517,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -547,7 +536,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               false,
               false
             ]
@@ -555,7 +544,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -574,7 +563,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               false
             ]
@@ -582,7 +571,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -601,7 +590,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -609,7 +598,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -649,7 +638,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbuilv4pg7"
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -659,7 +648,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -667,7 +656,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -716,7 +705,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbuilv4pg7"
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -726,7 +715,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -734,7 +723,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -791,7 +780,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbuilv4pg7"
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -801,7 +790,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -809,7 +798,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -866,7 +855,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbuilv4pg7"
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -876,7 +865,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -884,7 +873,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -941,7 +930,7 @@
         ],
         "items": [
           "plan:",
-          "wall:smwbuilv4pg7"
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -951,7 +940,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -959,7 +948,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -1020,8 +1009,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794385040861",
-          "wall:smwbuilv4pg7"
+          "wall:s1794390873050",
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -1031,7 +1020,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -1039,7 +1028,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -1102,8 +1091,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794385040861",
-          "wall:smwbuilv4pg7"
+          "wall:s1794390873050",
+          "wall:smwbxzm01ha6"
         ]
       }
     },
@@ -1113,7 +1102,7 @@
         "board": {
           "refs": [
             [
-              "rmwbuidam0kq",
+              "rmwbxzdctv4w",
               true,
               true
             ]
@@ -1121,7 +1110,7 @@
           "els": [],
           "dms": [
             [
-              "dmwbuieq3rqb",
+              "dmwbxzesche2",
               1250
             ]
           ],
@@ -1186,8 +1175,8 @@
         ],
         "items": [
           "plan:",
-          "wall:s1794385040861",
-          "wall:smwbuilv4pg7"
+          "wall:s1794390873050",
+          "wall:smwbxzm01ha6"
         ]
       }
     }
