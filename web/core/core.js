@@ -618,7 +618,7 @@
   act($('bUnd'), () => { if (C.crop) cropEnd(); undo(); });
   act($('bRed'), () => { if (C.crop) cropEnd(); redo(); });
   act($('bDelS'), () => { if (!$('bDelS').classList.contains('dis')) del(); });
-  act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); fitAll(); save().then(() => toast('Сохранено')); });   // ✓ — сохранить и показать весь холст (82.18)
+  act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); save().then(() => toast('Сохранено')); });   // ✓ — только сохранить проект; вид не меняется
   act($('bMore'), () => $('zMenu').classList.toggle('on'));
   act($('bUpdChk'), () => { $('zMenu').classList.remove('on'); const N = window.AkrixUpdate; if (N && N.check) N.check(); else toast('Обновление — только в приложении'); });
   act($('labCrX'), () => { cancel(); C.crop = null; ui(); draw(); });
