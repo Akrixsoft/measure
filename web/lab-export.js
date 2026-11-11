@@ -53,12 +53,39 @@
       obj: r.obj, oid: r.oid, rooms: [room], gnMax: 1 };
   }
 
+  /* ═══ [BLOCK EXP-G3] AKX-2026-0012 Д2: выгрузка «для Akrix» не зависит от активной поверхности холста.
+     План — S.room; стена — S.room0; подложка холста (kind 'board') и список проектов поверх неё — помещения проекта нет ни в S.room,
+     ни в S.room0 (v81 cvBase81 → null, «На холсте пусто»). Здесь: на подложке базой выгрузки служит последнее открытое помещение
+     проекта (иначе первое помещение холста), остальные помещения объекта — свежо из базы (штатный objLoad); на время выгрузки
+     помещение ставится в S.room0 (как из вида стены: ulGet / wlInf / cvBase81 v81 видят его штатно) и возвращается. ═══ */
+  let lastRoom = null;
+  const onBoard = () => S.mode !== 'plan' && !S.room0 && !!(S.sess && S.sess.kind === 'board');
+  const sess0 = openSess;
+  openSess = async function () { const r = S.mode === 'plan' ? S.room : S.room0; if (r && r.kind === 'room' && !r.pstub) lastRoom = r; return sess0.apply(this, arguments); };
+  function boardBase() {
+    if (!onBoard()) return null;
+    const obj = S.sess.obj || '', K = window.MeasureLabSketch && MeasureLabSketch.state;
+    if (lastRoom && !lastRoom.del && (lastRoom.obj || '') === obj) return lastRoom;
+    const R = ((K && K.on && K.rooms) || []).filter(r => r && !r.del && !r.pstub && (r.obj || '') === obj && r.ms && (r.ms.pts || []).length >= 2);
+    return R.length ? R.slice().sort((a, b) => a.created - b.created)[0] : null;
+  }
+  const baseNoBoard = cvBase81;
+  cvBase81 = function () { return baseNoBoard.apply(this, arguments) || boardBase(); };
+  async function onProjectRoom(fn) {
+    const b = boardBase(); if (!b) return fn();
+    const fresh = await dbGet('sess', b.id).catch(() => null), r = fresh && !fresh.del ? fresh : b;
+    await objLoad(r);
+    S.room0 = r;
+    try { return await fn(); } finally { if (S.room0 === r) S.room0 = null; }
+  }
+
   exportObjObj = async function () {
     if (standalone()) return planeObject();
     await saveNow();
     if (S.sess) await dbPut('sess', clone(S.sess));
     if (S.room) { clearTimeout(roomT); await dbPut('sess', clone(S.room)); }
-    const result = await object81.apply(this, arguments);
+    const self = this, args = arguments;
+    const result = await onProjectRoom(() => object81.apply(self, args));
     if (!result || !result.rooms || !result.rooms.length) throw new Error('Нет стен для выгрузки. Добавь хотя бы один отрезок стены.');
     return result;
   };

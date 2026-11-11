@@ -328,6 +328,29 @@
   addEventListener('measure-lab-activate', titleSoon);
   addEventListener('measure-lab-project', e => { const d = e.detail || {}; if (d.pid && d.pid === V.cur) titleUpd(); if (d.op === 'purge' && d.pid === V.cur) V.cur = null; });
 
+  /* ═══ [BLOCK LP-ASK] AKX-2026-0012 Д9: вопрос окном списка (и поверх холста) → Promise со значением кнопки; касание фона / «назад» — null ═══ */
+  api.ask = (title, text, buttons) => new Promise(res => {
+    const was = V.on; let done = false;
+    if (!was) { root.classList.add('on'); document.body.classList.add('lab-prj-on'); V.on = true; ls.innerHTML = ''; }
+    const fin = v => { if (done) return; done = true; mo.disconnect(); if (!was) hide(); res(v); };
+    dlg(title, `<p>${esc(text)}</p>`, buttons.map(b => ({t: b.t, cls: b.pr ? 'lp-pr' : '', fn: () => { fin(b.v); }})));
+    const mo = new MutationObserver(() => { if (!dg.classList.contains('on')) setTimeout(() => fin(null), 0); });
+    mo.observe(dg, {attributes: true, attributeFilter: ['class']});
+  });
+
+  /* ═══ [BLOCK LP-EXIT] AKX-2026-0012 Д10 (решение владельца): системная «назад» — всегда двойное нажатие для выхода.
+     В корне списка проектов первое нажатие — тост «Ещё раз — выход» и true; второе за 2 с — false (оболочка: прежнее поведение). ═══ */
+  const EX = {t: 0};
+  const back0 = window.AkrixBack;
+  window.AkrixBack = function () {
+    if (!V.on) { EX.t = 0; return typeof back0 === 'function' ? back0.apply(this, arguments) : false; }
+    let r = false; try { r = back(); } catch (e) { console.error('AkrixBack', e); }   // окно → лист → поиск → папка (и без открытого холста)
+    if (r === true) { EX.t = 0; return true; }
+    const t = Date.now(); if (EX.t && t - EX.t <= 2000) { EX.t = 0; return false; }
+    EX.t = t; note('Ещё раз — выход'); return true;
+  };
+  api.exitArmed = () => !!EX.t && Date.now() - EX.t <= 2000;
+
   // старт: если штатный старт успел показать #ss или открыть помещение до загрузки модуля — взять под список / холст
   setTimeout(async () => {
     try {

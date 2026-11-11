@@ -214,21 +214,26 @@
     const L = +(o.q4 || {}).L || 3000, H = +(o.q4 || {}).H || 2700;
     return {id: 'w' + Math.random().toString(36).slice(2, 9), t: 'wall', room: r ? r.id : null, wid: wid || null, sid: o.id, ax: 0, ay: 0, k: 600 / L, L, H, name: r ? (r.name || 'Помещение') + ' · С' + nW(r, k) : (o.name || 'Плоскость')};
   }
+  /* Д8 (QA 82.18, g3): фото и заметки подложки — препятствия раскладки: новые области ставятся рядом с ними, а не поверх
+     (миграция 82.17: в скетче были только фото и заметка — область стены ложилась на фото) */
+  const refBox = r => ({x: +r.x || 0, y: -(+r.y || 0), w: +r.w || 600, h: (+r.w || 600) * ((+r.ih || 1) / (+r.iw || 1))});
+  const txtBox = q => ({x: q.a[0], y: -q.a[1] - 120, w: Math.max(240, String(q.tx || '').length * 60), h: 180});
+  function obstacles(R) { const out = []; for (const b of (R && R.boards) || []) { if (b.del) continue; for (const r of b.refs || []) if (r && r.iw) out.push(refBox(r)); for (const q of b.drw || []) if (q && q.k === 'txt' && Array.isArray(q.a)) out.push(txtBox(q)); } return out; }
   function layout(c, R) {   // недостающие области: план слева, стены сеткой справа (решение 10.11: все стены проекта видны сразу)
-    const rooms = R.rooms.filter(r => !r.pstub && !r.del);
-    if (rooms.length && !c.items.some(i => i.t === 'plan')) { const [x0, , x1, y1] = planBox(rooms), B = bbox(c, rooms);
+    const rooms = R.rooms.filter(r => !r.pstub && !r.del), OB = obstacles(R);
+    if (rooms.length && !c.items.some(i => i.t === 'plan')) { const [x0, , x1, y1] = planBox(rooms), B = bbox(c, rooms, OB);
       c.items.push({id: 'n' + Math.random().toString(36).slice(2, 9), t: 'plan', k: PLAN_K, ax: (B ? B.x0 - (x1 - x0) * PLAN_K - GAP : 0) - x0 * PLAN_K, ay: (B ? B.y0 : 0) + y1 * PLAN_K}); }
     const have = new Set(c.items.filter(i => i.t === 'wall').map(i => i.room ? i.room + '|' + i.wid : 's|' + i.sid)), add = [];
     for (const r of rooms) { const n = segN(r.ms); for (let k = 0; k < n; k++) { const sid = (r.segs || {})[k], o = sid && R.walls.find(w => w.id === sid && !w.del); if (!o) continue; const wid = (r.wid || {})[k]; if (have.has(r.id + '|' + wid)) continue; add.push(wallItem(r, k, o, wid)); } }
     for (const o of R.planes.filter(o => !o.del && o.q4)) if (!have.has('s|' + o.id)) add.push(wallItem(null, 0, o, null));
     if (!add.length) return c;
-    const B = bbox(c, rooms), x0 = B ? B.x1 + GAP : 0, y0 = B ? B.y0 : 0, COLS = 3; let x = x0, y = y0, rowH = 0, col = 0;
+    const B = bbox(c, rooms, OB), x0 = B ? B.x1 + GAP : 0, y0 = B ? B.y0 : 0, COLS = 3; let x = x0, y = y0, rowH = 0, col = 0;
     for (const it of add) { const w = (it.L + 2 * WM.x) * it.k, h = (it.H + WM.t + WM.b) * it.k;
       if (col === COLS) { col = 0; x = x0; y += rowH + GAP + 60; rowH = 0; }
       it.ax = x + WM.x * it.k; it.ay = y + 60 + (it.H + WM.t) * it.k; x += w + GAP; rowH = Math.max(rowH, h); col++; c.items.push(it); }
     return c;
   }
-  function bbox(c, rooms) { const R = c.items.map(i => regionOf(i, rooms)).filter(Boolean); if (!R.length) return null; return {x0: Math.min(...R.map(r => r.x)), y0: Math.min(...R.map(r => r.y)), x1: Math.max(...R.map(r => r.x + r.w)), y1: Math.max(...R.map(r => r.y + r.h))}; }
+  function bbox(c, rooms, extra) { const R = c.items.map(i => regionOf(i, rooms)).filter(Boolean).concat(extra || []); if (!R.length) return null; return {x0: Math.min(...R.map(r => r.x)), y0: Math.min(...R.map(r => r.y)), x1: Math.max(...R.map(r => r.x + r.w)), y1: Math.max(...R.map(r => r.y + r.h))}; }
   api.layout = async pid => { const P = await get(pid); if (!P) return null; const c = (await api.cv(pid)) || cv0(pid); layout(c, owns(P, await zAll())); await api.putCv(c); return c; };
 
   async function sync(opt) {   // записи без проекта → проекты (группы по oid, затем по obj); oid — во все помещения, labOid — в плоскости
@@ -306,6 +311,23 @@
       for (const ref of b.refs || []) if ((ref.labFrom === ph.id || ref.id === ph.id) && !ref.labWall) { ref.labWall = lw; ch++; } }
     if (ch) await zEdit(b.id, x => { x.refs = b.refs; });
   }
+  /* Д8: области 82.18 шире областей 82.17 (поля размеров вокруг стены) — фото, легшее на область, сдвигается вниз в свободное место
+     вместе с рисунками и размерами, целиком лежащими на нём (как перенос фото на подложке) */
+  async function refsFree(P) {
+    const all = await zAll(), R = owns(P, all), rooms = R.rooms.filter(r => !r.pstub && !r.del), c = await api.cv(P.id), b = R.boards.find(x => !x.del); if (!c || !b || !(b.refs || []).length) return 0;
+    const ov = (a, q) => a.x < q.x + q.w && q.x < a.x + a.w && a.y < q.y + q.h && q.y < a.y + a.h, REG = c.items.map(i => regionOf(i, rooms)).filter(Boolean); let n = 0;
+    for (const r of b.refs) {
+      const B0 = refBox(r), B = {...B0}, others = () => b.refs.filter(x => x !== r).map(refBox);
+      const hit = () => REG.some(q => ov(B, q)) || others().some(q => ov(B, q)); if (!REG.some(q => ov(B, q))) continue;
+      for (let i = 0; i < 200 && hit(); i++) B.y += Math.max(60, B.h * .25);
+      const dy = B.y - B0.y; if (!dy) continue; r.y = -(B.y); n++;
+      const inside = p => Array.isArray(p) && p.length === 2 && p[0] >= B0.x && p[0] <= B0.x + B0.w && -p[1] >= B0.y && -p[1] <= B0.y + B0.h, mv = p => [p[0], p[1] - dy];
+      for (const k of ['dms', 'drw']) for (const q of b[k] || []) { const pts = [q.a, q.b, ...(q.pts || [])].filter(Boolean); if (pts.length && pts.every(inside)) { if (q.a) q.a = mv(q.a); if (q.b) q.b = mv(q.b); if (q.pts) q.pts = q.pts.map(mv); } }
+    }
+    if (n) await zEdit(b.id, x => { x.refs = b.refs; x.dms = b.dms || x.dms; x.drw = b.drw || x.drw; });
+    return n;
+  }
+  api.refsFree = async pid => { const P = await get(pid); return P ? refsFree(P) : 0; };
   let migP = null;
   async function mig82_18() {
     await ldb(); const m = await lGet('meta', 'mig'); if (m && m.v === '82.18') { await sync(); return {done: false, at: m.at}; }
@@ -318,6 +340,7 @@
       const sk = sks.find(x => x.obj === P.obj);
       if (sk) await canvasFrom(P, sk, sdb);
       await api.layout(P.id);   // нет холста — авто; есть — недостающие стены проекта добавляются
+      if (sk) await refsFree(P);
     }
     for (const sk of sks) if (sk.obj && !L.some(p => p.obj === sk.obj) && ((sk.items || []).length || (sk.photos || []).length || (sk.notes || []).length)) {   // холст без замеров — свой проект
       const P = await create({client: sk.obj}); await lDel('cv', P.id); await canvasFrom(P, sk, sdb); if (!(await api.cv(P.id))) await api.layout(P.id); }
@@ -387,6 +410,60 @@
     return res;
   };
   PM.zBackup = (...a) => zBackup(...a); PM.zRestore = o => zRestore(o);
+
+  /* ═══ [BLOCK ST-IMP] AKX-2026-0012 Д9 (QA 82.18): импорт своей выгрузки «для Akrix» (♻ → zRestore → zImpExp) — в проект и на холст.
+     v81 открывал помещение на старом экране, а проект собирался синхронизацией с client = obj («Сидоровы — Кухня-гостиная»), name пусто.
+     Здесь: obj файла разбирается обратно на клиент / проект (objOf: « — »); по oid файла — существующий проект обновляется после
+     подтверждения (прежние помещения и виды стен — в «Удалённые» штатным del, раскладка стен холста перестраивается), иначе / «Новым» —
+     новый проект; штатный импорт v81 (и обёртки lab-prd, lab-export, lab-floor-routes) получает obj и oid проекта; затем — холст проекта. ═══ */
+  const splitObj = s => { s = String(s || '').trim(); const i = s.indexOf(' — '); return i > 0 ? {client: s.slice(0, i).trim(), name: s.slice(i + 3).trim()} : {client: s, name: ''}; };
+  api.splitObj = splitObj;
+  async function askUpdate(P) {
+    const t = 'Проект «' + label(P) + '» уже есть', x = 'Файл — выгрузка этого же проекта. Обновить проект из файла (прежние помещения и стены уйдут в «Удалённые») или загрузить отдельным проектом?';
+    const LP = window.MeasureLabProjects;
+    if (LP && typeof LP.ask === 'function') return LP.ask(t, x, [{t: 'Отмена', v: null}, {t: 'Новым проектом', v: 'new'}, {t: 'Обновить', v: 'upd', pr: 1}]);
+    return confirm(t + '. Обновить?') ? 'upd' : 'new';
+  }
+  const imp81 = zImpExp;
+  zImpExp = async function (o) {
+    const RS = o && o.app === 'akrix-zamer' ? (o.kind === 'object' ? o.rooms || [] : o.kind === 'room' ? [o] : []).filter(R => R && R.ms && Array.isArray(R.ms.pts) && R.ms.pts.length >= 2) : [];
+    const SK = window.MeasureLabSketch, LP = window.MeasureLabProjects;
+    const ui8218 = !!((SK && SK.isOpen && SK.isOpen()) || (LP && LP.isOpen && LP.isOpen()));   // штатный экран v81 без холста и списка (?nolist) — прежний импорт
+    if (!RS.length || !ui8218) return imp81.apply(this, arguments);
+    await ldb();
+    const objF = o.obj || RS[0].obj || '';
+    let P = o.oid ? await get(o.oid) : null; if (P && P.purged) P = null;
+    let how = 'new';
+    if (P) { how = await askUpdate(P); if (!how) { toast('Импорт отменён'); return 0; } }
+    try { await flushAll(); } catch (e) { }
+    if (SK && SK.isOpen && SK.isOpen()) { try { await SK.saveNow(); } catch (e) { } }
+    if (how === 'upd') {
+      const t = now(), R = owns(P, await zAll());
+      for (const x of [...R.rooms, ...R.walls]) if (!x.del) await zEdit(x.id, y => { if (y.del) return false; y.del = t; y.delWhy = 'импорт: заменено выгрузкой'; });
+      if (P.del) { P.del = null; }
+      P.upd = t; await put(P);
+      const c = (await api.cv(P.id)) || cv0(P.id); c.items = (c.items || []).filter(i => !(i.t === 'wall' && i.room)); await api.putCv(c);   // области стен — заново по новым записям
+    } else {
+      const sp = splitObj(objF);
+      P = await create({id: o.oid && !(await get(o.oid)) ? o.oid : undefined, client: sp.client, name: sp.name});
+    }
+    const o2 = {...o, obj: P.obj, oid: P.id, rooms: o.kind === 'object' ? (o.rooms || []).map(R => ({...R, obj: P.obj})) : o.rooms};
+    if (o.kind === 'room') o2.obj = P.obj;
+    const n = await imp81.call(this, o2);
+    if (!n) { if (how !== 'upd') { try { await lDel('prj', P.id); await lDel('cv', P.id); } catch (e) { } } return n; }
+    try { await flushAll(); } catch (e) { }
+    try { const zn = Math.max(0, ...RS.flatMap(R => (R.ms.labRooms || []).map(q => +q.zn || 0))); const P2 = await get(P.id); if (P2 && zn > (+P2.znHi || 0)) { P2.znHi = zn; await put(P2); } } catch (e) { }
+    await api.layout(P.id);
+    emit(how === 'upd' ? 'import-update' : 'import', {pid: P.id});
+    try { localStorage.setItem('measure.lastPrj', P.id); } catch (e) { }
+    if (SK && typeof SK.open === 'function') {
+      if (SK.isOpen() && SK.pid() === P.id && SK.state) SK.state.pid = '';   // тот же проект открыт — перечитать раскладку (без записи старой поверх)
+      if (window.MeasureLabProjects && MeasureLabProjects.open) await MeasureLabProjects.open(P.id); else await SK.open(P.id);
+    }
+    toast((how === 'upd' ? 'Проект обновлён: ' : 'Импорт: ') + label(P) + ' · помещений ' + n);
+    return n;
+  };
+  PM.zImpExp = (...a) => zImpExp(...a);
   api.backup = () => zBackup(false);
   ldb().then(() => projects()).catch(() => { });   // кэш проектов — сразу (znNext)
 })();

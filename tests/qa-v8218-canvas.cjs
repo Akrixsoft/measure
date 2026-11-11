@@ -150,8 +150,9 @@ const {start} = require('./qa-v011-harness.cjs');
       out.push(['second', AkrixBack(), true]);
       return out; });
     await settle(300);
-    const bk2 = await p.evaluate(() => ({list: $('ss').classList.contains('on'), open: MeasureLabSketch.isOpen(), off: AkrixBack()}));
-    check(bk.every(x => x[1] === true && x[2]) && bk2.list && bk2.open && bk2.off === false, 'back: поле → угол → футляр → выделение → «Ещё раз — к проектам» → список (холст открыт); из списка — false (оболочка)', {bk, bk2});
+    /* Д10 (решение владельца, g3): в корне списка — тоже двойное нажатие: первое — тост «Ещё раз — выход» (true), второе — false (оболочка) */
+    const bk2 = await p.evaluate(() => ({list: $('ss').classList.contains('on'), open: MeasureLabSketch.isOpen(), arm: AkrixBack(), toast: (document.querySelector('#labPrj .lp-to.on span') || {}).textContent, off: AkrixBack()}));
+    check(bk.every(x => x[1] === true && x[2]) && bk2.list && bk2.open && bk2.arm === true && /Ещё раз — выход/.test(bk2.toast || '') && bk2.off === false, 'back: поле → угол → футляр → выделение → «Ещё раз — к проектам» → список (холст открыт); из списка — «Ещё раз — выход», затем false (оболочка)', {bk, bk2});
     const pid = await p.evaluate(() => MeasureLabSketch.pid());
     await p.evaluate(p => MeasureLabSketch.open(p), pid); await settle(200); s = await st();
     check(s.on && !s.list && s.act === 'board', 'back: из списка — тот же проект, та же поверхность', s);
