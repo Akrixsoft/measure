@@ -311,6 +311,51 @@ fs.mkdirSync(SHOT, {recursive: true});
       check(nw && nw[3] === 250 && nw[4] === mx + 1, 'Н3: новый объект после импорта — no = max + 1, d 250', nw);
       check(errors.length === 0, 'Н3: нет ошибок страницы', errors);
     }
+    /* ════ r2c Н6: «Новое помещение» из футляра — текущее на плане, контур рисуется в нём; переключение помещений на плане ════ */
+    if (run('n6')) {
+      await fresh(); errors = [];
+      await p.goto(url); await p.waitForSelector('#labPrj.on', {timeout: 20000}); await wait(400);
+      await tapSel('touch', '#labPrj .lp-fab'); await p.waitForSelector('#labPrj .lp-dg.on');
+      await tapSel('touch', '#labPrj [data-c]'); await p.keyboard.type('Кузнецовы'); await tapSel('touch', '#labPrj [data-n]'); await p.keyboard.type('Квартира');
+      await tapSel('pen', '#labPrj .lp-bt .lp-pr'); await p.waitForFunction(() => MeasureLabSketch.isOpen() && !MeasureLabProjects.isOpen(), null, {timeout: 10000}); await wait(500);
+      const st6 = () => p.evaluate(async () => { await flushAll(); const K = MeasureLabSketch.state, a = MeasureLabSketch.active();
+        return {act: a && a.t, mode: S.mode, cur: S.room && S.room.name, rooms: (await dbAll('sess')).filter(r => r.kind === 'room' && !r.del && r.oid === K.pid).sort((a, b) => a.created - b.created).map(r => r.name + ':' + r.ms.pts.length + (r.ms.closed ? 'c' : ''))}; });
+      const newRoomTile = async name => { await caseTool('[data-lab-tb="room"]'); await wait(400); await tapSel('touch', '#labSketch .sk-dlg.on [data-sk-name]'); await p.keyboard.press('Control+A'); await p.keyboard.type(name); await tapSel('pen', '#labSketch .sk-dlg.on .bt .pr'); await wait(1200); };
+      // контур четырьмя протяжками пера в области плана (инструмент «стена» плана)
+      const draw4 = async q => { const it = await p.evaluate(() => { const i = MeasureLabSketch.state.items.find(x => x.t === 'plan'); const R = MeasureLabSketch.region(i), a = MeasureLabSketch.map.toScrK(R.x, R.y), b = MeasureLabSketch.map.toScrK(R.x + R.w, R.y + R.h), t = cv.getBoundingClientRect().top; return [a[0] / devicePixelRatio, a[1] / devicePixelRatio + t, b[0] / devicePixelRatio, b[1] / devicePixelRatio + t]; });
+        const X = u => it[0] + (it[2] - it[0]) * u, Y = v => it[1] + (it[3] - it[1]) * v, C = q.map(([u, v]) => [X(u), Y(v)]); C.push(C[0]);
+        await p.evaluate(() => { if (S.mode === 'plan') { PL.tool = 'st'; mkChips(); mkPanel(); } });
+        for (let i = 0; i < 4; i++) { await down('pen', C[i]); await move('pen', C[i], C[i + 1]); await up('pen', C[i + 1]); await wait(400); if (await p.evaluate(() => { const k = document.getElementById('zkb'); return !!(k && k.getBoundingClientRect().height > 50); })) await tapSel('touch', '#zkb [data-kk="ok"]'); }
+        await wait(300); };
+      await newRoomTile('Спальня'); const a1 = await st6();
+      await draw4([[.15, .12], [.85, .12], [.85, .45], [.15, .45]]); const a2 = await st6();
+      await newRoomTile('Детская'); const a3 = await st6();
+      await tapSel('touch', '#bDone'); await wait(800);
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(400); const a3b = await st6(); info.n6b = a3b;   // как у QA: касание холста вне плана — подложка, затем снова план
+      await draw4([[.15, .6], [.85, .6], [.85, .88], [.15, .88]]); const a4 = await st6(); await shot('n6-two-rooms');
+      info.n6 = {a1, a2, a3, a4};
+      check(a1.cur === 'Спальня' && a1.act === 'plan' && a2.rooms.join() === 'Спальня:4c' && a3.cur === 'Детская', 'Н6: «Новое помещение» — помещение создаётся и становится текущим на плане', {a1, a2, a3});
+      check(a4.rooms.join() === 'Спальня:4c,Детская:4c' && a4.cur === 'Детская', 'Н6: после «Новое помещение» и ухода на подложку контур рисуется в «Детской» (а не новым «Стены N»)', {a3b: info.n6b, a4});
+      // штатно v81: касание стены другого помещения (выбор) — помещение текущее
+      await p.evaluate(() => { PL.tool = 'sel'; S.psel = null; mkChips(); mkPanel(); draw(); });
+      const wS = await p.evaluate(() => { const o = S.objRooms.find(r => r.name === 'Спальня'); const [a, b] = plSeg(o.ms, 0); return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; });
+      await tap('pen', await plPt(wS)); await wait(500); const a5 = await st6();
+      check(a5.cur === 'Спальня' && a5.act === 'plan', 'Н6: касание стены «Спальни» на плане — текущей стала «Спальня» (штатно v81)', a5);
+      // явный выбор: шапка проекта → «⌂ Детская»; пустое помещение — тоже
+      await newRoomTile('Кухня'); const a6 = await st6();
+      const pick = async name => { await tapSel('touch', '#labPrjT'); await p.waitForSelector('#labPrj .lp-sh.on', {timeout: 5000}); await wait(250); await shot('n6-sheet-' + name); const it = await p.evaluate(() => [...document.querySelectorAll('#labPrj .lp-sh.on .lp-mi')].map(b => b.textContent.trim())); await tapText('touch', name, '#labPrj .lp-sh.on'); await wait(1000); return it; };
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(300); await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(500); const a9 = await st6();
+      check(a6.cur === 'Кухня' && a9.cur === 'Кухня' && a9.act === 'plan', 'Н6: пустое новое «Кухня» → подложка → план снова в «Кухне»', {a6, a9});
+      const sh1 = await pick('Спальня'); const a7 = await st6();
+      const sh2 = await pick('Детская'); const a8 = await st6();
+      check(sh1.some(t => /^⌂\s*Кухня · пусто/.test(t)) && a7.cur === 'Спальня' && !a7.rooms.some(r => r.startsWith('Кухня')) && a8.cur === 'Детская' && a8.act === 'plan' && sh2.filter(t => t.startsWith('⌂')).length === 2,
+        'Н6: явный выбор помещения — шапка проекта → «⌂ Спальня» / «⌂ Детская»; пустое «Кухня · пусто» при уходе убирается (штатно v81 cvDropPristine)', {sh1, a7, sh2, a8});
+      // перезапуск: план открывается в текущем помещении
+      await p.evaluate(async () => { await flushAll(); await MeasureLabSketch.saveNow(); }); await p.reload(); await p.waitForFunction(() => window.MeasureLabSketch && MeasureLabSketch.isOpen(), null, {timeout: 20000}); await wait(1200);
+      await p.evaluate(() => MeasureLabSketch.activate('board')); await wait(200); await p.evaluate(() => MeasureLabSketch.goPlan()); await wait(500); const a10 = await st6();
+      check(a10.cur === 'Детская', 'Н6: после перезапуска план — в текущем помещении «Детская» (не в первом по порядку «Спальня»)', a10);
+      check(errors.length === 0, 'Н6: нет ошибок страницы', errors);
+    }
   } catch (e) {
     check(false, 'сценарий прерван', String(e && e.stack || e)); try { await shot('abort'); } catch (x) { }
   } finally { await browser.close(); await new Promise(r => server.close(r)); }

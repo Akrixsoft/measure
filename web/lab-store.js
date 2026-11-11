@@ -497,6 +497,31 @@
     return n;
   };
   PM.zImpExp = (...a) => zImpExp(...a);
+
+  /* ═══ [BLOCK ST-ROOM] AKX-2026-0012 r2c Н6 (QA-2): текущее помещение проекта на плане.
+     Холст при активации плана открывал первое помещение проекта: после «Новое помещение» и ухода на подложку план возвращался
+     в «Спальню», а контур новой «Детской» становился отдельным участком «Стены N». Здесь: последнее открытое на плане помещение
+     (штатный openRoom: новое помещение, переход касанием стены другого помещения, явный выбор) запоминается по проекту
+     (память + localStorage) — MeasureLabStore.curRoom(pid); lab-sketch activate берёт его. ═══ */
+  const CUR = new Map(), curKey = pid => 'measure.lab.room.' + pid;
+  api.curRoom = pid => { if (!pid) return null; if (CUR.has(pid)) return CUR.get(pid); try { return localStorage.getItem(curKey(pid)); } catch (e) { return null; } };
+  api.setCurRoom = (pid, id) => { if (!pid || !id) return; CUR.set(pid, id); try { localStorage.setItem(curKey(pid), id); } catch (e) { } };
+  const pidOfRoom = r => r.oid && CACHE.has(r.oid) ? r.oid : ([...CACHE.values()].find(P => !P.del && !P.purged && P.obj === (r.obj || '')) || {}).id || r.oid || null;
+  const openRoom0 = openRoom;
+  openRoom = async function () {
+    const res = await openRoom0.apply(this, arguments);
+    try { const r = S.room; if (r && r.kind === 'room' && !r.pstub && !r.del) api.setCurRoom(pidOfRoom(r), r.id); } catch (e) { }
+    return res;
+  };
+  PM.openRoom = (...a) => openRoom(...a);
+  // явный выбор помещения (шапка проекта → «⌂ …»): план, помещение текущим
+  api.pickRoom = async (pid, id) => {
+    api.setCurRoom(pid, id); const SK = window.MeasureLabSketch;
+    if (SK && SK.isOpen && SK.isOpen()) { const a = SK.active && SK.active(); if (a && a.t === 'plan' && S.mode === 'plan') { if (!S.room || S.room.id !== id) { S.psel = null; await openRoom(id, null, true); } } else await SK.goPlan(); }
+    else await openRoom(id, null, true);
+    try { mkChips(); mkPanel(); status(); draw(); } catch (e) { }
+    return S.room && S.room.id === id;
+  };
   api.backup = () => zBackup(false);
   ldb().then(() => projects()).catch(() => { });   // кэш проектов — сразу (znNext)
 })();
