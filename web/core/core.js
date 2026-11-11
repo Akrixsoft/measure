@@ -25,7 +25,7 @@
   const newDoc = () => ({v: 1, id: uid('p'), name: '', H: '', gnHi: 0, photos: [], nodes: [], walls: [], elev: []});
   let D = null;
   let V = {ox: 40, oy: 60, s: 0.1};                    // вид: px CSS на мм
-  const C = {tool: 'sel', sel: null, crop: null};      // sel {t:'photo'|'wall'|'node'|'elev', id}
+  const C = {tool: 'sel', sel: null, crop: null, phm: false};      // phm — открыт выбор «камера / галерея»      // sel {t:'photo'|'wall'|'node'|'elev', id}
   const node = id => D.nodes.find(n => n.id === id);
   const wall = id => D.walls.find(w => w.id === id);
   const photo = id => D.photos.find(p => p.id === id);
@@ -120,6 +120,7 @@
     for (const e of D.elev) drawElev(e);
     drawPlan();
     drawOverlay();
+    cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, Hh - 4);
   }
   function grid(W, Hh) {
     let st = 100; while (st * V.s < 14) st *= 10;
@@ -294,7 +295,7 @@
   const P = new Map(); let G = null; const TAP = 8;
   const pos = e => { const r = cv.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
   cv.addEventListener('pointerdown', e => {
-    e.preventDefault(); closeEd(true); try { cv.setPointerCapture(e.pointerId); } catch (_) { }
+    e.preventDefault(); closeEd(true); if (C.phm) { C.phm = false; ui(); } try { cv.setPointerCapture(e.pointerId); } catch (_) { }
     P.set(e.pointerId, pos(e));
     if (P.size === 2) startPinch(); else if (P.size === 1) startOne(pos(e));
   });
@@ -418,13 +419,15 @@
     document.querySelectorAll('#cTb [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === C.tool));
     $('cUn').disabled = !HS.u.length; $('cRe').disabled = !HS.r.length; $('cDel').disabled = !C.sel || !!C.crop;
     const box = $('cCtx'), s = C.sel, B = []; box.innerHTML = '';
-    if (C.crop) B.push(['✓ Готово', cropEnd, 'pri'], ['Весь кадр', cropReset]);
+    if (C.phm) B.push(['📷 Камера', () => { C.phm = false; ui(); $('cCam').click(); }, 'pri'], ['🖼 Галерея', () => { C.phm = false; ui(); $('cFile').click(); }]);
+    else if (C.crop) B.push(['✓ Готово', cropEnd, 'pri'], ['Весь кадр', cropReset]);
     else if (s && s.t === 'photo') B.push(['✂ Подрезать', cropStart]);
     else if (s && s.t === 'wall') { const w = wall(s.id); if (w) B.push([D.elev.some(e => e.wall === w.id) ? `▭ К стене С${w.gn}` : `▭ Стена С${w.gn} на холст`, () => addElev(w), 'pri'], [`L ${rnd(wLen(w))}`, () => openEd(w.id)]); }
     for (const [t, fn, c] of B) { const b = document.createElement('button'); b.textContent = t; if (c) b.className = c; act(b, fn); box.appendChild(b); }
   }
   document.querySelectorAll('#cTb [data-t]').forEach(b => act(b, () => { if (C.crop) cropEnd(); C.tool = b.dataset.t; ui(); draw(); }));
-  act($('cPh'), () => $('cFile').click());
+  act($('cPh'), () => { C.phm = !C.phm; ui(); });
+  $('cCam').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   $('cFile').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   act($('cUn'), () => { if (C.crop) cropEnd(); undo(); });
   act($('cRe'), () => { if (C.crop) cropEnd(); redo(); });
@@ -443,11 +446,25 @@
   /* ═══ [BLOCK C-BACK] системная «назад» Android: локальные действия; false — выйти можно ═══ */
   window.AkrixBack = () => {
     if (edW) { closeEd(false); return true; }
+    if (C.phm) { C.phm = false; ui(); return true; }
     if (C.crop) { cropEnd(); return true; }
     if (G && !G.pinch) { cancel(); G = null; draw(); return true; }
     if (C.sel) { C.sel = null; ui(); draw(); return true; }
     save(); return false;
   };
+
+  /* ═══ [BLOCK C-UPD] автообновление (натив AkrixUpdate, AKX-2026-0014): ready после старта → натив сам проверяет version.json;
+     находки — карточка сверху: веб-версия → «Перезапустить», APK → «Обновить» ═══ */
+  function updCard(t, btn, fn) { const b = $('cUpd'); b.querySelector('span').textContent = t; const k = b.querySelector('button'); k.textContent = btn || ''; k.onclick = fn ? () => { b.classList.remove('on'); fn(); } : null; b.classList.add('on'); if (!fn) setTimeout(() => b.classList.remove('on'), 5000); }
+  window.akrixUpdateEvent = raw => {
+    let e; try { e = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (x) { return; } if (!e) return; const N = window.AkrixUpdate;
+    if (e.type === 'web-ready') updCard('Загружена версия ' + e.version, 'Перезапустить', () => save().then(() => N.restart()));
+    else if (e.type === 'apk-available') updCard('Доступно приложение ' + e.versionName, 'Обновить', () => N.downloadApk());
+    else if (e.type === 'apk-progress') updCard('Загрузка: ' + e.pct + '%');
+    else if (e.type === 'apk-denied') updCard('Разреши установку: Настройки → Приложения → Measure', 'Повторить', () => N.downloadApk());
+    else if (e.manual && e.type === 'none') toast('Последняя версия ' + (e.version || ''));
+  };
+  function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
   window.MeasureCore = {get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, hs: HS, toS, toW, hit, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
@@ -456,6 +473,6 @@
   (async () => {
     try { await dbOpen(); await load(); } catch (e) { console.error(e); D = newDoc(); }
     $('cName').value = D.name; $('cH').value = D.H; resize(); ui();
-    window.MeasureCore.ready = true;
+    window.MeasureCore.ready = true; updReady();
   })();
 })();

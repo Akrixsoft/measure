@@ -68,6 +68,12 @@ def stage(target, root=ROOT):
     for pattern in ('lab-*.js', 'lab-*.css'):
         for item in (root / 'web').glob(pattern):
             shutil.copy2(item, target / item.name)
+    # [BLOCK STAGE-CORE] AKX-2026-0015: страница приложения — ядро холста web/core/ (index.html, core.js, core.css); lab-version.js — тот же
+    core = root / 'web/core'
+    if (core / 'index.html').exists():
+        for item in core.iterdir():
+            if item.is_file():
+                shutil.copy2(item, target / item.name)
     version, _, min_apk = read_version(root)
     manifest = bundle_manifest(target, version, min_apk)
     (target / 'version.json').write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + '\n')

@@ -2,7 +2,9 @@
 // Запуск: node tests/qa-core-0015.cjs <каталог-фото> <каталог-скриншотов>
 const fs = require('fs'), path = require('path'), http = require('http');
 const {chromium} = require(process.env.PW || 'playwright');
-const ROOT = path.join(__dirname, '..'), IMG = process.argv[2], OUT = process.argv[3];
+const IMG = process.argv[2], OUT = process.argv[3];
+// страница — как в APK: собранный бандл scripts/web_bundle.py stage (index.html = web/core/index.html)
+const ROOT = fs.mkdtempSync('/tmp/core-bundle-'); require('child_process').execFileSync('python3', [path.join(__dirname, '../scripts/web_bundle.py'), 'stage', ROOT]);
 fs.mkdirSync(OUT, {recursive: true});
 const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}); console.log((cond ? 'PASS ' : 'FAIL ') + name + (info !== undefined ? ' · ' + JSON.stringify(info) : '')); };
 (async () => {
@@ -26,11 +28,15 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   const CT = 52;                                                      // верх холста, px
   const scr = (x, y) => M(`MeasureCore.toS(${x},${y})`).then(([a, b]) => [a, b + CT]);
 
-  await p.goto('http://127.0.0.1:9341/web/core/index.html'); await p.waitForFunction('window.MeasureCore && MeasureCore.ready');
+  await p.goto('http://127.0.0.1:9341/index.html'); await p.waitForFunction('window.MeasureCore && MeasureCore.ready');
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  const fcP = p.waitForEvent('filechooser'); const [bx, by] = await box('#cPh'); await tap(bx, by); const fc = await fcP;
+  ok('версия в бандле 82.19', (await M('window.MeasureVersion')) === '82.19');
+  const [bx, by] = await box('#cPh'); await tap(bx, by);
+  ok('📷 → выбор «Камера / Галерея»', !!(await ctxBtn('Камера')) && !!(await ctxBtn('Галерея')));
+  ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));
+  const fcP = p.waitForEvent('filechooser'); const gb = await ctxBtn('Галерея'); await tap(gb[0], gb[1]); const fc = await fcP;
   ok('выбор фото — множественный', fc.isMultiple());
   await fc.setFiles(['p1.jpg', 'p2.jpg', 'p3.jpg'].map(f => path.join(IMG, f))); await p.waitForFunction('MeasureCore.doc.photos.length===3', null, {timeout: 8000}).catch(() => {});
   let d = await doc(); ok('3 фото на холсте', d.photos.length === 3, d.photos.length);
