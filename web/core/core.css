@@ -32,8 +32,6 @@ button{font-family:inherit;cursor:pointer}
 #ch .pb b{font:700 17px/1 system-ui;color:#e8ebef}
 #ch .pb.on{background:#f6e08a;border-color:#d4a300;box-shadow:inset 0 0 0 1px #d4a300;z-index:1}
 #ch .pb.on b{color:#1a2027}
-body.m-wall #ch .vp,body.m-plan #ch .vw{display:none}
-#ch .pa{flex:none;width:24px;height:28px;padding:0;display:grid;place-items:center;background:none;border:0;color:#4ea1ff;font:300 30px/1 Arial}
 #zpb button{flex:none;display:grid;place-items:center;width:24px;height:24px;padding:0;background:transparent;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:16px system-ui}
 #zpb button svg{width:20px;height:20px;display:block}
 #zpb button.on{background:#f6e08a;border-color:#d4a300;color:#1a2027}
@@ -65,3 +63,45 @@ body.kb #cKb{display:grid}
 #cUpd.on{display:flex}#cUpd span{flex:1}#cUpd button{background:#1f6fd1;color:#fff;border:0;border-radius:8px;height:38px;padding:0 12px;font:600 14px system-ui}#cUpd button:empty{display:none}
 #cToast{position:fixed;left:50%;top:58px;transform:translateX(-50%);background:#1b1e23e8;color:#fff;padding:8px 14px;border-radius:10px;font:600 14px system-ui;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90%;text-align:center}
 #cToast.on{opacity:1}
+/* [BLOCK C-CSS-TB] футляр 82.18 (#tb) */
+#tb{position:fixed;left:8px;right:8px;bottom:92px;max-height:min(420px,calc(100vh - 190px));overflow:auto;display:none;padding:10px 12px;background:#1B1E23;border:1px solid #2A2F37;border-radius:14px;box-shadow:0 10px 26px rgba(0,0,0,.5);z-index:8;box-sizing:border-box;touch-action:none}
+#tb.on{display:block}
+#tb .hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#tb .hd b{color:#E8EBEF;font-size:15px}
+#tb .hd .mu{flex:1;color:#8B93A1;font-size:11px!important}
+#tb .hd button{order:2;height:30px;min-width:30px;background:transparent;border:none;color:#8B93A1;font-size:17px}
+#tb h4{display:none}
+#tb h4#tbCh{display:block;margin:10px 2px 4px;font-size:12px;color:#9aa3ad}
+#tb .g{display:contents}
+#tb .gg7{display:grid;grid-template-columns:repeat(8,minmax(0,36px));gap:5px;justify-content:space-between}
+#tb .tl{position:relative;width:36px;height:36px;box-sizing:border-box;border-radius:8px;padding:0;background:#2B2F35;border:1.5px solid #3A4150;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#tb .tl.on{border:2px solid var(--c)}
+#tb .tl svg{width:22px;height:22px}
+#tb .tl>span{display:none}
+#tb .tl b.gl{font:700 18px/1 system-ui;color:#e8ebef}
+#tb .cols{display:flex;gap:8px;flex-wrap:wrap;padding:4px 2px}
+#tb .cols button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;padding:0}
+#tb .cols button.on{box-shadow:0 0 0 3px #4ea1ff}
+#tb .addc{width:30px;height:30px;border-radius:50%;border:1.5px dashed #8B93A1;color:#8B93A1;display:grid;place-items:center;font-size:17px;position:relative}
+#tb .addc input{position:absolute;inset:0;opacity:0}
+#tb .lwr{display:flex;align-items:center;gap:10px;margin:4px 2px 0;min-height:26px}
+#tb .lwr span{font-size:12px;color:#9aa3ad}
+#tb .lwr input{flex:1;accent-color:#4DA3FF}
+#tb .lwr b{width:30px;text-align:right;color:#F6E08A;font-size:13px}
+/* строки быстрого доступа и перетаскивание */
+#ch .pb b.gl{font:700 17px/1 system-ui;color:#e8ebef}
+#ch .pb.on b.gl{color:#1a2027}
+#zpSlots{display:contents}
+#zpSlots button b.gl{font:700 15px/1 system-ui;color:#e8ebef}
+#zpSlots button.on{background:#f6e08a;border-color:#d4a300}
+#ch [data-q],#zpSlots [data-q],#tb .tl{touch-action:none}
+#dgGhost{position:fixed;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:none;place-items:center;background:#3a3f47;border:2px solid #f6e08a;border-radius:9px;z-index:30;pointer-events:none;box-shadow:0 8px 18px rgba(0,0,0,.5)}
+#dgGhost.on{display:grid}
+#dgGhost svg{width:24px;height:24px}
+#dgGhost b.gl{font:700 18px/1 system-ui;color:#e8ebef}
+.dg-src{opacity:.35}
+.dg-ins{box-shadow:-3px 0 0 0 #f6e08a!important}
+.dg-ins-end{box-shadow:inset -3px 0 0 0 #f6e08a!important}
+#bDelS.dg-del{background:#e0442b!important;border-color:#e0442b!important}
+#ch.dg-over,#zpb.dg-over{outline:2px dashed #f6e08a;outline-offset:1px}
+#zMenu button{display:block;width:100%}

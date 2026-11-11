@@ -529,10 +529,74 @@
       if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { e.preventDefault(); fn(e); } });
     el.addEventListener('pointercancel', () => { el._pd = null; });
   }
-  const TOOLS = {wall: ['sel', 'dim', 'arr'], plan: ['sel', 'wall']};       // инструменты ядра по виду (#mdT), как строка #ch 82.18
+  /* ═══ [BLOCK C-STRIPS] строки быстрого доступа: #ch (по виду — стены / план) и #zpSlots (общая); состав — перетаскиванием.
+     Источник значков и подписей — футляр #tb (82.18). Из футляра в строку — добавить; по строке / между строками — порядок;
+     на 🗑 — убрать из строки (в футляре остаётся). Касание — взять инструмент. Состав хранится на устройстве (localStorage). ═══ */
+  const REG = {};
+  document.querySelectorAll('#tb .tl[data-k]').forEach(t => { const ic = t.querySelector('svg, b.gl'); REG[t.dataset.k] = {icon: ic ? ic.outerHTML : '', title: t.title, c: t.style.getPropertyValue('--c') || '#1f6fd1'}; });
+  const SDEF = {wall: ['sel', 'rsel', 'pts', 'dim', 'rf', 'arr', 'pen'], plan: ['sel', 'rsel', 'ct', 'st', 'op'], row2: ['ln', 'rect', 'circ', 'arc', 'txt']};
+  const SKEY = 'akx-core-strips';
+  let ST = (() => { try { const v = JSON.parse(localStorage.getItem(SKEY)); if (v && v.wall && v.plan && v.row2) return v; } catch (e) { } return clone(SDEF); })();
+  const stSave = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) { } };
+  const TOOLK = {sel: 'sel', dim: 'dim', arr: 'arr', st: 'wall'};               // ключ футляра → инструмент ядра
+  const IMPL = {sel: 1, dim: 1, arr: 1, st: 1, rf: () => { C.phm = !C.phm; ui(); }, cam: () => $('cCam').click(), gal: () => $('cFile').click()};
+  function useKey(k) {
+    if (C.crop) cropEnd();
+    if (TOOLK[k]) { C.tool = TOOLK[k]; C.phm = false; ui(); draw(); return; }
+    if (typeof IMPL[k] === 'function') { IMPL[k](); return; }
+    toast('«' + ((REG[k] && REG[k].title) || k) + '» — переносится на ядро следующими этапами');
+  }
+  const rowKey = el => (el.closest('#ch') ? C.mode : 'row2');
+  function renderStrips() {
+    const b = (k, cls) => { const r = REG[k]; return r ? `<button class="${cls}${TOOLK[k] === C.tool ? ' on' : ''}" data-q="${k}" title="${esc(r.title)}" style="--c:${r.c}">${r.icon}</button>` : ''; };
+    $('ch').innerHTML = ST[C.mode].map(k => b(k, 'pb')).join('');
+    $('zpSlots').innerHTML = ST.row2.map(k => b(k, '')).join('');
+    document.querySelectorAll('#tb .tl[data-k]').forEach(t => t.classList.toggle('on', TOOLK[t.dataset.k] === C.tool));
+  }
+  /* перетаскивание: палец/перо; порог 8 px — иначе касание */
+  let DG = null; const ghost = $('dgGhost');
+  const dgClear = () => { document.querySelectorAll('.dg-ins,.dg-ins-end,.dg-over,.dg-del,.dg-src').forEach(e => e.classList.remove('dg-ins', 'dg-ins-end', 'dg-over', 'dg-del', 'dg-src')); };
+  function dgTarget(x, y) {
+    ghost.classList.remove('on'); const el = document.elementFromPoint(x, y); if (DG && DG.moved) ghost.classList.add('on');
+    if (!el) return null;
+    if (el.closest('#bDelS')) return {t: 'del'};
+    const box = el.closest('#ch') ? $('ch') : el.closest('#zpb') ? $('zpSlots') : null; if (!box) return null;
+    const btns = [...box.querySelectorAll('[data-q]')]; let i = btns.findIndex(b => { const r = b.getBoundingClientRect(); return x < r.left + r.width / 2; }); if (i < 0) i = btns.length;
+    return {t: 'row', row: box.id === 'ch' ? C.mode : 'row2', i, btns, box};
+  }
+  document.addEventListener('pointerdown', e => {
+    const src = e.target.closest('#ch [data-q], #zpSlots [data-q], #tb .tl[data-k]'); if (!src) return;
+    e.preventDefault(); e.stopPropagation();
+    DG = {k: src.dataset.q || src.dataset.k, from: src.closest('#tb') ? 'tb' : rowKey(src), el: src, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false};
+    try { src.setPointerCapture(e.pointerId); } catch (_) { }
+  }, true);
+  document.addEventListener('pointermove', e => {
+    if (!DG || e.pointerId !== DG.id) return;
+    if (!DG.moved) { if (hyp(e.clientX - DG.x0, e.clientY - DG.y0) < 8) return; DG.moved = true; ghost.innerHTML = (REG[DG.k] || {}).icon || ''; ghost.classList.add('on'); DG.el.classList.add('dg-src'); }
+    ghost.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+    dgClear(); DG.el.classList.add('dg-src'); const t = dgTarget(e.clientX, e.clientY);
+    if (t && t.t === 'del' && DG.from !== 'tb') $('bDelS').classList.add('dg-del');
+    if (t && t.t === 'row') { (t.box.id === 'ch' ? $('ch') : $('zpb')).classList.add('dg-over'); if (t.btns[t.i]) t.btns[t.i].classList.add('dg-ins'); else if (t.btns.length) t.btns[t.btns.length - 1].classList.add('dg-ins-end'); }
+  }, true);
+  const dgEnd = e => {
+    if (!DG || e.pointerId !== DG.id) return; const g = DG; DG = null; ghost.classList.remove('on'); dgClear();
+    if (e.type === 'pointercancel') return;
+    if (!g.moved) { if (g.from === 'tb') $('tb').classList.remove('on'); useKey(g.k); return; }
+    const t = dgTarget(e.clientX, e.clientY); ghost.classList.remove('on');
+    if (t && t.t === 'del') { if (g.from !== 'tb') { ST[g.from] = ST[g.from].filter(k => k !== g.k); stSave(); renderStrips(); toast('Убрано из строки · в футляре остаётся'); } return; }
+    if (t && t.t === 'row') {
+      const dst = ST[t.row]; let i = t.i; const j = dst.indexOf(g.k);
+      if (j >= 0) { dst.splice(j, 1); if (j < i) i--; }
+      if (g.from !== 'tb' && g.from !== t.row) ST[g.from] = ST[g.from].filter(k => k !== g.k);
+      dst.splice(i, 0, g.k); stSave(); renderStrips();
+    }
+  };
+  document.addEventListener('pointerup', dgEnd, true); document.addEventListener('pointercancel', dgEnd, true);
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
   function ui() {
     document.body.classList.toggle('m-plan', C.mode === 'plan'); document.body.classList.toggle('m-wall', C.mode === 'wall');
-    document.querySelectorAll('#ch [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === C.tool));
+    if (!DG) renderStrips();
     document.querySelectorAll('#mdT [data-md]').forEach(b => b.classList.toggle('on', b.dataset.md === C.mode));
     $('bUnd').classList.toggle('dis', !HS.u.length); $('bRed').classList.toggle('dis', !HS.r.length); $('bDelS').classList.toggle('dis', !C.sel || !!C.crop);
     $('labCrop').classList.toggle('on', !!C.crop); $('fws').classList.toggle('on', !!C.phm && !C.crop && !KB.tg);
@@ -543,11 +607,12 @@
     if (B.length) { const sp = document.createElement('span'); sp.className = 'sep'; box.appendChild(sp); }
     for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; act(b, fn); box.appendChild(b); }
   }
-  document.querySelectorAll('#ch [data-t]').forEach(b => act(b, () => { if (C.crop) cropEnd(); C.tool = b.dataset.t; C.phm = false; ui(); draw(); }));
-  document.querySelectorAll('#mdT [data-md]').forEach(b => act(b, () => { C.mode = b.dataset.md; if (!TOOLS[C.mode].includes(C.tool)) C.tool = 'sel'; C.phm = false; ui(); draw(); }));
+  document.querySelectorAll('#mdT [data-md]').forEach(b => act(b, () => { C.mode = b.dataset.md; C.phm = false; ui(); draw(); }));
   document.querySelectorAll('[data-soon]').forEach(b => act(b, () => toast('«' + b.dataset.soon + '» — переносится на ядро следующими этапами')));
   document.querySelectorAll('#fws [data-rf]').forEach(b => act(b, () => { C.phm = false; ui(); $(b.dataset.rf === 'c' ? 'cCam' : 'cFile').click(); }));
-  act($('cPh'), () => { C.phm = !C.phm; ui(); });
+  act($('zpF'), () => $('tb').classList.toggle('on'));
+  act($('tbX'), () => $('tb').classList.remove('on'));
+  act($('bStripRs'), () => { $('zMenu').classList.remove('on'); ST = clone(SDEF); stSave(); renderStrips(); toast('Строки инструментов — по умолчанию'); });
   $('cCam').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   $('cFile').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   act($('bUnd'), () => { if (C.crop) cropEnd(); undo(); });
