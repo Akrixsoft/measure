@@ -278,6 +278,7 @@ const BASE = '51923bf';   // Measure 82.17 + запись плана до отк
     // удалить навсегда (из корзины) — затем импорт выгрузки обратно
     const ivBefore = await p.evaluate(async () => { const P = (await MeasureLabStore.projects()).find(x => x.client === 'Иванов'), R = await MeasureLabStore.records(P.id), refs = R.all.flatMap(o => (o.refs || []).map(r => 'ref:' + r.id)); return {pid: P.id, ids: R.all.map(o => o.id), refs}; });
     await p.evaluate(() => { leavePlan(); clearAll(); sessList(true); }); await p.waitForSelector('#labPrj.on'); await p.waitForTimeout(300);
+    await p.waitForFunction(() => !(MeasureLabSketch.bgBusy && MeasureLabSketch.bgBusy()) && MeasureLabProjects.isOpen(), null, {timeout: 20000}); await p.waitForTimeout(200);   // r5: openRoom другого проекта выше — переход холста и «Подготовка холста» (список возвращается после неё)
     r = await rowSel('Иванов'); await tap('pen', ...center(r.more)); await tapItem('pen', 'del'); await tapItem('pen', 'del'); await p.waitForTimeout(250);
     await tap('pen', ...center((await rowSel('▸ Корзина')).row));
     r = await rowSel('Иванов'); await tap('pen', ...center(r.more)); await tapItem('pen', 'purge');
