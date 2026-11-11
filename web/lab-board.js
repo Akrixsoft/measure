@@ -34,9 +34,12 @@
   const DRAWK = () => S.tool === 'mk' && !['sel', 'rsel'].includes(S.mk);
   const rh0 = rfHit; rfHit = function () { if (isB() && DRAWK()) return null; return rh0.apply(this, arguments); };
 
-  /* ═══ [BLOCK BD-ADD] фото — в видимую часть холста, ширина 600 мм подложки, без экрана распознавания; ↶ — штатным шагом ═══ */
+  /* ═══ [BLOCK BD-ADD] фото — в видимую часть холста, ширина 600 мм подложки, без экрана распознавания; ↶ — шаг-снимок ═══ */
   async function addRefs(files, at) {
     if (!isB()) return; const v = S.view, d = devicePixelRatio || 1, H = (typeof zFreeH === 'function' ? zFreeH() : cv.height);
+    /* 82.18 fix (QA Д1): добавление фото — шаг-снимок (refs в снимке undo-patch), не замыкание ZA: ↶ ↷ переживают перезапуск.
+       Снимок того же состояния уже сделан обёрткой rfAdd (lab-history) — второй не нужен (unsnap снимает и его метку журнала). */
+    snap(); { const U = S.und; if (U.length > 1 && U[U.length - 1] === U[U.length - 2]) unsnap(); }
     const p0 = at || toPl(cv.width * .08, H * .12); let x = p0[0]; const add = [];
     for (const f of files) {
       try {
@@ -49,8 +52,7 @@
         S.refs.push(r); add.push(r); x = r.x + r.w + w * .1;
       } catch (e) { say('Фото не добавлено: ' + e.message); }
     }
-    if (!add.length) return [];
-    zaAdd(() => { S.refs = S.refs.filter(x => !add.includes(x)); S.rsel = null; saveSess(); draw(); }, () => { S.refs.push(...add); saveSess(); draw(); });
+    if (!add.length) { unsnap(); return []; }
     S.rsel = add[add.length - 1].id; S.sel = null; S.msel = []; saveSess(); draw(); status();
     say(add.length > 1 ? `Фото на холсте: ${add.length} · ⌗ — 4 угла стены` : 'Фото на холсте · ⌗ — 4 угла стены, размеры — штатными стрелками');
     return add;

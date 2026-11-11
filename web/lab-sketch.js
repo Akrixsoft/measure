@@ -221,6 +221,7 @@
   function adopt() {   // открытая штатно стена / план без области — новая область
     const t = activeKind(); if (!t || t === 'board') return t === 'board' ? BOARD : null;
     if (t === 'plan') return planItem();
+    if (S.sess && S.sess.del) return null;   // 82.18 fix (Д1): удалённая (↶ «стена по фото») стена — без новой области
     const r = S.room0; if (r && (!r.wid || !r.wid[S.sess.seg])) { try { gnFix(r); } catch (e) { } }
     const B = bbox(), it = wallItem(S.sess, r); it.ax = (B ? B.x1 + 140 : 0) + WM.x * it.k; it.ay = (B ? B.y0 : 0) + (it.H + WM.t) * it.k + 40; K.items.push(it); save(); return it;
   }
@@ -498,8 +499,11 @@
     dim = dim || {}; K.quiet++; const v0 = {...K.view}, pid = p.id, Rp = refR(p);
     try {
       await saveNowSk(); try { await flushAll(); } catch (e) { } K.boardRec = await dbGet('sess', K.board).catch(() => K.boardRec) || K.boardRec;
+      const fresh = !to.id, planNew = !K.items.some(i => i.t === 'plan');
       if (to.id) await openRoom(to.id, null, true); else { await newRoom(K.obj, to.name, true); if (S.room) S.room.oid = K.pid; }
-      const r = S.room; if (!r) throw new Error('помещение не открыто'); const m = r.ms; plSnap();
+      /* 82.18 fix (QA Д1): новое помещение — часть одного шага «стена по фото» (↶ удаляет помещение, стену и созданные области целиком);
+         в существующем помещении — снимок плана (P) + шаг холста */
+      const r = S.room; if (!r) throw new Error('помещение не открыто'); const m = r.ms; if (!fresh) plSnap();
       let k = to.k;
       const asp = aspect(q2c(p.q)), pl0 = k != null && k !== 'new' ? plLen(m, k) : null;
       let H = dim.H || (+m.H > 0 ? +m.H : null), L = dim.L || (pl0 && pl0.ok ? pl0.v : null);
@@ -529,7 +533,8 @@
       await openSess(sid); if (S.tool !== 'mk') await zmSet('mk');
       for (let i = 0; i < 80; i++) { if (S.mosaic && S.q4 && S.q4.ok && !S.recomp && S.sess && S.sess.id === sid) { try { await saveNow(); } catch (e) { } const w = await dbGet('sess', sid).catch(() => null); if (w && w.out) break; } await new Promise(z => setTimeout(z, 75)); }   // снимок для выгрузки (out)
       K.view = v0; { const a = region(it), f = fsz(15) * 2 / K.view.s; fitRect(Math.min(a.x, Rp.x), Math.min(a.y - f, Rp.y), Math.max(a.x + a.w, Rp.x + Rp.w), Math.max(a.y + a.h, Rp.y + Rp.h)); } syncToS(it); K.lastWall = it.id; K.act = {t: 'wall', id: it.id}; save(); draw();
-      dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'wall', a: null, b: {id: it.id, sid, room: r.id, wid, photo: pid}}}));
+      const pit = planNew ? K.items.find(i => i.t === 'plan') : null;
+      dispatchEvent(new CustomEvent('measure-lab-canvas-op', {detail: {op: 'wall', a: null, b: {id: it.id, sid, room: r.id, wid, photo: pid, fresh: fresh ? 1 : 0, plan: pit ? clone(pit) : null}}}));
       say(`Стена ${it.name} · ${Math.round(L)}${aL ? ' ≈' : ''} × ${Math.round(H)}${aH ? ' ≈' : ''} — правка штатными инструментами`);
       return {room: r.id, k, sid, wid, item: it.id};
     } finally { K.quiet--; }
@@ -637,7 +642,7 @@
     await saveNowSk(); draw(); return K;
   }
   function curObj() { return (S.room && S.room.obj) || (S.room0 && S.room0.obj) || (S.sess && S.sess.obj) || ((document.getElementById('nObj') || {}).value || '').trim(); }
-  api.open = open; api.isOpen = () => K.on; api.pid = () => K.pid; api.region = region;
+  api.open = open; api.loadRooms = loadRooms; api.isOpen = () => K.on; api.pid = () => K.pid; api.region = region;
   api.close = () => false;   // холст не закрывается (решение владельца 11.11.2026)
   addEventListener('measure-lab-settings', () => { if (K.on) draw(); });
 
