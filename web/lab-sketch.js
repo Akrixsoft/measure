@@ -309,7 +309,7 @@
         if (cur === BOARD || (S.sess && S.sess.kind === 'board')) K.boardRec = await dbGet('sess', K.board).catch(() => K.boardRec) || K.boardRec;
         if (it === BOARD) { await openSess(K.board); }
         else if (it.t === 'wall') { let sid = sidOf(it); if (!sid) { await loadRooms(); sid = sidOf(it); } const o = sid && await dbGet('sess', sid); if (!o || o.del) { say('Стена не найдена в базе замеров'); return false; } await openSess(sid); K.lastWall = it.id; }
-        else { await loadRooms(); const r = K.rooms[0]; if (!r) { roomNew(); return false; } await openRoom(r.id, null, true); }
+        else { await loadRooms(); const r = (window.MeasureLabStore && MeasureLabStore.curRoom && K.rooms.find(x => x.id === MeasureLabStore.curRoom(K.pid))) || K.rooms[0]; if (!r) { roomNew(); return false; } await openRoom(r.id, null, true); }   /* r2c Н6: план — текущее помещение проекта (MeasureLabStore.curRoom), иначе первое */
         if (S.mode !== 'plan' && S.tool !== 'mk') { try { await zmSet('mk'); } catch (e) { } }   // любая поверхность — в разметке: ряд инструментов и футляр
         K.view = v0; K.sel = null; syncToS(it); K.act = it === BOARD ? {t: 'board'} : {t: it.t, id: it.id}; K.actT = Date.now(); save(); draw();
         dispatchEvent(new CustomEvent('measure-lab-activate', {detail: it === BOARD ? {t: 'board', sid: K.board} : it.t === 'plan' ? {t: 'plan', rid: S.room && S.room.id} : {t: 'wall', sid: S.sess && S.sess.id}}));

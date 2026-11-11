@@ -311,6 +311,7 @@
     await load(); root.classList.add('on'); document.body.classList.add('lab-prj-on'); V.on = true;   // меню проекта — поверх холста
     const back = () => { if (!sh.classList.contains('on') && !dg.classList.contains('on')) hide(); };
     const pn = sheet(ST.label(P), [
+      ...(await roomItems(P)),   // r2c Н6: помещения проекта — явный выбор текущего на плане (LP-ROOMS)
       {id: 'rename', t: 'Переименовать', ic: '✎', fn: () => renameDlg(P)},
       {id: 'move', t: 'В папку…', ic: '📁', fn: () => moveMenu(P)},
       {id: 'exp', t: 'Перенос холста: сохранить', ic: '⇪', fn: () => { const S2 = SK(); if (S2 && S2.cmd) S2.cmd('exp'); }},
@@ -327,6 +328,16 @@
   new MutationObserver(() => { const b = document.body.classList, k = (b.contains('lab-sketch') ? 1 : 0) + ',' + (b.contains('lab-prj-on') ? 1 : 0); if (k !== tuK) { tuK = k; titleSoon(); } }).observe(document.body, {attributes: true, attributeFilter: ['class']});
   addEventListener('measure-lab-activate', titleSoon);
   addEventListener('measure-lab-project', e => { const d = e.detail || {}; if (d.pid && d.pid === V.cur) titleUpd(); if (d.op === 'purge' && d.pid === V.cur) V.cur = null; });
+
+  /* ═══ [BLOCK LP-ROOMS] AKX-2026-0012 r2c Н6: шапка проекта → «⌂ помещение» (и пустое) — текущее помещение плана (MeasureLabStore.pickRoom).
+     Штатно v81 помещение меняется касанием стены другого помещения; пустое помещение так не выбрать — отсюда. Одно помещение — пунктов нет. ═══ */
+  async function roomItems(P) {
+    if (!ST.records || !ST.pickRoom) return [];
+    const R = await ST.records(P.id), rooms = R ? R.rooms.filter(r => !r.del && !r.pstub).sort((a, b) => (a.created || 0) - (b.created || 0)) : [];
+    if (rooms.length < 2) return [];
+    const cur = S.mode === 'plan' && S.room ? S.room.id : ST.curRoom(P.id);
+    return rooms.map(r => { const n = (r.ms && r.ms.pts || []).length; return {id: 'room:' + r.id, t: (r.name || 'Помещение') + (n < 2 ? ' · пусто' : ''), ic: '⌂', sel: r.id === cur, sub: r.id === cur ? 'текущее на плане' : '', fn: () => ST.pickRoom(P.id, r.id)}; });
+  }
 
   /* ═══ [BLOCK LP-ASK] AKX-2026-0012 Д9: вопрос окном списка (и поверх холста) → Promise со значением кнопки; касание фона / «назад» — null ═══ */
   api.ask = (title, text, buttons) => new Promise(res => {
