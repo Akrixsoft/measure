@@ -3,7 +3,7 @@
  "total": 36,
  "R": [
   {
-   "name": "версия в бандле 82.19",
+   "name": "версия в бандле 82.19.1",
    "ok": true
   },
   {
@@ -60,12 +60,12 @@
    "ok": true,
    "info": [
     {
-     "id": "nmwcj7v1500yk",
+     "id": "nmwck3g07c11o",
      "x": 2931,
      "y": -1164
     },
     {
-     "id": "nmwcj7v150pwo",
+     "id": "nmwck3g07339c",
      "x": 6687,
      "y": -1164
     }
@@ -160,7 +160,7 @@
    "ok": true,
    "info": {
     "t": "photo",
-    "id": "fmwcj7tpe2jmb"
+    "id": "fmwck3eomp2ys"
    }
   },
   {

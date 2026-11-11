@@ -32,7 +32,7 @@ const R = []; const ok = (name, cond, info) => { R.push({name, ok: !!cond, info}
   await shot('start');
 
   // 1. Фото группой через кнопку 📷 — системный выбор файлов
-  ok('версия в бандле 82.19', (await M('window.MeasureVersion')) === '82.19');
+  ok('версия в бандле 82.19.1', (await M('window.MeasureVersion')) === '82.19.1');
   const [bx, by] = await box('#cPh'); await tap(bx, by);
   ok('📷 → выбор «Камера / Галерея»', !!(await ctxBtn('Камера')) && !!(await ctxBtn('Галерея')));
   ok('камера — input с capture', await M('document.getElementById("cCam").hasAttribute("capture")'));

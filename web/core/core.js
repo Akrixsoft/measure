@@ -115,12 +115,13 @@
   function paint() {
     raf = 0; if (!D) return; const d = DPR(), W = cssW(), Hh = cssH();
     cx.setTransform(d, 0, 0, d, 0, 0); cx.fillStyle = '#f6f5f1'; cx.fillRect(0, 0, W, Hh);
-    grid(W, Hh);
+    const gst = grid(W, Hh);
     for (const p of D.photos) drawPhoto(p);
     for (const e of D.elev) drawElev(e);
     drawPlan();
     drawOverlay();
-    cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, Hh - 4);
+    scaleBar(W, Hh, gst);
+    cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.textBaseline = 'top'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, 6);
   }
   function grid(W, Hh) {
     let st = 100; while (st * V.s < 14) st *= 10;
@@ -131,6 +132,17 @@
       for (let y = Math.floor(a.y / s) * s; y <= b.y; y += s) { const Y = rnd(toS(0, y)[1]) + 0.5; cx.moveTo(0, Y); cx.lineTo(W, Y); }
       cx.stroke();
     }
+    return st;
+  }
+  /* [BLOCK C-SCALE] шкала масштаба в правом верхнем углу холста: размер клетки сетки + отрезок 1-2-5 длиной 60…150 px */
+  const mmTxt = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' мм';
+  function scaleBar(W, Hh, st) {
+    let L = 1; for (const m of [1, 2, 5, 10, 20, 50, 100, 200, 500, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 5e5]) { L = m; if (m * V.s >= 60) break; }
+    const px = L * V.s, x1 = W - 10, x0 = x1 - px, y = 52, t1 = mmTxt(L), t2 = '□ ' + mmTxt(st);
+    cx.font = '600 12px system-ui'; const tw = Math.max(cx.measureText(t1).width, cx.measureText(t2).width, px);
+    cx.fillStyle = '#ffffffd9'; cx.fillRect(x1 - tw - 8, y - 40, tw + 14, 46);
+    cx.strokeStyle = '#1b1e23'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x0, y - 6); cx.lineTo(x0, y); cx.lineTo(x1, y); cx.lineTo(x1, y - 6); cx.stroke();
+    cx.fillStyle = '#1b1e23'; cx.textAlign = 'right'; cx.textBaseline = 'bottom'; cx.fillText(t1, x1, y - 4); cx.fillStyle = '#5b636e'; cx.fillText(t2, x1, y - 22);
   }
   function drawPhoto(p) {
     const bm = bmp(p.img), cr = C.crop && C.crop.id === p.id ? C.crop : null;
@@ -467,7 +479,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, hs: HS, toS, toW, hit, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, hs: HS, toS, toW, hit, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
