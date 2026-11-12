@@ -1833,8 +1833,8 @@
         const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.12: ширина / высота объёма, не попавшие в цепочки, — на его лицевой грани
-        const put = (kk, ax, P0, P1) => { const ed = kbIs(kk, c.id), q0 = w3S3(R, P0), q1 = w3S3(R, P1), v = ax === 'x' ? vf.x1 - vf.x0 : vf.y1 - vf.y0;
-          EDL.push({id: e.id, k: kk, c: c.id, r: edimBox(ed ? kbTxt() : num(v), (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, ax === 'y', ed, !!c['fw' + ax], hyp(q1[0] - q0[0], q1[1] - q0[1]))}); };
+        const put = (kk, ax, P0, P1) => { const f = P0.map(Math.round).join(',') + '/' + P1.map(Math.round).join(','), ed = kbIs(kk, c.id, t => t.f === f), q0 = w3S3(R, P0), q1 = w3S3(R, P1), v = ax === 'x' ? vf.x1 - vf.x0 : vf.y1 - vf.y0;
+          EDL.push({id: e.id, k: kk, c: c.id, f, r: edimBox(ed ? kbTxt() : num(v), (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, ax === 'y', ed, !!c['fw' + ax], hyp(q1[0] - q0[0], q1[1] - q0[1]))}); };
         /* ═══ [BLOCK VOL-EDGES] 82.35.16: размер — на каждом доступном (видимом и измеряемом) ребре объёма ═══ */
         if (!vSeen.has(c.id + ':x')) put('cW', 'x', [vf.x0, vf.y0, vf.z], [vf.x1, vf.y0, vf.z]);   // низ лицевой грани
         put('cW', 'x', [vf.x0, vf.y1, vf.z], [vf.x1, vf.y1, vf.z]);                                  // верх лицевой грани (у потолка — примыкание)
@@ -1857,8 +1857,8 @@
         let ang = Math.atan2(b[1] - a[1], b[0] - a[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
         const rr = edimBoxA(tt, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, ang, ed, !!c.D, hyp(b[0] - a[0], b[1] - a[1])); EDL.push({id: e.id, k: 'D', c: c.id, r: rr}); }
       const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc);
-        if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
-        if (kbIs('cH', sc.id)) edimBox('H ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
+        if (kbIs('cW', sc.id, t => !t.f)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
+        if (kbIs('cH', sc.id, t => !t.f)) edimBox('H ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
   }
   function edHit(sx, sy) { let best = null, bd = 1e9; for (let i = EDL.length - 1; i >= 0; i--) { const o = EDL[i], r = o.r; if (!r.w) continue; const cx0 = r.x + r.w / 2, cy0 = r.y + r.h / 2, hw = Math.max(r.w / 2 + 4, 18), hh = Math.max(r.h / 2 + 4, 18);   // 82.35.14: мелкое поле — зона касания ≥ 36 px, ближайшее к пальцу
       if (Math.abs(sx - cx0) <= hw && Math.abs(sy - cy0) <= hh) { const d = hyp(sx - cx0, sy - cy0); if (d < bd) { bd = d; best = {t: 'edim', id: o.id, o, core: sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4}; } } } return best; }
@@ -1867,7 +1867,7 @@
     if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
     else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('wH', e.wall); }   // 82.35.5: высота — этой стены
     else if (o.k === 'D') { C.sel = {t: 'com', id: o.c}; openKb('cD', o.c); }
-    else if (o.k === 'cW' || o.k === 'cH') { C.sel = {t: 'com', id: o.c}; openKb(o.k, o.c); }
+    else if (o.k === 'cW' || o.k === 'cH') { C.sel = {t: 'com', id: o.c}; openKb(o.k, o.c); KB.tg.f = o.f; }   // 82.35.17: какое именно поле — набор видно только в нём
     else if (o.k === 'eE') { C.sel = {t: 'elev', id: e.id}; openKb('eE', e.id); KB.tg.side = o.side; KB.buf = String(rnd(eEdge(e, o.side))); KB.fresh = true; ui(); draw(); }   // грань — свой размер
     else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
     ui(); draw();

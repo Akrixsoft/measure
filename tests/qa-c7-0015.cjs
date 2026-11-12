@@ -34,6 +34,9 @@ require('./qa-h-0015.cjs')(process.argv[3], 9358).then(async h => {
   if (st) { await fitWall(0.2); await shot('c7-a60');
     const g = await M(`(() => { const R = MeasureCore.elevRect(MeasureCore.doc.elev[0]), m = MeasureCore.toS(R.x + R.w / 2, 0)[0]; return {m, f: MeasureCore.edl().filter(o => o.r.w > 0).map(o => ({k: o.k, x: o.r.x + o.r.w / 2, y: o.r.y + o.r.h / 2}))}; })()`);
     ok('60°: высоты на рёбрах — ригель 2 + короб 2 лицевых + внутренний угол короба', g.f.filter(o => o.k === 'cH').length === 5, g.f.map(o => o.k));
+    { const hs = (await M('MeasureCore.edl()')).filter(o => o.k === 'cH' && o.r.w > 0 && o.c === undefined || o.k === 'cH').filter(o => o.r.w > 0).sort((a, b) => a.r.x - b.r.x); const q = hs[0];
+      await tap(q.r.x + q.r.w / 2, q.r.y + q.r.h / 2 + top); await key('25'); await W(150); await shot('c7-typing');
+      const kb = await M('({t: MeasureCore.kb && MeasureCore.kb.t, f: MeasureCore.kb && MeasureCore.kb.f})'); ok('82.35.17: ввод привязан к одному полю (f)', kb.t === 'cH' && !!kb.f, kb); }
     const Ds = g.f.filter(o => o.k === 'D'); ok('60°: глубина ригеля слева и глубина короба — обе видны', Ds.length === 2 && Ds.some(o => o.x < g.m), Ds); }
   await finish();
 });
