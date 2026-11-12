@@ -66,6 +66,20 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
     await btn('#wChips [data-w="' + dd.elev.find(e => e.id === e0).wall + '"]'); await W(200); const R1 = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e=>e.id==='${e0}'))`);
     const k0 = await scr(R1.x + wn.x + wn.w + 190, R1.y + R1.h - 350); await tool('sel'); await tap(k0[0], k0[1]); await drag(k0, [k0[0] + 2, k0[1] - 14]);
     const kx = (await doc()).com.find(c => c.id === 'kx'); ok('привязка к грани окна (40 мм → 0)', kx.x === wn.x + wn.w, [kx.x, wn.x + wn.w]); }
+  // выгрузка v3
+  { const o = await M('MeasureCore.exportAkrix()'), r0 = o.rooms.find(r => r.ms.closed), ms = r0 && r0.ms;
+    ok('выгрузка: akrix-zamer v3 object', o.app === 'akrix-zamer' && o.v === 3 && o.kind === 'object');
+    ok('замкнутый контур: 4 стены, постоянные id', ms && ms.pts.length === 4 && Object.keys(ms.wl).length === 4 && Object.values(ms.wid).every(id => (await_d => true)()));
+    const wc1 = Object.values(ms.wl).find(w => w.gn === 1), col = wc1 && wc1.els.find(e => e.t === 'col');
+    ok('С1: колонна col x0 = 500, d = 300, во всю высоту', col && col.x0 === 500 && col.x1 === 900 && col.d === 300 && col.y1 === 2650, col);
+    ok('С1: розетка so N=2 st=71', wc1.pts.some(p => p.t === 'so' && p.N === 2 && p.st === 71));
+    ok('стена по рамке — отдельная открытая цепочка', o.rooms.some(r => !r.ms.closed && r.ms.pts.length === 2)); }
+  // контур, нарисованный против часовой (на экране): вид стены — изнутри
+  { await M(`(()=>{const d=MeasureCore.doc;const n=(id,x,y)=>({id,x,y});d.nodes.push(n('q1',20000,0),n('q2',20000,2000),n('q3',23000,2000),n('q4',23000,0));
+      d.walls.push({id:'wq1',a:'q4',b:'q1',gn:91},{id:'wq2',a:'q1',b:'q2',gn:92},{id:'wq3',a:'q2',b:'q3',gn:93},{id:'wq4',a:'q3',b:'q4',gn:94});
+      d.elev.push({id:'eq1',wall:'wq1',x:20000,y:-4000});d.com.push({id:'cq',k:'kol',e:'eq1',x:500,y:0,w:400,h:100});})()`);
+    const o = await M('MeasureCore.exportAkrix()'), r = o.rooms.find(r => r.ms.wid && Object.values(r.ms.wid).includes('wq1')), k = Object.keys(r.ms.wid).find(k => r.ms.wid[k] === 'wq1'), col = r.ms.wl[k].els[0];
+    ok('обратный контур: ccw по экрану, колонна x0 500 от левого края изнутри', r.ms.ccw === true && col.x0 === 500, [r.ms.ccw, col]); }
   ok('меню ⋮: стилус, слои, резервная копия', await M(`['bPenM','bLay','bBak','bRes','bRms'].every(id=>document.getElementById(id))`));
   await finish();
 });

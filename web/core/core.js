@@ -1418,8 +1418,8 @@
   const kbIs = (t, id, extra) => KB.tg && KB.tg.t === t && (id == null || KB.tg.id === id) && (!extra || extra(KB.tg));
   const kbTxt = v => (KB.buf || ' ') + '▏';
   function sideWalls(w) {                                        // соседние по плану: слева — у узла a, справа — у узла b (вид из помещения)
-    const nb = nid => { const o = D.walls.find(x => x.id !== w.id && (x.a === nid || x.b === nid)); return o ? {w: o, L: wLen(o)} : null; };
-    return {l: nb(w.a), r: nb(w.b)};
+    const nb = nid => { const o = D.walls.find(x => x.id !== w.id && (x.a === nid || x.b === nid)); return o ? {w: o, L: wLen(o)} : null; }, v = wallView(w);
+    return {l: nb(v.a), r: nb(v.b)};
   }
   /* авторазмеры до граней (правила 82.18, владелец 11.11.2026): объём, касающийся ребра стены, режет ребро — цепочка вместо габарита;
      объём в середине — цепочка «до грани» по каждой оси; без повторов (по длине — одна подпись на отрезок; по высоте боковые остаются);
@@ -1491,7 +1491,7 @@
   function segApply(tg, v) { if (tg.s) adApply(tg.s, v); }
   /* колонна / ниша на плане (вид сверху): у своей стены, ширина — по развёртке, глубина — Z (без Z — отрезок ширины по стене) */
   function drawPlanCols() {
-    for (const c of D.com) { if (c.k !== 'kol' && c.k !== 'nis') continue; const e = elev(c.e), w = e && wall(e.wall), a = w && node(w.a), b = w && node(w.b); if (!a || !b) continue;
+    for (const c of D.com) { if (c.k !== 'kol' && c.k !== 'nis') continue; const e = elev(c.e), w = e && wall(e.wall), vw = w && wallView(w), a = vw && node(vw.a), b = vw && node(vw.b); if (!a || !b) continue;
       const L = wLen(w); if (!L) continue; const r = cRect(c), ux = (b.x - a.x) / L, uy = (b.y - a.y) / L, nx = -uy, ny = ux;
       const p0 = {x: a.x + ux * r.x, y: a.y + uy * r.x}, p1 = {x: a.x + ux * (r.x + r.w), y: a.y + uy * (r.x + r.w)}, sel = C.sel && C.sel.t === 'com' && C.sel.id === c.id, col = sel ? COL.sel : CK[c.k].c;
       if (c.D) { const d = c.D, Q = [p0, p1, {x: p1.x + nx * d, y: p1.y + ny * d}, {x: p0.x + nx * d, y: p0.y + ny * d}].map(q => toS(q.x, q.y));
@@ -1524,7 +1524,7 @@
   (() => { const m = $('zMenu'); m.innerHTML = '<button id="bExp">⇪ Выгрузка для Akrix</button><button id="bPenM"></button><button id="bLay">◫ Слои</button><button id="bBak">💾 Резервная копия</button><button id="bRes">♻ Восстановить</button><button id="bRms">⌂ Помещения / группы стен</button><button id="bUpdChk">⟳ Проверить обновления</button><button id="bStripRs">Строки инструментов — по умолчанию</button>';
     $('bPenM').textContent = penTxt(); })();
   const mClose = () => $('zMenu').classList.remove('on');
-  act($('bExp'), () => { mClose(); toast('Выгрузка для Akrix v3 — блок Б7 (следующий)'); });
+  act($('bExp'), () => { mClose(); exportFile(); });
   act($('bPenM'), () => { PEN.on = !PEN.on; try { localStorage.setItem('akx-core-pen', PEN.on ? '1' : '0'); } catch (e) { } $('bPenM').textContent = penTxt(); mClose(); toast(penTxt()); });
   act($('bLay'), () => { mClose(); layPanel(); });
   act($('bBak'), () => { mClose(); exportPrj(); });
@@ -1593,6 +1593,66 @@
     if (fr && fr.wall) B.push(['🔍', () => recognize(fr), 'Распознать по фото (на телефоне)']);
   }
 
+  /* ═══ [BLOCK C-EXP] Б7 выгрузка для Akrix — контракт `akrix-zamer`, kind:object, v:3 (как v81 / 82.18: rooms[].ms — pts, closed, dims, H, wl, ccw, gn, wid, geo, wsd, labRooms; prd).
+     Связная цепочка стен плана → помещение выгрузки; замкнутая — ccw (y вверх), X элементов — от левого края при взгляде из помещения; открытая — от узла a.
+     Стены — постоянные id (w.id), С№ — gn. Элементы: AK_RC / AK_PT / ZN v81; d — Z (|Z|). Трассы, фасон, изделия — не выгружаются (в ядре нет записи v81 для них). ═══ */
+  const AK_PT = {wire: 'el', roz: 'so', vyk: 'sw', svet: 'li', slab: 'wi', hvs: 'wa', gvs: 'wh', kan: 'dr', gaz: 'ga', vent: 've'}, AK_RC = {win: 'win', door: 'door', nis: 'niche', kol: 'col', rig: 'beam', kor: 'box'}, AK_ZN = {zon: 'zon', znd: 'znd', znt: 'znt', znf: 'znf', shield: 'shield'};
+  function chainsOfPlan() {
+    const left = new Set(D.walls.map(w => w.id)), out = [];
+    const other = (w, n) => (w.a === n ? w.b : w.a);
+    while (left.size) {
+      const comp = []; const st = [D.walls.find(w => left.has(w.id))]; while (st.length) { const w = st.pop(); if (!left.has(w.id)) continue; left.delete(w.id); comp.push(w); for (const o of D.walls) if (left.has(o.id) && [o.a, o.b].some(n => n === w.a || n === w.b)) st.push(o); }
+      const dg = n => comp.filter(w => w.a === n || w.b === n).length; let start = comp.map(w => [w.a, w.b]).flat().find(n => dg(n) === 1) || comp[0].a;
+      const used = new Set(), seq = [], nodes = [start]; let cur = start;
+      for (;;) { const w = comp.find(x => !used.has(x.id) && (x.a === cur || x.b === cur)); if (!w) break; used.add(w.id); seq.push(w); cur = other(w, cur); nodes.push(cur); }
+      const closed = seq.length > 2 && nodes[0] === nodes[nodes.length - 1]; if (closed) nodes.pop();
+      out.push({walls: seq, nodes, closed, rest: comp.filter(w => !used.has(w.id))});
+      for (const w of comp.filter(w => !used.has(w.id))) left.add(w.id);   // ветвление — оставшиеся стены следующей цепочкой
+    }
+    return out;
+  }
+  /* вид стены — из помещения (82.13): у стены замкнутого контура левый край развёртки (x = 0) — левый при взгляде изнутри; у открытой цепочки — узел a */
+  function wallView(w) {
+    const ch = chainsOfPlan().find(c => c.closed && c.walls.some(x => x.id === w.id)); if (!ch) return {a: w.a, b: w.b};
+    const poly = ch.nodes.map(id => node(id)), a = node(w.a), b = node(w.b), L = wLen(w) || 1, m = {x: (a.x + b.x) / 2 - (b.y - a.y) / L * 30, y: (a.y + b.y) / 2 + (b.x - a.x) / L * 30};
+    return inPoly(m, poly) ? {a: w.a, b: w.b} : {a: w.b, b: w.a};
+  }
+  function exportAkrix() {
+    if (!D.walls.length) { toast('Выгрузка: на плане нет стен'); return null; }
+    const date = new Date().toISOString(), H = Hmm() || 0, rooms = [], gnMax = Math.max(0, ...D.walls.map(w => w.gn));
+    for (const ch of chainsOfPlan()) {
+      const nodes = ch.nodes.map(id => node(id)), walls = ch.walls.slice(), o0 = nodes[0], E = n => [rnd(n.x - o0.x), rnd(n.y - o0.y)];   // оси как в v81: y вниз (пример 82.18: pts [0,0]…[4000,-3000], ccw:true)
+      const P = nodes.map(E), area = P.reduce((s, p, i) => { const q = P[(i + 1) % P.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0);
+      const poly = nodes.map(n => ({x: n.x, y: n.y})), wl = {}, gnM = {}, wid = {}, wsd = {}, gw = [], dims = [];
+      walls.forEach((w, k) => {
+        const pa = nodes[k], L = rnd(wLen(w)), e = D.elev.find(x => x.wall === w.id), Hw = H;
+        const flip = false; void pa;                             // X развёртки ядра — уже от левого края при взгляде из помещения (wallView), как v81
+        const X = (x, wd) => rnd(flip ? L - x - (wd || 0) : x), els = [], pts = [], zn = []; let no = 0;
+        for (const c of D.com) { if (!e || c.e !== e.id) continue; const K = CK[c.k];
+          if (AK_RC[c.k]) { const r = cRect(c), o = {id: c.id, t: AK_RC[c.k], x0: X(r.x, r.w), x1: X(r.x, r.w) + rnd(r.w), y0: rnd(r.y), y1: rnd(r.y + r.h), note: '', no: ++no}; if (c.D) o.d = rnd(Math.abs(c.D)); els.push(o); }
+          else if (AK_PT[c.k]) { const N = c.N > 1 ? c.N : null, xs = N ? X(c.x, (N - 1) * PSTEP) : X(c.x); pts.push({id: c.id, t: AK_PT[c.k], x: xs, y: rnd(c.y), D: null, N, st: N ? PSTEP : null, note: '', no: ++no}); }
+          else if (AK_ZN[c.k]) { const r = cRect(c), o = {id: c.id, t: AK_ZN[c.k], x: X(r.x, r.w), y: rnd(r.y), W: rnd(r.w), H: rnd(r.h), note: ''}; if (c.D) o.d = rnd(Math.abs(c.D)); zn.push(o); }
+          void K; }
+        wl[k] = {H: Hw, els, pts, zn, gn: w.gn, id: w.id, L}; gnM[k] = w.gn; wid[k] = w.id; wsd[k] = 1;
+        const q = k + 1 < P.length ? k + 1 : 0; dims.push({id: 'ql' + k, a: {p: k}, b: {p: q}, v: L});
+        gw.push({k, gn: w.gn, id: w.id, a: P[k], b: P[q] || P[k], L, ok: 1, ...(ch.closed && k === walls.length - 1 ? {cl: 1} : {})});
+      });
+      const labRooms = D.rooms.filter(r => r.walls.some(id => walls.some(w => w.id === id))).map((r, i) => ({id: r.id, zn: i + 1, name: r.name, pts: r.poly.map(([x, y]) => [rnd(x - o0.x), rnd(y - o0.y)]), walls: r.walls.filter(id => walls.some(w => w.id === id))}));
+      const rid = 'r_' + walls[0].id, nm = labRooms.length === 1 ? labRooms[0].name : '';
+      rooms.push({app: 'akrix-zamer', v: 3, kind: 'room', id: rid, date, obj: D.name || '', name: nm,
+        ms: {labRooms, labDividers: [], v: 1, lvl: 'd', pts: P, closed: ch.closed, dims, angs: {}, ink: [], H, wl, ccw: ch.closed ? area < 0 : false, arcs: {}, rnd: {}, gn: gnM, wid,
+          geo: {v: 1, rules: 'zamer-18', walls: gw, err: 0, rnd: {}, mm: 0}, wsd}});
+    }
+    return {app: 'akrix-zamer', v: 3, kind: 'object', date, obj: D.name || '', oid: D.id, rooms, gnMax, prd: []};
+  }
+  async function exportFile() {
+    const o = exportAkrix(); if (!o) return null; await save(); const txt = JSON.stringify(o);
+    const fn = 'zamer-' + ((D.name || 'объект').replace(/[^\wа-яё .-]+/gi, '_').slice(0, 40)) + '-' + new Date().toISOString().slice(0, 10) + '.json';
+    if (window.AkrixApp && AkrixApp.save) { AkrixApp.save(fn, 'application/json', txt); toast('Выгрузка: Загрузки/Akrix · ' + fn); }
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type: 'application/json'})); a.download = fn; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('Выгрузка: ' + fn); }
+    return o;
+  }
+
   /* ═══ [BLOCK C-BACK] системная «назад» Android: локальные действия; false — выйти можно ═══ */
   window.AkrixBack = () => {
     if (KB.tg) { closeEd(false); return true; }
@@ -1623,7 +1683,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, draw: () => draw(), recognize: id => recognize(frame(id)), edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, draw: () => draw(), recognize: id => recognize(frame(id)), exportAkrix, edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
