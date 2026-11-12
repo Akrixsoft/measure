@@ -1597,10 +1597,10 @@
     try {
       const b = await get('img', p.img); if (!b) throw new Error('нет фото'); const img = await MeasureFW.img(b, 1200), k = img.W / p.iw;
       const qi = f.q.map(([u, v]) => [u * p.iw * k, v * p.ih * k]), R = MeasureFW.rectify(img, qi, L, H); if (!R) throw new Error('углы рамки — неверно');
-      const items = MeasureFW.detect(R, {}) || [], r = R.r, out = [];
+      const items = MeasureFW.detect(R, {}) || [], out = [];   // fwDetect отдаёт мм выпрямленной стены (x — от левого края, y — от верха)
       for (const it of items) {
-        if ((it.k === 'rt' || it.k === 'st') && it.pts) { const [a, c] = it.pts; out.push({id: uid('f'), e: e.id, k: 'wrt', a: [rnd(a[0] * r), rnd(H - a[1] * r)], b: [rnd(c[0] * r), rnd(H - c[1] * r)], t: RTT.some(x => x[0] === it.t) ? it.t : 'el', conf: it.conf}); continue; }
-        const kk = FK2[it.k]; if (!kk || it.x0 == null) continue; const x0 = it.x0 * r, x1 = it.x1 * r, y0 = H - it.y1 * r, y1 = H - it.y0 * r;
+        if ((it.k === 'rt' || it.k === 'st') && it.pts) { const [a, c] = it.pts; out.push({id: uid('f'), e: e.id, k: 'wrt', a: [rnd(a[0]), rnd(H - a[1])], b: [rnd(c[0]), rnd(H - c[1])], t: RTT.some(x => x[0] === it.t) ? it.t : 'el', conf: it.conf}); continue; }
+        const kk = FK2[it.k]; if (!kk || it.x0 == null) continue; const x0 = it.x0, x1 = it.x1, y0 = H - it.y1, y1 = H - it.y0;
         if (CK[kk].pt) { const N = Math.max(1, Math.min(5, it.n || 1)); out.push({id: uid('f'), e: e.id, k: kk, x: rnd(CK[kk].ps && N > 1 ? x0 + PSTEP / 2 : (x0 + x1) / 2), y: rnd((y0 + y1) / 2), N, conf: it.conf}); }
         else out.push({id: uid('f'), e: e.id, k: kk, x: rnd(x0), y: rnd(y0), w: rnd(x1 - x0), h: rnd(y1 - y0), conf: it.conf});
       }
