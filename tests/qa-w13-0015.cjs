@@ -50,6 +50,22 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   await key('2400ok'); await W(200); d = await doc(); const e = d.elev.find(x => x.wall === d.frames[0].wall), P2 = d.photos[0];
   ok('стена по рамке создана', !!e); ok('развёртка над фото', e && e.y + 2650 < P2.y, e && [e.y, P2.y]);
   await M('MeasureCore.fitAll()'); await W(200); await shot('frame-wall-above');
+  await W(1500); ok('распознавание отработало без ошибок', !h.errs.length, h.errs);
+  // найденное: касание — на стену, ✓ всё
+  await M(`(()=>{const d=MeasureCore.doc,e=d.elev[0].id;d.found=[{id:'f1',e,k:'roz',x:800,y:300,N:2},{id:'f2',e,k:'win',x:1200,y:900,w:800,h:1200}];MeasureCore.draw()})()`);
+  await M('MeasureCore.fitAll()'); await W(200); d = await doc(); const Re = await M('MeasureCore.elevRect(MeasureCore.doc.elev[0])');
+  const nC = d.com.length; const fs = await scr(Re.x + 800, Re.y + Re.h - 300); await tool('sel'); await tap(fs[0], fs[1]);
+  d = await doc(); ok('касание найденного — на стену', d.com.length === nC + 1 && d.found.length === 1 && d.com.some(c => c.k === 'roz' && c.N === 2));
+  const ok1 = await ctxBtn('Всё найденное'); ok('«✓ всё» в модификаторах', !!ok1); await tap(ok1[0], ok1[1]); d = await doc(); ok('всё найденное — на стену', d.found.length === 0 && d.com.some(c => c.k === 'win'));
+  // выбор стен вверху
+  ok('выбор стен С1…Сn вверху', (await M('document.querySelectorAll("#wChips.on button").length')) === d.walls.length);
+  await btn('#wChips [data-w="' + d.walls[1].id + '"]'); await W(200); ok('касание С2 без развёртки → H есть → развёртка С2', (await doc()).elev.some(e => e.wall === d.walls[1].id));
+  // привязка к грани другого объекта
+  { const dd = await doc(), wn = dd.com.find(c => c.k === 'win'), e0 = wn.e;
+    await M(`(()=>{const d=MeasureCore.doc;d.com.push({id:'kx',k:'kor',e:'${e0}',x:${wn.x + wn.w + 40},y:200,w:300,h:300});MeasureCore.draw()})()`);
+    await btn('#wChips [data-w="' + dd.elev.find(e => e.id === e0).wall + '"]'); await W(200); const R1 = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e=>e.id==='${e0}'))`);
+    const k0 = await scr(R1.x + wn.x + wn.w + 190, R1.y + R1.h - 350); await tool('sel'); await tap(k0[0], k0[1]); await drag(k0, [k0[0] + 2, k0[1] - 14]);
+    const kx = (await doc()).com.find(c => c.id === 'kx'); ok('привязка к грани окна (40 мм → 0)', kx.x === wn.x + wn.w, [kx.x, wn.x + wn.w]); }
   ok('меню ⋮: стилус, слои, резервная копия', await M(`['bPenM','bLay','bBak','bRes','bRms'].every(id=>document.getElementById(id))`));
   await finish();
 });
