@@ -149,7 +149,7 @@ body.kb #cKb{display:grid}
 #lay input{width:20px;height:20px}
 
 /* [BLOCK C-REST-CSS] выбор стен С1-Сn вверху (82.13) */
-#wChips{position:fixed;left:6px;right:130px;top:92px;z-index:6;display:none;gap:4px;overflow-x:auto;padding:2px}
+#wChips{position:fixed;left:6px;right:130px;top:52px;z-index:6;display:none;gap:4px;overflow-x:auto;padding:2px}
 #wChips.on{display:flex}
 #wChips button{flex:none;min-width:34px;height:28px;border-radius:7px;border:1px solid #c9ced6;background:#2b2f35;color:#e8ebef;font:700 13px system-ui}
 #wChips button.on{background:#F6E08A;color:#1A2027;border-color:#d4a300}

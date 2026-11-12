@@ -140,7 +140,7 @@
     drawOverlay();
     drawGroup();
     scaleBar(W, Hh, gst);
-    cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.textBaseline = 'top'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, 6);
+    cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.textBaseline = 'top'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, 6 + topOff());
   }
   function grid(W, Hh) {
     let st = 100; while (st * V.s < 14) st *= 10;
@@ -155,7 +155,8 @@
   }
   /* [BLOCK C-SCALE] размер клетки сетки — серым слева вверху под версией: «□ 1 000» (справа — переключатель вида) */
   const num = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  function scaleBar(W, Hh, st) { cx.font = '600 13px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('□ ' + num(st), 6, 24); }
+  function scaleBar(W, Hh, st) { cx.font = '600 13px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('□ ' + num(st), 6, 24 + topOff()); }
+  const topOff = () => (D && D.walls.length ? 36 : 0);          // подписи стен — под шапкой, версия и масштаб ниже (владелец 12.11.2026)
   function drawPhoto(p) {
     if (C.phHide) return;
     const bm = bmp(p.img), cr = C.crop && C.crop.id === p.id ? C.crop : null;
@@ -943,6 +944,8 @@
     let x, y; if (last) { x = last.x; y = last.y + phH(last) + GAP; } else { const q = toW(cssW() * 0.2, 24); x = rnd(q.x); y = rnd(q.y); }
     begin();
     for (const o of out) { const p = {id: uid('f'), img: o.key, x: rnd(x), y: rnd(y), w: rnd(PW), iw: o.w, ih: o.h, cr: [0, 0, 1, 1]}; D.photos.push(p); y += phH(p) + GAP; }
+    C.sel = null; C.msel = D.photos.slice(-out.length).map(p => ({t: 'photo', id: p.id}));    // вставленные — выделены (группой), чтобы было видно
+    if (out.length === 1) { C.sel = C.msel[0]; C.msel = []; }
     commit(); await save();
     const f0 = D.photos[D.photos.length - out.length], [, sy] = toS(f0.x, f0.y);
     toast(`Добавлено фото: ${out.length}` + (sy > cssH() || sy < 0 ? ' · ниже, ⤢ — показать всё' : ''));
@@ -1408,11 +1411,11 @@
   const comLay = c => { const K = CK[c.k] || {}; return K.pt || K.ln ? LAY.kom : (c.k === 'zon' || c.k === 'znd' || c.k === 'shield') ? LAY.zon : LAY.el; };
   const EDL = [];                                                // поля размеров развёрток: {id (развёртка), k, r (px), …}
   const STRUCT = new Set(['kol', 'nis', 'kor', 'rig', 'win', 'door']);
-  function edimBox(t, X, Y, vert, ed) {                          // поле 82.13
+  function edimBox(t, X, Y, vert, ed, ent) {                     // поле 82.13; введённое — чёрным, примерное (по чертежу) — красным (владелец 12.11.2026)
     cx.save(); cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; const tw = cx.measureText(t).width + 8 * W3.f, th = 17 * W3.f;
     cx.translate(X, Y); if (vert) cx.rotate(-Math.PI / 2);
-    cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fillRect(-tw / 2, -th / 2, tw, th); cx.setLineDash([3, 2]); cx.strokeStyle = '#d93025'; cx.lineWidth = 1; cx.strokeRect(-tw / 2 + 0.5, -th / 2 + 0.5, tw - 1, th - 1); cx.setLineDash([]);
-    cx.fillStyle = '#d93025'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
+    cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fillRect(-tw / 2, -th / 2, tw, th); const fc = ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1; cx.strokeRect(-tw / 2 + 0.5, -th / 2 + 0.5, tw - 1, th - 1); cx.setLineDash([]);
+    cx.fillStyle = fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
   }
   const kbIs = (t, id, extra) => KB.tg && KB.tg.t === t && (id == null || KB.tg.id === id) && (!extra || extra(KB.tg));
@@ -1477,7 +1480,8 @@
     for (const e of D.elev) { const w = wall(e.wall); if (!w) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
       autoDims(e, R).forEach((sg, i) => { sg.R = R;
         const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('H') : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
-        const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed);
+        const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!D.H : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
+        const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc);
         if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
