@@ -51,6 +51,9 @@ require('./qa-h-0015.cjs')(process.argv[2], 9358).then(async h => {
     ok(k + ' нарисован, не выделен', D2.dims.length === n0 + 1 && D2.dims[D2.dims.length - 1].k === k && !(await M('MeasureCore.sel')), {n: D2.dims.length, sel: await M('MeasureCore.sel')}); }
   { await h.tool('arr'); await h.drag([120, 200], [300, 150]); const D3 = await doc(), q = D3.dims[D3.dims.length - 1], A = await M(`MeasureCore.endPos(${JSON.stringify(q.a)})`), B = await M(`MeasureCore.endPos(${JSON.stringify(q.b)})`);
     ok('∟ вкл: стрелка по диагонали → горизонтально', Math.abs(A.y - B.y) < 0.5, [A, B]); }
+  { const P = await M(`(() => { const e = MeasureCore.doc.elev.find(x => x.id === 'e1'), R = MeasureCore.elevRect(e); return {R, a: MeasureCore.toS(R.x + 2200, R.y + R.h - 900), b: MeasureCore.toS(R.x + R.w + 300, R.y + R.h - 950)}; })()`), t0 = await M('document.getElementById("cCv").getBoundingClientRect().top');
+    await h.tool('arr'); await h.drag([P.a[0], P.a[1] + t0], [P.b[0], P.b[1] + t0]); const D4 = await doc(), q = D4.dims[D4.dims.length - 1], B = await M(`MeasureCore.endPos(${JSON.stringify(q.b)})`);
+    ok('стрелка за край стены → конец на грани стены', q.b.t === 'elev' && Math.abs(q.b.u - 1) < 1e-6 && Math.abs(B.x - (P.R.x + P.R.w)) < 0.5, q.b); }
   await shot('arrow-dim');
   await M(`localStorage.removeItem('akx-core-cfg')`);
   await finish();

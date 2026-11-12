@@ -27,7 +27,8 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   const R = await M('MeasureCore.elevRect(MeasureCore.doc.elev[0])'), at = (x, y) => scr(R.x + x, R.y + R.h - y);
   await tool('kol'); await drag(await at(2000, 2600), await at(2400, 100));
   ok('колонна после рисования не выделена', !(await M('MeasureCore.sel'))); await tool('sel'); { const q = await at(2200, 1300); await tap(q[0], q[1]); }   // 82.35.1: выбрать касанием
-  const wh = await ctxBtn('Ширина колонны'); ok('модификатор W (колонна — во всю высоту)', !!wh); await tap(wh[0], wh[1]); await key('400ok');
+  ok('у колонны нет кнопок W и Z (82.35.3)', !(await ctxBtn('Ширина колонны')) && !(await ctxBtn('Z — глубина')));
+  { const ew = (await M('MeasureCore.edl()')).find(o => o.k === 'seg' && o.s.ax === 'x' && o.s.A && o.s.B && o.s.A.vol && o.s.A.vol === o.s.B.vol); ok('ширина колонны — полем на грани', !!ew); await tap(ew.r.x + ew.r.w / 2, ew.r.y + ew.r.h / 2 + top); await key('400ok'); }
   d = await doc(); let c = d.com.find(x => x.k === 'kol'); ok('колонна 400, во всю высоту', c.w === 400 && (await M(`MeasureCore.cRect('${c.id}')`)).h === 2650, c);
   let e2 = await M('MeasureCore.edl()'); const segs = e2.filter(o => o.k === 'seg'); ok('колонна: одна цепочка до граней (3 звена), общего L нет', segs.length === 3 && !e2.some(o => o.k === 'L'), e2.map(o => o.k + ':' + (o.s && Math.round(o.s.v))));
   const g0 = segs[0]; await tap(g0.r.x + g0.r.w / 2, g0.r.y + g0.r.h / 2 + top); await key('500ok'); d = await doc(); c = d.com.find(x => x.k === 'kol');
@@ -40,7 +41,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   const s381 = e3.find(o => o.k === 'seg' && o.s.ax === 'y' && Math.round(o.s.v) === 381); await tap(s381.r.x + s381.r.w / 2, s381.r.y + s381.r.h / 2 + top); await key('400ok');
   d = await doc(); const rg2 = d.com.find(x => x.k === 'rig'); ok('поле 381 → 400: ригель растёт вниз, верх у потолка', rg2.h === 400 && rg2.y === 2250, rg2);
   await tool('sel'); { const s = await at(700, 1200); await tap(s[0], s[1]); }
-  const zb = await ctxBtn('Z — глубина'); await tap(zb[0], zb[1]); await key('300ok'); ok('Z колонны 300', (await doc()).com.find(x => x.k === 'kol').D === 300);
+  { const fz = (await M('MeasureCore.edl()')).find(o => o.k === 'D'); ok('глубина колонны — полем на боковой грани', !!fz); if (fz) { await tap(fz.r.x + fz.r.w / 2, fz.r.y + fz.r.h / 2 + top); await key('300ok'); } ok('Z колонны 300', (await doc()).com.find(x => x.k === 'kol').D === 300); }
   await M('MeasureCore.fitAll()'); await W(200); await shot('wall-82-13');
   // фото: 4 угла по диагонали → стена над фото
   await addPhotos([path.join(process.argv[2], 'p1.jpg')]); d = await doc(); const P = d.photos[0];
