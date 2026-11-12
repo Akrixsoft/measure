@@ -16,7 +16,7 @@ button{font-family:inherit;cursor:pointer}
 #cCv{position:fixed;left:0;top:48px;width:100%;height:calc(100% - 48px);display:block;touch-action:none}
 #bFit{position:fixed;right:8px;top:100px;width:38px;height:38px;display:grid;place-items:center;padding:1px 6px;background:#2b2f35;border:1px solid #3a4150;border-radius:10px;color:#e8ebef;font:18px Arial;box-shadow:0 2px 8px rgba(26,32,39,.15);z-index:4}
 /* переключатель вида #mdT (82.18) */
-#mdT{position:fixed;right:8px;top:56px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#mdT{position:fixed;right:8px;top:96px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 #mdT button{width:28px;height:28px;border-radius:7px;border:none;background:none;color:#CFD4DC;display:grid;place-items:center;padding:0}
 #mdT button svg{width:20px;height:20px}
 #mdT button.on{background:#F6E08A;color:#1A2027}
@@ -135,7 +135,7 @@ body.kb #cKb{display:grid}
 
 /* [BLOCK C-W13-CSS] вид стены 82.13 на холсте: ∠° Aa 📐 вверху справа, ползунок; модификаторы — 3-я строка снизу справа, ширина по числу; слои */
 #mdT button{width:auto;min-width:30px;padding:0 7px;font:600 14px system-ui}
-#w3sl{position:fixed;right:8px;top:92px;z-index:7;display:none;width:250px;background:rgba(22,25,30,.95);color:#e8ebef;border-radius:10px;padding:8px 10px;font:12px system-ui;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#w3sl{position:fixed;right:8px;top:134px;z-index:7;display:none;width:250px;background:rgba(22,25,30,.95);color:#e8ebef;border-radius:10px;padding:8px 10px;font:12px system-ui;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 #w3sl.on{display:block}
 #w3sl input{width:100%}
 #w3sl .t{display:flex;justify-content:space-between;color:#9aa3ad;font-size:10px}
@@ -149,7 +149,7 @@ body.kb #cKb{display:grid}
 #lay input{width:20px;height:20px}
 
 /* [BLOCK C-REST-CSS] выбор стен С1-Сn вверху (82.13) */
-#wChips{position:fixed;left:6px;right:130px;top:52px;z-index:6;display:none;gap:4px;overflow-x:auto;padding:2px}
+#wChips{position:fixed;left:6px;right:6px;top:52px;z-index:6;display:none;gap:4px;overflow-x:auto;padding:2px}
 #wChips.on{display:flex}
 #wChips button{flex:none;min-width:34px;height:28px;border-radius:7px;border:1px solid #c9ced6;background:#2b2f35;color:#e8ebef;font:700 13px system-ui}
 #wChips button.on{background:#F6E08A;color:#1A2027;border-color:#d4a300}
@@ -196,3 +196,10 @@ body.kb #cKb{display:grid}
 #wHf button{min-width:76px;height:38px;padding:0 10px;background:#1a1d22;border:1px solid #5a616c;border-radius:8px;color:#fff;font:700 16px system-ui}
 #wHf button.ed{border-color:#F2B233;background:#2a2610}
 #wHf small{color:#AEB5BF;font-size:11px}
+/* [BLOCK C-VW-CSS] 82.35.6: вкладки стен — на всю ширину; ∠° Aa 📐 — шагом ниже справа; под ними — план ⇄ развёртка и развёртка вкл / выкл */
+#vwB{position:fixed;right:8px;top:138px;z-index:6;display:none;flex-direction:column;gap:8px}
+#vwB.on{display:flex}
+#vwB button{width:48px;height:48px;border-radius:12px;background:#2b2f35;border:2px solid #F2B233;display:grid;place-items:center;padding:0;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+#vwB button svg{width:34px;height:34px}
+#vwB button.na{border-color:#5a616c;opacity:.45}
+#vwOff .i2{display:none}#vwOff.off .i1{display:none}#vwOff.off .i2{display:block}
