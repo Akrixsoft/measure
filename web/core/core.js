@@ -252,9 +252,10 @@
       const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : d.c || COLD.line;
       cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = dimLW(on); cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
       const hl = zLW(CFG.arrowPx); head(bx, by, ux, uy, hl); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, hl);
-      const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.txt;
+      const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.kind === 'man' ? val.txt : '?';   // 82.35.14: невведённый — «?»
       let ang = Math.atan2(by - ay, bx - ax); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
-      cx.font = `700 ${Math.round(TXP())}px system-ui`; const fh = FLP(), tw = Math.max(fh, cx.measureText(t).width + fh * 0.55);
+      const fq = edit || on ? 1 : fk(); if (TXP() * fq < 6.5) continue;   // 82.35.14: поле — в масштабе холста, нечитаемое скрыто
+      cx.font = `700 ${TXP() * fq}px system-ui`; const fh = FLP() * fq, tw = Math.max(fh, cx.measureText(t).width + fh * 0.55);
       const [cxp, cyp] = fPlace((ax + bx) / 2, (ay + by) / 2, tw, fh, ang, L);
       const fc = edit ? '#c99a1e' : val.kind === 'man' ? '#1a2027' : val.kind === 'geo' ? '#d93025' : '#8a9099';   // введённый — чёрный, авто — красный, ≈ по фото — серый
       cx.save(); cx.translate(cxp, cyp); cx.rotate(ang); rrect(-tw / 2, -fh / 2, tw, fh, 3);
@@ -478,6 +479,9 @@
     for (const k in CFGR) o[k] = Math.max(CFGR[k][0], Math.min(CFGR[k][1], +o[k] || CFG0[k])); return o; })();
   const cfgSv = () => { try { localStorage.setItem('akx-core-cfg', JSON.stringify(CFG)); } catch (e) { } };
   const zLW = w => { const z = V.fs ? V.s / V.fs : 1; return Math.max(w * 0.6, Math.min(w * 2, w * Math.pow(z, 0.35))); };
+  /* ═══ [BLOCK FSCALE] 82.35.14: поле размера масштабируется с холстом — полный размер при V.s ≥ FS0 (≈ стена на экран), меньше — пропорционально, нечитаемое (< 6,5 px) скрыто; невведённый размер — «?» ═══ */
+  const FS0 = 0.14, fk = () => Math.min(1, V.s / FS0), FHID = {x: -1e5, y: -1e5, w: 0, h: 0};
+  /* ═══ [/BLOCK FSCALE] ═══ */
   const TXP = () => Math.max(6, CFG.textPx * W3.f), FLP = () => Math.max(10, CFG.fieldPx * W3.f, TXP() + 2);
   const dimLW = sel => zLW(1.6 * LW.v / 3) * (sel ? 1.5 : 1);
   /* поля без наложения (w3Place v81, упрощённо): центр → вдоль линии в её пределах → поперёк (h/2+2, h+6) с обеих сторон; FPL — занятые за кадр */
@@ -1570,17 +1574,18 @@
   const EDL = [];                                                // поля размеров развёрток: {id (развёртка), k, r (px), …}
   const STRUCT = new Set(['kol', 'nis', 'kor', 'rig', 'win', 'door']);
   function edimBox(t, X, Y, vert, ed, ent, L) {                  // поле 82.13 в стиле v81 (82.35): скруглено 3, обводка 1,2, размеры из настроек, без наложения; введённое — чёрным, примерное — красным
-    cx.save(); cx.font = `700 ${Math.round(TXP())}px system-ui`; const th = FLP(), tw = Math.max(th, cx.measureText(t).width + th * 0.55), a = vert ? -Math.PI / 2 : 0;
-    [X, Y] = ed ? [X, Y] : fPlace(X, Y, tw, th, a, L);
+    const k = ed ? 1 : fk(); if (TXP() * k < 6.5) return FHID; if (!ed && !ent) t = '?';   // 82.35.14: по центру грани, без сдвига
+    cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55), a = vert ? -Math.PI / 2 : 0;
     cx.translate(X, Y); if (vert) cx.rotate(a);
-    rrect(-tw / 2, -th / 2, tw, th, 3); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
+    rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
     cx.fillStyle = ed ? '#1a2027' : fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
   }
   function edimBoxA(t, X, Y, a, ed, ent, L) {                    // поле под углом (глубина объёма — вдоль ребра глубины)
-    cx.save(); cx.font = `700 ${Math.round(TXP())}px system-ui`; const th = FLP(), tw = Math.max(th, cx.measureText(t).width + th * 0.55);
-    [X, Y] = ed ? [X, Y] : fPlace(X, Y, tw, th, a, L); cx.translate(X, Y); cx.rotate(a);
-    rrect(-tw / 2, -th / 2, tw, th, 3); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
+    const k = ed ? 1 : fk(); if (TXP() * k < 6.5) return FHID; if (!ed && !ent) t = '?';   // 82.35.14: по центру ребра, масштаб с холстом
+    cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55);
+    cx.translate(X, Y); cx.rotate(a);
+    rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
     cx.fillStyle = ed ? '#1a2027' : fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     const b = fbox(X, Y, tw, th, a); return b;
   }
@@ -1815,7 +1820,9 @@
           const r = edimBox(t, m0[0], m0[1], sg.kind === 'H', ed, en, (sg.kind === 'H' ? Math.abs(P1[1] - P0[1]) : v) * V.s);
           EDL.push({id: e.id, k: sg.kind === 'H' ? 'eE' : dv ? 'eE' : 'L', side, i, s: sg, r}); return; }
         const ed = kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
-        const vo = sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol ? sg.A.vol.c : null, vf = vo && (CK[vo.k] || {}).D ? volFaces(vo) : null;   // размеры цепочек у стены — на своих гранях (82.35.13)
+        let vo = sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol ? sg.A.vol.c : null;
+        if (!vo) vo = D.com.find(c => c.e === e.id && (CK[c.k] || {}).D && comLay(c) && (() => { const r = cRect(c); return sg.ax === 'x' ? Math.abs(sg.a - r.x) < 1 && Math.abs(sg.b - r.x - r.w) < 1 && (sg.line < R.h / 2 ? r.y < 1 : r.y + r.h > R.h - 1) : Math.abs(sg.a - r.y) < 1 && Math.abs(sg.b - r.y - r.h) < 1 && (sg.line < R.w / 2 ? r.x < 1 : r.x + r.w > R.w - 1); })()) || null;   // отрезок ровно по объёму, объём у этой стороны стены — тоже его размер (82.35.14)
+        const vf = vo && (CK[vo.k] || {}).D ? volFaces(vo) : null;   // размеры цепочек у стены — на своих гранях (82.35.13)
         if (vf && sg.ax === 'y' && vo.k !== 'kol') return;          // высота объёма — ниже, на его лицевых рёбрах
         if (vf) {                                                    // 82.35.12: размер объёма — на его внешней (лицевой) грани
           const en = sg.ax === 'y' && vo.k === 'kol' ? !!(w.H || D.H) : !!vo['fw' + sg.ax];

@@ -7,13 +7,15 @@ require('./qa-h-0015.cjs')(process.argv[2], 9358).then(async h => {
     D.elev.push({id:'e1',wall:'w1',x:0,y:-3200},{id:'e2',wall:'w2',x:3600,y:-3200},{id:'e4',wall:'w4',x:-2600,y:-3200});
     D.com.push({id:'c1',k:'roz',e:'e1',x:800,y:300,N:2},{id:'c2',k:'vyk',e:'e1',x:2200,y:900},{id:'c3',k:'roz',e:'e2',x:500,y:300},{id:'c4',k:'kol',e:'e1',x:1400,y:0,w:300,h:2700});
     D.dims.push({id:'d1',k:'dim',a:{t:'elev',id:'e1',u:0,v:1},b:{t:'com',id:'c1',i:0},v:''});
-    MeasureCore.fitAll(); MeasureCore.draw(); })()`); await W(300);
+    MeasureCore.fitAll(); { const V = MeasureCore.view, r = MeasureCore.elevRect(D.elev.find(e => e.id === 'e1')); if (V.s < 0.14) { V.s = 0.14; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 420 - (r.y + r.h / 2) * V.s; } }   /* 82.35.14: на обзоре всего проекта поля скрыты — приблизить к С1 */
+    MeasureCore.draw(); })()`); await W(300);
   await shot('setup');
   // точка по введённому размеру
   const A = await M(`MeasureCore.endPos({t:'elev',id:'e1',u:0,v:1})`), B0 = await M(`MeasureCore.endPos({t:'com',id:'c1',i:0})`);
   const L0 = Math.hypot(B0.x - A.x, B0.y - A.y);
   const dl = (await M('MeasureCore.dlabels()')).find(o => o.id === 'd1'); const t = await M('document.getElementById("cCv").getBoundingClientRect().top');
   await tap(dl.x, dl.y + t); await W(200); await key('1000ok'); await W(300);
+  await M('MeasureCore.fitAll(); MeasureCore.draw()'); await W(200);   /* 82.35.14: дальше — обзор как раньше */
   const B1 = await M(`MeasureCore.endPos({t:'com',id:'c1',i:0})`), L1 = Math.hypot(B1.x - A.x, B1.y - A.y);
   ok('точка встала на введённый размер 1000', Math.abs(L1 - 1000) < 1.5, {L0: Math.round(L0), L1: Math.round(L1)});
   ok('направление сохранено', Math.abs((B1.x - A.x) / L1 - (B0.x - A.x) / L0) < 0.01);
