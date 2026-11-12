@@ -112,8 +112,9 @@
   }
   function fitAll() {
     const b = bounds(); if (!b) return; const m = 28, bw = Math.max(1, b.x1 - b.x0), bh = Math.max(1, b.y1 - b.y0);
-    V.s = clamp(Math.min((cssW() - 2 * m) / bw, (cssH() - 2 * m) / bh), 0.005, 5);
-    V.ox = (cssW() - bw * V.s) / 2 - b.x0 * V.s; V.oy = (cssH() - bh * V.s) / 2 - b.y0 * V.s; viewChanged();
+    const zf = $('zf'), cvT = cv.getBoundingClientRect().top, mb = zf ? Math.max(m, cvT + cssH() - zf.getBoundingClientRect().top + 14) : m, mt = 56;   // всё — между верхними кнопками и нижними строками
+    V.s = clamp(Math.min((cssW() - 2 * m) / bw, (cssH() - mt - mb) / bh), 0.005, 5);
+    V.ox = (cssW() - bw * V.s) / 2 - b.x0 * V.s; V.oy = mt + (cssH() - mt - mb - bh * V.s) / 2 - b.y0 * V.s; viewChanged();
   }
 
   /* ═══ [BLOCK C-DRAW] отрисовка: сетка → фото → развёртки → план → выделение ═══ */
@@ -827,6 +828,7 @@
   function photoCorners(p) { const [x, y] = toS(p.x, p.y), w = p.w * V.s, h = phH(p) * V.s; return [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]; }
   function hit(sx, sy) {
     const s = C.sel;
+    if (!C.crop) { const he = edHit(sx, sy); if (he) return he; }   // поля размеров развёртки — раньше ручек выбранного
     if (C.crop) { const p = photo(C.crop.id); const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'crop-h', id: p.id, c};
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
     if (s && s.t === 'photo') { const p = photo(s.id); if (p) { const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'ph-h', id: p.id, c}; } }
@@ -1410,12 +1412,41 @@
     const nb = nid => { const o = D.walls.find(x => x.id !== w.id && (x.a === nid || x.b === nid)); return o ? {w: o, L: wLen(o)} : null; };
     return {l: nb(w.a), r: nb(w.b)};
   }
-  function elevChain(e, R) {                                     // низ: 0, грани элементов, L — сегменты (номинал)
-    const els = D.com.filter(c => c.e === e.id && STRUCT.has(c.k) && CK[c.k].rc).map(c => ({c, r: cRect(c)})).filter(o => o.r).sort((a, b) => a.r.x - b.r.x);
-    const P = [{x: 0}]; for (const o of els) { P.push({x: o.r.x, c: o.c, s: 'L'}); P.push({x: o.r.x + o.r.w, c: o.c, s: 'R'}); } P.push({x: R.w});
-    const S = []; for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i], v = b.x - a.x; if (Math.abs(v) < 0.5) continue;
-      S.push({x0: a.x, x1: b.x, v, own: a.c && a.s === 'L' && b.c === a.c ? {c: a.c, k: 'w'} : b.c && b.s === 'L' ? {c: b.c, k: 'gapL'} : a.c && a.s === 'R' ? {c: a.c, k: 'gapR'} : null}); }
-    return {S, has: els.length > 0};
+  /* авторазмеры до граней (правила 82.18, владелец 11.11.2026): объём, касающийся ребра стены, режет ребро — цепочка вместо габарита;
+     объём в середине — цепочка «до грани» по каждой оси; без повторов (по длине — одна подпись на отрезок; по высоте боковые остаются);
+     правка: звено объёма — его Ш / В (у потолка растёт вниз); от края / соседа до грани — положение (объём от края до края — размер); H стены — своим полем */
+  const VOL = new Set(['kol', 'nis', 'kor', 'rig']);
+  function autoDims(e, R) {
+    const T = 1, vols = D.com.filter(c => c.e === e.id && VOL.has(c.k)).map(c => { const r = cRect(c); return r && {c, x0: r.x, x1: r.x + r.w, y0: r.y, y1: r.y + r.h}; }).filter(Boolean);
+    const out = [], seen = new Set();
+    const chain = (ax, line, lo, hi, cut, kind) => {            // cut — объёмы на линии; точки: край, грани, край
+      const P = [{v: lo, o: {edge: 'lo'}}]; for (const o of cut) { P.push({v: ax === 'x' ? o.x0 : o.y0, o: {vol: o, f: 'lo'}}); P.push({v: ax === 'x' ? o.x1 : o.y1, o: {vol: o, f: 'hi'}}); }
+      P.push({v: hi, o: {edge: 'hi'}}); P.sort((a, b) => a.v - b.v);
+      const S = []; for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i]; if (b.v - a.v < 0.5) continue; S.push({ax, line, a: a.v, b: b.v, v: b.v - a.v, A: a.o, B: b.o, kind}); } return S;
+    };
+    const touch = {t: vols.filter(o => o.y1 >= R.h - T), b: vols.filter(o => o.y0 <= T), l: vols.filter(o => o.x0 <= T), r: vols.filter(o => o.x1 >= R.w - T)};
+    const top = touch.t.length ? chain('x', R.h, 0, R.w, touch.t, 'edge') : null, bot = touch.b.length ? chain('x', 0, 0, R.w, touch.b, 'edge') : null;
+    const sig = S => S.map(s => s.a + ':' + s.b).join('|');
+    if (top && bot && sig(top) === sig(bot)) out.push(...bot); else { if (top) out.push(...top); if (bot) out.push(...bot); if (!top && !bot) out.push({ax: 'x', line: R.h, a: 0, b: R.w, v: R.w, kind: 'L'}); else if (!top) out.push({ax: 'x', line: R.h, a: 0, b: R.w, v: R.w, kind: 'L'}); }
+    out.push(...(touch.l.length ? chain('y', 0, 0, R.h, touch.l, 'edge') : [{ax: 'y', line: 0, a: 0, b: R.h, v: R.h, kind: 'H'}]));
+    out.push(...(touch.r.length ? chain('y', R.w, 0, R.h, touch.r, 'edge') : [{ax: 'y', line: R.w, a: 0, b: R.h, v: R.h, kind: 'H'}]));
+    for (const s of out) seen.add(s.ax + s.a.toFixed(0) + ':' + s.b.toFixed(0));
+    for (const o of vols) {                                      // объём в середине: «до грани» по каждой оси, без повторов
+      if (!touch.t.includes(o) && !touch.b.includes(o)) for (const s of chain('y', (o.x0 + o.x1) / 2, 0, R.h, [o], 'vol')) { const k = 'y' + s.a.toFixed(0) + ':' + s.b.toFixed(0); if (!seen.has(k)) { seen.add(k); out.push(s); } }
+      if (!touch.l.includes(o) && !touch.r.includes(o)) for (const s of chain('x', (o.y0 + o.y1) / 2, 0, R.w, [o], 'vol')) { const k = 'x' + s.a.toFixed(0) + ':' + s.b.toFixed(0); if (!seen.has(k)) { seen.add(k); out.push(s); } }
+    }
+    return out;
+  }
+  function adApply(s, v) {
+    if (!(v > 0)) return; const R0 = s.R, A = s.A || {}, B = s.B || {}, ax = s.ax, Hh = R0.h, Ww = R0.w, lim = ax === 'x' ? Ww : Hh;
+    const set = (c, lo, hi) => { begin(); delete c.ex; delete c.ey; if (ax === 'x') { c.x = rnd(lo); c.w = Math.max(1, rnd(hi - lo)); } else if (c.k !== 'kol') { c.y = rnd(lo); c.h = Math.max(1, rnd(hi - lo)); } commit(); };
+    const box = o => ax === 'x' ? [o.x0, o.x1] : [o.y0, o.y1], T = 1;
+    if (A.vol && B.vol && A.vol === B.vol) { const [lo, hi] = box(A.vol), atHi = hi >= lim - T && lo > T; atHi ? set(A.vol.c, hi - v, hi) : set(A.vol.c, lo, lo + v); return; }   // звено объёма — Ш / В
+    const mv = B.vol && !(A.vol && box(B.vol)[1] >= lim - T) ? {o: B.vol, side: 'lo'} : A.vol ? {o: A.vol, side: 'hi'} : null;      // зазор — объём со стороны от края
+    if (!mv) { toast('Габарит стены — своим полем'); return; }
+    const [lo, hi] = box(mv.o), d = v - s.v;
+    if (mv.side === 'lo') { if (hi >= lim - T) set(mv.o.c, lo + d, hi); else set(mv.o.c, lo + d, hi + d); }      // справа / сверху от зазора
+    else { if (lo <= T) set(mv.o.c, lo, hi - d); else set(mv.o.c, lo - d, hi - d); }                               // слева / снизу от зазора (зазор до правого края / потолка)
   }
   function drawElev(e) {
     const r = elevRect(e), w = wall(e.wall); if (!w) return;
@@ -1432,15 +1463,13 @@
   function drawElevDims() {                                      // после объектов стены — поля сверху всего
     EDL.length = 0; if (!LAY.dim) return;
     for (const e of D.elev) { const w = wall(e.wall); if (!w) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
-      EDL.push({id: e.id, k: 'L', r: edimBox(kbIs('wall', w.id) ? kbTxt() : num(R.w), x + W / 2, y, false, kbIs('wall', w.id))});
-      for (const X of [x, x + W]) EDL.push({id: e.id, k: 'H', r: edimBox(kbIs('H') ? kbTxt() : num(R.h), X, y + H / 2, true, kbIs('H'))});
-      const ch = elevChain(e, R); if (!ch.has) EDL.push({id: e.id, k: 'L', r: edimBox(num(R.w), x + W / 2, y + H, false, false)});
-      else ch.S.forEach((s, i) => { const ed = kbIs('eSeg', e.id, t => t.i === i); EDL.push({id: e.id, k: 'seg', i, s, r: edimBox(ed ? kbTxt() : num(s.v), x + (s.x0 + s.x1) / 2 * V.s, y + H, false, ed)}); });
-      const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc), X = x + (rr.x + rr.w) * V.s + 12 * W3.f;
-        const seg = [['F', 0, rr.y], ['h', rr.y, rr.y + rr.h], ['C', rr.y + rr.h, R.h]];
-        for (const [k, y0, y1] of seg) { if (y1 - y0 < 0.5) continue; const ed = k === 'h' ? kbIs('cH', sc.id) : kbIs('cOf', sc.id, t => t.side === k);
-          EDL.push({id: e.id, k: 'v' + k, c: sc.id, r: edimBox(ed ? kbTxt() : num(y1 - y0), X, y + H - (y0 + y1) / 2 * V.s, true, ed)}); }
-        if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
+      autoDims(e, R).forEach((sg, i) => { sg.R = R;
+        const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('H') : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
+        const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed);
+        EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
+      const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc);
+        if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
+        if (kbIs('cH', sc.id)) edimBox('H ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
   }
   function edHit(sx, sy) { for (let i = EDL.length - 1; i >= 0; i--) { const o = EDL[i], r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'edim', id: o.id, o}; } return null; }
   function edTap(h) {
@@ -1448,18 +1477,9 @@
     if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
     else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('H', null); }
     else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
-    else if (o.k === 'vh') { C.sel = {t: 'com', id: o.c}; openKb('cH', o.c); }
-    else { C.sel = {t: 'com', id: o.c}; openKb('cOf', o.c); KB.tg.side = o.k.slice(1); const c = com(o.c), r = cRect(c); KB.buf = String(rnd(o.k === 'vF' ? r.y : r.R.h - r.y - r.h)); }
     ui(); draw();
   }
-  function segApply(tg, v) {                                     // правка звена цепочки: ширина элемента или зазор до его грани
-    const s = tg.s, own = s && s.own; if (!own || !(v >= 0)) { toast('Это звено — от края до края стены: длина вводится сверху'); return; }
-    const c = com(own.c.id); if (!c) return; const r = cRect(c); begin(); delete c.ex;
-    if (own.k === 'w') { c.x = r.x; c.w = Math.max(1, rnd(v)); }
-    else if (own.k === 'gapL') c.x = rnd(r.x + (v - s.v));            // зазор слева от элемента — элемент сдвигается
-    else c.x = rnd(r.x - (v - s.v));                                   // зазор справа (до края / следующего) — элемент сдвигается влево
-    commit();
-  }
+  function segApply(tg, v) { if (tg.s) adApply(tg.s, v); }
   /* колонна / ниша на плане (вид сверху): у своей стены, ширина — по развёртке, глубина — Z (без Z — отрезок ширины по стене) */
   function drawPlanCols() {
     for (const c of D.com) { if (c.k !== 'kol' && c.k !== 'nis') continue; const e = elev(c.e), w = e && wall(e.wall), a = w && node(w.a), b = w && node(w.b); if (!a || !b) continue;
@@ -1532,7 +1552,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, draw: () => draw(), edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
