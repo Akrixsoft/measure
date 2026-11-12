@@ -19,7 +19,7 @@ module.exports = async function harness(OUT, port) {
   const path_ = async (pts) => { await T('touchStart', [pts[0]]); for (const q of pts.slice(1)) { await T('touchMove', [q]); await W(10); } await T('touchEnd', []); await W(220); };
   const M = js => p.evaluate(js);
   const box = sel => p.evaluate(s => { const e = document.querySelector(s); if (!e || !e.offsetParent) return null; if (e.closest('.zcols')) e.scrollIntoView({block: 'nearest', inline: 'nearest'}); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
-  const btn = async sel => { const b = await box(sel); if (!b) throw new Error('нет кнопки ' + sel); await tap(b[0], b[1]); };
+  const btn = async sel => { if (/#mdT \[data-md/.test(sel)) return;   /* переключатель «план/стены» убран (12.11.2026) — шаг отключён */ const b = await box(sel); if (!b) throw new Error('нет кнопки ' + sel); await tap(b[0], b[1]); };
   const key = async seq => { for (const k of seq.match(/ok|bs|pm|./g)) await btn('#cKb [data-kk="' + k + '"]'); };
   const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zMods button, #zpb button, #labCrop button, #fws button, .ctxp button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
   const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
