@@ -7,7 +7,14 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   await M('MeasureCore.view.ox=40;MeasureCore.view.oy=60;MeasureCore.view.s=0.1'); await tool('ct');
   for (const [x, y] of [[60, 200], [330, 200], [330, 420], [60, 420], [60, 200]]) await tap(x, y);
   let d = await doc(); ok('контур 4 стены', d.walls.length === 4);
-  const w1 = d.walls[0], lb = (await M('MeasureCore.labels()')).find(l => l.id === w1.id); await tap(lb.x + lb.w / 2, lb.y + lb.h / 2 + top); await key('3000ok');
+  const w1 = d.walls[0];   /* 82.35.8: на плане длины нет — вводится полем L на развёртке */
+  ok('на плане — только обозначение', await M(`(() => { const l = MeasureCore.labels().find(l => l.id === '${w1.id}'); return !!l && l.w < 60; })()`));
+  await M(`(() => { MeasureCore.sel = {t: 'wall', id: '${w1.id}'}; })()`); await btn('#vwGo'); await W(250);
+  { const e1 = (await doc()).elev.find(e => e.wall === w1.id), fl = (await M('MeasureCore.edl()')).find(o => o.k === 'L' && (o.s ? true : true)); const all = await M(`MeasureCore.edl().map(o => ({k: o.k, r: o.r}))`); const L1 = (await M(`(() => { const L = []; return L; })()`), all.filter(o => o.k === 'L'));
+    const R = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e => e.id === '${e1.id}'))`), q = await M(`MeasureCore.toS(${R.x + R.w / 2}, ${R.y})`);
+    const f = L1.sort((a, b) => Math.hypot(a.r.x + a.r.w / 2 - q[0], a.r.y + a.r.h / 2 - q[1]) - Math.hypot(b.r.x + b.r.w / 2 - q[0], b.r.y + b.r.h / 2 - q[1]))[0];
+    await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); await key('3000ok'); }
+  await M(`(() => { MeasureCore.sel = null; })()`); await M('MeasureCore.fitAll()'); await W(250);
   d = await doc(); ok('длина введена → стена фиксирована', d.walls[0].fx === 1);
   await tool('sel'); const n0 = d.nodes.find(n => n.id === w1.a), s0 = await scr(n0.x, n0.y); await drag(s0, [s0[0] + 40, s0[1] + 30]);
   d = await doc(); const n1 = d.nodes.find(n => n.id === w1.a); ok('узел фиксированной стены не тянется', n1.x === n0.x && n1.y === n0.y);

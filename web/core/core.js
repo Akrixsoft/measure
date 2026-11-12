@@ -201,7 +201,7 @@
       const [ax, ay] = toS(a.x, a.y), [bx, by] = toS(b.x, b.y), L = hyp(bx - ax, by - ay); if (L < 24) continue;
       const nx = -(by - ay) / L, ny = (bx - ax) / L, on = C.sel && C.sel.t === 'wall' && C.sel.id === w.id;
       const ed = KB.tg && KB.tg.t === 'wall' && KB.tg.id === w.id;
-      LBL.set(w.id, labelA(ed ? `С${w.gn}  ${KB.buf || ' '}▏` : `С${w.gn}  ${rnd(wLen(w))}`, (ax + bx) / 2, (ay + by) / 2, Math.atan2(by - ay, bx - ax), on ? COL.sel : COL.wall, hyp(bx - ax, by - ay)));
+      LBL.set(w.id, labelA(ed ? `С${w.gn}  ${KB.buf || ' '}▏` : `С${w.gn}`,   /* 82.35.8: на плане — только обозначение, длина — на развёртке */ (ax + bx) / 2, (ay + by) / 2, Math.atan2(by - ay, bx - ax), on ? COL.sel : COL.wall, hyp(bx - ax, by - ay)));
     }
   }
   function drawOverlay() {
@@ -1234,7 +1234,7 @@
     if (B6tap(g, h)) return;
     if (B4tap(g, h)) return;
     if (typeof B3tap === 'function' && B3tap(g, h)) return;
-    if (h && h.t === 'label') { C.sel = {t: 'wall', id: h.id}; ui(); draw(); openEd(h.id); return; }
+    if (h && h.t === 'label') { C.sel = {t: 'wall', id: h.id}; ui(); draw(); return; }   // 82.35.8: обозначение — выбор стены; длина вводится на развёртке
     if (h && h.t === 'dlabel') { C.sel = {t: 'dim', id: h.id}; ui(); draw(); openKb('dim', h.id); return; }
     if (h && h.t === 'elabel') { C.sel = {t: 'elev', id: h.id}; ui(); draw(); const e = elev(h.id); if (e) openKb('wH', e.wall); return; }
     if (C.tool === 'dim' || C.tool === 'arr') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'dim' || hh.t === 'dim-h') ? {t: 'dim', id: hh.id} : null; ui(); draw(); return; }
@@ -1629,14 +1629,14 @@
     const [x, y] = toS(r.x, r.y), W = r.w * V.s, H = r.h * V.s, on = (C.sel && C.sel.t === 'elev' && C.sel.id === e.id) || inMsel('elev', e.id);
     // 82.35.3: соседние стены и пол — проекция v81 (w1): глубина z (мм к зрителю) сдвигает точку на (0,6·((2x/L−1)+t)·z, 0,6·z); ∠° — наклон t, боковые параллельно
     for (const S of w3Sides(e, r)) { if (!S.vis) continue; const Q = [S.T0, S.T1, S.B1, S.B0], ps = W3S.e === e.id && w3Mode() && W3S.pl === (S.sd < 0 ? 'L' : 'R');
-      cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = ps ? '#C6D7EC' : '#e9e3da'; cx.fill(); cx.strokeStyle = ps ? '#1F6FD1' : '#b9b2a6'; cx.lineWidth = ps ? 2.5 : 1; cx.stroke();
+      cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = ps ? '#FFF1B3' : '#e9e3da'; cx.fill(); cx.strokeStyle = ps ? '#E0B800' : '#b9b2a6'; cx.lineWidth = ps ? 2.5 : 1; cx.stroke();
       if (CFG.side) sideEls(S);
       const mx = (S.T0[0] + S.T1[0] + S.B0[0] + S.B1[0]) / 4, my = (S.T0[1] + S.T1[1] + S.B0[1] + S.B1[1]) / 4;
       cx.save(); cx.font = '600 11px system-ui'; cx.fillStyle = '#6b6457'; cx.translate(mx, my); cx.rotate(S.sd * Math.PI / 2); cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('С' + S.o.w.gn, 0, 0); cx.restore(); }
-    { const F = w3Floor(e, r), pf = W3S.e === e.id && w3Mode() && W3S.pl === 'floor'; cx.beginPath(); F.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = pf ? '#B9CCE3' : '#d9dcdf'; cx.fill(); cx.strokeStyle = pf ? '#1F6FD1' : '#b9bec5'; cx.lineWidth = pf ? 2.5 : 1; cx.stroke(); }
+    { const F = w3Floor(e, r), pf = W3S.e === e.id && w3Mode() && W3S.pl === 'floor'; cx.beginPath(); F.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = pf ? '#FFEC99' : '#d9dcdf'; cx.fill(); cx.strokeStyle = pf ? '#E0B800' : '#b9bec5'; cx.lineWidth = pf ? 2.5 : 1; cx.stroke(); }
     { const Q = ['A', 'B', 'C', 'D'].map(k => w3S3(r, w3C(e, r, k))), act = W3S.e === e.id && w3Mode(), pm = act && W3S.pl === 'M';   // 82.35.4: контур по углам с отклонениями; выбранная плоскость — заливкой (v81, 4 угла)
-      cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = '#dbe9f7'; cx.fill(); if (pm) { cx.fillStyle = 'rgba(31,111,209,.13)'; cx.fill(); }
-      cx.strokeStyle = on ? COL.sel : '#1f6fd1'; cx.lineWidth = on ? 3 : pm ? 2.5 : 2; cx.stroke(); }
+      cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = pm ? '#FFF3BF' : '#dbe9f7'; cx.fill();   // 82.35.8: выбранная плоскость — бледно-жёлтым
+      cx.strokeStyle = on || pm ? COL.sel : '#1f6fd1'; cx.lineWidth = on ? 3 : pm ? 2.5 : 2; cx.stroke(); }
     cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; cx.fillStyle = '#1f6fd1'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('С' + w.gn, x + 5, y + 14 * W3.f);
   }
   /* ═══ [BLOCK C-W3P] вид стены v81 (w1, 82.35.3): точка стены (x от левого края, y от пола, z — глубина к зрителю, мм) → px; ∠° — наклон t = (90−a)/45 в пределах −2…2.
@@ -1718,10 +1718,10 @@
     return null; }
   function drawW3Pts() {
     if (!w3Mode()) return; const e = w3Act(); if (!e) return; const R = elevRect(e), P = w3Pts(e), sel = C.sel && C.sel.t === 'w3p' && C.sel.id === e.id ? C.sel.k : null, ring = new Set(w3PlaneKs(e));
-    if (W3S.pl === 'obj') { const Q = [...ring].map(k => P[k] && w3S3(R, P[k])).filter(Boolean); if (Q.length === 4) { cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = 'rgba(31,111,209,.22)'; cx.fill(); cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.5; cx.stroke(); } }
+    if (W3S.pl === 'obj') { const Q = [...ring].map(k => P[k] && w3S3(R, P[k])).filter(Boolean); if (Q.length === 4) { cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = 'rgba(255,212,0,.32)'; cx.fill(); cx.strokeStyle = '#E0B800'; cx.lineWidth = 2.5; cx.stroke(); } }
     W3PX.length = 0;
     for (const [k, q] of Object.entries(P)) { if (!ring.has(k)) continue; const [x, y] = w3S3(R, q), r = CFG.pointPx + 1.5;   // маркеры — только по углам выбранной плоскости
-      if (ring.has(k)) { cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.2; cx.beginPath(); cx.arc(x, y, r + 5, 0, 7); cx.stroke(); }
+      if (ring.has(k)) { cx.strokeStyle = '#E0B800'; cx.lineWidth = 2.2; cx.beginPath(); cx.arc(x, y, r + 5, 0, 7); cx.stroke(); }
       cx.fillStyle = '#F28C00'; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill();
       if (k === sel) { cx.strokeStyle = COL.sel; cx.lineWidth = 2.5; cx.setLineDash([3, 3]); cx.beginPath(); cx.arc(x, y, r + 8, 0, 7); cx.stroke(); cx.setLineDash([]); }
       W3PX.push({k, x, y, e: e.id, ring: ring.has(k)}); }
