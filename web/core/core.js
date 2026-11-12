@@ -1419,7 +1419,6 @@
   document.querySelectorAll('#fws [data-rf]').forEach(b => act(b, () => { C.phm = false; ui(); $(b.dataset.rf === 'c' ? 'cCam' : 'cFile').click(); }));
   act($('zpF'), () => $('tb').classList.toggle('on'));
   act($('tbX'), () => $('tb').classList.remove('on'));
-  act($('bStripRs'), () => { $('zMenu').classList.remove('on'); ST = clone(SDEF); stSave(); renderStrips(); toast('Строки инструментов — по умолчанию'); });
   $('cCam').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   $('cFile').onchange = e => { const f = e.target.files; addPhotos(f).finally(() => { e.target.value = ''; }); };
   act($('bUnd'), () => { if (C.crop) cropEnd(); undo(); });
@@ -1427,7 +1426,6 @@
   act($('bDelS'), () => { if (!$('bDelS').classList.contains('dis')) del(); });
   act($('bDone'), () => { closeEd(true); if (C.crop) cropEnd(); save().then(() => toast('Сохранено')); });   // ✓ — только сохранить проект; вид не меняется
   act($('bMore'), () => $('zMenu').classList.toggle('on'));
-  act($('bUpdChk'), () => { $('zMenu').classList.remove('on'); const N = window.AkrixUpdate; if (N && N.check) N.check(); else toast('Обновление — только в приложении'); });
   act($('labCrX'), () => { cancel(); C.crop = null; ui(); draw(); });
   act($('labCrRs'), () => { cropReset(); cropEnd(); });
   act($('labCrOk'), cropEnd);
@@ -1902,6 +1900,9 @@
   act($('bPenM'), () => { PEN.on = !PEN.on; try { localStorage.setItem('akx-core-pen', PEN.on ? '1' : '0'); } catch (e) { } $('bPenM').textContent = penTxt(); mClose(); toast(penTxt()); });
   act($('bLay'), () => { mClose(); layPanel(); });
   act($('bCfg'), () => { mClose(); cfgPanel(); });
+  /* 82.35.15: привязка после пересборки #zMenu (раньше вешалась на старые кнопки — пункты не работали) */
+  act($('bStripRs'), () => { $('zMenu').classList.remove('on'); ST = clone(SDEF); stSave(); renderStrips(); toast('Строки инструментов — по умолчанию'); });
+  act($('bUpdChk'), () => { $('zMenu').classList.remove('on'); const N = window.AkrixUpdate; if (N && N.check) N.check(); else toast('Обновление — только в приложении'); });
   act($('vwGo'), vwGo); act($('vwOff'), vwOff);
   /* ═══ [BLOCK C-CFG-UI] окно «Настройки Measure Lab» (82.18) на значениях ядра: вкладки «Вид и размеры», «Холст»; живой пример ═══ */
   let CFT = 'a';
@@ -2080,7 +2081,9 @@
     else if (e.type === 'apk-ready') updCard('Установка приложения ' + (e.versionName || ''));
     else if (e.type === 'apk-failed') updCard('Не удалось скачать приложение: ' + (e.reason || ''), 'Повторить', () => N.downloadApk());
     else if (!e.manual) return;                                  // 82.35: при ручной проверке — каждый исход
-    else if (e.type === 'none') updCard('Последняя версия ' + (e.version || '') + ' — обновлений нет');
+    else if (e.type === 'none') { let st = null; try { st = JSON.parse(N.state()); } catch (x) { }   // 82.35.15: уже скачанная (ждёт перезапуска) версия — не «обновлений нет», а «Перезапустить»
+      if (st && st.pending && st.pending !== st.version) updCard('Загружена версия ' + st.pending, 'Перезапустить', () => save().then(() => N.restart()));
+      else updCard('Последняя версия ' + (e.version || '') + ' — обновлений нет'); }
     else if (e.type === 'checking') updCard('Проверка обновлений…');
     else if (e.type === 'busy') updCard('Проверка уже идёт');
     else if (e.type === 'offline') updCard('Нет связи с сервером обновлений');
