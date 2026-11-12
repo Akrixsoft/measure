@@ -26,6 +26,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   // колонна, W×H, цепочка низа
   const R = await M('MeasureCore.elevRect(MeasureCore.doc.elev[0])'), at = (x, y) => scr(R.x + x, R.y + R.h - y);
   await tool('kol'); await drag(await at(2000, 2600), await at(2400, 100));
+  ok('колонна после рисования не выделена', !(await M('MeasureCore.sel'))); await tool('sel'); { const q = await at(2200, 1300); await tap(q[0], q[1]); }   // 82.35.1: выбрать касанием
   const wh = await ctxBtn('Ширина колонны'); ok('модификатор W (колонна — во всю высоту)', !!wh); await tap(wh[0], wh[1]); await key('400ok');
   d = await doc(); let c = d.com.find(x => x.k === 'kol'); ok('колонна 400, во всю высоту', c.w === 400 && (await M(`MeasureCore.cRect('${c.id}')`)).h === 2650, c);
   let e2 = await M('MeasureCore.edl()'); const segs = e2.filter(o => o.k === 'seg'); ok('колонна: одна цепочка до граней (3 звена), общего L нет', segs.length === 3 && !e2.some(o => o.k === 'L'), e2.map(o => o.k + ':' + (o.s && Math.round(o.s.v))));

@@ -46,6 +46,10 @@ require('./qa-h-0015.cjs')(process.argv[2], 9358).then(async h => {
   await M(`document.querySelectorAll('#cfgS [data-x]')[0].click()`);
   { const b = await M(`(() => { const e = document.querySelector('#cfgS .hd [data-x]'); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`); await tap(b[0], b[1]); }
   await M(`(() => { MeasureCore.draw(); })()`); await W(200); await shot('canvas-text20');
+  // стрелка и размер рисуются; после рисования — без выделения
+  for (const k of ['arr', 'dim']) { const n0 = (await doc()).dims.length; await h.tool(k); await h.drag([120, 250], [300, 250]); const D2 = await doc();
+    ok(k + ' нарисован, не выделен', D2.dims.length === n0 + 1 && D2.dims[D2.dims.length - 1].k === k && !(await M('MeasureCore.sel')), {n: D2.dims.length, sel: await M('MeasureCore.sel')}); }
+  await shot('arrow-dim');
   await M(`localStorage.removeItem('akx-core-cfg')`);
   await finish();
 });

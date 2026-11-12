@@ -288,7 +288,7 @@
   }
   function addDim(a, b) {
     const A = endPos(a), B = endPos(b); if (hyp(B.x - A.x, B.y - A.y) * V.s < 12) return null;
-    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: '', c: C.col};   // 82.35: цвет — выбранный if (d.k === 'dim' && !md('t')) d.t = 'one'; D.dims.push(d); commit(); setDir(A, B); return d;
+    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: '', c: C.col}; if (d.k === 'dim' && !md('t')) d.t = 'one'; D.dims.push(d); commit(); setDir(A, B); return d;
   }
 
 
@@ -473,7 +473,7 @@
   function drwSet(q, W) { const R = hostR(q.h); if (q.h && !R) { q.h = null; delete q.wp; } q.p = W.map(pt => enc(q.h, hostR(q.h), pt)); }
   function B3cache() { for (const q of D.drw) if (q.h) q.wp = drwW(q).map(t => [rnd(t.x), rnd(t.y)]); }
   function drwNew(k, W, o) {
-    const h = hostAt(W[0]); begin(); const z = zo(k), q = {id: uid('g'), k, c: C.col, h, p: [], ...(z.dash ? {dash: 1} : {}), ...(z.fill && (k === 'rect' || k === 'circ') ? {fill: 1} : {}), ...(z.rnd && k === 'rect' ? {rnd: 1} : {}), ...o}; if (k === 'ln') setDir(W[0], W[1]); drwSet(q, W); D.drw.push(q); C.sel = {t: 'drw', id: q.id}; commit(); return q;
+    const h = hostAt(W[0]); begin(); const z = zo(k), q = {id: uid('g'), k, c: C.col, h, p: [], ...(z.dash ? {dash: 1} : {}), ...(z.fill && (k === 'rect' || k === 'circ') ? {fill: 1} : {}), ...(z.rnd && k === 'rect' ? {rnd: 1} : {}), ...o}; if (k === 'ln') setDir(W[0], W[1]); drwSet(q, W); D.drw.push(q); C.sel = /^(txt|pin|note|vyn)$/.test(k) ? {t: 'drw', id: q.id} : null; commit(); return q;   // 82.35.1: нарисованное не остаётся выделенным (текст — для ввода)
   }
   const snap90 = (A, q) => { const dx = q.x - A.x, dy = q.y - A.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; return m < 6 || m > 84 ? (Math.abs(dx) >= Math.abs(dy) ? {x: q.x, y: A.y} : {x: A.x, y: q.y}) : q; };
   function circ3(A, B, Cc) {                                     // окружность через 3 точки (px) — как zdCirc3 v81
@@ -742,7 +742,7 @@
     const i = pts.findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); return i >= 0 ? {t: 'com-h', id, i} : null;
   }
   function comBoxW(c) { const g = comPx(c); if (!g) return null; if (g.line) return {seg: g.line.map(([x, y]) => toW(x, y))}; if (g.poly) return {poly: g.poly.map(([x, y]) => toW(x, y))}; const a = toW(g.box[0], g.box[1]), b = toW(g.box[2], g.box[3]); return {x0: a.x, y0: a.y, x1: b.x, y1: b.y}; }
-  function comNew(k, e, o) { begin(); const c = {id: uid('c'), k, e: e.id, ...o}; D.com.push(c); C.sel = {t: 'com', id: c.id}; commit(); return c; }
+  function comNew(k, e, o) { begin(); const c = {id: uid('c'), k, e: e.id, ...o}; D.com.push(c); C.sel = null; commit(); return c; }   // 82.35.1: после рисования — без выделения
   const snapE = (R, p) => { const t = 10 / V.s; return {x: Math.abs(p.x) < t ? 0 : Math.abs(p.x - R.w) < t ? R.w : p.x, y: Math.abs(p.y) < t ? 0 : Math.abs(p.y - R.h) < t ? R.h : p.y}; };   // магнит к краям стены, пол, потолок
   function B4start(g, p, h) {
     if (h && h.t === 'com-h') { g.t = 'cres'; return true; }
@@ -896,7 +896,7 @@
       const s0 = rnd(hw.s * 1e4) / 1e4;
       if (!C.opp || C.opp.wall !== hw.w.id) { C.opp = {wall: hw.w.id, s: s0}; draw(); return true; }
       const a = Math.min(C.opp.s, s0), b = Math.max(C.opp.s, s0); C.opp = null; if ((b - a) * wLen(hw.w) < 10) { draw(); return true; }
-      begin(); const o = {id: uid('o'), wall: hw.w.id, s0: a, s1: b}; D.ops.push(o); C.sel = {t: 'op', id: o.id}; commit(); toast('Проём ' + num((b - a) * wLen(hw.w))); return true; }
+      begin(); const o = {id: uid('o'), wall: hw.w.id, s0: a, s1: b}; D.ops.push(o); C.sel = null; commit(); toast('Проём ' + num((b - a) * wLen(hw.w))); return true; }
     return false;
   }
 
@@ -905,7 +905,7 @@
   function photoCorners(p) { const [x, y] = toS(p.x, p.y), w = p.w * V.s, h = phH(p) * V.s; return [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]; }
   function hit(sx, sy) {
     const s = C.sel;
-    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); return hc && !(C.sel && C.sel.id === hc.id) ? hc : he; } }   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
+    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === (hc && hc.id); return hc && !(C.sel && C.sel.id === hc.id) && !own ? hc : he; } }   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
     if (C.crop) { const p = photo(C.crop.id); const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'crop-h', id: p.id, c};
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
     if (s && s.t === 'photo') { const p = photo(s.id); if (p) { const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'ph-h', id: p.id, c}; } }
@@ -1144,7 +1144,7 @@
     const g = G; G = null;
     if (cancelled) { cancel(); draw(); return; }
     if (!g.moved) { tap(g); return; }
-    if (g.t === 'dimdraw') { if (g.cur) { const d = addDim(g.a, g.cur); if (d) C.sel = {t: 'dim', id: d.id}; } ui(); draw(); return; }
+    if (g.t === 'dimdraw') { if (g.cur) { addDim(g.a, g.cur); C.sel = null; } ui(); draw(); return; }
     if (g.t === 'draw') { if (g.b) { const w = addWall(g.a, g.b); if (w) C.sel = {t: 'wall', id: w.id}; } ui(); draw(); return; }
     if (g.t === 'nmove') { const n = node(g.h.id); if (g.snapN && n) { mergeNode(n.id, g.snapN); C.sel = {t: 'node', id: g.snapN}; } }
     if (g.t === 'pan') { if (g.fxMsg) toast('Размер стены введён — не тянется; новый размер — касанием поля'); viewChanged(); return; }
