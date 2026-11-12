@@ -721,7 +721,7 @@
     const R = elevRect(e); g.t = 'cdraw'; g.e = e.id; g.a = snapE(R, s2w(R, p.x, p.y)); g.b = null; return true;
   }
   function B4drag(g) {
-    if (g.t === 'cmove') { begin(); const c = com(g.h.id); g.o = clone(c); const r = cRect(c); if (r && (c.ex || c.ey)) { g.o.x = r.x; g.o.y = r.y; delete c.ex; delete c.ey; } C.sel = {t: 'com', id: c.id}; ui(); }
+    if (g.t === 'cmove') { begin(); const c = com(g.h.id); for (const k of ['fpx', 'fpy', 'fpxh', 'fpyh']) delete c[k]; g.o = clone(c); const r = cRect(c); if (r && (c.ex || c.ey)) { g.o.x = r.x; g.o.y = r.y; delete c.ex; delete c.ey; } C.sel = {t: 'com', id: c.id}; ui(); }
     if (g.t === 'cres') { begin(); const c = com(g.h.id); const r = cRect(c); if (r && CK[c.k].rc) { c.x = r.x; c.y = r.y; delete c.ex; delete c.ey; } g.o = clone(c); C.sel = {t: 'com', id: c.id}; ui(); }
   }
   function B4move(g, p, q) {
@@ -776,7 +776,7 @@
   function B4kbApply(tg, v, raw) {
     if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
     if (tg.t === 'eSeg') { segApply(tg, v); return true; }
-    if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); } else { c.y = r.y; delete c.ey; c.h = rnd(v); } commit(); } return true; }
+    if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); c.fwx = 1; } else { c.y = r.y; delete c.ey; c.h = rnd(v); c.fwy = 1; } commit(); } return true; }
     if (tg.t === 'cOf') { const c = com(tg.id); if (!c || !(v >= 0)) return true; begin();
       if (tg.side === 'L') { c.x = rnd(v); delete c.ex; } if (tg.side === 'R') { c.ex = 'R'; c.xv = rnd(v); }
       if (tg.side === 'F') { c.y = rnd(v); delete c.ey; } if (tg.side === 'C') { c.ey = 'C'; c.yv = rnd(v); }
@@ -1446,17 +1446,20 @@
     }
     return out;
   }
-  function adApply(s, v) {
-    if (!(v > 0)) return; const R0 = s.R, A = s.A || {}, B = s.B || {}, ax = s.ax, Hh = R0.h, Ww = R0.w, lim = ax === 'x' ? Ww : Hh;
-    const set = (c, lo, hi) => { begin(); delete c.ex; delete c.ey; if (ax === 'x') { c.x = rnd(lo); c.w = Math.max(1, rnd(hi - lo)); } else if (c.k !== 'kol') { c.y = rnd(lo); c.h = Math.max(1, rnd(hi - lo)); } commit(); };
-    const box = o => ax === 'x' ? [o.x0, o.x1] : [o.y0, o.y1], T = 1;
-    if (A.vol && B.vol && A.vol === B.vol) { const [lo, hi] = box(A.vol), atHi = hi >= lim - T && lo > T; atHi ? set(A.vol.c, hi - v, hi) : set(A.vol.c, lo, lo + v); return; }   // звено объёма — Ш / В
-    const mv = B.vol && !(A.vol && box(B.vol)[1] >= lim - T) ? {o: B.vol, side: 'lo'} : A.vol ? {o: A.vol, side: 'hi'} : null;      // зазор — объём со стороны от края
-    if (!mv) { toast('Габарит стены — своим полем'); return; }
-    const [lo, hi] = box(mv.o), d = v - s.v;
-    if (mv.side === 'lo') { if (hi >= lim - T) set(mv.o.c, lo + d, hi); else set(mv.o.c, lo + d, hi + d); }      // справа / сверху от зазора
-    else { if (lo <= T) set(mv.o.c, lo, hi - d); else set(mv.o.c, lo - d, hi - d); }                               // слева / снизу от зазора (зазор до правого края / потолка)
+  function adApply(s, v) {                                       // введённое — опора: введённая ширина / высота (fw*) и положение (fp*) не меняются другими правками
+    if (!(v > 0)) return; const R0 = s.R, A = s.A || {}, B = s.B || {}, ax = s.ax, lim = ax === 'x' ? R0.w : R0.h, T = 1, FW = 'fw' + ax, FP = 'fp' + ax;
+    const box = o => ax === 'x' ? [o.x0, o.x1] : [o.y0, o.y1];
+    const put = (c, lo, hi, mark) => { delete c.ex; delete c.ey; if (ax === 'x') { c.x = rnd(lo); c.w = Math.max(1, rnd(hi - lo)); } else if (c.k !== 'kol') { c.y = rnd(lo); c.h = Math.max(1, rnd(hi - lo)); } for (const m of mark) c[m] = 1; };
+    if (A.vol && B.vol && A.vol === B.vol) {                     // звено объёма — его ширина / высота
+      const c = A.vol.c, [lo, hi] = box(A.vol), keepHi = hi >= lim - T && lo > T || (c[FP + 'h'] && !c[FP]);
+      begin(); keepHi ? put(c, hi - v, hi, [FW]) : put(c, lo, lo + v, [FW]); commit(); return; }
+    const d = v - s.v, opts = [];                                // зазор: двигаем / тянем соседа так, чтобы введённое не менялось
+    if (B.vol) { const c = B.vol.c, [lo, hi] = box(B.vol); if (hi >= lim - T) { if (!c[FW]) opts.push(() => put(c, lo + d, hi, [FP])); } else if (!c[FP]) opts.push(() => put(c, lo + d, hi + d, [FP])); else if (!c[FW]) opts.push(() => put(c, lo + d, hi, [FP])); }
+    if (A.vol) { const c = A.vol.c, [lo, hi] = box(A.vol); if (lo <= T) { if (!c[FW]) opts.push(() => put(c, lo, hi - d, [FP + 'h'])); } else if (!c[FP + 'h'] && !c[FP]) opts.push(() => put(c, lo - d, hi - d, [FP + 'h'])); else if (!c[FW]) opts.push(() => put(c, lo, hi - d, [FP + 'h'])); }
+    if (!opts.length) { toast(A.vol || B.vol ? 'Не изменить: соседние размеры уже введены — сначала измени один из них' : 'Габарит стены — своим полем'); return; }
+    begin(); opts[0](); commit();
   }
+
   function drawElev(e) {
     const r = elevRect(e), w = wall(e.wall); if (!w) return;
     const [x, y] = toS(r.x, r.y), W = r.w * V.s, H = r.h * V.s, on = (C.sel && C.sel.t === 'elev' && C.sel.id === e.id) || inMsel('elev', e.id);

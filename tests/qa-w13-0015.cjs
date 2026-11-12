@@ -80,6 +80,15 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
       d.elev.push({id:'eq1',wall:'wq1',x:20000,y:-4000});d.com.push({id:'cq',k:'kol',e:'eq1',x:500,y:0,w:400,h:100});})()`);
     const o = await M('MeasureCore.exportAkrix()'), r = o.rooms.find(r => r.ms.wid && Object.values(r.ms.wid).includes('wq1')), k = Object.keys(r.ms.wid).find(k => r.ms.wid[k] === 'wq1'), col = r.ms.wl[k].els[0];
     ok('обратный контур: ccw по экрану, колонна x0 500 от левого края изнутри', r.ms.ccw === true && col.x0 === 500, [r.ms.ccw, col]); }
+  // введённое — опора: колонна 300 у левого края, правая у края; зазор 1183 → 1200 — левая остаётся 300
+  { await M(`(()=>{const d=MeasureCore.doc;d.nodes.push({id:'z1',x:40000,y:0},{id:'z2',x:42156,y:0});d.walls.push({id:'wz',a:'z1',b:'z2',gn:99});d.elev.push({id:'ez',wall:'wz',x:40000,y:3000});
+      d.com.push({id:'cl',k:'kol',e:'ez',x:0,y:0,w:310,h:1},{id:'cr',k:'kol',e:'ez',x:1483,y:0,w:673,h:1});d.H=2800;})()`);
+    await M('MeasureCore.view.s=0.1;MeasureCore.view.ox=-40000*0.1+90;MeasureCore.view.oy=-3000*0.1+150'); await M('MeasureCore.draw()'); await W(200);
+    const fld = async v => (await M('MeasureCore.edl()')).find(o => o.k === 'seg' && o.s.ax === 'x' && Math.round(o.s.v) === v);
+    let f = await fld(310); await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); if (!(await M('MeasureCore.kb'))) await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); await key('300ok');
+    f = await fld(1183); ok('поле зазора найдено', !!f); await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); if (!(await M('MeasureCore.kb'))) await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); await key('1200ok');
+    const dd = await doc(), cl = dd.com.find(c => c.id === 'cl'), cr = dd.com.find(c => c.id === 'cr');
+    ok('введённая 300 не изменилась, правая колонна подстроилась', cl.w === 300 && cr.x === 1500 && cr.w === 656, [cl, cr]); }
   ok('меню ⋮: стилус, слои, резервная копия', await M(`['bPenM','bLay','bBak','bRes','bRms'].every(id=>document.getElementById(id))`));
   await finish();
 });
