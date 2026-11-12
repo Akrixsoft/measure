@@ -186,3 +186,13 @@ body.kb #cKb{display:grid}
 #w3x button.ed{border-color:#F2B233;background:#2a2610}
 #w3x small{color:#AEB5BF;font-size:11px;line-height:1.1}
 #w3x svg{width:20px;height:20px}
+/* [BLOCK C-WH-CSS] 82.35.5: третий ряд снизу — слева высота выбранной стены, справа модификаторы */
+#zRow3{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+#zRow3>*{pointer-events:auto}
+#zMods{margin-left:auto}
+#wHf{display:none;align-items:center;gap:6px;padding:5px 8px;background:#2b2f35;border:1px solid #2a2f37;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.45);color:#E8EBEF;font:600 14px system-ui}
+#wHf.on{display:flex}
+#wHf b{color:#3D9BFF;font:700 16px system-ui}
+#wHf button{min-width:76px;height:38px;padding:0 10px;background:#1a1d22;border:1px solid #5a616c;border-radius:8px;color:#fff;font:700 16px system-ui}
+#wHf button.ed{border-color:#F2B233;background:#2a2610}
+#wHf small{color:#AEB5BF;font-size:11px}

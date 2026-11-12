@@ -38,9 +38,10 @@
   const frame = id => D.frames.find(f => f.id === id);
   const drw = id => D.drw.find(q => q.id === id);
   const wLen = w => { const a = node(w.a), b = node(w.b); return a && b ? hyp(b.x - a.x, b.y - a.y) : 0; };
-  const Hmm = () => (+D.H > 0 ? +D.H : 0);
+  const Hmm = () => (+D.H > 0 ? +D.H : CFG.H);                    // 82.35.5: стен без высоты нет — по умолчанию из настроек
+  const wHt = w => (w && +w.H > 0 ? +w.H : Hmm());                 // высота стены: своя (w.H) или общая
   const phH = p => p.w * ((p.cr[3] - p.cr[1]) * p.ih) / ((p.cr[2] - p.cr[0]) * p.iw);
-  const elevRect = e => { const w = wall(e.wall); return {x: e.x, y: e.y, w: w ? wLen(w) : 0, h: Hmm()}; };
+  const elevRect = e => { const w = wall(e.wall); return {x: e.x, y: e.y, w: w ? wLen(w) : 0, h: wHt(w)}; };
   const deg = id => D.walls.filter(w => w.a === id || w.b === id).length;
   function dropOrphans() { D.nodes = D.nodes.filter(n => deg(n.id)); D.elev = D.elev.filter(e => wall(e.wall)); if (D.found) D.found = D.found.filter(f => elev(f.e)); D.frames = D.frames.filter(f => photo(f.ph)); if (D.ops) D.ops = D.ops.filter(o => wall(o.wall)); }
 
@@ -112,7 +113,7 @@
   }
   function fitAll() {
     const b = bounds(); if (!b) return; const m = 28, bw = Math.max(1, b.x1 - b.x0), bh = Math.max(1, b.y1 - b.y0);
-    const zf = $('zf'), cvT = cv.getBoundingClientRect().top, mb = zf ? Math.max(m, cvT + cssH() - zf.getBoundingClientRect().top + 14) : m, mt = 56 + (D.elev.length && C.tool === 'sel' ? 40 : 0);   // всё (+ строка плоскостей) — между верхними кнопками и нижними строками
+    const zf = $('zf'), cvT = cv.getBoundingClientRect().top, mb = zf ? Math.max(m, cvT + cssH() - zf.getBoundingClientRect().top + 14) : m, mt = 56 + (D.elev.length && C.tool === 'pts' ? 56 : 0);   // всё (+ строка плоскостей) — между верхними кнопками и нижними строками
     V.s = clamp(Math.min((cssW() - 2 * m) / bw, (cssH() - mt - mb) / bh), 0.005, 5);
     V.fs = V.s; V.ox = (cssW() - bw * V.s) / 2 - b.x0 * V.s; V.oy = mt + (cssH() - mt - mb - bh * V.s) / 2 - b.y0 * V.s; viewChanged();
   }
@@ -140,7 +141,7 @@
     drawW3Pts();
     drawOverlay();
     drawGroup();
-    scaleBar(W, Hh, gst); try { w3Row(); w3Win(); } catch (x) { }
+    scaleBar(W, Hh, gst); try { w3Row(); w3Win(); wHrow(); } catch (x) { }
     cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.textBaseline = 'top'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, 6 + topOff());
   }
   function grid(W, Hh) {
@@ -157,7 +158,7 @@
   /* [BLOCK C-SCALE] размер клетки сетки — серым слева вверху под версией: «□ 1 000» (справа — переключатель вида) */
   const num = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   function scaleBar(W, Hh, st) { cx.font = '600 13px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('□ ' + num(st), 6, 24 + topOff()); }
-  const topOff = () => (D && D.walls.length ? 36 : 0) + (D && D.elev.length && C.tool === 'sel' ? 38 : 0);   // + строка плоскостей (4 угла)          // подписи стен — под шапкой, версия и масштаб ниже (владелец 12.11.2026)
+  const topOff = () => (D && D.walls.length ? 36 : 0) + (D && D.elev.length && C.tool === 'pts' ? 38 : 0);   // + строка плоскостей (4 угла)          // подписи стен — под шапкой, версия и масштаб ниже (владелец 12.11.2026)
   function drawPhoto(p) {
     if (C.phHide) return;
     const bm = bmp(p.img), cr = C.crop && C.crop.id === p.id ? C.crop : null;
@@ -175,6 +176,14 @@
     const y = col === COL.sel; cx.fillStyle = y ? COL.sel : '#fff'; cx.fillRect(r.x, r.y, r.w, r.h); cx.strokeStyle = y ? '#B89500' : col; cx.lineWidth = 1; cx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
     cx.fillStyle = y ? '#1a2027' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); FPL.push(r); return r;   // поля размеров обходят подписи
   }
+  /* 82.35.5: подпись стены плана как поле v81 — по центру линии, вдоль неё, скругление 3, обводка 1,2, без наложения (fPlace) */
+  function labelA(t, X, Y, ang, col, L) {
+    if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
+    cx.save(); cx.font = `600 ${Math.round(TXP())}px system-ui`; const th = FLP(), tw = Math.max(th, cx.measureText(t).width + th * 0.55);
+    [X, Y] = fPlace(X, Y, tw, th, ang, L); cx.translate(X, Y); cx.rotate(ang); rrect(-tw / 2, -th / 2, tw, th, 3);
+    const y = col === COL.sel; cx.fillStyle = y ? COL.sel : '#fff'; cx.fill(); cx.strokeStyle = y ? '#B89500' : col; cx.lineWidth = 1.2; cx.stroke();
+    cx.fillStyle = y ? '#1a2027' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore(); return fbox(X, Y, tw, th, ang);
+  }
   function drawPlan() {
     LBL.clear();
     for (const w of D.walls) {
@@ -191,7 +200,7 @@
       const [ax, ay] = toS(a.x, a.y), [bx, by] = toS(b.x, b.y), L = hyp(bx - ax, by - ay); if (L < 24) continue;
       const nx = -(by - ay) / L, ny = (bx - ax) / L, on = C.sel && C.sel.t === 'wall' && C.sel.id === w.id;
       const ed = KB.tg && KB.tg.t === 'wall' && KB.tg.id === w.id;
-      LBL.set(w.id, label(ed ? `С${w.gn}  ${KB.buf || ' '}▏` : `С${w.gn}  ${rnd(wLen(w))}`, (ax + bx) / 2 + nx * 18, (ay + by) / 2 + ny * 18, on ? COL.sel : COL.wall));
+      LBL.set(w.id, labelA(ed ? `С${w.gn}  ${KB.buf || ' '}▏` : `С${w.gn}  ${rnd(wLen(w))}`, (ax + bx) / 2, (ay + by) / 2, Math.atan2(by - ay, bx - ax), on ? COL.sel : COL.wall, hyp(bx - ax, by - ay)));
     }
   }
   function drawOverlay() {
@@ -462,8 +471,8 @@
   /* ═══ [BLOCK C-CFG] 82.35: «Настройки Measure Lab» 82.18 на ядре. Толщина линий — LW ядра (одно значение с футляром); текст и поля × Aa (W3.f);
      наконечники и точки привязки — px экрана; толщина от масштаба мягко (zLW v81: ^0,35 в пределах ×0,6…×2 от «всё»).
      Общая привязка и «повторять инструмент» 82.18 не переносятся: в ядре 🧲 у каждого инструмента, инструмент не сбрасывается. ═══ */
-  const CFG0 = {textPx: 13, fieldPx: 22, arrowPx: 9, pointPx: 5, grid: true, side: true, dimAct: false};
-  const CFGR = {textPx: [6, 28], fieldPx: [10, 64], arrowPx: [4, 20], pointPx: [2, 12]};
+  const CFG0 = {textPx: 13, fieldPx: 22, arrowPx: 9, pointPx: 5, grid: true, side: true, dimAct: false, H: 2700};
+  const CFGR = {textPx: [6, 28], fieldPx: [10, 64], arrowPx: [4, 20], pointPx: [2, 12], H: [1000, 9000]};
   const CFG = (() => { const o = {...CFG0}; try { Object.assign(o, JSON.parse(localStorage.getItem('akx-core-cfg') || '{}')); } catch (e) { }
     for (const k in CFGR) o[k] = Math.max(CFGR[k][0], Math.min(CFGR[k][1], +o[k] || CFG0[k])); return o; })();
   const cfgSv = () => { try { localStorage.setItem('akx-core-cfg', JSON.stringify(CFG)); } catch (e) { } };
@@ -848,10 +857,11 @@
       if (!CK[k].ps) { delete c.N; delete c.o; } else if (k === 'rv' && !(c.N >= 2)) c.N = 2; commit(); ui(); draw(); }));
     act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
   }
-  function B4kbObj(t, id) { return t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
-  function B4kbBuf(t, o) { return t === 'w3p' ? '' : t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
+  function B4kbObj(t, id) { return t === 'wH' ? wall(id) : t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
+  function B4kbBuf(t, o) { return t === 'wH' ? String(wHt(o)) : t === 'w3p' ? '' : t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
   function B4kbApply(tg, v, raw) {
     if (tg.t === 'w3p') { w3Set(tg, v, raw); return true; }
+    if (tg.t === 'wH') { const w = wall(tg.id); if (w) { begin(); if (v > 0 && v !== Hmm()) w.H = rnd(v); else delete w.H; commit(); } return true; }
     if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
     if (tg.t === 'eSeg') { segApply(tg, v); return true; }
     if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); c.fwx = 1; } else { c.y = r.y; delete c.ey; c.h = rnd(v); c.fwy = 1; } commit(); } return true; }
@@ -919,10 +929,10 @@
     if (C.tool === 'ct') {
       const last = C.ctp, b = snapEnd(last, g.p0.x, g.p0.y, null);
       if (!last) { C.ctp = {x: b.x, y: b.y, node: b.node || null, n0: b.node || null}; draw(); return true; }
-      if (hyp(b.x - last.x, b.y - last.y) * V.s < 12) { C.ctp = null; draw(); toast('Контур: готово'); return true; }
+      if (hyp(b.x - last.x, b.y - last.y) * V.s < 12) { C.ctp = null; elevAll(); draw(); toast('Контур: готово'); return true; }
       const w = addWall(last, b); if (!w) { draw(); return true; }
       const end = w.b, start0 = C.ctp.n0 || D.walls.find(x => x.id === w.id).a;
-      if (b.node && b.node === start0) { C.ctp = null; C.sel = {t: 'wall', id: w.id}; ui(); draw(); toast('Контур замкнут'); return true; }
+      if (b.node && b.node === start0) { C.ctp = null; elevAll(); C.sel = {t: 'wall', id: w.id}; ui(); draw(); toast('Контур замкнут'); return true; }
       const n = node(end); C.ctp = {x: n.x, y: n.y, node: end, n0: start0}; C.sel = {t: 'wall', id: w.id}; ui(); draw(); return true; }
     if (C.tool === 'op') {
       const hw = wallAt(g.p0.x, g.p0.y); if (!hw) { toast('Проём — двумя касаниями по стене'); return true; }
@@ -938,7 +948,7 @@
   function photoCorners(p) { const [x, y] = toS(p.x, p.y), w = p.w * V.s, h = phH(p) * V.s; return [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]; }
   function hit(sx, sy) {
     const s = C.sel;
-    if (!C.crop && C.tool === 'sel') { const hp = w3Hit(sx, sy); if (hp) return hp; }   // 82.35.4: точки 4 углов — раньше полей
+    if (!C.crop && C.tool === 'pts') { const hp = w3Hit(sx, sy); if (hp) return hp; }   // 82.35.4: точки 4 углов — раньше полей
     if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === (hc && hc.id); return hc && !(C.sel && C.sel.id === hc.id) && !own ? hc : he; } }   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
     if (C.crop) { const p = photo(C.crop.id); const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'crop-h', id: p.id, c};
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
@@ -989,7 +999,7 @@
     const na = a.node || (D.nodes.push({id: uid('n'), x: a.x, y: a.y}), D.nodes[D.nodes.length - 1].id);
     const nb = b.node || (D.nodes.push({id: uid('n'), x: b.x, y: b.y}), D.nodes[D.nodes.length - 1].id);
     if (na === nb || D.walls.some(w => (w.a === na && w.b === nb) || (w.a === nb && w.b === na))) { cancel(); return null; }
-    const w = {id: uid('w'), a: na, b: nb, gn: ++D.gnHi}; D.walls.push(w); commit(); return w;
+    const w = {id: uid('w'), a: na, b: nb, gn: ++D.gnHi}; D.walls.push(w); if (C.tool !== 'ct') elevPut(w); commit(); return w;   // 82.35.5: нарисованная стена — сразу на холсте (контур — по завершении)
   }
   function setLen(w, v) {
     const a = node(w.a), b = node(w.b), L = wLen(w); if (!(v > 0) || !L) return;
@@ -1024,6 +1034,10 @@
     if (s.t === 'node') D.walls = D.walls.filter(w => w.a !== s.id && w.b !== s.id);
     dropOrphans(); C.sel = null; C.crop = null; commit(); toast('Удалено · ↶ — вернуть');
   }
+  function elevPut(w) {                                          // развёртка новой стены — в свободное место под планом, без смены вида и выделения
+    if (D.elev.some(e => e.wall === w.id)) return; const L = wLen(w), xs = D.nodes.map(n => n.x), ys = [...D.nodes.map(n => n.y), ...D.elev.map(o => { const r = elevRect(o); return r.y + r.h; })];
+    D.elev.push({id: uid('e'), wall: w.id, x: rnd(xs.length ? Math.min(...xs) : 0), y: rnd((ys.length ? Math.max(...ys) : 0) + 900)}); }
+  function elevAll() { const miss = D.walls.filter(w => !D.elev.some(e => e.wall === w.id)); if (!miss.length) return; begin(); miss.forEach(elevPut); commit(); }
   function addElev(w) {
     if (!Hmm()) { KB.after = () => { if (Hmm()) addElev(w); }; openKb('H', null); toast('Высота H'); return; }
     const ex = D.elev.find(e => e.wall === w.id);
@@ -1197,15 +1211,16 @@
     if (h && h.t === 'found') { const f = fnd(h.id); foundPut([h.id]); C.sel = {t: 'elev', id: f.e}; ui(); draw(); toast('На стену: ' + (CK[f.k] || {n: f.k}).n); return; }
     if (g.finger) { const t0 = C.tool; C.tool = 'sel'; try { tap({...g, finger: false}); } finally { C.tool = t0; ui(); } return; }
     if (C.tool === 'rsel') { const m = normHit(h); if (m) C.msel = inMsel(m.t, m.id) ? C.msel.filter(x => !(x.t === m.t && x.id === m.id)) : [...C.msel, m]; else C.msel = []; C.sel = null; ui(); draw(); return; }
-    if (C.tool === 'pts') { if (h && (h.t === 'frame' || h.t === 'fr-h')) { C.sel = {t: 'frame', id: h.id}; ui(); draw(); return; } toast('4 угла — протяни рамку по диагонали по фото стены'); return; }
+    if (C.tool === 'pts') { if (h && h.t === 'w3p') { C.sel = {t: 'w3p', id: h.id, k: h.k}; ui(); draw(); return; }   // 82.35.5: 4 угла — касание плоскости выделяет её, маркеры по углам
+      const pl = w3PlaneAt(g.p0.x, g.p0.y); if (pl) { Object.assign(W3S, pl); C.sel = null; ui(); draw(); return; }
+      if (h && (h.t === 'frame' || h.t === 'fr-h')) { C.sel = {t: 'frame', id: h.id}; ui(); draw(); return; } if (photoAt(g.p0)) toast('4 угла — протяни рамку по диагонали по фото стены'); else { W3S.pl = null; C.sel = null; ui(); draw(); } return; }
     if (C.msel.length) C.msel = [];
-    if (h && h.t === 'w3p') { C.sel = {t: 'w3p', id: h.id, k: h.k}; ui(); draw(); return; }
     if (B6tap(g, h)) return;
     if (B4tap(g, h)) return;
     if (typeof B3tap === 'function' && B3tap(g, h)) return;
     if (h && h.t === 'label') { C.sel = {t: 'wall', id: h.id}; ui(); draw(); openEd(h.id); return; }
     if (h && h.t === 'dlabel') { C.sel = {t: 'dim', id: h.id}; ui(); draw(); openKb('dim', h.id); return; }
-    if (h && h.t === 'elabel') { C.sel = {t: 'elev', id: h.id}; ui(); draw(); openKb('H', null); return; }
+    if (h && h.t === 'elabel') { C.sel = {t: 'elev', id: h.id}; ui(); draw(); const e = elev(h.id); if (e) openKb('wH', e.wall); return; }
     if (C.tool === 'dim' || C.tool === 'arr') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'dim' || hh.t === 'dim-h') ? {t: 'dim', id: hh.id} : null; ui(); draw(); return; }
     if (C.tool === 'wall') { const hh = hit(g.p0.x, g.p0.y); C.sel = hh && (hh.t === 'wall' || hh.t === 'node') ? {t: hh.t, id: hh.id} : null; ui(); draw(); return; }
     C.sel = h && h.t !== 'ph-h' && h.t !== 'dim-h' && h.t !== 'fr-h' && h.t !== 'drw-h' && h.t !== 'com-h' ? {t: h.t, id: h.id} : (h && (h.t === 'ph-h' || h.t === 'dim-h' || h.t === 'fr-h' || h.t === 'drw-h' || h.t === 'com-h') ? C.sel : null); ui(); draw();
@@ -1296,6 +1311,7 @@
   const IMPL = {sel: 1, dim: 1, arr: 1, st: 1, rf: () => { C.phm = !C.phm; ui(); }, cam: () => $('cCam').click(), gal: () => $('cFile').click()};
   function useKey(k) {
     if (C.crop) cropEnd();
+    if (C.ctp) elevAll();                                        // недорисованный контур — его стены тоже на холст
     C.ptsP = null; C.zdp = []; C.cpg = null; C.ctp = null; C.opp = null;
     if (typeof B3tool === 'function' && B3tool(k)) { if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
     if (TOOLK[k]) { C.tool = TOOLK[k]; if (C.tool !== 'sel' && C.tool !== 'rsel') C.msel = []; C.phm = false; ui(); draw(); return; }
@@ -1360,8 +1376,7 @@
     if (s && s.t === 'photo' && !C.crop) B.push(['✂', cropStart, 'Подрезать фото (рамка; исходник сохраняется)']);
     else if (s && s.t === 'frame') { const f = frame(s.id), w = f && f.wall && wall(f.wall);
       if (f) B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => frameWall(f), w ? `Стена С${w.gn} — показать` : 'Стена по рамке: L × H']); }
-    else if (s && s.t === 'wall') { const w = wall(s.id); if (w) { const has = D.elev.some(e => e.wall === w.id);
-      B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => addElev(w), has ? `Стена С${w.gn} на холсте — показать` : `Стена С${w.gn} на холст`]); } }
+    /* 82.35.5: кнопки «стена на холст» нет — каждая стена на холсте сразу */
     const B0 = B.splice(0); modsAct(B); B.push(...B0);
     if (typeof B3act === 'function') B3act(s, B);
     if (typeof B4act === 'function') B4act(s, B);
@@ -1655,8 +1670,8 @@
   /* ═══ [BLOCK C-W3PT] 4 угла v81 (82.35.4): плоскости активной стены — пол · боковая · стена · боковая · грани объёмов (▯ — следующая грань, затем следующий объём);
      выбранная — заливкой, её 4 угла крупно; касание точки — окно «Угол»: X, Y, Z (смещение от плоскости), у углов стены — разворот по угольнику (верх / низ 100: от стыка, зазор, ∠).
      Стена и боковые: отклонения e.w3d; объём: X / Y — его грани, Z — глубина; угол — в узел плана (n.ang, выгрузка angs как v81) ═══ */
-  const W3S = {e: null, pl: 'M', vi: 0, vf: 'F'};
-  const w3Mode = () => C.tool === 'sel' && D.elev.length > 0;
+  const W3S = {e: null, pl: null, vi: 0, vf: 'F'};
+  const w3Mode = () => C.tool === 'pts' && D.elev.length > 0;   // 82.35.5: только в режиме «4 угла» (кнопка инструмента)
   const W3N = {A: 'верх-лево', B: 'верх-право', C: 'низ-право', D: 'низ-лево', LT: 'верх', LB: 'низ', RT: 'верх', RB: 'низ'};
   const W3VN = {KLT: 'верх-лево', KRT: 'верх-право', KRB: 'низ-право', KLB: 'низ-лево', WLT: 'у стены · верх-лево', WRT: 'у стены · верх-право', WRB: 'у стены · низ-право', WLB: 'у стены · низ-лево'};
   const W3FN = {F: 'лицевая', SL: 'левая', SR: 'правая', T: 'верх'};
@@ -1675,12 +1690,21 @@
   function w3PlaneKs(e) { const R = elevRect(e), S = w3Sides(e, R), l = S.find(q => q.sd < 0), r = S.find(q => q.sd > 0);
     if (W3S.pl === 'L') return l ? ['A', 'LT', 'LB', 'D'] : []; if (W3S.pl === 'R') return r ? ['B', 'RT', 'RB', 'C'] : []; if (W3S.pl === 'floor') return ['D', 'C', ...(r ? ['RB'] : []), ...(l ? ['LB'] : [])];
     if (W3S.pl === 'obj') { const V = w3Vols(e), o = V[Math.min(W3S.vi, V.length - 1)]; if (!o) return []; const f = w3VFaces(o).find(q => q.k === W3S.vf) || w3VFaces(o)[0]; return f.ks; }
-    return ['A', 'B', 'C', 'D']; }
+    if (W3S.pl === 'M') return ['A', 'B', 'C', 'D']; return []; }
+  /* касание плоскости в режиме 4 углов: грани объёмов → стена → боковые → пол; активной стены — первой */
+  const pinPoly = (x, y, Q) => { let a = false; for (let i = 0, j = Q.length - 1; i < Q.length; j = i++) { const [xi, yi] = Q[i], [xj, yj] = Q[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) a = !a; } return a; };
+  function w3PlaneAt(sx, sy) { const es = [...D.elev].sort((a, b) => (b.id === W3S.e) - (a.id === W3S.e));
+    for (const e of es) { const R = elevRect(e), V = w3Vols(e);
+      for (let vi = 0; vi < V.length; vi++) { const o = V[vi]; for (const f of [{k: 'F', q: o.f.front}, ...o.f.F.map(q => ({k: q.k === 'l' ? 'SL' : q.k === 'r' ? 'SR' : 'T', q: q.q}))]) if (pinPoly(sx, sy, f.q)) return {e: e.id, pl: 'obj', vi, vf: f.k}; }
+      if (pinPoly(sx, sy, ['A', 'B', 'C', 'D'].map(k => w3S3(R, w3C(e, R, k))))) return {e: e.id, pl: 'M'};
+      for (const S of w3Sides(e, R)) if (S.vis && pinPoly(sx, sy, [S.T0, S.T1, S.B1, S.B0])) return {e: e.id, pl: S.sd < 0 ? 'L' : 'R'};
+      if (pinPoly(sx, sy, w3Floor(e, R))) return {e: e.id, pl: 'floor'}; }
+    return null; }
   function drawW3Pts() {
     if (!w3Mode()) return; const e = w3Act(); if (!e) return; const R = elevRect(e), P = w3Pts(e), sel = C.sel && C.sel.t === 'w3p' && C.sel.id === e.id ? C.sel.k : null, ring = new Set(w3PlaneKs(e));
     if (W3S.pl === 'obj') { const Q = [...ring].map(k => P[k] && w3S3(R, P[k])).filter(Boolean); if (Q.length === 4) { cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = 'rgba(31,111,209,.22)'; cx.fill(); cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.5; cx.stroke(); } }
     W3PX.length = 0;
-    for (const [k, q] of Object.entries(P)) { const [x, y] = w3S3(R, q), big = ring.has(k) || /^[ABCD]$/.test(k), r = big ? CFG.pointPx + 1.5 : Math.max(2.5, CFG.pointPx - 1.5);
+    for (const [k, q] of Object.entries(P)) { if (!ring.has(k)) continue; const [x, y] = w3S3(R, q), r = CFG.pointPx + 1.5;   // маркеры — только по углам выбранной плоскости
       if (ring.has(k)) { cx.strokeStyle = '#1F6FD1'; cx.lineWidth = 2.2; cx.beginPath(); cx.arc(x, y, r + 5, 0, 7); cx.stroke(); }
       cx.fillStyle = '#F28C00'; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill();
       if (k === sel) { cx.strokeStyle = COL.sel; cx.lineWidth = 2.5; cx.setLineDash([3, 3]); cx.beginPath(); cx.arc(x, y, r + 8, 0, 7); cx.stroke(); cx.setLineDash([]); }
@@ -1717,6 +1741,11 @@
     const h = `<button data-p="floor" title="Пол"><svg viewBox="0 0 32 32"><path d="M3 24l7-10h19l-7 10z" fill="#CDD1D6" stroke="#9AA0A8" stroke-width="2.2" stroke-linejoin="round"/></svg></button>` + [['L', sw.l], ['M', w ? {w} : null], ['R', sw.r]].filter(q => q[1]).map(([k, q]) => `<button data-p="${k}" title="${k === 'M' ? 'Стена' : 'Боковая'} С${q.w.gn}">С${q.w.gn}</button>`).join('') + (o ? `<button data-p="obj" title="${esc((CK[o.c.k] || {}).n)}${W3S.pl === 'obj' ? ' · ' + W3FN[W3S.vf] : ''} — касание: следующая грань, затем следующий объём"><svg viewBox="0 0 32 32"><rect x="11" y="4" width="10" height="24" fill="#d9b48f" stroke="#b8602e" stroke-width="2"/><path d="M21 4l5 3v24l-5-3" fill="#c49a73" stroke="#b8602e" stroke-width="2"/></svg></button>` : '') ;
     if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; el.querySelectorAll('[data-p]').forEach(b => act(b, () => w3Pick(b.dataset.p))); }
     el.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === W3S.pl)); }
+  /* 82.35.5: выбрана стена (на плане или её развёртка) — слева третьим рядом поле её высоты */
+  function wHrow() { const el = $('wHf'); if (!el) return; const s = C.sel, w = s && (s.t === 'wall' ? wall(s.id) : s.t === 'elev' ? (elev(s.id) && wall(elev(s.id).wall)) : null);
+    if (!w) { el.classList.remove('on'); el.dataset.h = ''; return; } const ed = kbIs('wH', w.id);
+    const h = `<b>H</b><button class="${ed ? 'ed' : ''}">${ed ? esc(KB.buf || ' ') + '▏' : num(wHt(w))}</button><small>С${w.gn}${w.H ? '' : ' · общая'}</small>`;
+    if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; act(el.querySelector('button'), () => { openKb('wH', w.id); ui(); draw(); }); } el.classList.add('on'); }
   function w3Win() { let x = $('w3x'); if (!x) { x = document.createElement('div'); x.id = 'w3x'; document.body.appendChild(x); }
     const s = C.sel, e = s && s.t === 'w3p' && elev(s.id); if (!e || !w3Pts(e)[s.k]) { x.classList.remove('on'); x.dataset.h = ''; return; }
     const k = s.k, f = ax => { const ed = kbIs('w3p', e.id, t => t.k === k && t.ax === ax); return `<button data-ax="${ax}" class="${ed ? 'ed' : ''}">${ed ? esc(KB.buf || ' ') + '▏' : esc(String(w3Val(e, k, ax)))}</button>`; };
@@ -1729,8 +1758,8 @@
     EDL.length = 0; if (!LAY.dim) return; const act = dimAct();
     for (const e of D.elev) { const w = wall(e.wall); if (!w || (act && e.id !== act)) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
       autoDims(e, R).forEach((sg, i) => { sg.R = R;
-        const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('H') : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
-        const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!D.H : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
+        const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('wH', w.id) : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
+        const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!(w.H || D.H) : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
         const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.3: глубина — полем на боковой грани объёма
@@ -1746,7 +1775,7 @@
   function edTap(h) {
     const o = h.o, e = elev(h.id), w = e && wall(e.wall); if (!w) return;
     if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
-    else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('H', null); }
+    else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('wH', e.wall); }   // 82.35.5: высота — этой стены
     else if (o.k === 'D') { C.sel = {t: 'com', id: o.c}; openKb('cD', o.c); }
     else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
     ui(); draw();
@@ -1798,7 +1827,7 @@
     const num = (k, n, a, b, st, v) => `<div class="cr"><label>${n}</label><input type="range" min="${a}" max="${b}" step="${st}" value="${v}" data-cf="${k}"><input type="number" min="${a}" max="${b}" step="${st}" value="${v}" data-cf="${k}"><small>px</small></div>`;
     const tg = (k, n, m) => `<label class="row"><input type="checkbox" data-ct="${k}"${CFG[k] ? ' checked' : ''}> <span>${n}<br><small class="mu">${m}</small></span></label>`;
     const body = CFT === 'a' ? `<div class="cpv"><small class="mu">Живой пример · px экрана</small><svg id="cfSm" viewBox="0 0 480 112"></svg></div>` + num('lw', 'Толщина линий', 0.5, 12, 0.5, LW.v) + num('textPx', 'Размер текста', 6, 28, 1, CFG.textPx) + num('fieldPx', 'Размер полей', 10, 64, 1, CFG.fieldPx) + num('arrowPx', 'Наконечники стрелок', 4, 20, 1, CFG.arrowPx) + num('pointPx', 'Точки привязки', 2, 12, 1, CFG.pointPx) + '<p class="mu" style="padding:0 12px">Текст и поля — ещё × Aa; толщина мягко следует масштабу (×0,6…×2).</p>'
-      : tg('grid', 'Сетка', 'Клетки масштаба на холсте') + tg('side', 'Элементы на боковых стенах', 'Коммуникации и проёмы на раскрытых соседних стенах, без подписей') + `<div class="row"><span>Размеры</span><button data-da="0" class="${CFG.dimAct ? '' : 'on'}">все стены</button><button data-da="1" class="${CFG.dimAct ? 'on' : ''}">только активная</button></div>`;
+      : num('H', 'Высота стен по умолчанию', 1000, 9000, 10, CFG.H).replace('<small>px</small>', '<small>мм</small>') + tg('grid', 'Сетка', 'Клетки масштаба на холсте') + tg('side', 'Элементы на боковых стенах', 'Коммуникации и проёмы на раскрытых соседних стенах, без подписей') + `<div class="row"><span>Размеры</span><button data-da="0" class="${CFG.dimAct ? '' : 'on'}">все стены</button><button data-da="1" class="${CFG.dimAct ? 'on' : ''}">только активная</button></div>`;
     el.innerHTML = `<div class="hd"><b>Настройки Measure Lab</b><button data-x>✕</button></div><nav class="ctb"><button data-tab="a" class="${CFT === 'a' ? 'on' : ''}">Вид и размеры</button><button data-tab="c" class="${CFT === 'c' ? 'on' : ''}">Холст</button></nav>${body}<div class="ft"><button data-rs style="margin-right:auto">Сбросить</button><button data-x>Готово</button></div>`;
     const sm = () => { const q = $('cfSm'); if (!q) return; const lw = 1.6 * LW.v / 3, a = CFG.arrowPx, h = Math.max(CFG.fieldPx, CFG.textPx + 2), w = Math.max(h, 3.4 * CFG.textPx + h * 0.55);
       q.innerHTML = `<path d="M42 40H438V94H42Z" fill="#fff" stroke="#8997a7" stroke-width="${2.2 * LW.v / 3}"/><path d="M66 70H410" stroke="${C.col}" stroke-width="${lw}"/><path d="M66 70l${a} -${a * 0.38}v${a * 0.76}zM410 70l-${a} -${a * 0.38}v${a * 0.76}z" fill="${C.col}"/><rect x="${240 - w / 2}" y="${70 - h / 2}" width="${w}" height="${h}" rx="3" fill="#fff" stroke="#1a2027" stroke-width="1.2"/><text x="240" y="71" fill="#1a2027" text-anchor="middle" dominant-baseline="middle" font-family="system-ui" font-weight="700" font-size="${CFG.textPx}">2400</text><circle cx="42" cy="40" r="${CFG.pointPx}" fill="${COL.node}"/>`; };
