@@ -239,7 +239,7 @@
       const A = endPos(d.a), B = endPos(d.b), [ax, ay] = toS(A.x, A.y), [bx, by] = toS(B.x, B.y), L = hyp(bx - ax, by - ay); if (L < 2) continue;
       const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : COLD.line;
       cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = on ? 2.4 : 1.6; cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
-      head(bx, by, ux, uy, 11); if (d.k !== 'arr') head(ax, ay, -ux, -uy, 11);
+      head(bx, by, ux, uy, 11); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, 11);
       const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.txt;
       let ang = Math.atan2(by - ay, bx - ax); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
       const mx = (ax + bx) / 2, my = (ay + by) / 2, nx = Math.sin(ang), ny = -Math.cos(ang), cxp = mx + nx * 14, cyp = my + ny * 14;
@@ -255,6 +255,7 @@
   /* привязка конца размера: точка (узел, угол фото/развёртки, конец размера) → грань (стена, край развёртки/фото) → поверхность (фото, развёртка) → свободно */
   function snapDim(sx, sy, skipDim, from) {
     let best = null, bd = 20; const q0 = toW(sx, sy);
+    if (!md('sn')) { const q = from ? lineSnap(endPos(from), q0) : q0; return surfAt(q); }   // 🧲 выкл — без привязки
     const pt = (x, y, e) => { const [X, Y] = toS(x, y), dd = hyp(X - sx, Y - sy); if (dd < bd) { bd = dd; best = {...e, x: rnd(x * 10) / 10, y: rnd(y * 10) / 10}; } };
     for (const n of D.nodes) pt(n.x, n.y, {t: 'node', id: n.id});
     for (const o of D.elev) { const r = elevRect(o); [[0, 0], [1, 0], [1, 1], [0, 1]].forEach(([u, v]) => pt(r.x + r.w * u, r.y + r.h * v, {t: 'elev', id: o.id, u, v})); }
@@ -271,7 +272,7 @@
       for (let i = 0; i < 4; i++) { const [u0, v0] = C4[i], [u1, v1] = C4[(i + 1) % 4]; seg({x: r.x + r.w * u0, y: r.y + r.h * v0}, {x: r.x + r.w * u1, y: r.y + r.h * v1}, (t, x, y) => ({t: 'elev', id: o.id, u: u0 + (u1 - u0) * t, v: v0 + (v1 - v0) * t, x, y})); } }
     if (best) return best;
     let q = q0;
-    if (from) { const A = endPos(from), dx = q.x - A.x, dy = q.y - A.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; if (m < 6 || m > 84) q = Math.abs(dx) >= Math.abs(dy) ? {x: q.x, y: A.y} : {x: A.x, y: q.y}; }
+    if (from) { const A = endPos(from); q = lineSnap(A, q); }
     return surfAt(q);
   }
   function surfAt(q) {
@@ -281,7 +282,7 @@
   }
   function addDim(a, b) {
     const A = endPos(a), B = endPos(b); if (hyp(B.x - A.x, B.y - A.y) * V.s < 12) return null;
-    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: ''}; D.dims.push(d); commit(); return d;
+    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: ''}; if (d.k === 'dim' && !md('t')) d.t = 'one'; D.dims.push(d); commit(); setDir(A, B); return d;
   }
 
 
@@ -443,7 +444,7 @@
   function drwSet(q, W) { const R = hostR(q.h); if (q.h && !R) { q.h = null; delete q.wp; } q.p = W.map(pt => enc(q.h, hostR(q.h), pt)); }
   function B3cache() { for (const q of D.drw) if (q.h) q.wp = drwW(q).map(t => [rnd(t.x), rnd(t.y)]); }
   function drwNew(k, W, o) {
-    const h = hostAt(W[0]); begin(); const q = {id: uid('g'), k, c: C.col, h, p: [], ...o}; drwSet(q, W); D.drw.push(q); C.sel = {t: 'drw', id: q.id}; commit(); return q;
+    const h = hostAt(W[0]); begin(); const z = zo(k), q = {id: uid('g'), k, c: C.col, h, p: [], ...(z.dash ? {dash: 1} : {}), ...(z.fill && (k === 'rect' || k === 'circ') ? {fill: 1} : {}), ...(z.rnd && k === 'rect' ? {rnd: 1} : {}), ...o}; if (k === 'ln') setDir(W[0], W[1]); drwSet(q, W); D.drw.push(q); C.sel = {t: 'drw', id: q.id}; commit(); return q;
   }
   const snap90 = (A, q) => { const dx = q.x - A.x, dy = q.y - A.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; return m < 6 || m > 84 ? (Math.abs(dx) >= Math.abs(dy) ? {x: q.x, y: A.y} : {x: A.x, y: q.y}) : q; };
   function circ3(A, B, Cc) {                                     // окружность через 3 точки (px) — как zdCirc3 v81
@@ -455,7 +456,7 @@
   function drwShape(k, S, q, c, w, sel) {                        // S — точки px
     cx.strokeStyle = c; cx.fillStyle = c; cx.lineWidth = w; cx.lineJoin = 'round'; cx.lineCap = 'round'; cx.setLineDash(q.dash ? [8, 5] : []);
     if (k === 'pen' || k === 'pl' || k === 'ln') { cx.beginPath(); S.forEach(([x, y], i) => (i ? cx.lineTo(x, y) : cx.moveTo(x, y))); cx.stroke(); }
-    else if (k === 'rect') { const [A, B] = S; cx.beginPath(); cx.rect(Math.min(A[0], B[0]), Math.min(A[1], B[1]), Math.abs(B[0] - A[0]), Math.abs(B[1] - A[1])); if (q.fill) { cx.globalAlpha = 0.25; cx.fill(); cx.globalAlpha = 1; } cx.stroke(); }
+    else if (k === 'rect') { const [A, B] = S, x0 = Math.min(A[0], B[0]), y0 = Math.min(A[1], B[1]), w0 = Math.abs(B[0] - A[0]), h0 = Math.abs(B[1] - A[1]); cx.beginPath(); if (q.rnd && cx.roundRect) cx.roundRect(x0, y0, w0, h0, Math.min(14, w0 / 4, h0 / 4)); else cx.rect(x0, y0, w0, h0); if (q.fill) { cx.globalAlpha = 0.25; cx.fill(); cx.globalAlpha = 1; } cx.stroke(); }
     else if (k === 'circ') { const [A, B] = S; cx.beginPath(); cx.arc(A[0], A[1], hyp(B[0] - A[0], B[1] - A[1]), 0, 7); if (q.fill) { cx.globalAlpha = 0.25; cx.fill(); cx.globalAlpha = 1; } cx.stroke(); }
     else if (k === 'arc') { const [A, B, Cc] = S, o = circ3(A, B, Cc); cx.beginPath(); if (o) cx.arc(o.x, o.y, o.r, Math.atan2(A[1] - o.y, A[0] - o.x), Math.atan2(Cc[1] - o.y, Cc[0] - o.x), o.ccw); else { cx.moveTo(A[0], A[1]); cx.lineTo(Cc[0], Cc[1]); } cx.stroke(); }
     cx.setLineDash([]);
@@ -542,7 +543,7 @@
   }
   function B3move(g, p, q, mx, my) {
     if (g.t === 'pen') { const L = g.pts[g.pts.length - 1], [lx, ly] = toS(L.x, L.y); if (hyp(lx - p.x, ly - p.y) > 4) g.pts.push(q); draw(); }
-    else if (g.t === 'zd2') { g.b = C.tool === 'ln' ? snap90(g.a, q) : q; draw(); }
+    else if (g.t === 'zd2') { g.b = C.tool === 'ln' ? lineSnap(g.a, q) : (C.tool === 'rect' && md('sq')) ? sqr(g.a, q) : q; draw(); }
     else if (g.t === 'er') { if (eraseAt(p.x, p.y)) g.er++; draw(); }
     else if (g.t === 'drmove') { const d = drw(g.h.id); drwSet(d, g.o.map(t => ({x: t.x + mx, y: t.y + my}))); draw(); }
     else if (g.t === 'drwh') { const d = drw(g.h.id), W = drwW(d); W[g.h.i] = q; drwSet(d, W); draw(); }
@@ -568,7 +569,7 @@
     if (k === 'pl') {
       if (!C.zdp.length && hd) { C.sel = {t: 'drw', id: hd.id}; ui(); draw(); return true; }
       if (C.zdp.length >= 2) { const L = C.zdp[C.zdp.length - 1], [lx, ly] = toS(L.x, L.y); if (hyp(lx - g.p0.x, ly - g.p0.y) < 16) { plDone(); return true; } }
-      C.zdp.push(C.zdp.length ? snap90(C.zdp[C.zdp.length - 1], q) : q); ui(); draw(); return true; }
+      C.zdp.push(C.zdp.length ? (md('L') ? snap90(C.zdp[C.zdp.length - 1], q) : q) : q); ui(); draw(); return true; }
     C.sel = hd ? {t: 'drw', id: hd.id} : null; ui(); draw(); return true;   // перо, линия, прямоугольник, круг: касание — выбрать рисунок
   }
   function plDone() { if (C.zdp.length >= 2) drwNew('pl', C.zdp.slice()); C.zdp = []; ui(); draw(); }
@@ -726,7 +727,8 @@
     if (g.t === 'cres') { begin(); const c = com(g.h.id); const r = cRect(c); if (r && CK[c.k].rc) { c.x = r.x; c.y = r.y; delete c.ex; delete c.ey; } g.o = clone(c); C.sel = {t: 'com', id: c.id}; ui(); }
   }
   function B4move(g, p, q) {
-    if (g.t === 'cdraw') { const R = elevRect(elev(g.e)); let b = snapE(R, s2w(R, p.x, p.y)); if (CK[C.tool].ln) { const dx = b.x - g.a.x, dy = b.y - g.a.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; if (m < 6 || m > 84) b = Math.abs(dx) >= Math.abs(dy) ? {x: b.x, y: g.a.y} : {x: g.a.x, y: b.y}; } g.b = b; draw(); return true; }
+    if (g.t === 'cdraw') { const R = elevRect(elev(g.e)); let b = md('sn') || !CK[C.tool].ln ? snapE(R, s2w(R, p.x, p.y)) : s2w(R, p.x, p.y); if (CK[C.tool].rc && md('sq')) { const dx = b.x - g.a.x, dy = b.y - g.a.y, m = Math.max(Math.abs(dx), Math.abs(dy)); b = {x: g.a.x + Math.sign(dx || 1) * m, y: g.a.y + Math.sign(dy || 1) * m}; }
+      if (CK[C.tool].ln && md('L')) { const dx = b.x - g.a.x, dy = b.y - g.a.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; if (m < 6 || m > 84) b = Math.abs(dx) >= Math.abs(dy) ? {x: b.x, y: g.a.y} : {x: g.a.x, y: b.y}; } g.b = b; draw(); return true; }
     if (g.t === 'cmove') { const c = com(g.h.id), e = elev(c.e), R = elevRect(e), w0 = s2w(R, g.p0.x, g.p0.y), w1 = s2w(R, p.x, p.y), dx = rnd(w1.x - w0.x), dy = rnd(w1.y - w0.y), o = g.o, K = CK[c.k];
       if (K.ln) { c.a = [o.a[0] + dx, o.a[1] + dy]; c.b = [o.b[0] + dx, o.b[1] + dy]; } else if (K.pg) c.pts = o.pts.map(t => [t[0] + dx, t[1] + dy]); else { c.x = o.x + dx; c.y = o.y + dy;
         const r0 = cRect(c), sn = K.rc ? objSnap(c, R, [[r0.x], [r0.x + r0.w]], [[r0.y], [r0.y + r0.h]]) : objSnap(c, R, [[c.x]], [[c.y]]);   /* привязка к краям стены и граням других (замечание 4) */
@@ -742,7 +744,7 @@
   function B4end(g) {
     if (g.t !== 'cdraw') return false; const K = CK[C.tool]; if (!g.b) return true; const e = elev(g.e); if (!e) return true;
     const d = hyp(g.b.x - g.a.x, g.b.y - g.a.y) * V.s; if (d < 12) return true;
-    if (K.ln) comNew(C.tool, e, {a: [rnd(g.a.x), rnd(g.a.y)], b: [rnd(g.b.x), rnd(g.b.y)], t: C.rt});
+    if (K.ln) { comNew(C.tool, e, {a: [rnd(g.a.x), rnd(g.a.y)], b: [rnd(g.b.x), rnd(g.b.y)], t: C.rt}); LASTDIR = Math.atan2(-(g.b.y - g.a.y), g.b.x - g.a.x); }
     else comNew(C.tool, e, {x: rnd(Math.min(g.a.x, g.b.x)), y: rnd(Math.min(g.a.y, g.b.y)), w: rnd(Math.abs(g.b.x - g.a.x)), h: rnd(Math.abs(g.b.y - g.a.y))});
     ui(); draw(); return true;
   }
@@ -791,6 +793,33 @@
     return null; }
   function comSnapPts() { const out = []; for (const c of D.com) { const e = elev(c.e); if (!e) continue; const K = CK[c.k];
     if (K.pt) postsW(c).forEach((_, i) => out.push({t: 'com', id: c.id, i})); else if (K.rc) for (let i = 0; i < 4; i++) out.push({t: 'com', id: c.id, i}); } return out; }
+
+  /* ═══ [BLOCK C-MODS] модификаторы инструмента — набор v81 (ZO / ZOPT): блок модификаторов (3-я строка снизу справа) при активном инструменте,
+     у каждого инструмента свои, запоминаются. ∟ 0/90° · ∥ параллельно последней · ↔/→ стрелки размера · ⛓ цепочка · 🧲 привязка · ┄ пунктир · ◜ скругление · ■ заливка · 1:1 квадрат ═══ */
+  const ZO = {L: ['∟', 'Модификатор 0 / 90°: только вертикально / горизонтально'], P: ['∥', 'Параллельно последней линии'], sq: ['1:1', 'Квадрат'],
+    t: ['↔', 'Размер: стрелки с двух сторон (↔) / от угла (→)'], ch: ['⛓', 'Цепочка: следующий размер — от конца предыдущего'], sn: ['🧲', 'Привязка к краям, линиям, углам'],
+    dash: ['┄', 'Пунктир'], rnd: ['◜', 'Скругление углов'], fill: ['■', 'Заливка']};
+  const RCK = Object.keys(CK).filter(k => CK[k].rc);
+  const ZOPT = Object.assign({dim: ['L', 'P', 't', 'ch', 'sn'], arr: ['L', 'P', 'sn'], ln: ['L', 'P', 'dash'], pl: ['L', 'dash'], rect: ['sq', 'rnd', 'fill', 'dash'], circ: ['fill', 'dash'], arc: ['dash'], pen: ['dash'],
+    wall: ['L', 'sn'], ct: ['L', 'sn'], wrt: ['L', 'P', 'sn']}, ...RCK.map(k => ({[k]: ['sq']})));
+  const ZO0 = {dim: {L: 1, sn: 1, t: 1}, arr: {L: 1, sn: 1}, ln: {L: 1}, pl: {L: 1}, wall: {L: 1, sn: 1}, ct: {L: 1, sn: 1}, wrt: {L: 1, sn: 1}};
+  const MOD = (() => { try { return JSON.parse(localStorage.getItem('akx-core-mod') || '{}'); } catch (e) { return {}; } })();
+  const zo = k => (MOD[k] = MOD[k] || {...(ZO0[k] || {})});
+  const md = o => (ZOPT[C.tool] ? !!zo(C.tool)[o] : o !== 'P' && o !== 'ch');   // модификатор текущего инструмента; без набора (выбор и др.) — привязки как раньше
+  const mdSv = () => { try { localStorage.setItem('akx-core-mod', JSON.stringify(MOD)); } catch (e) { } };
+  let LASTDIR = null;                                            // направление последней линии (рад), для ∥
+  function snapP(A, q) { if (!md('P') || LASTDIR == null) return q; const dx = q.x - A.x, dy = q.y - A.y, L = hyp(dx, dy); if (!L) return q;
+    let d = Math.atan2(dy, dx) - LASTDIR; d = ((d + Math.PI / 2) % Math.PI + Math.PI) % Math.PI - Math.PI / 2; if (Math.abs(d) > 6 * Math.PI / 180) return q;
+    const s = Math.sign(Math.cos(Math.atan2(dy, dx) - LASTDIR)) || 1, u = {x: Math.cos(LASTDIR) * s, y: Math.sin(LASTDIR) * s}, k = dx * u.x + dy * u.y; return {x: A.x + u.x * k, y: A.y + u.y * k}; }
+  const setDir = (A, B) => { if (A && B && hyp(B.x - A.x, B.y - A.y) > 0) LASTDIR = Math.atan2(B.y - A.y, B.x - A.x); };
+  const sqr = (A, q) => { const dx = q.x - A.x, dy = q.y - A.y, m = Math.max(Math.abs(dx), Math.abs(dy)); return {x: A.x + Math.sign(dx || 1) * m, y: A.y + Math.sign(dy || 1) * m}; };
+  const lineSnap = (A, q) => snapP(A, md('L') ? snap90(A, q) : q);
+  function modsAct(B) {
+    const o = ZOPT[C.tool]; if (!o) return; const z = zo(C.tool);
+    for (const k of o) { const on = !!z[k], ic = k === 't' ? (on ? '↔' : '→') : ZO[k][0];
+      B.push([`<span class="opt${on || k === 't' ? ' on' : ''}">${ic}</span>`, () => { z[k] = z[k] ? 0 : 1; mdSv(); ui(); draw(); toast(ZO[k][1].split(':')[0] + (k === 't' ? (z[k] ? ': ↔' : ': →') : z[k] ? ': вкл' : ': выкл')); }, ZO[k][1]]); }
+    B.push(null);                                                // разделитель: дальше — действия выбранного
+  }
 
   /* ═══ [BLOCK C-B5] Б5 план: «контур: касания по углам» (⌗) и «проём» (⊓) — как v81 (ct, op).
      Контур: касание — угол, между углами — стена плана (0/90°, узлы, выравнивание — привязки ядра); касание первого угла — замкнуть, касание последнего — закончить.
@@ -863,10 +892,11 @@
 
   /* ═══ [BLOCK C-SNAP] привязки построения стены: узел → 0/90° → выравнивание по узлам ═══ */
   function snapEnd(a, sx, sy, skip) {
-    for (const n of D.nodes) { if (n.id === skip) continue; const [x, y] = toS(n.x, n.y); if (hyp(x - sx, y - sy) < HR.node + 4) return {x: n.x, y: n.y, node: n.id}; }
+    if (!md('sn') && !md('L')) { const q = toW(sx, sy); return {x: rnd(q.x), y: rnd(q.y)}; }
+    if (md('sn')) for (const n of D.nodes) { if (n.id === skip) continue; const [x, y] = toS(n.x, n.y); if (hyp(x - sx, y - sy) < HR.node + 4) return {x: n.x, y: n.y, node: n.id}; }
     let q = toW(sx, sy); if (!a) return {x: rnd(q.x), y: rnd(q.y)};
     const dx = q.x - a.x, dy = q.y - a.y, ang = Math.atan2(dy, dx) * 180 / Math.PI, m = ((ang % 90) + 90) % 90; let ax = null;
-    if (m < 6 || m > 84) {
+    if (md('L') && (m < 6 || m > 84)) {
       const hz = Math.abs(dx) >= Math.abs(dy); q = hz ? {x: q.x, y: a.y} : {x: a.x, y: q.y};
       const [qx, qy] = toS(q.x, q.y);
       for (const n of D.nodes) { if (n.id === skip) continue; const [x, y] = toS(n.x, n.y);
@@ -1000,7 +1030,9 @@
     if (B6start(G, p, h)) return;
     if (B4start(G, p, h)) return;
     if (typeof B3start === 'function' && B3start(G, p, h)) return;
-    if ((C.tool === 'dim' || C.tool === 'arr') && !(h && (h.t === 'dlabel' || h.t === 'label' || h.t === 'elabel'))) { G.t = 'dimdraw'; G.a = snapDim(p.x, p.y, null, null); G.cur = null; return; }
+    if ((C.tool === 'dim' || C.tool === 'arr') && !(h && (h.t === 'dlabel' || h.t === 'label' || h.t === 'elabel'))) { G.t = 'dimdraw'; G.a = snapDim(p.x, p.y, null, null); G.cur = null;
+      if (C.tool === 'dim' && md('ch')) { const ld = D.dims.filter(x => x.k === 'dim').slice(-1)[0]; if (ld) { const E = endPos(ld.b), [ex, ey] = toS(E.x, E.y); if (hyp(ex - p.x, ey - p.y) < 40) G.a = {...ld.b}; } }   // ⛓ — от конца предыдущего
+      return; }
     if (C.tool === 'wall' && !(h && (h.t === 'label' || h.t === 'elabel'))) {
       const a = snapEnd(null, p.x, p.y); G.t = 'draw'; G.a = a; G.b = null; return;
     }
@@ -1242,12 +1274,14 @@
       if (f) B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => frameWall(f), w ? `Стена С${w.gn} — показать` : 'Стена по рамке: L × H']); }
     else if (s && s.t === 'wall') { const w = wall(s.id); if (w) { const has = D.elev.some(e => e.wall === w.id);
       B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => addElev(w), has ? `Стена С${w.gn} на холсте — показать` : `Стена С${w.gn} на холст`]); } }
+    const B0 = B.splice(0); modsAct(B); B.push(...B0);
     if (typeof B3act === 'function') B3act(s, B);
     if (typeof B4act === 'function') B4act(s, B);
     if (typeof B6act === 'function') B6act(s, B);
     restAct(s, B);
+    while (B.length && B[B.length - 1] === null) B.pop(); if (B[0] === null) B.shift();
     box.classList.toggle('on', B.length > 0);
-    for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; act(b, fn); box.appendChild(b); }
+    for (const it of B) { if (it === null) { const sp = document.createElement('span'); sp.className = 'sep'; box.appendChild(sp); continue; } const [h, fn, ti] = it; { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; act(b, fn); box.appendChild(b); } }
     if (typeof B3ui === 'function') B3ui();
     chipsUi();
   }
