@@ -66,7 +66,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   { const dd = await doc(), wn = dd.com.find(c => c.k === 'win'), e0 = wn.e;
     await M(`(()=>{const d=MeasureCore.doc;d.com.push({id:'kx',k:'kor',e:'${e0}',x:${wn.x + wn.w + 40},y:200,w:300,h:300});MeasureCore.draw()})()`);
     await btn('#wChips [data-w="' + dd.elev.find(e => e.id === e0).wall + '"]'); await W(200); const R1 = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e=>e.id==='${e0}'))`);
-    const k0 = await scr(R1.x + wn.x + wn.w + 190, R1.y + R1.h - 350); await tool('sel'); await tap(k0[0], k0[1]); await drag(k0, [k0[0] + 2, k0[1] - 14]);
+    const kb0 = await M(`MeasureCore.comPx('kx').box`), k0 = [(kb0[0] + kb0[2]) / 2, (kb0[1] + kb0[3]) / 2 + top];   /* 82.35.3: короб объёмом — касание по лицевой грани */ await tool('sel'); await tap(k0[0], k0[1]); await drag(k0, [k0[0] + 2, k0[1] - 14]);
     const kx = (await doc()).com.find(c => c.id === 'kx'); ok('привязка к грани окна (40 мм → 0)', kx.x === wn.x + wn.w, [kx.x, wn.x + wn.w]); }
   // выгрузка v3
   { const o = await M('MeasureCore.exportAkrix()'), r0 = o.rooms.find(r => r.ms.closed), ms = r0 && r0.ms;

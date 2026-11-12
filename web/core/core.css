@@ -168,3 +168,21 @@ body.kb #cKb{display:grid}
 #zMods button:has(.zi.on){border:2px solid #F2B233;background:#454b55}
 #zMods .zi svg{width:26px;height:26px;display:block}
 #zMods .zi:not(.on) svg{opacity:.45;filter:saturate(.35)}
+/* [BLOCK C-W3PT-CSS] 82.35.4: плоскости (4 угла v81) в #mdT и окно «Угол» выбранной точки */
+#w3pl{position:fixed;left:6px;top:92px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#w3pl:empty{display:none}
+#w3pl button{min-width:32px;height:30px;border-radius:7px;border:none;background:none;color:#CFD4DC;display:grid;place-items:center;padding:0 7px;font:600 14px system-ui}
+#w3pl button svg{width:22px;height:22px}
+#w3pl button.on{background:#F6E08A;color:#1A2027}
+#w3x{position:fixed;left:8px;top:132px;z-index:7;display:none;background:rgba(30,33,38,.96);color:#E8EBEF;border-radius:12px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.45);font:13px system-ui;max-width:calc(100vw - 16px)}
+#w3x.on{display:block}
+#w3x.lo{top:auto;bottom:250px}
+#w3x .h{color:#AEB5BF;font-size:12px;margin-bottom:6px}
+#w3x .r{display:flex;align-items:center;gap:6px;margin:4px 0}
+#w3x b{font:700 15px system-ui;width:14px;text-align:center}
+#w3x b.X{color:#E5484D}#w3x b.Y{color:#2BB673}#w3x b.Z{color:#3D9BFF}#w3x b.a{width:auto;color:#B57BFF;font-size:14px}
+#w3x button{min-width:64px;height:30px;padding:0 8px;background:#1a1d22;border:1px solid #5a616c;border-radius:6px;color:#fff;font:600 15px system-ui;text-align:left}
+#w3x .an button{min-width:48px}
+#w3x button.ed{border-color:#F2B233;background:#2a2610}
+#w3x small{color:#AEB5BF;font-size:11px;line-height:1.1}
+#w3x svg{width:20px;height:20px}
