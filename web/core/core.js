@@ -254,7 +254,7 @@
       const hl = zLW(CFG.arrowPx); head(bx, by, ux, uy, hl); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, hl);
       const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.kind === 'man' ? val.txt : '?';   // 82.35.14: невведённый — «?»
       let ang = Math.atan2(by - ay, bx - ax); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
-      const fq = edit || on ? 1 : fk(); if (TXP() * fq < 6.5) continue;   // 82.35.14: поле — в масштабе холста, нечитаемое скрыто
+      const fq = edit || on ? 1 : fk(); if (TXP() * fq < 5) continue;   // 82.35.14: поле — в масштабе холста, нечитаемое скрыто
       cx.font = `700 ${TXP() * fq}px system-ui`; const fh = FLP() * fq, tw = Math.max(fh, cx.measureText(t).width + fh * 0.55);
       const [cxp, cyp] = fPlace((ax + bx) / 2, (ay + by) / 2, tw, fh, ang, L);
       const fc = edit ? '#c99a1e' : val.kind === 'man' ? '#1a2027' : val.kind === 'geo' ? '#d93025' : '#8a9099';   // введённый — чёрный, авто — красный, ≈ по фото — серый
@@ -479,8 +479,9 @@
     for (const k in CFGR) o[k] = Math.max(CFGR[k][0], Math.min(CFGR[k][1], +o[k] || CFG0[k])); return o; })();
   const cfgSv = () => { try { localStorage.setItem('akx-core-cfg', JSON.stringify(CFG)); } catch (e) { } };
   const zLW = w => { const z = V.fs ? V.s / V.fs : 1; return Math.max(w * 0.6, Math.min(w * 2, w * Math.pow(z, 0.35))); };
-  /* ═══ [BLOCK FSCALE] 82.35.14: поле размера масштабируется с холстом — полный размер при V.s ≥ FS0 (≈ стена на экран), меньше — пропорционально, нечитаемое (< 6,5 px) скрыто; невведённый размер — «?» ═══ */
-  const FS0 = 0.14, fk = () => Math.min(1, V.s / FS0), FHID = {x: -1e5, y: -1e5, w: 0, h: 0};
+  /* ═══ [BLOCK FSCALE] 82.35.14: поле размера масштабируется с холстом — полный размер при V.s ≥ FS0 (≈ 2× стена на экран), меньше — пропорционально, не длиннее своей грани, нечитаемое (< 5 px) скрыто; невведённый размер — «?» ═══ */
+  const FS0 = 0.3, fk = () => Math.min(1, V.s / FS0), FHID = {x: -1e5, y: -1e5, w: 0, h: 0};
+  function fkE(t, L) { let k = fk(); if (L > 0) { cx.save(); cx.font = `700 ${TXP()}px system-ui`; const tw = Math.max(FLP(), cx.measureText(t).width + FLP() * 0.55); cx.restore(); k = Math.min(k, L * 0.6 / tw); } return k; }   // поле лежит на грани: не длиннее 60 % её длины — у угла не сходится с соседним
   /* ═══ [/BLOCK FSCALE] ═══ */
   const TXP = () => Math.max(6, CFG.textPx * W3.f), FLP = () => Math.max(10, CFG.fieldPx * W3.f, TXP() + 2);
   const dimLW = sel => zLW(1.6 * LW.v / 3) * (sel ? 1.5 : 1);
@@ -959,7 +960,7 @@
   function hit(sx, sy) {
     const s = C.sel;
     if (!C.crop && C.tool === 'pts') { const hp = w3Hit(sx, sy); if (hp) return hp; }   // 82.35.4: точки 4 углов — раньше полей
-    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = !!hc && ((he.o && he.o.c === hc.id) || !!(sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === hc.id));   /* 82.35.13: Ш / В / Г на гранях объекта — его поля */ return hc && !(C.sel && C.sel.id === hc.id) && !own ? hc : he; } }   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
+    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = !!hc && ((he.o && he.o.c === hc.id) || !!(sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === hc.id));   /* 82.35.13: Ш / В / Г на гранях объекта — его поля */ return hc && ((!(C.sel && C.sel.id === hc.id) && !own) || !he.core) ? hc : he; } }   /* 82.35.14: над телом объекта — только касание самого поля */   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
     if (C.crop) { const p = photo(C.crop.id); const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'crop-h', id: p.id, c};
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
     if (s && s.t === 'photo') { const p = photo(s.id); if (p) { const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'ph-h', id: p.id, c}; } }
@@ -1574,7 +1575,7 @@
   const EDL = [];                                                // поля размеров развёрток: {id (развёртка), k, r (px), …}
   const STRUCT = new Set(['kol', 'nis', 'kor', 'rig', 'win', 'door']);
   function edimBox(t, X, Y, vert, ed, ent, L) {                  // поле 82.13 в стиле v81 (82.35): скруглено 3, обводка 1,2, размеры из настроек, без наложения; введённое — чёрным, примерное — красным
-    const k = ed ? 1 : fk(); if (TXP() * k < 6.5) return FHID; if (!ed && !ent) t = '?';   // 82.35.14: по центру грани, без сдвига
+    if (!ed && !ent) t = '?'; const k = ed ? 1 : fkE(t, L); if (TXP() * k < 5) return FHID;   // 82.35.14: по центру грани, не длиннее грани
     cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55), a = vert ? -Math.PI / 2 : 0;
     cx.translate(X, Y); if (vert) cx.rotate(a);
     rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
@@ -1582,7 +1583,7 @@
     return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
   }
   function edimBoxA(t, X, Y, a, ed, ent, L) {                    // поле под углом (глубина объёма — вдоль ребра глубины)
-    const k = ed ? 1 : fk(); if (TXP() * k < 6.5) return FHID; if (!ed && !ent) t = '?';   // 82.35.14: по центру ребра, масштаб с холстом
+    if (!ed && !ent) t = '?'; const k = ed ? 1 : fkE(t, L); if (TXP() * k < 5) return FHID;   // 82.35.14: по центру ребра, не длиннее ребра
     cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55);
     cx.translate(X, Y); cx.rotate(a);
     rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
@@ -1840,7 +1841,8 @@
       if (dv) { const P0 = Cc('D'), P1 = Cc('C'), Lb = hyp(P1[0] - P0[0], P1[1] - P0[1]), Lt = hyp(Cc('B')[0] - Cc('A')[0], Cc('B')[1] - Cc('A')[1]);
         if (Math.abs(Lb - Lt) > 0.5) { const m0 = w3S3(R, [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, 0]), ed = kbIs('eE', e.id, t => t.side === 'b'); EDL.push({id: e.id, k: 'eE', side: 'b', r: edimBox(ed ? kbTxt() : num(Lb), m0[0], m0[1], false, ed, !!(e.w3d.C || e.w3d.D), Lb * V.s)}); } }
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.3: глубина — полем на боковой грани объёма
-        const f = vf.F.find(q => q.k === 'l' || q.k === 'r'); const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1 < R.h - 0.5 ? vf.y1 : vf.y0, xx = f ? (f.k === 'l' ? vf.x0 : vf.x1) : vf.x0;
+        const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1 < R.h - 0.5 ? vf.y1 : vf.y0, cand = [vf.x0, vf.x1];   /* рёбра глубины видны всегда (82.35.12) */
+        const dl = x => { const p = w3P(R, x, yy, 0), q = w3P(R, x, yy, vf.z); return hyp(q[0] - p[0], q[1] - p[1]); }, xx = (cand.length ? cand : [vf.x0]).sort((u, v) => dl(v) - dl(u))[0];   // 82.35.14: глубина — на самом длинном видимом ребре глубины
         const a = w3P(R, xx, yy, 0), b = w3P(R, xx, yy, vf.z), ed = kbIs('cD', c.id), tt = ed ? kbTxt() : num(Math.abs(vf.z));
         let ang = Math.atan2(b[1] - a[1], b[0] - a[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
         const rr = edimBoxA(tt, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, ang, ed, !!c.D, hyp(b[0] - a[0], b[1] - a[1])); EDL.push({id: e.id, k: 'D', c: c.id, r: rr}); }
@@ -1848,7 +1850,8 @@
         if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
         if (kbIs('cH', sc.id)) edimBox('H ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
   }
-  function edHit(sx, sy) { for (let i = EDL.length - 1; i >= 0; i--) { const o = EDL[i], r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'edim', id: o.id, o}; } return null; }
+  function edHit(sx, sy) { let best = null, bd = 1e9; for (let i = EDL.length - 1; i >= 0; i--) { const o = EDL[i], r = o.r; if (!r.w) continue; const cx0 = r.x + r.w / 2, cy0 = r.y + r.h / 2, hw = Math.max(r.w / 2 + 4, 18), hh = Math.max(r.h / 2 + 4, 18);   // 82.35.14: мелкое поле — зона касания ≥ 36 px, ближайшее к пальцу
+      if (Math.abs(sx - cx0) <= hw && Math.abs(sy - cy0) <= hh) { const d = hyp(sx - cx0, sy - cy0); if (d < bd) { bd = d; best = {t: 'edim', id: o.id, o, core: sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4}; } } } return best; }
   function edTap(h) {
     const o = h.o, e = elev(h.id), w = e && wall(e.wall); if (!w) return;
     if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }

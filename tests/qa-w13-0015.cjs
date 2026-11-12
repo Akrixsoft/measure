@@ -10,6 +10,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   const w1 = d.walls[0];   /* 82.35.8: на плане длины нет — вводится полем L на развёртке */
   ok('на плане — только обозначение', await M(`(() => { const l = MeasureCore.labels().find(l => l.id === '${w1.id}'); return !!l && l.w < 60; })()`));
   await M(`(() => { MeasureCore.sel = {t: 'wall', id: '${w1.id}'}; })()`); await btn('#vwGo'); await W(250);
+  await M(`(() => { const D = MeasureCore.doc, k = D.elev.find(e => e.wall === '${w1.id}'), r = MeasureCore.elevRect(k), V = MeasureCore.view; V.s = 0.13; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 420 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`); await W(150);   /* 82.35.14: поля видны при V.s ≥ ~0,12 */
   { const e1 = (await doc()).elev.find(e => e.wall === w1.id), fl = (await M('MeasureCore.edl()')).find(o => o.k === 'L' && (o.s ? true : true)); const all = await M(`MeasureCore.edl().map(o => ({k: o.k, r: o.r}))`); const L1 = (await M(`(() => { const L = []; return L; })()`), all.filter(o => o.k === 'L'));
     const R = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e => e.id === '${e1.id}'))`), q = await M(`MeasureCore.toS(${R.x + R.w / 2}, ${R.y})`);
     const f = L1.sort((a, b) => Math.hypot(a.r.x + a.r.w / 2 - q[0], a.r.y + a.r.h / 2 - q[1]) - Math.hypot(b.r.x + b.r.w / 2 - q[0], b.r.y + b.r.h / 2 - q[1]))[0];
@@ -26,7 +27,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   { const A = d.nodes.find(n => n.id === w1.a), B = d.nodes.find(n => n.id === w1.b), s = await scr(A.x + (B.x - A.x) * 0.7, A.y + (B.y - A.y) * 0.7); await tap(s[0], s[1]); }
   ok('кнопки «на холст» нет (82.35.5)', !(await ctxBtn('на холст')));
   d = await doc(); ok('замкнутый контур — все 4 стены на холсте, H по умолчанию 2700', d.elev.length === 4 && (await M(`MeasureCore.elevRect(MeasureCore.doc.elev[0]).h`)) === 2700);
-  await M(`(() => { const D = MeasureCore.doc, k = D.elev.find(e => e.wall === '${w1.id}'); D.elev = [k]; const r = MeasureCore.elevRect(k), V = MeasureCore.view; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 374 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`);   // вид — на С1, как раньше делала кнопка   // дальше — проверки на одной С1, как раньше
+  await M(`(() => { const D = MeasureCore.doc, k = D.elev.find(e => e.wall === '${w1.id}'); D.elev = [k]; const r = MeasureCore.elevRect(k), V = MeasureCore.view; V.s = 0.13; /* 82.35.14: поля видны при V.s ≥ ~0,12 */ V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 374 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`);   // вид — на С1, как раньше делала кнопка   // дальше — проверки на одной С1, как раньше
   await W(200); await M('MeasureCore.draw()');   /* дождаться перерисовки после замены D.elev — иначе поля читаются по 4 развёрткам */
   const ed = await M('MeasureCore.edl()'); ok('без объёмов: L один, высота — своим полем на каждой боковой грани', ed.filter(o => o.k === 'L').length === 1 && ed.filter(o => o.k === 'eE').length === 2, ed.map(o => o.k));
   ok('подписи «С№ · L × H» нет', (await M('MeasureCore.elabels().length')) === 0);
@@ -50,7 +51,8 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   ok('бока стены: 2 269 слева и справа, H общего нет', JSON.stringify(side) === JSON.stringify([2269, 2269]) && !e3.some(o => o.k === 'H'), side);
   const rH = e3.filter(o => o.k === 'cH');   /* 82.35.13: высота ригеля — на каждом его лицевом вертикальном ребре */
   ok('высота ригеля 381 — полем на каждом лицевом ребре (2)', rH.length === 2 && Math.abs(rH[0].r.x - rH[1].r.x) > 100, rH.map(o => Math.round(o.r.x)));
-  const s381 = rH[0]; await tap(s381.r.x + s381.r.w / 2, s381.r.y + s381.r.h / 2 + top); await key('400ok');
+  await M('MeasureCore.view.ox += 60; MeasureCore.draw()'); await W(150);   /* 82.35.14: левое ребро ригеля — на экран */
+  const s381 = (await M('MeasureCore.edl()')).filter(o => o.k === 'cH').sort((a, b) => a.r.x - b.r.x)[0]; await tap(s381.r.x + s381.r.w / 2, s381.r.y + s381.r.h / 2 + top); await key('400ok');
   d = await doc(); const rg2 = d.com.find(x => x.k === 'rig'); ok('поле 381 на ребре → 400: ригель растёт вниз, верх у потолка', rg2.h === 400 && rg2.y === 2250, rg2);
   await tool('sel'); { const s = await at(700, 1200); await tap(s[0], s[1]); }
   { const fz = (await M('MeasureCore.edl()')).find(o => o.k === 'D'); ok('глубина колонны — полем на боковой грани', !!fz); if (fz) { await tap(fz.r.x + fz.r.w / 2, fz.r.y + fz.r.h / 2 + top); await key('300ok'); } ok('Z колонны 300', (await doc()).com.find(x => x.k === 'kol').D === 300); }
@@ -78,6 +80,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   { const dd = await doc(), wn = dd.com.find(c => c.k === 'win'), e0 = wn.e;
     await M(`(()=>{const d=MeasureCore.doc;d.com.push({id:'kx',k:'kor',e:'${e0}',x:${wn.x + wn.w + 40},y:200,w:300,h:300});MeasureCore.draw()})()`);
     await btn('#wChips [data-w="' + dd.elev.find(e => e.id === e0).wall + '"]'); await W(200); const R1 = await M(`MeasureCore.elevRect(MeasureCore.doc.elev.find(e=>e.id==='${e0}'))`);
+    await M(`(() => { const r = MeasureCore.elevRect(MeasureCore.doc.elev.find(e => e.id === '${e0}')), V = MeasureCore.view; V.s = 0.15; V.ox = 206 - (r.x + 2190) * V.s; V.oy = 420 - (r.y + r.h - 350) * V.s; MeasureCore.draw(); })()`); await W(150);   /* 82.35.14: на обзоре 0,046 короб 14 px — касание попадает в угловые ручки; приблизить */
     const kb0 = await M(`MeasureCore.comPx('kx').box`), k0 = [(kb0[0] + kb0[2]) / 2, (kb0[1] + kb0[3]) / 2 + top];   /* 82.35.3: короб объёмом — касание по лицевой грани */ await tool('sel'); await tap(k0[0], k0[1]); await drag(k0, [k0[0] + 2, k0[1] - 14]);
     const kx = (await doc()).com.find(c => c.id === 'kx'); ok('привязка к грани окна (40 мм → 0)', kx.x === wn.x + wn.w, [kx.x, wn.x + wn.w]); }
   // выгрузка v3
@@ -97,7 +100,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   // введённое — опора: колонна 300 у левого края, правая у края; зазор 1183 → 1200 — левая остаётся 300
   { await M(`(()=>{const d=MeasureCore.doc;d.nodes.push({id:'z1',x:40000,y:0},{id:'z2',x:42156,y:0});d.walls.push({id:'wz',a:'z1',b:'z2',gn:99});d.elev.push({id:'ez',wall:'wz',x:40000,y:3000});
       d.com.push({id:'cl',k:'kol',e:'ez',x:0,y:0,w:310,h:1},{id:'cr',k:'kol',e:'ez',x:1483,y:0,w:673,h:1});d.H=2800;})()`);
-    await M('MeasureCore.view.s=0.1;MeasureCore.view.ox=-40000*0.1+90;MeasureCore.view.oy=-3000*0.1+150'); await M('MeasureCore.draw()'); await W(200);
+    await M('MeasureCore.view.s=0.13;MeasureCore.view.ox=-40000*0.13+60;MeasureCore.view.oy=-3000*0.13+150');   /* 82.35.14: поля видны при V.s ≥ ~0,12 */ await M('MeasureCore.draw()'); await W(200);
     const fld = async v => (await M('MeasureCore.edl()')).find(o => o.k === 'seg' && o.s.ax === 'x' && Math.round(o.s.v) === v);
     let f = await fld(310); await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); if (!(await M('MeasureCore.kb'))) await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); await key('300ok');
     f = await fld(1183); ok('поле зазора найдено', !!f); await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); if (!(await M('MeasureCore.kb'))) await tap(f.r.x + f.r.w / 2, f.r.y + f.r.h / 2 + top); await key('1200ok');
