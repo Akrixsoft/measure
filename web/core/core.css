@@ -202,4 +202,4 @@ body.kb #cKb{display:grid}
 #vwB button{width:48px;height:48px;border-radius:12px;background:#2b2f35;border:2px solid #F2B233;display:grid;place-items:center;padding:0;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 #vwB button svg{width:34px;height:34px}
 #vwB button.na{border-color:#5a616c;opacity:.45}
-#vwOff .i2{display:none}#vwOff.off .i1{display:none}#vwOff.off .i2{display:block}
+#vwOff .i1{display:none}#vwOff.off .i2{display:none}#vwOff.off .i1{display:block}   /* 82.35.7: в работе — яркий значок, выключена — перечёркнутый крестом */
