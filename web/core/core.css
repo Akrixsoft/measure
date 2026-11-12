@@ -154,3 +154,12 @@ body.kb #cKb{display:grid}
 #wChips button{flex:none;min-width:34px;height:28px;border-radius:7px;border:1px solid #c9ced6;background:#2b2f35;color:#e8ebef;font:700 13px system-ui}
 #wChips button.on{background:#F6E08A;color:#1A2027;border-color:#d4a300}
 #wChips button.no{opacity:.6}
+/* [BLOCK C-CFG-CSS] 82.35: окно «Настройки Measure Lab», вид точки */
+#cfgS .ctb{display:flex;gap:6px;padding:8px 12px}
+#cfgS .ctb button.on,#cfgS .row button.on{background:#1f6fd1;border-color:#1f6fd1;color:#fff}
+#cfgS .cpv{padding:6px 12px}
+#cfgS .cpv svg{width:100%;height:auto;background:#f6f5f1;border-radius:8px}
+#cfgS .cr{display:grid;grid-template-columns:1fr 1.2fr 58px 18px;align-items:center;gap:6px;padding:6px 12px}
+#cfgS .cr input[type=number]{width:54px;font:14px system-ui}
+#cfgS .row span{flex:1}
+#ptK .row{font:15px system-ui}

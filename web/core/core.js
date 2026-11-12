@@ -114,17 +114,17 @@
     const b = bounds(); if (!b) return; const m = 28, bw = Math.max(1, b.x1 - b.x0), bh = Math.max(1, b.y1 - b.y0);
     const zf = $('zf'), cvT = cv.getBoundingClientRect().top, mb = zf ? Math.max(m, cvT + cssH() - zf.getBoundingClientRect().top + 14) : m, mt = 56;   // всё — между верхними кнопками и нижними строками
     V.s = clamp(Math.min((cssW() - 2 * m) / bw, (cssH() - mt - mb) / bh), 0.005, 5);
-    V.ox = (cssW() - bw * V.s) / 2 - b.x0 * V.s; V.oy = mt + (cssH() - mt - mb - bh * V.s) / 2 - b.y0 * V.s; viewChanged();
+    V.fs = V.s; V.ox = (cssW() - bw * V.s) / 2 - b.x0 * V.s; V.oy = mt + (cssH() - mt - mb - bh * V.s) / 2 - b.y0 * V.s; viewChanged();
   }
 
   /* ═══ [BLOCK C-DRAW] отрисовка: сетка → фото → развёртки → план → выделение ═══ */
   let raf = 0; const LBL = new Map(), ELBL = new Map();          // id стены → прямоугольник подписи (px), для касаний
   function draw() { if (!raf) raf = requestAnimationFrame(paint); }
-  const COL = {wall: '#7a3cc8', sel: '#1f6fd1', node: '#0e7f93', elev: '#223', grid: '#e2e4e7', grid2: '#cfd3d8'};
+  const COL = {wall: '#7a3cc8', sel: '#FFD400', node: '#0e7f93', elev: '#223', grid: '#e2e4e7', grid2: '#cfd3d8'};
   function paint() {
     raf = 0; if (!D) return; const d = DPR(), W = cssW(), Hh = cssH();
     cx.setTransform(d, 0, 0, d, 0, 0); cx.fillStyle = '#f6f5f1'; cx.fillRect(0, 0, W, Hh);
-    const gst = grid(W, Hh);
+    const gst = grid(W, Hh); FPL.length = 0;
     for (const p of D.photos) drawPhoto(p);
     ELBL.clear(); for (const e of D.elev) drawElev(e);
     drawCom();
@@ -143,7 +143,7 @@
     cx.font = '600 11px system-ui'; cx.fillStyle = '#8a9099'; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.textBaseline = 'top'; cx.fillText('Measure ' + (window.MeasureVersion || '') + ' · ядро', 6, 6 + topOff());
   }
   function grid(W, Hh) {
-    let st = 100; while (st * V.s < 14) st *= 10;
+    let st = 100; while (st * V.s < 14) st *= 10; if (!CFG.grid) return st;
     const a = toW(0, 0), b = toW(W, Hh);
     for (const [s, c] of [[st, COL.grid], [st * 10, COL.grid2]]) {
       cx.strokeStyle = c; cx.lineWidth = 1; cx.beginPath();
@@ -171,8 +171,8 @@
   }
   function label(t, X, Y, col) {
     cx.font = `600 ${Math.round(13 * W3.f)}px system-ui`; const tw = cx.measureText(t).width + 10, r = {x: X - tw / 2, y: Y - 11 * W3.f, w: tw, h: 22 * W3.f};
-    cx.fillStyle = '#fff'; cx.fillRect(r.x, r.y, r.w, r.h); cx.strokeStyle = col; cx.lineWidth = 1; cx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
-    cx.fillStyle = col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); return r;
+    const y = col === COL.sel; cx.fillStyle = y ? COL.sel : '#fff'; cx.fillRect(r.x, r.y, r.w, r.h); cx.strokeStyle = y ? '#B89500' : col; cx.lineWidth = 1; cx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+    cx.fillStyle = y ? '#1a2027' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); FPL.push(r); return r;   // поля размеров обходят подписи
   }
   function drawPlan() {
     LBL.clear();
@@ -182,7 +182,7 @@
       cx.strokeStyle = on ? COL.sel : COL.wall; cx.lineWidth = on ? 6 : 4; cx.lineCap = 'round';
       cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
     }
-    const R = C.tool === 'wall' ? 6 : 4;
+    const R = C.tool === 'wall' ? CFG.pointPx + 1 : CFG.pointPx - 1;
     for (const n of D.nodes) { const [x, y] = toS(n.x, n.y), on = C.sel && C.sel.t === 'node' && C.sel.id === n.id;
       cx.fillStyle = on ? COL.sel : COL.node; cx.beginPath(); cx.arc(x, y, on ? R + 3 : R, 0, 7); cx.fill(); }
     for (const w of D.walls) {                                  // подписи — поверх, сбоку от стены
@@ -214,7 +214,7 @@
   function handles(pts, col) { for (const [x, y] of pts) { cx.fillStyle = '#fff'; cx.strokeStyle = col || COL.sel; cx.lineWidth = 2.5; cx.fillRect(x - 8, y - 8, 16, 16); cx.strokeRect(x - 8, y - 8, 16, 16); } }
 
   /* ═══ [BLOCK C-DIM] размеры и стрелки: положение концов, значение, отрисовка ═══ */
-  const COLD = {line: '#1b1e23', sel: '#1f6fd1', none: '#d0342c'};
+  const COLD = {line: '#1b1e23', sel: '#FFD400', none: '#d0342c'};   // 82.35: выбранное — ярко-жёлтым (владелец 12.11)
   function phFull(p) { const k = p.w / ((p.cr[2] - p.cr[0]) * p.iw); return {x: p.x - p.cr[0] * p.iw * k, y: p.y - p.cr[1] * p.ih * k, w: p.iw * k, h: p.ih * k}; }
   function endPos(e) {                                           // мм холста; цель удалена — последнее место
     let q = null;
@@ -233,25 +233,31 @@
   }
   const DLBL = new Map();
   function head(x, y, ux, uy, L) { cx.beginPath(); cx.moveTo(x, y); cx.lineTo(x - ux * L - uy * L * 0.38, y - uy * L + ux * L * 0.38); cx.lineTo(x - ux * L + uy * L * 0.38, y - uy * L - ux * L * 0.38); cx.closePath(); cx.fill(); }
-  function drawDims() {
-    DLBL.clear(); if (!LAY.dim) return;
+  function drawDims() {                                          // 82.35: цвет размера — свой (d.c), выбранный — жёлтым; поле v81: по центру стрелки, вдоль неё, скруглённое
+    DLBL.clear(); if (!LAY.dim) return; const act = dimAct();
     for (const d of D.dims) {
+      if (act && !dimOn(d, act)) continue;
       const A = endPos(d.a), B = endPos(d.b), [ax, ay] = toS(A.x, A.y), [bx, by] = toS(B.x, B.y), L = hyp(bx - ax, by - ay); if (L < 2) continue;
-      const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : COLD.line;
-      cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = on ? 2.4 : 1.6; cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
-      head(bx, by, ux, uy, 11); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, 11);
+      const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : d.c || COLD.line;
+      cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = dimLW(on); cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
+      const hl = zLW(CFG.arrowPx); head(bx, by, ux, uy, hl); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, hl);
       const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.txt;
       let ang = Math.atan2(by - ay, bx - ax); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
-      const mx = (ax + bx) / 2, my = (ay + by) / 2, nx = Math.sin(ang), ny = -Math.cos(ang), cxp = mx + nx * 14, cyp = my + ny * 14;
-      cx.save(); cx.translate(cxp, cyp); cx.rotate(ang); cx.font = '700 14px system-ui'; const tw = cx.measureText(t).width + 12;
-      cx.fillStyle = edit ? '#fff7d1' : '#ffffffe6'; cx.fillRect(-tw / 2, -11, tw, 22);
-      if (val.kind === 'none' && !edit) { cx.strokeStyle = COLD.none; cx.setLineDash([4, 3]); cx.lineWidth = 1.5; cx.strokeRect(-tw / 2, -11, tw, 22); cx.setLineDash([]); }
-      else if (edit) { cx.strokeStyle = '#c99a1e'; cx.lineWidth = 2; cx.strokeRect(-tw / 2, -11, tw, 22); }
-      cx.fillStyle = val.kind === 'none' && !edit ? COLD.none : val.kind === 'man' || edit ? '#1f4fa8' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 1); cx.restore();
+      cx.font = `700 ${Math.round(TXP())}px system-ui`; const fh = FLP(), tw = Math.max(fh, cx.measureText(t).width + fh * 0.55);
+      const [cxp, cyp] = fPlace((ax + bx) / 2, (ay + by) / 2, tw, fh, ang, L);
+      const fc = edit ? '#c99a1e' : val.kind === 'man' ? '#1a2027' : val.kind === 'geo' ? '#d93025' : '#8a9099';   // введённый — чёрный, авто — красный, ≈ по фото — серый
+      cx.save(); cx.translate(cxp, cyp); cx.rotate(ang); rrect(-tw / 2, -fh / 2, tw, fh, 3);
+      cx.fillStyle = edit ? '#fff7d1' : '#fff'; cx.fill(); cx.strokeStyle = on ? COLD.sel : fc; cx.lineWidth = on ? 2.4 : 1.2; cx.setLineDash(val.kind === 'man' || edit || on ? [] : [3, 2]); cx.stroke(); cx.setLineDash([]);
+      cx.fillStyle = fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
       DLBL.set(d.id, {x: cxp, y: cyp, r: Math.max(tw / 2, 14) + 6});
       /* маркеров на концах нет (владелец 12.11): выбранный — только цветом; конец берётся пальцем в радиусе касания */
     }
   }
+  /* «Размеры: все стены / только активная» (v81): активная — выбранная развёртка или стена выбранного объекта; ничего не выбрано — все */
+  function dimAct() { if (!CFG.dimAct) return null; const s = C.sel; if (!s) return null;
+    if (s.t === 'elev') return s.id; if (s.t === 'com') { const c = com(s.id); return c ? c.e : null; }
+    if (s.t === 'dim') { const d = dim(s.id), q = d && (surf(d.a) || surf(d.b)); return q && q.startsWith('e:') ? q.slice(2) : null; } return null; }
+  const dimOn = (d, act) => { const q = surf(d.a) || surf(d.b); return !q || q === 'plan' || q === 'e:' + act; };
   /* привязка конца размера: точка (узел, угол фото/развёртки, конец размера) → грань (стена, край развёртки/фото) → поверхность (фото, развёртка) → свободно */
   function snapDim(sx, sy, skipDim, from) {
     let best = null, bd = 20; const q0 = toW(sx, sy);
@@ -282,7 +288,7 @@
   }
   function addDim(a, b) {
     const A = endPos(a), B = endPos(b); if (hyp(B.x - A.x, B.y - A.y) * V.s < 12) return null;
-    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: ''}; if (d.k === 'dim' && !md('t')) d.t = 'one'; D.dims.push(d); commit(); setDir(A, B); return d;
+    begin(); const d = {id: uid('d'), k: C.tool === 'arr' ? 'arr' : 'dim', a, b, v: '', c: C.col};   // 82.35: цвет — выбранный if (d.k === 'dim' && !md('t')) d.t = 'one'; D.dims.push(d); commit(); setDir(A, B); return d;
   }
 
 
@@ -428,6 +434,29 @@
   C.col = (() => { try { return localStorage.getItem('akx-core-col') || '#1f6fd1'; } catch (e) { return '#1f6fd1'; } })();
   const LW = {v: (() => { try { const v = +localStorage.getItem('akx-core-lw'); return v >= 0.5 && v <= 12 ? v : 3; } catch (e) { return 3; } })()};
   const lwPx = sel => 2.2 * LW.v / 3 * (sel ? 1.6 : 1);
+  /* ═══ [BLOCK C-CFG] 82.35: «Настройки Measure Lab» 82.18 на ядре. Толщина линий — LW ядра (одно значение с футляром); текст и поля × Aa (W3.f);
+     наконечники и точки привязки — px экрана; толщина от масштаба мягко (zLW v81: ^0,35 в пределах ×0,6…×2 от «всё»).
+     Общая привязка и «повторять инструмент» 82.18 не переносятся: в ядре 🧲 у каждого инструмента, инструмент не сбрасывается. ═══ */
+  const CFG0 = {textPx: 13, fieldPx: 22, arrowPx: 9, pointPx: 5, grid: true, side: true, dimAct: false};
+  const CFGR = {textPx: [6, 28], fieldPx: [10, 64], arrowPx: [4, 20], pointPx: [2, 12]};
+  const CFG = (() => { const o = {...CFG0}; try { Object.assign(o, JSON.parse(localStorage.getItem('akx-core-cfg') || '{}')); } catch (e) { }
+    for (const k in CFGR) o[k] = Math.max(CFGR[k][0], Math.min(CFGR[k][1], +o[k] || CFG0[k])); return o; })();
+  const cfgSv = () => { try { localStorage.setItem('akx-core-cfg', JSON.stringify(CFG)); } catch (e) { } };
+  const zLW = w => { const z = V.fs ? V.s / V.fs : 1; return Math.max(w * 0.6, Math.min(w * 2, w * Math.pow(z, 0.35))); };
+  const TXP = () => Math.max(6, CFG.textPx * W3.f), FLP = () => Math.max(10, CFG.fieldPx * W3.f, TXP() + 2);
+  const dimLW = sel => zLW(1.6 * LW.v / 3) * (sel ? 1.5 : 1);
+  /* поля без наложения (w3Place v81, упрощённо): центр → вдоль линии в её пределах → поперёк (h/2+2, h+6) с обеих сторон; FPL — занятые за кадр */
+  const FPL = [];
+  const fbox = (X, Y, w, h, a) => { const c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a)), W = w * c + h * s, H = w * s + h * c; return {x: X - W / 2, y: Y - H / 2, w: W, h: H}; };
+  const fhit = b => FPL.some(o => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y);
+  function fPlace(X, Y, w, h, a, L) {
+    const ex = Math.cos(a), ey = Math.sin(a), nx = -ey, ny = ex, sm = Math.max(0, (L || 0) / 2 - w / 2 - 2), st = Math.max(6, h * 0.6), al = [0];
+    for (let x = st; x < sm; x += st) al.push(x, -x); if (sm > 0) al.push(sm, -sm);
+    const ax = al.concat([L / 2 + w / 2 + 6, -(L / 2 + w / 2 + 6)]);   // за концом линии — последним
+    for (const p of [0, h / 2 + 2, -(h / 2 + 2), h + 6, -(h + 6), 2 * h + 8, -(2 * h + 8)]) for (const x of ax) { const P = [X + ex * x + nx * p, Y + ey * x + ny * p], b = fbox(P[0], P[1], w, h, a); if (!fhit(b)) { FPL.push(b); return P; } }
+    FPL.push(fbox(X, Y, w, h, a)); return [X, Y];
+  }
+  function rrect(x, y, w, h, r) { cx.beginPath(); if (cx.roundRect) cx.roundRect(x, y, w, h, r); else cx.rect(x, y, w, h); }
   const TBOX = new Map();                                        // id → прямоугольник подписи (px) — текст, пин, выноска
   function hostAt(q) {
     for (let i = D.elev.length - 1; i >= 0; i--) { const o = D.elev[i], r = elevRect(o); if (r.w && r.h && q.x >= r.x && q.x <= r.x + r.w && q.y >= r.y && q.y <= r.y + r.h) return {t: 'elev', id: o.id}; }
@@ -629,7 +658,7 @@
   const CK = {
     roz: {n: 'розетка', c: '#f0a020', pt: 1, ps: 1}, vyk: {n: 'выключатель', c: '#7b3fc4', pt: 1, ps: 1}, svet: {n: 'вывод света', c: '#d4a300', pt: 1}, slab: {n: 'ТВ / интернет', c: '#3d7be0', pt: 1},
     hvs: {n: 'ХВС', c: '#3d9bff', pt: 1}, gvs: {n: 'ГВС', c: '#ff5c5c', pt: 1}, kan: {n: 'канализация', c: '#8d6e63', pt: 1}, gaz: {n: 'газ', c: '#c98a00', pt: 1}, vent: {n: 'вентиляция', c: '#1fa98f', pt: 1},
-    wire: {n: 'провод', c: '#7b3fc4', pt: 1},
+    wire: {n: 'провод', c: '#7b3fc4', pt: 1}, rv: {n: 'розетка + выключатель', c: '#f0a020', pt: 1, ps: 1},   // rv (82.35): последний пост — выключатель
     znd: {n: 'не сверлить', c: '#d93025', rc: 1}, zon: {n: 'зона', c: '#b44cc0', rc: 1}, shield: {n: 'электрощит', c: '#7b3fc4', rc: 1, D: 1}, wrt: {n: 'трасса', c: '#E07A00', ln: 1},
     win: {n: 'окно', c: '#2e9e4f', rc: 1}, door: {n: 'дверь', c: '#1f8a78', rc: 1}, nis: {n: 'ниша', c: '#5b5bd0', rc: 1, D: 1}, kol: {n: 'колонна', c: '#b8602e', rc: 1, D: 1},
     rig: {n: 'ригель', c: '#a07a10', rc: 1, D: 1}, kor: {n: 'короб', c: '#6b7785', rc: 1, D: 1}, znt: {n: 'техника', c: '#1f6fd1', rc: 1}, znf: {n: 'фартук', c: '#2bb673', rc: 1},
@@ -652,7 +681,7 @@
   }
   const w2s = (R, x, y) => toS(R.x + x, R.y + R.h - y);                     // мм стены → px
   const s2w = (R, sx, sy) => { const q = toW(sx, sy); return {x: q.x - R.x, y: R.y + R.h - q.y}; };
-  function postsW(c) { const R = elevRect(elev(c.e)), N = Math.max(1, Math.min(5, c.N || 1)), st = N > 1 ? PSTEP : 0; return [...Array(N)].map((_, i) => ({x: c.x + i * st, y: c.y, R})); }   // x, y — центр первого подрозетника, посты вправо с шагом 71 (82.14)
+  function postsW(c) { const R = elevRect(elev(c.e)), N = Math.max(1, Math.min(5, c.N || 1)), st = N > 1 ? PSTEP : 0, v = c.o === 'v'; return [...Array(N)].map((_, i) => ({x: v ? c.x : c.x + i * st, y: v ? c.y + i * st : c.y, R})); }   // ↕ (c.o = 'v', 82.35) — посты вверх   // x, y — центр первого подрозетника, посты вправо с шагом 71 (82.14)
   function elevOf(sx, sy) { const q = toW(sx, sy); for (let i = D.elev.length - 1; i >= 0; i--) { const o = D.elev[i], r = elevRect(o); if (r.w && r.h && q.x >= r.x && q.x <= r.x + r.w && q.y >= r.y && q.y <= r.y + r.h) return o; } return null; }
   const OFL = new Map();                                         // подписи отступов выбранного: [{id, side, r}]
   function drawCom() {
@@ -661,9 +690,11 @@
       if (!comLay(c)) continue;
       const e = elev(c.e); if (!e) continue; const R = elevRect(e), K = CK[c.k] || CK.roz, sel = (C.sel && C.sel.t === 'com' && C.sel.id === c.id) || inMsel('com', c.id), col = sel ? COL.sel : K.c;
       if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);
-        const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return [m[0] + i * z * 0.84, m[1]]; });
-        if (sel) { const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]); cx.fillStyle = '#fff'; cx.strokeStyle = '#D4A300'; cx.lineWidth = 2; cx.fillRect(Math.min(...xs) - z / 2 - 3, Math.min(...ys) - z / 2 - 3, Math.max(...xs) - Math.min(...xs) + z + 6, z + 6); cx.strokeRect(Math.min(...xs) - z / 2 - 3, Math.min(...ys) - z / 2 - 3, Math.max(...xs) - Math.min(...xs) + z + 6, z + 6); }
-        for (const [x, y] of Q) { if (im) cx.drawImage(im, x - z / 2, y - z / 2, z, z); else { cx.fillStyle = col; cx.beginPath(); cx.arc(x, y, z / 3, 0, 7); cx.fill(); } }
+        const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return c.o === 'v' ? [m[0], m[1] - i * z * 0.84] : [m[0] + i * z * 0.84, m[1]]; });
+        if (sel) { const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]), bx = Math.min(...xs) - z / 2 - 3, by = Math.min(...ys) - z / 2 - 3, bw = Math.max(...xs) - Math.min(...xs) + z + 6, bh = Math.max(...ys) - Math.min(...ys) + z + 6;
+          cx.fillStyle = COL.sel; cx.strokeStyle = '#B89500'; cx.lineWidth = 1.5; cx.fillRect(bx, by, bw, bh); cx.strokeRect(bx, by, bw, bh); }   // 82.35: малый объект — целиком жёлтым
+        FPL.push(...Q.map(([x, y]) => ({x: x - z / 2, y: y - z / 2, w: z, h: z})));   // поля размеров обходят значки точек
+        Q.forEach(([x, y], i) => { const ik = c.k === 'rv' ? (i === Q.length - 1 ? ico('vyk') : ico('roz')) : im; if (ik) cx.drawImage(ik, x - z / 2, y - z / 2, z, z); else { cx.fillStyle = col; cx.beginPath(); cx.arc(x, y, z / 3, 0, 7); cx.fill(); } });
         continue; }
       if (K.ln) { const T = rtt(c.t), A = w2s(R, c.a[0], c.a[1]), B = w2s(R, c.b[0], c.b[1]); cx.strokeStyle = sel ? COL.sel : T[3]; cx.lineWidth = sel ? 4 : 3; cx.setLineDash(T[4]); cx.lineCap = 'butt';
         cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); cx.setLineDash([]);
@@ -688,7 +719,7 @@
   }
   function comPx(c) {                                            // для касаний и рамки выделения: {pts px, box px}
     const e = elev(c.e); if (!e) return null; const R = elevRect(e), K = CK[c.k] || CK.roz;
-    if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)); const xs = P.map(q => q[0]); return {box: [Math.min(...xs) - z / 2, P[0][1] - z / 2, Math.max(...xs) + z / 2, P[0][1] + z / 2]}; }
+    if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)); const xs = P.map(q => q[0]), ys = P.map(q => q[1]); return {box: [Math.min(...xs) - z / 2, Math.min(...ys) - z / 2, Math.max(...xs) + z / 2, Math.max(...ys) + z / 2]}; }
     if (K.ln) return {line: [w2s(R, c.a[0], c.a[1]), w2s(R, c.b[0], c.b[1])]};
     if (K.pg) return {poly: c.pts.map(t => w2s(R, t[0], t[1]))};
     const r = cRect(c), A = w2s(R, r.x, r.y + r.h), B = w2s(R, r.x + r.w, r.y); return {box: [A[0], A[1], B[0], B[1]]};
@@ -767,12 +798,24 @@
   function B4act(s, B) {
     if (C.cpg && C.cpg.pts.length >= 3) B.push(['✓', polyDone, 'Фасон: готово']);
     const c = s && s.t === 'com' && com(s.id); if (!c) return; const K = CK[c.k];
-    if (K.ps) for (let n = 1; n <= 5; n++) B.push([`<span class="opt${(c.N || 1) === n ? ' on' : ''}">${n}</span>`, () => { if ((c.N || 1) === n) return; begin(); c.N = n; commit(); ui(); }, n + ' — шаг 71 мм']);
+    if (K.pt) B.push([`<span class="opt on" style="font-size:12px">${esc(K.n.split(' ')[0])} ▾</span>`, () => ptKind(c), 'Вид точки: ' + K.n]);
+    if (K.ps) B.push([`<span class="opt on">${c.o === 'v' ? '↕' : '↔'}</span>`, () => { begin(); if (c.o === 'v') delete c.o; else c.o = 'v'; commit(); ui(); draw(); }, 'Посты: горизонтально ↔ / вертикально ↕']);
+    if (c.k === 'roz' || c.k === 'rv') B.push([`<span class="opt${c.k === 'rv' ? ' on' : ''}">+⏻</span>`, () => { begin(); if (c.k === 'rv') { c.k = 'roz'; c.N = Math.max(1, (c.N || 2) - 1); } else { c.k = 'rv'; c.N = Math.min(5, (c.N || 1) + 1); } if (c.N === 1) delete c.N; commit(); ui(); draw(); }, 'Розетка + выключатель (один блок)']);
+    if (K.ps) for (let n = c.k === 'rv' ? 2 : 1; n <= 5; n++) B.push([`<span class="opt${(c.N || 1) === n ? ' on' : ''}">${n}</span>`, () => { if ((c.N || 1) === n) return; begin(); c.N = n; commit(); ui(); }, n + ' — шаг 71 мм']);
     if (K.ln) { const T = rtt(c.t); B.push([`<span class="opt on" style="color:${T[3]}">${T[2]}</span>`, () => { begin(); const i = RTT.findIndex(r => r[0] === c.t); c.t = RTT[(i + 1) % RTT.length][0]; C.rt = c.t; commit(); ui(); toast('Трасса: ' + rtt(c.t)[1]); }, 'Тип трассы: ' + T[1]]); }
     if (K.rc && c.k === 'kol') B.push(['<span class="opt on" style="font-size:11px">W</span>', () => { openKb('cW', c.id); ui(); draw(); }, 'Ширина колонны, мм (высота — во всю стену)']);
     else if (K.rc) B.push(['<span class="opt on" style="font-size:11px">W×H</span>', () => { openKb('cW', c.id); KB.after = () => setTimeout(() => { if (com(c.id)) { openKb('cH', c.id); ui(); draw(); } }, 0); ui(); draw(); }, 'Габарит: ширина × высота, мм']);
     if (K.rc || K.pt) B.push(['⧉', () => { begin(); const o = clone(c); o.id = uid('c'); if (o.ex) o.xv = Math.max(0, o.xv - 300); else o.x += 300; D.com.push(o); C.sel = {t: 'com', id: o.id}; commit(); }, 'Копия рядом']);
     if (K.D) B.push([`<span class="opt${c.D ? ' on' : ''}">Z</span>`, () => { openKb('cD', c.id); ui(); draw(); }, 'Z — глубина, мм: выступ +, ниша −']);
+  }
+  /* вид точки (82.35): смена типа выбранной точки; посты и ↕ — только у розетки / выключателя */
+  function ptKind(c) {
+    let el = $('ptK'); if (!el) { el = document.createElement('div'); el.id = 'ptK'; el.className = 'sheet'; document.body.appendChild(el); }
+    const ks = Object.keys(CK).filter(k => CK[k].pt);
+    el.innerHTML = '<div class="hd"><b>Вид точки</b><button data-x>✕</button></div>' + ks.map(k => `<button class="row${k === c.k ? ' cur' : ''}" data-pk="${k}"><span style="color:${CK[k].c}">●</span> ${esc(CK[k].n)}</button>`).join('');
+    el.querySelectorAll('[data-pk]').forEach(b => act(b, () => { const k = b.dataset.pk; el.classList.remove('on'); if (!com(c.id) || k === c.k) return; begin(); c.k = k;
+      if (!CK[k].ps) { delete c.N; delete c.o; } else if (k === 'rv' && !(c.N >= 2)) c.N = 2; commit(); ui(); draw(); }));
+    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
   }
   function B4kbObj(t, id) { return t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
   function B4kbBuf(t, o) { return t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
@@ -871,7 +914,7 @@
     if (s && s.t === 'frame') { const Q = frame(s.id) && frPts(frame(s.id)); if (Q) { const c = Q.findIndex(q => { const [x, y] = toS(q.x, q.y); return hyp(x - sx, y - sy) < HR.handle; }); if (c >= 0) return {t: 'fr-h', id: s.id, c}; } }
     if (s && s.t === 'dim') { const d = dim(s.id); if (d) for (const [k, e] of [['a', d.a], ['b', d.b]]) { const P = endPos(e), [x, y] = toS(P.x, P.y); if (hyp(x - sx, y - sy) < HR.handle) return {t: 'dim-h', id: d.id, end: k}; } }
     for (const [id, r] of DLBL) if (hyp(r.x - sx, r.y - sy) < r.r) return {t: 'dlabel', id};
-    for (const d of D.dims) { const A = endPos(d.a), B = endPos(d.b); if (segDist([sx, sy], toS(A.x, A.y), toS(B.x, B.y)) < 12) return {t: 'dim', id: d.id}; }
+    { const hc = comAt(sx, sy); for (const d of D.dims) { const A = endPos(d.a), B = endPos(d.b); if (segDist([sx, sy], toS(A.x, A.y), toS(B.x, B.y)) < 12) { if (hc && (d.a.id === hc.id || d.b.id === hc.id)) return hc; return {t: 'dim', id: d.id}; } } }   // 82.35: на значке точки — точка, а не её размер
     { const h4 = B4hit(sx, sy); if (h4) return h4; }
     if (typeof B3hit === 'function') { const h3 = B3hit(sx, sy); if (h3) return h3; }
     for (const [id, r] of ELBL) if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 6 && sy <= r.y + r.h + 6) return {t: 'elabel', id};
@@ -1163,6 +1206,16 @@
     document.body.classList.add('kb'); ui(); draw();
   }
   const openEd = id => openKb('wall', id);
+  /* 82.35: введённый размер до точки (коммуникации) — точка встаёт на этот размер вдоль размера; другой конец — опора. Оба конца — объекты: двигается конец b */
+  function dimMove(d, v) {
+    const ca = d.a.t === 'com' && com(d.a.id), cb = d.b.t === 'com' && com(d.b.id); if (!ca && !cb) return;
+    const mv = cb && !(ca && ca === cb) ? 'b' : ca && ca !== cb ? 'a' : null; if (!mv) return;
+    const fix = mv === 'b' ? d.a : d.b, A = endPos(fix), B = endPos(d[mv]), L = hyp(B.x - A.x, B.y - A.y); if (!(L > 0)) return;
+    const k = v / L, dx = (B.x - A.x) * (k - 1), dy = (B.y - A.y) * (k - 1), c = com(d[mv].id);
+    if (CK[c.k].ln) { c.a = [rnd(c.a[0] + dx), rnd(c.a[1] - dy)]; c.b = [rnd(c.b[0] + dx), rnd(c.b[1] - dy)]; return; }
+    if (c.ex === 'R') c.xv = rnd(c.xv - dx); else c.x = rnd(c.x + dx);
+    if (c.ey === 'C') c.yv = rnd(c.yv + dy); else c.y = rnd(c.y - dy);
+  }
   function closeEd(apply) {
     if (!KB.tg) return; const tg = KB.tg, raw = KB.buf.replace(',', '.'); KB.tg = null; document.body.classList.remove('kb');
     if (apply) { const v = parseFloat(raw);
@@ -1171,7 +1224,7 @@
       else if (B4kbApply(tg, v, raw)) { }
       else if (B6apply(tg, v)) { }
       else if (tg.t === 'H') { if (v > 0 && v !== +D.H) { begin(); D.H = rnd(v); commit(); } else if (!(v > 0) && !D.elev.length) { begin(); D.H = ''; commit(); } }
-      else { const d = dim(tg.id); if (d) { begin(); d.v = raw === '' || raw === '-' || isNaN(v) ? '' : v; commit(); } } }
+      else { const d = dim(tg.id); if (d) { begin(); d.v = raw === '' || raw === '-' || isNaN(v) ? '' : v; if (v > 0) dimMove(d, v); commit(); } } }
     const after = KB.after; KB.after = null; if (apply && after) after();
     ui(); draw();
   }
@@ -1445,11 +1498,12 @@
   const comLay = c => { const K = CK[c.k] || {}; return K.pt || K.ln ? LAY.kom : (c.k === 'zon' || c.k === 'znd' || c.k === 'shield') ? LAY.zon : LAY.el; };
   const EDL = [];                                                // поля размеров развёрток: {id (развёртка), k, r (px), …}
   const STRUCT = new Set(['kol', 'nis', 'kor', 'rig', 'win', 'door']);
-  function edimBox(t, X, Y, vert, ed, ent) {                     // поле 82.13; введённое — чёрным, примерное (по чертежу) — красным (владелец 12.11.2026)
-    cx.save(); cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; const tw = cx.measureText(t).width + 8 * W3.f, th = 17 * W3.f;
-    cx.translate(X, Y); if (vert) cx.rotate(-Math.PI / 2);
-    cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fillRect(-tw / 2, -th / 2, tw, th); const fc = ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1; cx.strokeRect(-tw / 2 + 0.5, -th / 2 + 0.5, tw - 1, th - 1); cx.setLineDash([]);
-    cx.fillStyle = fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
+  function edimBox(t, X, Y, vert, ed, ent, L) {                  // поле 82.13 в стиле v81 (82.35): скруглено 3, обводка 1,2, размеры из настроек, без наложения; введённое — чёрным, примерное — красным
+    cx.save(); cx.font = `700 ${Math.round(TXP())}px system-ui`; const th = FLP(), tw = Math.max(th, cx.measureText(t).width + th * 0.55), a = vert ? -Math.PI / 2 : 0;
+    [X, Y] = ed ? [X, Y] : fPlace(X, Y, tw, th, a, L);
+    cx.translate(X, Y); if (vert) cx.rotate(a);
+    rrect(-tw / 2, -th / 2, tw, th, 3); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
+    cx.fillStyle = ed ? '#1a2027' : fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
   }
   const kbIs = (t, id, extra) => KB.tg && KB.tg.t === t && (id == null || KB.tg.id === id) && (!extra || extra(KB.tg));
@@ -1504,18 +1558,28 @@
     const th = (180 - W3.a) * Math.PI / 180, sw = sideWalls(w);
     for (const [sd, o] of [[-1, sw.l], [1, sw.r]]) { if (!o) continue; const d = o.L * V.s, dx = sd * d * (Math.cos(th) + Math.sin(th) * 0.35), dy = d * Math.sin(th) * 0.35, X0 = sd < 0 ? x : x + W;
       cx.beginPath(); cx.moveTo(X0, y); cx.lineTo(X0 + dx, y + dy); cx.lineTo(X0 + dx, y + H + dy); cx.lineTo(X0, y + H); cx.closePath(); cx.fillStyle = '#e9e3da'; cx.fill(); cx.strokeStyle = '#b9b2a6'; cx.lineWidth = 1; cx.stroke();
+      if (CFG.side) sideEls(o, sd, X0, y, dx, dy, H);
       cx.save(); cx.font = '600 11px system-ui'; cx.fillStyle = '#6b6457'; cx.translate(X0 + dx / 2, y + H / 2 + dy / 2); cx.rotate(sd * Math.PI / 2); cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('С' + o.w.gn, 0, 0); cx.restore(); }
     cx.fillStyle = '#dbe9f7'; cx.fillRect(x, y, W, H);
     cx.strokeStyle = on ? COL.sel : '#1f6fd1'; cx.lineWidth = on ? 3 : 2; cx.strokeRect(x, y, W, H);
     cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; cx.fillStyle = '#1f6fd1'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('С' + w.gn, x + 5, y + 14 * W3.f);
   }
+  /* элементы на боковых стенах (82.18 sideElements): коммуникации и проёмы соседней стены на её грани раскрытия, без подписей; t — доля от угла */
+  function sideEls(o, sd, X0, y, dx, dy, H) { const e = D.elev.find(q => q.wall === o.w.id); if (!e) return; const R = elevRect(e); if (!(R.w > 0 && R.h > 0)) return;
+    const P = (xw, yw) => { const t = sd < 0 ? (R.w - xw) / R.w : xw / R.w; return [X0 + dx * t, y + dy * t + H - yw / R.h * H]; };
+    cx.save(); cx.globalAlpha = 0.85;
+    for (const c of D.com) { if (c.e !== e.id || !comLay(c)) continue; const K = CK[c.k] || {};
+      if (K.pt) { for (const q of postsW(c)) { const [px, py] = P(q.x, q.y); cx.fillStyle = K.c; cx.beginPath(); cx.arc(px, py, Math.max(2, CFG.pointPx - 1), 0, 7); cx.fill(); } }
+      else if (K.ln) { const A = P(c.a[0], c.a[1]), B = P(c.b[0], c.b[1]); cx.strokeStyle = rtt(c.t)[3]; cx.lineWidth = 1.5; cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); }
+      else if (K.rc) { const r = cRect(c), Q = [P(r.x, r.y), P(r.x + r.w, r.y), P(r.x + r.w, r.y + r.h), P(r.x, r.y + r.h)]; cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = K.c + '33'; cx.fill(); cx.strokeStyle = K.c; cx.lineWidth = 1.2; cx.stroke(); } }
+    cx.restore(); }
   function drawElevDims() {                                      // после объектов стены — поля сверху всего
-    EDL.length = 0; if (!LAY.dim) return;
-    for (const e of D.elev) { const w = wall(e.wall); if (!w) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
+    EDL.length = 0; if (!LAY.dim) return; const act = dimAct();
+    for (const e of D.elev) { const w = wall(e.wall); if (!w || (act && e.id !== act)) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
       autoDims(e, R).forEach((sg, i) => { sg.R = R;
         const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('H') : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
         const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!D.H : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
-        const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent);
+        const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc);
         if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true);
@@ -1562,12 +1626,34 @@
   const penTxt = () => '🖊 Стилус: ' + (PEN.on ? 'рисует стилус' : 'выкл — палец тоже рисует');
   const drawTool = () => C.tool !== 'sel' && C.tool !== 'rsel';
   /* меню ⋮ (82.13) */
-  (() => { const m = $('zMenu'); m.innerHTML = '<button id="bExp">⇪ Выгрузка для Akrix</button><button id="bPenM"></button><button id="bLay">◫ Слои</button><button id="bBak">💾 Резервная копия</button><button id="bRes">♻ Восстановить</button><button id="bRms">⌂ Помещения / группы стен</button><button id="bUpdChk">⟳ Проверить обновления</button><button id="bStripRs">Строки инструментов — по умолчанию</button>';
+  (() => { const m = $('zMenu'); m.innerHTML = '<button id="bExp">⇪ Выгрузка для Akrix</button><button id="bPenM"></button><button id="bCfg">⚙ Настройки</button><button id="bLay">◫ Слои</button><button id="bBak">💾 Резервная копия</button><button id="bRes">♻ Восстановить</button><button id="bRms">⌂ Помещения / группы стен</button><button id="bUpdChk">⟳ Проверить обновления</button><button id="bStripRs">Строки инструментов — по умолчанию</button>';
     $('bPenM').textContent = penTxt(); })();
   const mClose = () => $('zMenu').classList.remove('on');
   act($('bExp'), () => { mClose(); exportFile(); });
   act($('bPenM'), () => { PEN.on = !PEN.on; try { localStorage.setItem('akx-core-pen', PEN.on ? '1' : '0'); } catch (e) { } $('bPenM').textContent = penTxt(); mClose(); toast(penTxt()); });
   act($('bLay'), () => { mClose(); layPanel(); });
+  act($('bCfg'), () => { mClose(); cfgPanel(); });
+  /* ═══ [BLOCK C-CFG-UI] окно «Настройки Measure Lab» (82.18) на значениях ядра: вкладки «Вид и размеры», «Холст»; живой пример ═══ */
+  let CFT = 'a';
+  function cfgPanel() {
+    let el = $('cfgS'); if (!el) { el = document.createElement('div'); el.id = 'cfgS'; el.className = 'sheet'; document.body.appendChild(el); }
+    const num = (k, n, a, b, st, v) => `<div class="cr"><label>${n}</label><input type="range" min="${a}" max="${b}" step="${st}" value="${v}" data-cf="${k}"><input type="number" min="${a}" max="${b}" step="${st}" value="${v}" data-cf="${k}"><small>px</small></div>`;
+    const tg = (k, n, m) => `<label class="row"><input type="checkbox" data-ct="${k}"${CFG[k] ? ' checked' : ''}> <span>${n}<br><small class="mu">${m}</small></span></label>`;
+    const body = CFT === 'a' ? `<div class="cpv"><small class="mu">Живой пример · px экрана</small><svg id="cfSm" viewBox="0 0 480 112"></svg></div>` + num('lw', 'Толщина линий', 0.5, 12, 0.5, LW.v) + num('textPx', 'Размер текста', 6, 28, 1, CFG.textPx) + num('fieldPx', 'Размер полей', 10, 64, 1, CFG.fieldPx) + num('arrowPx', 'Наконечники стрелок', 4, 20, 1, CFG.arrowPx) + num('pointPx', 'Точки привязки', 2, 12, 1, CFG.pointPx) + '<p class="mu" style="padding:0 12px">Текст и поля — ещё × Aa; толщина мягко следует масштабу (×0,6…×2).</p>'
+      : tg('grid', 'Сетка', 'Клетки масштаба на холсте') + tg('side', 'Элементы на боковых стенах', 'Коммуникации и проёмы на раскрытых соседних стенах, без подписей') + `<div class="row"><span>Размеры</span><button data-da="0" class="${CFG.dimAct ? '' : 'on'}">все стены</button><button data-da="1" class="${CFG.dimAct ? 'on' : ''}">только активная</button></div>`;
+    el.innerHTML = `<div class="hd"><b>Настройки Measure Lab</b><button data-x>✕</button></div><nav class="ctb"><button data-tab="a" class="${CFT === 'a' ? 'on' : ''}">Вид и размеры</button><button data-tab="c" class="${CFT === 'c' ? 'on' : ''}">Холст</button></nav>${body}<div class="ft"><button data-rs style="margin-right:auto">Сбросить</button><button data-x>Готово</button></div>`;
+    const sm = () => { const q = $('cfSm'); if (!q) return; const lw = 1.6 * LW.v / 3, a = CFG.arrowPx, h = Math.max(CFG.fieldPx, CFG.textPx + 2), w = Math.max(h, 3.4 * CFG.textPx + h * 0.55);
+      q.innerHTML = `<path d="M42 40H438V94H42Z" fill="#fff" stroke="#8997a7" stroke-width="${2.2 * LW.v / 3}"/><path d="M66 70H410" stroke="${C.col}" stroke-width="${lw}"/><path d="M66 70l${a} -${a * 0.38}v${a * 0.76}zM410 70l-${a} -${a * 0.38}v${a * 0.76}z" fill="${C.col}"/><rect x="${240 - w / 2}" y="${70 - h / 2}" width="${w}" height="${h}" rx="3" fill="#fff" stroke="#1a2027" stroke-width="1.2"/><text x="240" y="71" fill="#1a2027" text-anchor="middle" dominant-baseline="middle" font-family="system-ui" font-weight="700" font-size="${CFG.textPx}">2400</text><circle cx="42" cy="40" r="${CFG.pointPx}" fill="${COL.node}"/>`; };
+    el.querySelectorAll('[data-cf]').forEach(i => i.oninput = () => { const k = i.dataset.cf, v = +i.value; if (!isFinite(v)) return;
+      if (k === 'lw') { LW.v = Math.max(0.5, Math.min(12, v)); try { localStorage.setItem('akx-core-lw', LW.v); } catch (e) { } const t = $('tbLw'), o = $('tbLwV'); if (t) t.value = LW.v; if (o) o.textContent = String(LW.v).replace('.', ','); }
+      else CFG[k] = Math.max(CFGR[k][0], Math.min(CFGR[k][1], v));
+      el.querySelectorAll(`[data-cf="${k}"]`).forEach(j => { if (j !== i) j.value = k === 'lw' ? LW.v : CFG[k]; }); cfgSv(); sm(); draw(); });
+    el.querySelectorAll('[data-ct]').forEach(i => i.onchange = () => { CFG[i.dataset.ct] = i.checked; cfgSv(); draw(); });
+    el.querySelectorAll('[data-da]').forEach(b => act(b, () => { CFG.dimAct = b.dataset.da === '1'; cfgSv(); cfgPanel(); draw(); }));
+    el.querySelectorAll('[data-tab]').forEach(b => act(b, () => { CFT = b.dataset.tab; cfgPanel(); }));
+    act(el.querySelector('[data-rs]'), () => { Object.assign(CFG, CFG0); cfgSv(); cfgPanel(); draw(); });
+    el.querySelectorAll('[data-x]').forEach(b => act(b, () => el.classList.remove('on'))); el.classList.add('on'); sm();
+  }
   act($('bBak'), () => { mClose(); exportPrj(); });
   act($('bRes'), () => { mClose(); impIn.click(); });
   act($('bRms'), () => { mClose(); roomList(); });
@@ -1671,7 +1757,9 @@
         const X = (x, wd) => rnd(flip ? L - x - (wd || 0) : x), els = [], pts = [], zn = []; let no = 0;
         for (const c of D.com) { if (!e || c.e !== e.id) continue; const K = CK[c.k];
           if (AK_RC[c.k]) { const r = cRect(c), o = {id: c.id, t: AK_RC[c.k], x0: X(r.x, r.w), x1: X(r.x, r.w) + rnd(r.w), y0: rnd(r.y), y1: rnd(r.y + r.h), note: '', no: ++no}; if (c.D) o.d = rnd(Math.abs(c.D)); els.push(o); }
-          else if (AK_PT[c.k]) { const N = c.N > 1 ? c.N : null, xs = N ? X(c.x, (N - 1) * PSTEP) : X(c.x); pts.push({id: c.id, t: AK_PT[c.k], x: xs, y: rnd(c.y), D: null, N, st: N ? PSTEP : null, note: '', no: ++no}); }
+          else if (AK_PT[c.k] || c.k === 'rv') { const vt = c.o === 'v', NN = c.N || 1;   // ↕ — поле o: 'v'; rv — розетки + выключатель отдельной точкой (вопрос конструктору записан)
+            const put = (id, t, n, x0, y0) => { const N = n > 1 ? n : null; pts.push({id, t, x: N && !vt ? X(x0, (N - 1) * PSTEP) : X(x0), y: rnd(y0), D: null, N, st: N ? PSTEP : null, ...(N && vt ? {o: 'v'} : {}), note: '', no: ++no}); };
+            if (c.k === 'rv') { const q = postsW(c)[NN - 1]; if (NN > 1) put(c.id, 'so', NN - 1, c.x, c.y); put(c.id + '-sw', 'sw', 1, q.x, q.y); } else put(c.id, AK_PT[c.k], NN, c.x, c.y); }
           else if (AK_ZN[c.k]) { const r = cRect(c), o = {id: c.id, t: AK_ZN[c.k], x: X(r.x, r.w), y: rnd(r.y), W: rnd(r.w), H: rnd(r.h), note: ''}; if (c.D) o.d = rnd(Math.abs(c.D)); zn.push(o); }
           void K; }
         wl[k] = {H: Hw, els, pts, zn, gn: w.gn, id: w.id, L}; gnM[k] = w.gn; wid[k] = w.id; wsd[k] = 1;
@@ -1719,7 +1807,18 @@
     else if (e.type === 'apk-available') updCard('Доступно приложение ' + e.versionName, 'Обновить', () => N.downloadApk());
     else if (e.type === 'apk-progress') updCard('Загрузка: ' + e.pct + '%');
     else if (e.type === 'apk-denied') updCard('Разреши установку: Настройки → Приложения → Measure', 'Повторить', () => N.downloadApk());
-    else if (e.manual && e.type === 'none') toast('Последняя версия ' + (e.version || ''));
+    else if (e.type === 'apk-ready') updCard('Установка приложения ' + (e.versionName || ''));
+    else if (e.type === 'apk-failed') updCard('Не удалось скачать приложение: ' + (e.reason || ''), 'Повторить', () => N.downloadApk());
+    else if (!e.manual) return;                                  // 82.35: при ручной проверке — каждый исход
+    else if (e.type === 'none') updCard('Последняя версия ' + (e.version || '') + ' — обновлений нет');
+    else if (e.type === 'checking') updCard('Проверка обновлений…');
+    else if (e.type === 'busy') updCard('Проверка уже идёт');
+    else if (e.type === 'offline') updCard('Нет связи с сервером обновлений');
+    else if (e.type === 'error') updCard('Ошибка проверки: ' + (e.reason || ''));
+    else if (e.type === 'web-downloading') updCard('Загрузка версии ' + (e.version || '') + '…');
+    else if (e.type === 'web-needs-apk') updCard('Версия ' + (e.version || '') + ' — нужно новое приложение');
+    else if (e.type === 'web-failed') updCard('Не удалось загрузить: ' + (e.reason || ''));
+    else updCard('Обновление: ' + e.type);
   };
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
