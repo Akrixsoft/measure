@@ -1630,24 +1630,31 @@
     const r = elevRect(e), w = wall(e.wall); if (!w) return;
     const [x, y] = toS(r.x, r.y), W = r.w * V.s, H = r.h * V.s, on = (C.sel && C.sel.t === 'elev' && C.sel.id === e.id) || inMsel('elev', e.id);
     // 82.35.3: соседние стены и пол — проекция v81 (w1): глубина z (мм к зрителю) сдвигает точку на (0,6·((2x/L−1)+t)·z, 0,6·z); ∠° — наклон t, боковые параллельно
-    for (const S of w3Sides(e, r)) { if (!S.vis) continue; const Q = [S.T0, S.T1, S.B1, S.B0], ps = W3S.e === e.id && w3Mode() && W3S.pl === (S.sd < 0 ? 'L' : 'R');
-      cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = ps ? '#FFF1B3' : '#e9e3da'; cx.fill(); cx.strokeStyle = ps ? '#E0B800' : '#b9b2a6'; cx.lineWidth = ps ? 2.5 : 1; cx.stroke();
-      if (CFG.side) sideEls(S);
-      const mx = (S.T0[0] + S.T1[0] + S.B0[0] + S.B1[0]) / 4, my = (S.T0[1] + S.T1[1] + S.B0[1] + S.B1[1]) / 4;
-      cx.save(); cx.font = '600 11px system-ui'; cx.fillStyle = '#6b6457'; cx.translate(mx, my); cx.rotate(S.sd * Math.PI / 2); cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('С' + S.o.w.gn, 0, 0); cx.restore(); }
+    const sides = th => {
+      for (const S of w3Sides(e, r)) { if (!!S.thin !== th) continue; const Q = [S.T0, S.T1, S.B1, S.B0], ps = W3S.e === e.id && w3Mode() && W3S.pl === (S.sd < 0 ? 'L' : 'R');
+        cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath();
+        if (th) { if (ps) { cx.fillStyle = 'rgba(255,241,179,.6)'; cx.fill(); } cx.setLineDash([4, 3]); cx.strokeStyle = ps ? '#E0B800' : '#8a8f96'; cx.lineWidth = ps ? 1.6 : 1; cx.stroke(); cx.setLineDash([]); continue; }
+        cx.fillStyle = ps ? '#FFF1B3' : '#e9e3da'; cx.fill(); cx.strokeStyle = ps ? '#E0B800' : '#b9b2a6'; cx.lineWidth = ps ? 2.5 : 1; cx.stroke();
+        if (CFG.side) sideEls(S);
+        const mx = (S.T0[0] + S.T1[0] + S.B0[0] + S.B1[0]) / 4, my = (S.T0[1] + S.T1[1] + S.B0[1] + S.B1[1]) / 4;
+        cx.save(); cx.font = '600 11px system-ui'; cx.fillStyle = '#6b6457'; cx.translate(mx, my); cx.rotate(S.sd * Math.PI / 2); cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('С' + S.o.w.gn, 0, 0); cx.restore(); }
+    };
+    sides(false);                                                // боковые 90° и больше — заливкой за основной
     { const F = w3Floor(e, r), pf = W3S.e === e.id && w3Mode() && W3S.pl === 'floor'; cx.beginPath(); F.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = pf ? '#FFEC99' : '#d9dcdf'; cx.fill(); cx.strokeStyle = pf ? '#E0B800' : '#b9bec5'; cx.lineWidth = pf ? 2.5 : 1; cx.stroke(); }
     { const Q = ['A', 'B', 'C', 'D'].map(k => w3S3(r, w3C(e, r, k))), act = W3S.e === e.id && w3Mode(), pm = act && W3S.pl === 'M';   // 82.35.4: контур по углам с отклонениями; выбранная плоскость — заливкой (v81, 4 угла)
       cx.beginPath(); Q.forEach(([qx, qy], i) => (i ? cx.lineTo(qx, qy) : cx.moveTo(qx, qy))); cx.closePath(); cx.fillStyle = pm ? '#FFF3BF' : '#dbe9f7'; cx.fill();   // 82.35.8: выбранная плоскость — бледно-жёлтым
       cx.strokeStyle = on || pm ? COL.sel : '#1f6fd1'; cx.lineWidth = on ? 3 : pm ? 2.5 : 2; cx.stroke(); }
+    sides(true);                                                 // меньше 90° — тонким пунктиром поверх
     cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; cx.fillStyle = '#1f6fd1'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('С' + w.gn, x + 5, y + 14 * W3.f);
   }
   /* ═══ [BLOCK C-W3P] вид стены v81 (w1, 82.35.3): точка стены (x от левого края, y от пола, z — глубина к зрителю, мм) → px; ∠° — наклон t = (90−a)/45 в пределах −2…2.
      Боковые — на min(1000, длина) по направлению соседней стены в плане; видимость грани — по нормали (w3Vis v81); колонна, короб, ригель, ниша — объёмом ═══ */
   const W3K = 0.6, w3t = () => Math.max(-2, Math.min(2, (90 - W3.a) / 45));
-  /* 82.35.9 (владелец, скриншот 12.11): 90° — вид прямо: стена под 90° видна торцом (линия), под 180° — продолжением в плоскости стены;
-     наклон ∠° сдвигает глубину параллельно (без разворота в стороны), пол / верх открываются по мере наклона */
-  const w3Dx = (R, x) => W3K * w3t();
-  const w3Dy = () => W3K * 0.5 * Math.abs(w3t());
+  /* 82.35.11 (владелец 12.11): точно как v81 на 45…135°; дальше к 0° / 180° — доворот: раскрывающаяся боковая ложится продолжением стены в плоскость,
+     вторая — на линию стены (пунктиром); f — доля доворота за пределами |t| > 1 */
+  const w3F = () => Math.max(0, Math.abs(w3t()) - 1);
+  const w3Dx = (R, x) => { const t = w3t(), f = w3F(); return (1 - f) * W3K * ((2 * x / (R.w || 1) - 1) + t) + f * Math.sign(t); };
+  const w3Dy = () => W3K * (1 - w3F());
   const w3P = (R, x, y, z) => toS(R.x + x + w3Dx(R, x) * z, R.y + R.h - y + w3Dy() * z);
   const w3Vis = (R, n, x, eps = 0.02) => n[0] * -w3Dx(R, x) + n[1] * w3Dy() + n[2] > eps;
   /* углы стены с отклонениями (v81 w3Set): e.w3d = {A|B|C|D|LT|LB|RT|RB: [dx, dy, dz]} — мм; разворот угла по угольнику — узел плана n.ang = {u|d: {at, mm}} */
@@ -1662,11 +1669,11 @@
     for (const [sd, o, Cn] of [[-1, sw.l, A], [1, sw.r, B]]) { if (!o) continue; const on = node(o.w.a === (sd < 0 ? v.a : v.b) ? o.w.b : o.w.a); if (!on) continue;
       const dv = {x: on.x - Cn.x, y: on.y - Cn.y}, l = hyp(dv.x, dv.y) || 1, Dp = Math.min(1000, l), x0 = sd < 0 ? 0 : R.w;
       const pd = [(dv.x * u.x + dv.y * u.y) / l, Math.abs(dv.x * n.x + dv.y * n.y) / l], aq = Cn.ang || {};
-      const dirA = q => { const a = w3AnDeg(q); if (a == null) return null; const dl = (a - 90) * Math.PI / 180; return [sd < 0 ? -Math.sin(dl) : Math.sin(dl), Math.cos(dl)]; };   // v71: разворот угла — по угольнику
+      const dirA = q => { const a = w3AnDeg(q); if (a == null) return null; const dl = (a - 90) * Math.PI / 180; return [sd < 0 ? -Math.sin(dl) : Math.sin(dl), Math.cos(dl)]; };   // разворот угла — по угольнику (v71)
       const dT = dirA(aq.u) || dirA(aq.d) || pd, dB = dirA(aq.d) || dirA(aq.u) || pd, cT = sd < 0 ? 'A' : 'B', cB = sd < 0 ? 'D' : 'C', kT = sd < 0 ? 'LT' : 'RT', kB = sd < 0 ? 'LB' : 'RB';
       const P0T = w3C(e, R, cT), P0B = w3C(e, R, cB), P1T = add3(add3(P0T, [dT[0] * Dp, 0, dT[1] * Dp]), w3dv(e, kT)), P1B = add3(add3(P0B, [dB[0] * Dp, 0, dB[1] * Dp]), w3dv(e, kB));
       const nn = sd < 0 ? [dB[1], 0, -dB[0]] : [-dB[1], 0, dB[0]];
-      out.push({sd, o, R, x0, sx: dB[0], sz: dB[1], Dp, kT, kB, cT, cB, P3: {T0: P0T, T1: P1T, B1: P1B, B0: P0B}, vis: w3Vis(R, nn, x0, -0.02), T0: w3S3(R, P0T), T1: w3S3(R, P1T), B1: w3S3(R, P1B), B0: w3S3(R, P0B)}); }
+      out.push({sd, o, R, x0, sx: dB[0], sz: dB[1], Dp, kT, kB, cT, cB, P3: {T0: P0T, T1: P1T, B1: P1B, B0: P0B}, vis: true, thin: !w3Vis(R, nn, x0),   /* скрытая (как v81) — тонким пунктиром поверх */ T0: w3S3(R, P0T), T1: w3S3(R, P1T), B1: w3S3(R, P1B), B0: w3S3(R, P0B)}); }
     return out; }
   function w3Floor(e, R) { const S = w3Sides(e, R), l = S.find(q => q.sd < 0), r = S.find(q => q.sd > 0);
     return [w3S3(R, w3C(e, R, 'D')), w3S3(R, w3C(e, R, 'C')), r ? r.B1 : w3P(R, R.w, 0, 1000), l ? l.B1 : w3P(R, 0, 0, 1000)]; }
