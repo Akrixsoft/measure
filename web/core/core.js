@@ -870,7 +870,7 @@
     if (tg.t === 'wH') { const w = wall(tg.id); if (w) { begin(); if (v > 0 && v !== Hmm()) w.H = rnd(v); else delete w.H; elevLayout(); commit(); } return true; }
     if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
     if (tg.t === 'eSeg') { segApply(tg, v); return true; }
-    if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); c.fwx = 1; } else { c.y = r.y; delete c.ey; c.h = rnd(v); c.fwy = 1; } commit(); } return true; }
+    if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); c.fwx = 1; } else { const Rh = (elev(c.e) ? elevRect(elev(c.e)).h : 0), up = r.y > 0.5 && Math.abs(r.y + r.h - Rh) < 0.5; c.y = up ? rnd(r.y + r.h - v) : r.y; delete c.ey; c.h = rnd(v); c.fwy = 1; }   /* 82.35.13: у потолка — верх на месте, растёт вниз */ commit(); } return true; }
     if (tg.t === 'cOf') { const c = com(tg.id); if (!c || !(v >= 0)) return true; begin();
       if (tg.side === 'L') { c.x = rnd(v); delete c.ex; } if (tg.side === 'R') { c.ex = 'R'; c.xv = rnd(v); }
       if (tg.side === 'F') { c.y = rnd(v); delete c.ey; } if (tg.side === 'C') { c.ey = 'C'; c.yv = rnd(v); }
@@ -955,7 +955,7 @@
   function hit(sx, sy) {
     const s = C.sel;
     if (!C.crop && C.tool === 'pts') { const hp = w3Hit(sx, sy); if (hp) return hp; }   // 82.35.4: точки 4 углов — раньше полей
-    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === (hc && hc.id); return hc && !(C.sel && C.sel.id === hc.id) && !own ? hc : he; } }   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
+    if (!C.crop) { const he = edHit(sx, sy); if (he) { const hc = comAt(sx, sy); const sg = he.o && he.o.s, own = !!hc && ((he.o && he.o.c === hc.id) || !!(sg && sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol && sg.A.vol.c.id === hc.id));   /* 82.35.13: Ш / В / Г на гранях объекта — его поля */ return hc && !(C.sel && C.sel.id === hc.id) && !own ? hc : he; } }   // поле Ш / В самого объекта — поле; зазоры и чужие над объектом — объект   // поля размеров — раньше ручек выбранного; невыбранный объект под полем — сначала он
     if (C.crop) { const p = photo(C.crop.id); const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'crop-h', id: p.id, c};
       const [x0, y0] = photoCorners(p)[0], [x1, y1] = photoCorners(p)[2]; if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) return {t: 'crop-in', id: p.id}; return null; }
     if (s && s.t === 'photo') { const p = photo(s.id); if (p) { const c = photoCorners(p).findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (c >= 0) return {t: 'ph-h', id: p.id, c}; } }

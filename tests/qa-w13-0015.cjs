@@ -27,6 +27,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   ok('кнопки «на холст» нет (82.35.5)', !(await ctxBtn('на холст')));
   d = await doc(); ok('замкнутый контур — все 4 стены на холсте, H по умолчанию 2700', d.elev.length === 4 && (await M(`MeasureCore.elevRect(MeasureCore.doc.elev[0]).h`)) === 2700);
   await M(`(() => { const D = MeasureCore.doc, k = D.elev.find(e => e.wall === '${w1.id}'); D.elev = [k]; const r = MeasureCore.elevRect(k), V = MeasureCore.view; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 374 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`);   // вид — на С1, как раньше делала кнопка   // дальше — проверки на одной С1, как раньше
+  await W(200); await M('MeasureCore.draw()');   /* дождаться перерисовки после замены D.elev — иначе поля читаются по 4 развёрткам */
   const ed = await M('MeasureCore.edl()'); ok('без объёмов: L один, высота — своим полем на каждой боковой грани', ed.filter(o => o.k === 'L').length === 1 && ed.filter(o => o.k === 'eE').length === 2, ed.map(o => o.k));
   ok('подписи «С№ · L × H» нет', (await M('MeasureCore.elabels().length')) === 0);
   const hf = ed.find(o => o.k === 'eE'); await tap(hf.r.x + hf.r.w / 2, hf.r.y + hf.r.h / 2 + top); ok('касание поля грани → ввод размера этой грани (82.35.9)', (await M('MeasureCore.kb && MeasureCore.kb.t')) === 'eE'); await key('ok');
@@ -46,9 +47,11 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   await tool('rig'); await drag(await at(20, 2630), await at(2980, 2269)); d = await doc(); const rg = d.com.find(x => x.k === 'rig'); ok('ригель во всю ширину у потолка', rg && rg.x === 0 && rg.w === 3000 && rg.y + rg.h === 2650, rg);
   if (rg.h !== 381) { await M(`(()=>{const c=MeasureCore.doc.com.find(x=>x.k==='rig');c.h=381;c.y=2650-381})()`); await M('MeasureCore.draw && MeasureCore.draw()'); await W(100); }
   let e3 = await M('MeasureCore.edl()'); const side = e3.filter(o => o.k === 'seg' && o.s.ax === 'y').map(o => Math.round(o.s.v)).sort((a, b) => a - b);
-  ok('бока: 381 + 2 269 (слева и справа), H общего нет', JSON.stringify(side) === JSON.stringify([381, 381, 2269, 2269]) && !e3.some(o => o.k === 'H'), side);
-  const s381 = e3.find(o => o.k === 'seg' && o.s.ax === 'y' && Math.round(o.s.v) === 381); await tap(s381.r.x + s381.r.w / 2, s381.r.y + s381.r.h / 2 + top); await key('400ok');
-  d = await doc(); const rg2 = d.com.find(x => x.k === 'rig'); ok('поле 381 → 400: ригель растёт вниз, верх у потолка', rg2.h === 400 && rg2.y === 2250, rg2);
+  ok('бока стены: 2 269 слева и справа, H общего нет', JSON.stringify(side) === JSON.stringify([2269, 2269]) && !e3.some(o => o.k === 'H'), side);
+  const rH = e3.filter(o => o.k === 'cH');   /* 82.35.13: высота ригеля — на каждом его лицевом вертикальном ребре */
+  ok('высота ригеля 381 — полем на каждом лицевом ребре (2)', rH.length === 2 && Math.abs(rH[0].r.x - rH[1].r.x) > 100, rH.map(o => Math.round(o.r.x)));
+  const s381 = rH[0]; await tap(s381.r.x + s381.r.w / 2, s381.r.y + s381.r.h / 2 + top); await key('400ok');
+  d = await doc(); const rg2 = d.com.find(x => x.k === 'rig'); ok('поле 381 на ребре → 400: ригель растёт вниз, верх у потолка', rg2.h === 400 && rg2.y === 2250, rg2);
   await tool('sel'); { const s = await at(700, 1200); await tap(s[0], s[1]); }
   { const fz = (await M('MeasureCore.edl()')).find(o => o.k === 'D'); ok('глубина колонны — полем на боковой грани', !!fz); if (fz) { await tap(fz.r.x + fz.r.w / 2, fz.r.y + fz.r.h / 2 + top); await key('300ok'); } ok('Z колонны 300', (await doc()).com.find(x => x.k === 'kol').D === 300); }
   await M('MeasureCore.fitAll()'); await W(200); await shot('wall-82-13');
