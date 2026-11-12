@@ -858,10 +858,12 @@
       if (!CK[k].ps) { delete c.N; delete c.o; } else if (k === 'rv' && !(c.N >= 2)) c.N = 2; commit(); ui(); draw(); }));
     act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
   }
-  function B4kbObj(t, id) { return t === 'wH' ? wall(id) : t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
-  function B4kbBuf(t, o) { return t === 'wH' ? String(wHt(o)) : t === 'w3p' ? '' : t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
+  function B4kbObj(t, id) { return t === 'eE' ? elev(id) : t === 'wH' ? wall(id) : t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
+  function B4kbBuf(t, o) { return t === 'eE' ? '' : t === 'wH' ? String(wHt(o)) : t === 'w3p' ? '' : t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
   function B4kbApply(tg, v, raw) {
     if (tg.t === 'w3p') { w3Set(tg, v, raw); return true; }
+    if (tg.t === 'eE') { const e = elev(tg.id); if (e && v > 0) { const cur = eEdge(e, tg.side), d = v - cur; if (Math.abs(d) > 0.05) { begin(); e.w3d = e.w3d || {};
+      const [k, i] = {l: ['A', 1], r: ['B', 1], t: ['B', 0], b: ['C', 0]}[tg.side], o = e.w3d[k] = (e.w3d[k] || [0, 0, 0]).slice(); o[i] = rnd((o[i] + d) * 10) / 10; if (!o.some(Boolean)) delete e.w3d[k]; if (!Object.keys(e.w3d).length) delete e.w3d; commit(); } } return true; }
     if (tg.t === 'wH') { const w = wall(tg.id); if (w) { begin(); if (v > 0 && v !== Hmm()) w.H = rnd(v); else delete w.H; elevLayout(); commit(); } return true; }
     if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
     if (tg.t === 'eSeg') { segApply(tg, v); return true; }
@@ -1749,6 +1751,8 @@
       else if (kk[0] === 'K') { if (v) c.D = rnd(v); else delete c.D; } else toast('Угол у стены — Z = 0');
       commit(); return; }
     const dv = v - P[i]; if (Math.abs(dv) < 0.05) return; begin(); e.w3d = e.w3d || {}; const o = e.w3d[k] = (e.w3d[k] || [0, 0, 0]).slice(); o[i] = rnd((o[i] + dv) * 10) / 10; if (!o.some(Boolean)) delete e.w3d[k]; if (!Object.keys(e.w3d).length) delete e.w3d; commit(); }
+  function eEdge(e, side) { const R = elevRect(e), c = k => w3C(e, R, k), P = {l: ['A', 'D'], r: ['B', 'C'], t: ['B', 'A'], b: ['C', 'D']}[side], a = c(P[0]), b = c(P[1]);
+    return side === 'l' || side === 'r' ? a[1] - b[1] : hyp(a[0] - b[0], a[1] - b[1]); }
   function w3Pick(k) { const e = w3Act(); if (!e) return;
     if (k === 'obj') { const V = w3Vols(e), n = V.length; if (!n) { toast('На стене нет объёмов'); return; }
       if (W3S.pl === 'obj') { const vi = Math.min(W3S.vi, n - 1), L = w3VFaces(V[vi]).map(f => f.k), j = L.indexOf(W3S.vf); if (j >= 0 && j < L.length - 1) W3S.vf = L[j + 1]; else { W3S.vi = (vi + 1) % n; W3S.vf = 'F'; } }
@@ -1791,11 +1795,20 @@
   function drawElevDims() {                                      // после объектов стены — поля сверху всего
     EDL.length = 0; if (!LAY.dim) return; const act = dimAct();
     for (const e of D.elev) { const w = wall(e.wall); if (!w || w.off || (act && e.id !== act)) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
+      const dv = !!(e.w3d && ['A', 'B', 'C', 'D'].some(k => e.w3d[k])), Cc = k => w3C(e, R, k);   // 82.35.9: каждая грань — свой размер (по углам с отклонениями)
       autoDims(e, R).forEach((sg, i) => { sg.R = R;
-        const ed = sg.kind === 'L' ? kbIs('wall', w.id) : sg.kind === 'H' ? kbIs('wH', w.id) : kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
+        if (sg.kind === 'H' || sg.kind === 'L') { const [k1, k0] = sg.kind === 'H' ? (sg.line > 0 ? ['B', 'C'] : ['A', 'D']) : ['B', 'A'], P1 = Cc(k1), P0 = Cc(k0), m0 = w3S3(R, [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, (P0[2] + P1[2]) / 2]);
+          const v = sg.kind === 'H' ? P1[1] - P0[1] : hyp(P1[0] - P0[0], P1[1] - P0[1]), side = sg.kind === 'H' ? (sg.line > 0 ? 'r' : 'l') : 't';
+          const ed = sg.kind === 'L' ? (dv ? kbIs('eE', e.id, t => t.side === 't') : kbIs('wall', w.id)) : kbIs('eE', e.id, t => t.side === side), t = ed ? kbTxt() : num(v);
+          const en = sg.kind === 'L' ? !!w.fx || !!(e.w3d && (e.w3d.A || e.w3d.B)) : !!(w.H || D.H) || !!(e.w3d && (e.w3d[k1] || e.w3d[k0]));
+          const r = edimBox(t, m0[0], m0[1], sg.kind === 'H', ed, en, (sg.kind === 'H' ? Math.abs(P1[1] - P0[1]) : v) * V.s);
+          EDL.push({id: e.id, k: sg.kind === 'H' ? 'eE' : dv ? 'eE' : 'L', side, i, s: sg, r}); return; }
+        const ed = kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
         const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!(w.H || D.H) : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
         const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
+      if (dv) { const P0 = Cc('D'), P1 = Cc('C'), Lb = hyp(P1[0] - P0[0], P1[1] - P0[1]), Lt = hyp(Cc('B')[0] - Cc('A')[0], Cc('B')[1] - Cc('A')[1]);
+        if (Math.abs(Lb - Lt) > 0.5) { const m0 = w3S3(R, [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, 0]), ed = kbIs('eE', e.id, t => t.side === 'b'); EDL.push({id: e.id, k: 'eE', side: 'b', r: edimBox(ed ? kbTxt() : num(Lb), m0[0], m0[1], false, ed, !!(e.w3d.C || e.w3d.D), Lb * V.s)}); } }
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.3: глубина — полем на боковой грани объёма
         const f = vf.F.find(q => q.k === 'l' || q.k === 'r'); const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1 < R.h - 0.5 ? vf.y1 : vf.y0, xx = f ? (f.k === 'l' ? vf.x0 : vf.x1) : vf.x0;
         const a = w3P(R, xx, yy, 0), b = w3P(R, xx, yy, vf.z), ed = kbIs('cD', c.id), tt = ed ? kbTxt() : num(Math.abs(vf.z));
@@ -1811,6 +1824,7 @@
     if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
     else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('wH', e.wall); }   // 82.35.5: высота — этой стены
     else if (o.k === 'D') { C.sel = {t: 'com', id: o.c}; openKb('cD', o.c); }
+    else if (o.k === 'eE') { C.sel = {t: 'elev', id: e.id}; openKb('eE', e.id); KB.tg.side = o.side; KB.buf = String(rnd(eEdge(e, o.side))); KB.fresh = true; ui(); draw(); }   // грань — свой размер
     else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
     ui(); draw();
   }

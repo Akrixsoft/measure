@@ -27,9 +27,10 @@ require('./qa-h-0015.cjs')(process.argv[3], 9357).then(async h => {
   ok('кнопки «на холст» нет (82.35.5)', !(await ctxBtn('на холст')));
   d = await doc(); ok('замкнутый контур — все 4 стены на холсте, H по умолчанию 2700', d.elev.length === 4 && (await M(`MeasureCore.elevRect(MeasureCore.doc.elev[0]).h`)) === 2700);
   await M(`(() => { const D = MeasureCore.doc, k = D.elev.find(e => e.wall === '${w1.id}'); D.elev = [k]; const r = MeasureCore.elevRect(k), V = MeasureCore.view; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 374 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`);   // вид — на С1, как раньше делала кнопка   // дальше — проверки на одной С1, как раньше
-  const ed = await M('MeasureCore.edl()'); ok('без объёмов: L один, H на обеих боковых гранях', ed.filter(o => o.k === 'L').length === 1 && ed.filter(o => o.k === 'H').length === 2, ed.map(o => o.k));
+  const ed = await M('MeasureCore.edl()'); ok('без объёмов: L один, высота — своим полем на каждой боковой грани', ed.filter(o => o.k === 'L').length === 1 && ed.filter(o => o.k === 'eE').length === 2, ed.map(o => o.k));
   ok('подписи «С№ · L × H» нет', (await M('MeasureCore.elabels().length')) === 0);
-  const hf = ed.find(o => o.k === 'H'); await tap(hf.r.x + hf.r.w / 2, hf.r.y + hf.r.h / 2 + top); ok('касание поля H → ввод высоты этой стены', (await M('MeasureCore.kb && MeasureCore.kb.t')) === 'wH'); await key('2650ok');
+  const hf = ed.find(o => o.k === 'eE'); await tap(hf.r.x + hf.r.w / 2, hf.r.y + hf.r.h / 2 + top); ok('касание поля грани → ввод размера этой грани (82.35.9)', (await M('MeasureCore.kb && MeasureCore.kb.t')) === 'eE'); await key('ok');
+  await btn('#wHf button'); await key('2650ok');   /* высота стены — полем слева третьим рядом */
   ok('H 2650', (await doc()).walls.find(w => w.id === w1.id).H === 2650);
   // колонна, W×H, цепочка низа
   const R = await M('MeasureCore.elevRect(MeasureCore.doc.elev[0])'), at = (x, y) => scr(R.x + x, R.y + R.h - y);
