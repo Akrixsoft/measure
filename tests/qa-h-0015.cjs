@@ -21,7 +21,7 @@ module.exports = async function harness(OUT, port) {
   const box = sel => p.evaluate(s => { const e = document.querySelector(s); if (!e || !e.offsetParent) return null; if (e.closest('.zcols')) e.scrollIntoView({block: 'nearest', inline: 'nearest'}); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, sel);
   const btn = async sel => { const b = await box(sel); if (!b) throw new Error('нет кнопки ' + sel); await tap(b[0], b[1]); };
   const key = async seq => { for (const k of seq.match(/ok|bs|pm|./g)) await btn('#cKb [data-kk="' + k + '"]'); };
-  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zpb button, #labCrop button, #fws button, .ctxp button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
+  const ctxBtn = txt => p.evaluate(t => { const b = [...document.querySelectorAll('#zMods button, #zpb button, #labCrop button, #fws button, .ctxp button')].find(e => e.offsetParent && (e.textContent.includes(t) || (e.title || '').includes(t))); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, txt);
   const doc = () => M('JSON.parse(JSON.stringify(MeasureCore.doc))');
   const CT = await (async () => 0)();
   const scr = async (x, y) => { const [a, b] = await M(`MeasureCore.toS(${x},${y})`); const t = await M('document.getElementById("cCv").getBoundingClientRect().top'); return [a, b + t]; };

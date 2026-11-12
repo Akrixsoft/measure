@@ -129,10 +129,12 @@
     drawCom();
     drawRooms();
     drawPlan();
+    drawPlanCols();
     drawOps();
     drawDrw();
     drawDims();
     drawFrames();
+    drawElevDims();
     drawOverlay();
     drawGroup();
     scaleBar(W, Hh, gst);
@@ -164,17 +166,8 @@
     else { cx.fillStyle = '#d5d8dc'; cx.fillRect(x, y, w, h); }
     cx.strokeStyle = '#8a9099'; cx.lineWidth = 1; cx.strokeRect(x + 0.5, y + 0.5, w, h);
   }
-  function drawElev(e) {
-    const r = elevRect(e), w = wall(e.wall); if (!w) return;
-    const [x, y] = toS(r.x, r.y), W = r.w * V.s, H = r.h * V.s, on = C.sel && C.sel.t === 'elev' && C.sel.id === e.id;
-    cx.fillStyle = '#ffffffd9'; cx.fillRect(x, y, W, H);
-    cx.strokeStyle = on ? COL.sel : COL.elev; cx.lineWidth = on ? 2.5 : 1.5; cx.strokeRect(x, y, W, H);
-    cx.lineWidth = on ? 4 : 3; cx.beginPath(); cx.moveTo(x, y + H); cx.lineTo(x + W, y + H); cx.stroke();
-    const edH = KB.tg && KB.tg.t === 'H';
-    ELBL.set(e.id, label(`С${w.gn} · ${rnd(r.w)} × ${edH ? (KB.buf || ' ') + '▏' : rnd(r.h)}`, x + W / 2, y - 12, on ? COL.sel : COL.elev));
-  }
   function label(t, X, Y, col) {
-    cx.font = '600 13px system-ui'; const tw = cx.measureText(t).width + 10, r = {x: X - tw / 2, y: Y - 11, w: tw, h: 22};
+    cx.font = `600 ${Math.round(13 * W3.f)}px system-ui`; const tw = cx.measureText(t).width + 10, r = {x: X - tw / 2, y: Y - 11 * W3.f, w: tw, h: 22 * W3.f};
     cx.fillStyle = '#fff'; cx.fillRect(r.x, r.y, r.w, r.h); cx.strokeStyle = col; cx.lineWidth = 1; cx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
     cx.fillStyle = col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); return r;
   }
@@ -238,7 +231,7 @@
   const DLBL = new Map();
   function head(x, y, ux, uy, L) { cx.beginPath(); cx.moveTo(x, y); cx.lineTo(x - ux * L - uy * L * 0.38, y - uy * L + ux * L * 0.38); cx.lineTo(x - ux * L + uy * L * 0.38, y - uy * L - ux * L * 0.38); cx.closePath(); cx.fill(); }
   function drawDims() {
-    DLBL.clear();
+    DLBL.clear(); if (!LAY.dim) return;
     for (const d of D.dims) {
       const A = endPos(d.a), B = endPos(d.b), [ax, ay] = toS(A.x, A.y), [bx, by] = toS(B.x, B.y), L = hyp(bx - ax, by - ay); if (L < 2) continue;
       const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : COLD.line;
@@ -305,6 +298,7 @@
       if (KB.tg && KB.tg.t === 'fL' && KB.tg.id === f.id) label('L ' + (KB.buf || ' ') + '▏', (S[0][0] + S[1][0]) / 2, Math.min(S[0][1], S[1][1]) - 14, '#c99a1e');
       const w = f.wall && wall(f.wall); if (w) label('С' + w.gn, (S[0][0] + S[1][0]) / 2, Math.min(S[0][1], S[1][1]) - 14, COLF);
     }
+    if (G && G.t === 'ptsd' && G.b) { const [ax, ay] = toS(G.a.x, G.a.y), [bx, by] = toS(G.b.x, G.b.y); cx.strokeStyle = COLF; cx.lineWidth = 2; cx.setLineDash([6, 4]); cx.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay)); cx.setLineDash([]); }
     const P = C.ptsP; if (P && P.q.length) { const p = photo(P.ph); if (p) { const F = phFull(p), S = P.q.map(([u, v]) => toS(F.x + F.w * u, F.y + F.h * v));
       cx.strokeStyle = COLF; cx.lineWidth = 2; cx.setLineDash([6, 4]); cx.beginPath(); S.forEach(([x, y], i) => (i ? cx.lineTo(x, y) : cx.moveTo(x, y))); cx.stroke(); cx.setLineDash([]);
       for (const [x, y] of S) { cx.fillStyle = COLF; cx.beginPath(); cx.arc(x, y, 6, 0, 7); cx.fill(); } } }
@@ -411,7 +405,7 @@
     const p = photo(f.ph); if (!p) return; let Q = frPts(f);
     const wf = (hyp(Q[1].x - Q[0].x, Q[1].y - Q[0].y) + hyp(Q[2].x - Q[3].x, Q[2].y - Q[3].y)) / 2; if (!(wf > 0)) return;
     begin(); p.w = Math.max(1, rnd(p.w * L / wf)); Q = frPts(f);
-    const H = Hmm(), bot = (Q[2].y + Q[3].y) / 2, ex = rnd(p.x + p.w + Math.max(200, L * 0.08)), ey = rnd(bot - H);
+    const H = Hmm(), ex = rnd(Math.min(Q[0].x, Q[3].x)), ey = rnd(p.y - H - 600);   // развёртка — над фото (замечание 6), низ стены над верхом фото
     let bx, by; if (D.nodes.length) { bx = Math.max(...D.nodes.map(n => n.x)) + 800; by = Math.min(...D.nodes.map(n => n.y)); } else { bx = ex; by = ey - 1200; }
     const na = {id: uid('n'), x: rnd(bx), y: rnd(by)}, nb = {id: uid('n'), x: rnd(bx + L), y: rnd(by)}; D.nodes.push(na, nb);
     const w = {id: uid('w'), a: na.id, b: nb.id, gn: ++D.gnHi}; D.walls.push(w);
@@ -424,7 +418,7 @@
      касание последней точки или ✓ — готово; текст/пин — касание, ввод подписи; ластик — касание/протяжка по рисунку; инструмент остаётся.
      Рисунок лежит на основе под первой точкой (развёртка → фото → холст) и следует за её переносом, масштабом и подрезкой.
      Толщина — одна на все рисунки (футляр, 0,5…12, по умолчанию 3, как v81); цвет — выбранный в строке/футляре, у выбранного рисунка — меняется. ═══ */
-  const isLbl = h => !!h && (h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel');   // подписи (длина, размер, H) — ввод значения в любом инструменте
+  const isLbl = h => !!h && (h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel' || h.t === 'edim');   // подписи (длина, размер, H) — ввод значения в любом инструменте
   const DRWK = new Set(['pen', 'ln', 'pl', 'rect', 'circ', 'arc', 'er', 'txt', 'pin', 'vyn']);   // заметка (note) — Б6, рисунок того же вида
   const DRW_N = {pen: 'перо', ln: 'линия', pl: 'ломаная', rect: 'прямоугольник', circ: 'круг', arc: 'дуга', txt: 'текст', pin: 'пин', vyn: 'выноска'};
   C.col = (() => { try { return localStorage.getItem('akx-core-col') || '#1f6fd1'; } catch (e) { return '#1f6fd1'; } })();
@@ -473,6 +467,7 @@
   function drawDrw() {
     TBOX.clear();
     for (const q of D.drw) {
+      if (!(q.k === 'vyn' ? LAY.vyn : LAY.pen)) continue;
       const W = drwW(q); if (!W.length) continue; const S = W.map(t => toS(t.x, t.y)), sel = (C.sel && C.sel.t === 'drw' && C.sel.id === q.id), c = sel ? COL.sel : q.c || '#1a2027';
       const ed = TXI.id === q.id && TXI.focus, tx = TXI.id === q.id ? txIn.value : q.tx;
       if (q.k === 'note') { const [x, y] = S[0], lines = String(tx || (ed ? '' : 'заметка')).split(/\n/); cx.font = '600 14px system-ui';
@@ -507,7 +502,7 @@
       const cw = (x, y) => ang(y - x); return o.ccw ? cw(t, a0) <= cw(a1, a0) : cw(a0, t) <= cw(a0, a1); }
     return S.some((t, i) => i && segDist([sx, sy], S[i - 1], t) < 12);
   }
-  function B3hit(sx, sy) { for (let i = D.drw.length - 1; i >= 0; i--) if (drwHitQ(D.drw[i], sx, sy)) return {t: 'drw', id: D.drw[i].id}; return null; }
+  function B3hit(sx, sy) { for (let i = D.drw.length - 1; i >= 0; i--) if ((D.drw[i].k === 'vyn' ? LAY.vyn : LAY.pen) && drwHitQ(D.drw[i], sx, sy)) return {t: 'drw', id: D.drw[i].id}; return null; }
   function B3handle(id, sx, sy) { const q = drw(id); if (!q || q.k === 'pen' || q.k === 'txt' || q.k === 'pin' || q.k === 'note') return null;
     const i = drwW(q).findIndex(t => { const [x, y] = toS(t.x, t.y); return hyp(x - sx, y - sy) < HR.handle; }); return i >= 0 ? {t: 'drw-h', id, i} : null; }
   function B3all() { return D.drw.map(q => ({t: 'drw', id: q.id})); }
@@ -647,7 +642,9 @@
     im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.icon.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"').replace(/ aria-hidden="true"/, '')); ICO.set(k, im); return null; }
   function cRect(c) {                                            // прямоугольник объекта, мм стены: {x, y (низ), w, h}
     const e = elev(c.e); if (!e) return null; const R = elevRect(e);
-    let x = c.x, y = c.y; if (c.ex === 'R') x = R.w - c.xv - c.w; if (c.ey === 'C') y = R.h - c.yv - c.h; return {x, y, w: c.w, h: c.h, R};
+    let x = c.x, y = c.y, h = c.h; if (c.ex === 'R') x = R.w - c.xv - c.w; if (c.ey === 'C') y = R.h - c.yv - c.h;
+    if (c.k === 'kol') { y = 0; h = R.h; }                       // колонна — во всю высоту помещения (82.13)
+    return {x, y, w: c.w, h, R};
   }
   const w2s = (R, x, y) => toS(R.x + x, R.y + R.h - y);                     // мм стены → px
   const s2w = (R, sx, sy) => { const q = toW(sx, sy); return {x: q.x - R.x, y: R.y + R.h - q.y}; };
@@ -657,6 +654,7 @@
   function drawCom() {
     OFL.clear();
     for (const c of D.com) {
+      if (!comLay(c)) continue;
       const e = elev(c.e); if (!e) continue; const R = elevRect(e), K = CK[c.k] || CK.roz, sel = (C.sel && C.sel.t === 'com' && C.sel.id === c.id) || inMsel('com', c.id), col = sel ? COL.sel : K.c;
       if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);
         const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return [m[0] + i * z * 0.84, m[1]]; });
@@ -676,11 +674,7 @@
       const im = ico(c.k), z = 22; if (im && Math.min(W2, H2) >= z * 1.5) cx.drawImage(im, x0 + W2 / 2 - z / 2, y0 + H2 / 2 - z / 2, z, z);
       if (c.D) { cx.font = '600 11px system-ui'; cx.fillStyle = col; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('Z ' + (c.D > 0 ? '+' : '−') + num(Math.abs(c.D)), x0 + 3, y0 + 3); }
       if (sel && C.sel && C.sel.id === c.id) { for (const [x, y] of [[x0, y0], [x0 + W2, y0], [x0 + W2, y0 + H2], [x0, y0 + H2]]) { cx.fillStyle = COL.sel; cx.fillRect(x - 5, y - 5, 10, 10); }
-        const o = {L: r.x, R: r.R.w - r.x - r.w, F: r.y, C: r.R.h - r.y - r.h}, ed = KB.tg && KB.tg.t === 'cOf' && KB.tg.id === c.id ? KB.tg.side : null;
-        const put = (side, X, Y, ar) => { const t = ar + ' ' + (ed === side ? (KB.buf || ' ') + '▏' : num(o[side])) + ((c.ex === 'R' && side === 'R') || (c.ey === 'C' && side === 'C') || (c.ex !== 'R' && side === 'L' && c.ex) ? ' 📌' : '');
-          cx.font = '600 12px system-ui'; const tw = cx.measureText(t).width + 8, rr = {x: X - tw / 2, y: Y - 10, w: tw, h: 20}; cx.fillStyle = ed === side ? '#fff7d1' : '#ffffffe8'; cx.fillRect(rr.x, rr.y, rr.w, rr.h);
-          cx.strokeStyle = '#8a9099'; cx.lineWidth = 1; cx.strokeRect(rr.x + 0.5, rr.y + 0.5, rr.w - 1, rr.h - 1); cx.fillStyle = '#3a4150'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, X, Y + 0.5); OFL.set(side, {id: c.id, side, r: rr}); };
-        put('L', x0 - 34, y0 + H2 / 2, '←'); put('R', x0 + W2 + 34, y0 + H2 / 2, '→'); put('F', x0 + W2 / 2, y0 + H2 + 16, '↓'); put('C', x0 + W2 / 2, y0 - 16, '↑'); }
+      }
     }
     const g = G; if (g && g.t === 'cdraw' && g.b) { const R = elevRect(elev(g.e)), K = CK[C.tool];
       if (K.ln) { const A = w2s(R, g.a.x, g.a.y), B = w2s(R, g.b.x, g.b.y); cx.strokeStyle = rtt(C.rt)[3]; cx.lineWidth = 3; cx.setLineDash(rtt(C.rt)[4]); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); cx.setLineDash([]); }
@@ -696,10 +690,11 @@
     const r = cRect(c), A = w2s(R, r.x, r.y + r.h), B = w2s(R, r.x + r.w, r.y); return {box: [A[0], A[1], B[0], B[1]]};
   }
   function B4hit(sx, sy) {
+    { const he = edHit(sx, sy); if (he) return he; }
     { const ho = opHit(sx, sy); if (ho) return ho; }
     { const hr = B6hit(sx, sy); if (hr) return hr; }
     for (const [side, o] of OFL) { const r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'cofl', id: o.id, side}; }
-    for (let i = D.com.length - 1; i >= 0; i--) { const c = D.com[i], g = comPx(c); if (!g) continue;
+    for (let i = D.com.length - 1; i >= 0; i--) { const c = D.com[i], g = comLay(c) && comPx(c); if (!g) continue;
       if (g.box && sx >= g.box[0] - 4 && sx <= g.box[2] + 4 && sy >= g.box[1] - 4 && sy <= g.box[3] + 4) return {t: 'com', id: c.id};
       if (g.line && segDist([sx, sy], g.line[0], g.line[1]) < 12) return {t: 'com', id: c.id};
       if (g.poly && inPoly({x: sx, y: sy}, g.poly.map(([x, y]) => ({x, y})))) return {t: 'com', id: c.id}; }
@@ -766,12 +761,17 @@
     const c = s && s.t === 'com' && com(s.id); if (!c) return; const K = CK[c.k];
     if (K.ps) for (let n = 1; n <= 5; n++) B.push([`<span class="opt${(c.N || 1) === n ? ' on' : ''}">${n}</span>`, () => { if ((c.N || 1) === n) return; begin(); c.N = n; commit(); ui(); }, n + ' — шаг 71 мм']);
     if (K.ln) { const T = rtt(c.t); B.push([`<span class="opt on" style="color:${T[3]}">${T[2]}</span>`, () => { begin(); const i = RTT.findIndex(r => r[0] === c.t); c.t = RTT[(i + 1) % RTT.length][0]; C.rt = c.t; commit(); ui(); toast('Трасса: ' + rtt(c.t)[1]); }, 'Тип трассы: ' + T[1]]); }
+    if (K.rc && c.k === 'kol') B.push(['<span class="opt on" style="font-size:11px">W</span>', () => { openKb('cW', c.id); ui(); draw(); }, 'Ширина колонны, мм (высота — во всю стену)']);
+    else if (K.rc) B.push(['<span class="opt on" style="font-size:11px">W×H</span>', () => { openKb('cW', c.id); KB.after = () => setTimeout(() => { if (com(c.id)) { openKb('cH', c.id); ui(); draw(); } }, 0); ui(); draw(); }, 'Габарит: ширина × высота, мм']);
+    if (K.rc || K.pt) B.push(['⧉', () => { begin(); const o = clone(c); o.id = uid('c'); if (o.ex) o.xv = Math.max(0, o.xv - 300); else o.x += 300; D.com.push(o); C.sel = {t: 'com', id: o.id}; commit(); }, 'Копия рядом']);
     if (K.D) B.push([`<span class="opt${c.D ? ' on' : ''}">Z</span>`, () => { openKb('cD', c.id); ui(); draw(); }, 'Z — глубина, мм: выступ +, ниша −']);
   }
-  function B4kbObj(t, id) { return t === 'cD' || t === 'cOf' ? com(id) : null; }
-  function B4kbBuf(t, o) { return t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' ? '' : null; }
+  function B4kbObj(t, id) { return t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
+  function B4kbBuf(t, o) { return t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }
   function B4kbApply(tg, v, raw) {
     if (tg.t === 'cD') { const c = com(tg.id); if (c) { begin(); if (v && isFinite(v)) c.D = rnd(v); else delete c.D; commit(); } return true; }   // Z: выступ +, ниша − (82.14)
+    if (tg.t === 'eSeg') { segApply(tg, v); return true; }
+    if (tg.t === 'cW' || tg.t === 'cH') { const c = com(tg.id); if (c && v > 0) { begin(); const r = cRect(c); if (tg.t === 'cW') { c.x = r.x; delete c.ex; c.w = rnd(v); } else { c.y = r.y; delete c.ey; c.h = rnd(v); } commit(); } return true; }
     if (tg.t === 'cOf') { const c = com(tg.id); if (!c || !(v >= 0)) return true; begin();
       if (tg.side === 'L') { c.x = rnd(v); delete c.ex; } if (tg.side === 'R') { c.ex = 'R'; c.xv = rnd(v); }
       if (tg.side === 'F') { c.y = rnd(v); delete c.ey; } if (tg.side === 'C') { c.ey = 'C'; c.yv = rnd(v); }
@@ -879,6 +879,7 @@
   }
   function setLen(w, v) {
     const a = node(w.a), b = node(w.b), L = wLen(w); if (!(v > 0) || !L) return;
+    w.fx = 1;                                                    // введённый размер: стена не тянется (замечание 8, 82.26)
     const [fix, mov] = deg(b.id) <= 1 || deg(a.id) > 1 ? [a, b] : [b, a];
     const ux = (mov.x - fix.x) / L, uy = (mov.y - fix.y) / L, dx = ux * (v - L), dy = uy * (v - L);
     begin(); const moved = new Set([mov.id]);
@@ -913,8 +914,11 @@
     if (!Hmm()) { KB.after = () => { if (Hmm()) addElev(w); }; openKb('H', null); toast('Высота H'); return; }
     const ex = D.elev.find(e => e.wall === w.id);
     if (ex) { const r = elevRect(ex); V.ox = cssW() / 2 - (r.x + r.w / 2) * V.s; V.oy = cssH() / 2 - (r.y + r.h / 2) * V.s; C.sel = {t: 'elev', id: ex.id}; viewChanged(); ui(); return; }
-    const L = wLen(w), c = toW(cssW() / 2, cssH() * 0.4);
-    begin(); const e = {id: uid('e'), wall: w.id, x: rnd(c.x - L / 2), y: rnd(c.y - Hmm() / 2)}; D.elev.push(e); C.sel = {t: 'elev', id: e.id}; commit();
+    // свободное место под планом: ниже плана и уже стоящих развёрток плана (холст не перестраивается — новое ложится в пустое)
+    const L = wLen(w), xs = D.nodes.map(n => n.x), ys = [...D.nodes.map(n => n.y), ...D.elev.map(o => { const r = elevRect(o); return r.y + r.h; })];
+    const x0 = xs.length ? Math.min(...xs) : toW(cssW() / 2, 0).x - L / 2, y0 = (ys.length ? Math.max(...ys) : toW(0, cssH() * 0.3).y) + 900;
+    begin(); const e = {id: uid('e'), wall: w.id, x: rnd(x0), y: rnd(y0)}; D.elev.push(e); C.sel = {t: 'elev', id: e.id}; commit();
+    const r = elevRect(e); V.ox = cssW() / 2 - (r.x + r.w / 2) * V.s; V.oy = cssH() / 2 - (r.y + r.h / 2) * V.s; viewChanged();
   }
 
   /* ═══ [BLOCK C-PHOTO] фото группой: уменьшение до 2400 px, складываются столбиком под последним ═══ */
@@ -941,7 +945,10 @@
   /* ═══ [BLOCK C-INPUT] касания: 1 палец/перо — инструмент, 2 пальца — масштаб и сдвиг (всегда) ═══ */
   const P = new Map(); let G = null; const TAP = 8;
   const pos = e => { const r = cv.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
+  let LASTPT = 'touch';
   cv.addEventListener('pointerdown', e => {
+    LASTPT = e.pointerType; if (e.pointerType === 'pen') { PEN.seen = true; PEN.down++; }
+    if (e.pointerType === 'touch' && PEN.down) return;           // ладонь при пере — не в счёт
     e.preventDefault(); closeEd(true); if (TXI.focus) { try { txIn.blur(); } catch (_) { } TXI.focus = false; }
     $('zMenu').classList.remove('on'); if (C.phm) { C.phm = false; ui(); } try { cv.setPointerCapture(e.pointerId); } catch (_) { }
     P.set(e.pointerId, pos(e));
@@ -952,6 +959,7 @@
     if (G && G.pinch) pinchMove(); else if (G && !G.dead) oneMove(pos(e));
   });
   const up = e => {
+    if (e.pointerType === 'pen' && PEN.down) PEN.down--;
     if (!P.has(e.pointerId)) return; P.delete(e.pointerId);
     if (G && G.pinch) { G = P.size ? {dead: true} : null; viewChanged(); return; }
     if (G && G.dead) { if (!P.size) G = null; return; }
@@ -972,11 +980,13 @@
   function startOne(p) {
     const h = hit(p.x, p.y); G = {t: 'tap', p0: p, h, moved: false, V0: {...V}};
     if (C.crop) { if (h && h.t === 'crop-h') G.t = 'crop'; else if (h && h.t === 'crop-in') G.t = 'cropmove'; else G.t = 'pan'; return; }
+    if (h && h.t === 'edim') { G.t = 'pan'; return; }
+    if (fingerPan(p)) { G.t = 'pan'; G.finger = true; return; }
     if (h && h.t === 'dim-h') { G.t = 'dimend'; return; }
     if (h && h.t === 'fr-h') { G.t = 'fcorner'; return; }
     if (C.msel.length && (C.tool === 'sel' || C.tool === 'rsel')) { const m = normHit(h); if (m && inMsel(m.t, m.id)) { G.t = 'gmove'; return; } }
     if (C.tool === 'rsel') { G.t = 'rs'; return; }
-    if (C.tool === 'pts') { G.t = 'pan'; return; }
+    if (C.tool === 'pts') { if (h && h.t === 'frame' && C.sel && C.sel.id === h.id) { G.t = 'move'; return; } const ph = photoAt(p); if (ph) { G.t = 'ptsd'; G.ph = ph.id; G.a = toW(p.x, p.y); } else G.t = 'pan'; return; }
     if (B6start(G, p, h)) return;
     if (B4start(G, p, h)) return;
     if (typeof B3start === 'function' && B3start(G, p, h)) return;
@@ -985,6 +995,9 @@
       const a = snapEnd(null, p.x, p.y); G.t = 'draw'; G.a = a; G.b = null; return;
     }
     if (!h || h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel') { G.t = 'pan'; return; }
+    if (C.tool === 'sel' && h && !isSelH(h)) { G.t = 'pan'; return; }            // сначала выбрать: касание невыбранного и протяжка — сдвиг холста
+    if (h && h.t === 'node' && D.walls.some(w => w.fx && (w.a === h.id || w.b === h.id))) { G.t = 'pan'; G.fxMsg = 1; return; }
+    if (h && h.t === 'wall' && D.walls.some(o => o.fx && o.id !== h.id && [o.a, o.b].some(n => n === wall(h.id).a || n === wall(h.id).b))) { G.t = 'pan'; G.fxMsg = 1; return; }
     G.t = {dim: 'dmove', 'ph-h': 'scale', photo: 'move', elev: 'move', frame: 'move', node: 'nmove', wall: 'wmove'}[h.t] || (typeof B3moveKind === 'function' && B3moveKind(h)) || 'pan';
   }
   function oneMove(p) {
@@ -1006,6 +1019,7 @@
       case 'gmove': gMove(g, mx, my); break;
       case 'rs': g.r = [q0, q]; draw(); break;
       case 'fcorner': frameCornerDrag(g, q); break;
+      case 'ptsd': g.b = q; draw(); break;
       default: if (!B6move(g, p, q) && !B4move(g, p, q) && typeof B3move === 'function') B3move(g, p, q, mx, my); break;
       case 'cropmove': cropMove(g, mx, my); break;
     }
@@ -1024,6 +1038,22 @@
     if (g.t === 'dmove') { begin(); const d = dim(h.id); g.o = {a: endPos(d.a), b: endPos(d.b)}; C.sel = {t: 'dim', id: h.id}; ui(); }
     if (g.t === 'crop' || g.t === 'cropmove') g.cr0 = C.crop ? photo(C.crop.id).cr.slice() : null;
   }
+  const photoAt = p => { const q = toW(p.x, p.y); if (C.phHide) return null; for (let i = D.photos.length - 1; i >= 0; i--) { const o = D.photos[i]; if (q.x >= o.x && q.x <= o.x + o.w && q.y >= o.y && q.y <= o.y + phH(o)) return o; } return null; };
+  function isSelH(h) {                                           // объект под пальцем уже выбран (или ручка выбранного)
+    if (/-h$/.test(h.t) || h.t === 'label' || h.t === 'dlabel' || h.t === 'elabel' || h.t === 'rname' || h.t === 'rh' || h.t === 'cofl') return true;
+    const s = C.sel; if (!s) return false; if (s.t === h.t && s.id === h.id) return true;
+    if (h.t === 'node' && s.t === 'wall') { const w = wall(s.id); return !!w && (w.a === h.id || w.b === h.id); }
+    if (h.t === 'frame' && s.t === 'photo') return frame(h.id) && frame(h.id).ph === s.id;
+    return false;
+  }
+  function ptsDone(g) {                                          // рамка по диагонали → сразу стена (L, H)
+    const p = photo(g.ph); if (!p || !g.b) { draw(); return; } const F = phFull(p), u = q => clamp((q.x - F.x) / F.w, 0, 1), v = q => clamp((q.y - F.y) / F.h, 0, 1);
+    const u0 = Math.min(u(g.a), u(g.b)), u1 = Math.max(u(g.a), u(g.b)), v0 = Math.min(v(g.a), v(g.b)), v1 = Math.max(v(g.a), v(g.b));
+    if ((u1 - u0) * F.w * V.s < 20 || (v1 - v0) * F.h * V.s < 20) { draw(); return; }
+    const r5 = t => rnd(t * 1e5) / 1e5; begin(); const f = {id: uid('r'), ph: p.id, q: [[u0, v0], [u1, v0], [u1, v1], [u0, v1]].map(t => t.map(r5)), wall: null}; D.frames.push(f); C.sel = {t: 'frame', id: f.id}; commit();
+    frameWall(f);
+  }
+  function fingerPan(p) { return PEN.on && PEN.seen && LASTPT === 'touch' && drawTool(); }
   const movObj = h => h.t === 'frame' ? photo(frame(h.id).ph) : h.t === 'photo' ? photo(h.id) : elev(h.id);
   function oneEnd(p, cancelled) {
     const g = G; G = null;
@@ -1032,7 +1062,8 @@
     if (g.t === 'dimdraw') { if (g.cur) { const d = addDim(g.a, g.cur); if (d) C.sel = {t: 'dim', id: d.id}; } ui(); draw(); return; }
     if (g.t === 'draw') { if (g.b) { const w = addWall(g.a, g.b); if (w) C.sel = {t: 'wall', id: w.id}; } ui(); draw(); return; }
     if (g.t === 'nmove') { const n = node(g.h.id); if (g.snapN && n) { mergeNode(n.id, g.snapN); C.sel = {t: 'node', id: g.snapN}; } }
-    if (g.t === 'pan') { viewChanged(); return; }
+    if (g.t === 'pan') { if (g.fxMsg) toast('Размер стены введён — не тянется; новый размер — касанием поля'); viewChanged(); return; }
+    if (g.t === 'ptsd') { ptsDone(g); return; }
     if (g.t === 'rs') { C.msel = g.r ? rsPick(g.r[0], g.r[1]) : []; C.sel = null; ui(); draw(); if (C.msel.length) toast('В группе: ' + C.msel.length); return; }
     if (B6end(g)) return;
     if (B4end(g)) return;
@@ -1042,8 +1073,10 @@
   function tap(g) {
     const h = g.h;
     if (C.crop) return;
+    if (h && h.t === 'edim') { edTap(h); return; }
+    if (g.finger) { const t0 = C.tool; C.tool = 'sel'; try { tap({...g, finger: false}); } finally { C.tool = t0; ui(); } return; }
     if (C.tool === 'rsel') { const m = normHit(h); if (m) C.msel = inMsel(m.t, m.id) ? C.msel.filter(x => !(x.t === m.t && x.id === m.id)) : [...C.msel, m]; else C.msel = []; C.sel = null; ui(); draw(); return; }
-    if (C.tool === 'pts') { if (!C.ptsP && h && (h.t === 'frame' || h.t === 'fr-h')) { C.sel = {t: 'frame', id: h.id}; ui(); draw(); return; } ptsTap(g.p0.x, g.p0.y); return; }
+    if (C.tool === 'pts') { if (h && (h.t === 'frame' || h.t === 'fr-h')) { C.sel = {t: 'frame', id: h.id}; ui(); draw(); return; } toast('4 угла — протяни рамку по диагонали по фото стены'); return; }
     if (C.msel.length) C.msel = [];
     if (B6tap(g, h)) return;
     if (B4tap(g, h)) return;
@@ -1158,12 +1191,12 @@
   document.addEventListener('pointerdown', e => {
     const src = e.target.closest('#ch [data-q], #zpSlots [data-q], #tb .tl[data-k]'); if (!src) return;
     e.preventDefault(); e.stopPropagation();
-    DG = {k: src.dataset.q || src.dataset.k, from: src.closest('#tb') ? 'tb' : rowKey(src), el: src, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false};
+    DG = {k: src.dataset.q || src.dataset.k, from: src.closest('#tb') ? 'tb' : rowKey(src), el: src, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, t0: performance.now()};
     try { src.setPointerCapture(e.pointerId); } catch (_) { }
   }, true);
   document.addEventListener('pointermove', e => {
     if (!DG || e.pointerId !== DG.id) return;
-    if (!DG.moved) { if (hyp(e.clientX - DG.x0, e.clientY - DG.y0) < 8) return; DG.moved = true; ghost.innerHTML = (REG[DG.k] || {}).icon || ''; ghost.classList.add('on'); DG.el.classList.add('dg-src'); }
+    if (!DG.moved) { if (hyp(e.clientX - DG.x0, e.clientY - DG.y0) < 8) return; if (performance.now() - DG.t0 < 600) { DG = null; return; } DG.moved = true; /* правка строк — после удержания 600 мс (замечание 2) */ ghost.innerHTML = (REG[DG.k] || {}).icon || ''; ghost.classList.add('on'); DG.el.classList.add('dg-src'); }
     ghost.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
     dgClear(); DG.el.classList.add('dg-src'); const t = dgTarget(e.clientX, e.clientY);
     if (t && t.t === 'del' && DG.from !== 'tb') $('bDelS').classList.add('dg-del');
@@ -1191,7 +1224,7 @@
     document.querySelectorAll('#mdT [data-md]').forEach(b => b.classList.toggle('on', b.dataset.md === C.mode));
     $('bUnd').classList.toggle('dis', !HS.u.length); $('bRed').classList.toggle('dis', !HS.r.length); $('bDelS').classList.toggle('dis', (!C.sel && !C.msel.length) || !!C.crop);
     $('labCrop').classList.toggle('on', !!C.crop); $('fws').classList.toggle('on', !!C.phm && !C.crop && !KB.tg);
-    const box = $('zpAct'), s = C.sel, B = []; box.innerHTML = '';
+    const box = $('zMods'), s = C.sel, B = []; box.innerHTML = ''; $('zpAct').innerHTML = '';
     if (s && s.t === 'photo' && !C.crop) B.push(['✂', cropStart, 'Подрезать фото (рамка; исходник сохраняется)']);
     else if (s && s.t === 'frame') { const f = frame(s.id), w = f && f.wall && wall(f.wall);
       if (f) B.push(['<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#t-wallseg"/></svg>', () => frameWall(f), w ? `Стена С${w.gn} — показать` : 'Стена по рамке: L × H']); }
@@ -1200,7 +1233,7 @@
     if (typeof B3act === 'function') B3act(s, B);
     if (typeof B4act === 'function') B4act(s, B);
     if (typeof B6act === 'function') B6act(s, B);
-    if (B.length) { const sp = document.createElement('span'); sp.className = 'sep'; box.appendChild(sp); }
+    box.classList.toggle('on', B.length > 0);
     for (const [h, fn, ti] of B) { const b = document.createElement('button'); b.innerHTML = h; b.title = ti || ''; act(b, fn); box.appendChild(b); }
     if (typeof B3ui === 'function') B3ui();
   }
@@ -1294,7 +1327,7 @@
     let el = $('rmList'); if (!el) { el = document.createElement('div'); el.id = 'rmList'; el.className = 'sheet'; document.body.appendChild(el); }
     if (el.classList.contains('on')) { el.classList.remove('on'); return; }
     el.innerHTML = '<div class="hd"><b>План помещений</b><button data-x>✕</button></div>' + (D.rooms.length ? D.rooms.map(r => `<button class="row" data-r="${r.id}"><span>${esc(r.name)}</span><span class="mu">H ${r.H || '?'} · стен ${r.walls.length}</span></button>`).join('') : '<div class="mu" style="padding:10px">Помещений нет · «Новое помещение» — провести границу на плане</div>');
-    el.querySelectorAll('[data-r]').forEach(b => act(b, () => { const r = room(b.dataset.r); el.classList.remove('on'); C.mode = 'plan'; C.sel = {t: 'room', id: r.id};
+    el.querySelectorAll('[data-r]').forEach(b => act(b, () => { const r = room(b.dataset.r); el.classList.remove('on'); C.sel = {t: 'room', id: r.id};
       const c = r.poly.reduce((o, [x, y]) => [o[0] + x / r.poly.length, o[1] + y / r.poly.length], [0, 0]); V.ox = cssW() / 2 - c[0] * V.s; V.oy = cssH() / 2 - c[1] * V.s; viewChanged(); ui(); }));
     act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
   }
@@ -1352,6 +1385,123 @@
   impIn.onchange = async () => { const f = impIn.files[0]; impIn.value = ''; if (f) await importPrj(await f.text()); };
   Object.assign(IMPL, {note: 1, room: 1, plan: roomList, exp: exportPrj, imp: () => impIn.click()});
 
+  /* ═══ [BLOCK C-W13] Вид стены 82.13 на холсте (вариант B, 12.11.2026): развёртка над фото; соседние стены по плану (∠° — раскрытие),
+     размеры на гранях — параллельно грани, по центру (поля 82.13: красный текст, пунктирная рамка): верх — L, бока — H, низ — цепочка до граней элементов (номинал);
+     у выбранного прямоугольного — вертикальная цепочка (пол → низ, высота, верх → потолок); касание поля — ввод. Подписи «С№ · L × H» нет.
+     Колонна / ниша (Z) — и на плане (вид сверху) у своей стены. Aa — размер полей 30–160 %; слои видимости (82.13). ═══ */
+  const W3 = (() => { try { const o = JSON.parse(localStorage.getItem('akx-core-w3') || '{}'); return {a: o.a >= 0 && o.a <= 180 ? o.a : 90, f: o.f >= 0.3 && o.f <= 1.6 ? o.f : 1}; } catch (e) { return {a: 90, f: 1}; } })();
+  const w3Sv = () => { try { localStorage.setItem('akx-core-w3', JSON.stringify(W3)); } catch (e) { } };
+  const LAY_N = [['pen', 'перо и пометки'], ['dim', 'размеры'], ['vyn', 'выноски'], ['kom', 'коммуникации'], ['el', 'проёмы и элементы'], ['zon', 'зоны'], ['foto', 'фото']];
+  const LAY = (() => { const d = Object.fromEntries(LAY_N.map(([k]) => [k, true])); try { return Object.assign(d, JSON.parse(localStorage.getItem('akx-core-lay') || '{}')); } catch (e) { return d; } })();
+  const laySv = () => { try { localStorage.setItem('akx-core-lay', JSON.stringify(LAY)); } catch (e) { } };
+  const comLay = c => { const K = CK[c.k] || {}; return K.pt || K.ln ? LAY.kom : (c.k === 'zon' || c.k === 'znd' || c.k === 'shield') ? LAY.zon : LAY.el; };
+  const EDL = [];                                                // поля размеров развёрток: {id (развёртка), k, r (px), …}
+  const STRUCT = new Set(['kol', 'nis', 'kor', 'rig', 'win', 'door']);
+  function edimBox(t, X, Y, vert, ed) {                          // поле 82.13
+    cx.save(); cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; const tw = cx.measureText(t).width + 8 * W3.f, th = 17 * W3.f;
+    cx.translate(X, Y); if (vert) cx.rotate(-Math.PI / 2);
+    cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fillRect(-tw / 2, -th / 2, tw, th); cx.setLineDash([3, 2]); cx.strokeStyle = '#d93025'; cx.lineWidth = 1; cx.strokeRect(-tw / 2 + 0.5, -th / 2 + 0.5, tw - 1, th - 1); cx.setLineDash([]);
+    cx.fillStyle = '#d93025'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
+    return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
+  }
+  const kbIs = (t, id, extra) => KB.tg && KB.tg.t === t && (id == null || KB.tg.id === id) && (!extra || extra(KB.tg));
+  const kbTxt = v => (KB.buf || ' ') + '▏';
+  function sideWalls(w) {                                        // соседние по плану: слева — у узла a, справа — у узла b (вид из помещения)
+    const nb = nid => { const o = D.walls.find(x => x.id !== w.id && (x.a === nid || x.b === nid)); return o ? {w: o, L: wLen(o)} : null; };
+    return {l: nb(w.a), r: nb(w.b)};
+  }
+  function elevChain(e, R) {                                     // низ: 0, грани элементов, L — сегменты (номинал)
+    const els = D.com.filter(c => c.e === e.id && STRUCT.has(c.k) && CK[c.k].rc).map(c => ({c, r: cRect(c)})).filter(o => o.r).sort((a, b) => a.r.x - b.r.x);
+    const P = [{x: 0}]; for (const o of els) { P.push({x: o.r.x, c: o.c, s: 'L'}); P.push({x: o.r.x + o.r.w, c: o.c, s: 'R'}); } P.push({x: R.w});
+    const S = []; for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i], v = b.x - a.x; if (Math.abs(v) < 0.5) continue;
+      S.push({x0: a.x, x1: b.x, v, own: a.c && a.s === 'L' && b.c === a.c ? {c: a.c, k: 'w'} : b.c && b.s === 'L' ? {c: b.c, k: 'gapL'} : a.c && a.s === 'R' ? {c: a.c, k: 'gapR'} : null}); }
+    return {S, has: els.length > 0};
+  }
+  function drawElev(e) {
+    const r = elevRect(e), w = wall(e.wall); if (!w) return;
+    const [x, y] = toS(r.x, r.y), W = r.w * V.s, H = r.h * V.s, on = (C.sel && C.sel.t === 'elev' && C.sel.id === e.id) || inMsel('elev', e.id);
+    // соседние стены: раскрытие ∠° (0 — сложены, 90 — прямой угол, 180 — развёрнуты)
+    const th = (180 - W3.a) * Math.PI / 180, sw = sideWalls(w);
+    for (const [sd, o] of [[-1, sw.l], [1, sw.r]]) { if (!o) continue; const d = o.L * V.s, dx = sd * d * (Math.cos(th) + Math.sin(th) * 0.35), dy = d * Math.sin(th) * 0.35, X0 = sd < 0 ? x : x + W;
+      cx.beginPath(); cx.moveTo(X0, y); cx.lineTo(X0 + dx, y + dy); cx.lineTo(X0 + dx, y + H + dy); cx.lineTo(X0, y + H); cx.closePath(); cx.fillStyle = '#e9e3da'; cx.fill(); cx.strokeStyle = '#b9b2a6'; cx.lineWidth = 1; cx.stroke();
+      cx.save(); cx.font = '600 11px system-ui'; cx.fillStyle = '#6b6457'; cx.translate(X0 + dx / 2, y + H / 2 + dy / 2); cx.rotate(sd * Math.PI / 2); cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('С' + o.w.gn, 0, 0); cx.restore(); }
+    cx.fillStyle = '#dbe9f7'; cx.fillRect(x, y, W, H);
+    cx.strokeStyle = on ? COL.sel : '#1f6fd1'; cx.lineWidth = on ? 3 : 2; cx.strokeRect(x, y, W, H);
+    cx.font = `700 ${Math.round(12 * W3.f)}px system-ui`; cx.fillStyle = '#1f6fd1'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('С' + w.gn, x + 5, y + 14 * W3.f);
+  }
+  function drawElevDims() {                                      // после объектов стены — поля сверху всего
+    EDL.length = 0; if (!LAY.dim) return;
+    for (const e of D.elev) { const w = wall(e.wall); if (!w) continue; const R = elevRect(e), [x, y] = toS(R.x, R.y), W = R.w * V.s, H = R.h * V.s;
+      EDL.push({id: e.id, k: 'L', r: edimBox(kbIs('wall', w.id) ? kbTxt() : num(R.w), x + W / 2, y, false, kbIs('wall', w.id))});
+      for (const X of [x, x + W]) EDL.push({id: e.id, k: 'H', r: edimBox(kbIs('H') ? kbTxt() : num(R.h), X, y + H / 2, true, kbIs('H'))});
+      const ch = elevChain(e, R); if (!ch.has) EDL.push({id: e.id, k: 'L', r: edimBox(num(R.w), x + W / 2, y + H, false, false)});
+      else ch.S.forEach((s, i) => { const ed = kbIs('eSeg', e.id, t => t.i === i); EDL.push({id: e.id, k: 'seg', i, s, r: edimBox(ed ? kbTxt() : num(s.v), x + (s.x0 + s.x1) / 2 * V.s, y + H, false, ed)}); });
+      const sc = C.sel && C.sel.t === 'com' && com(C.sel.id); if (sc && sc.e === e.id && CK[sc.k].rc) { const rr = cRect(sc), X = x + (rr.x + rr.w) * V.s + 12 * W3.f;
+        const seg = [['F', 0, rr.y], ['h', rr.y, rr.y + rr.h], ['C', rr.y + rr.h, R.h]];
+        for (const [k, y0, y1] of seg) { if (y1 - y0 < 0.5) continue; const ed = k === 'h' ? kbIs('cH', sc.id) : kbIs('cOf', sc.id, t => t.side === k);
+          EDL.push({id: e.id, k: 'v' + k, c: sc.id, r: edimBox(ed ? kbTxt() : num(y1 - y0), X, y + H - (y0 + y1) / 2 * V.s, true, ed)}); }
+        if (kbIs('cW', sc.id)) edimBox('W ' + kbTxt(), x + (rr.x + rr.w / 2) * V.s, y + H - (rr.y + rr.h / 2) * V.s, false, true); } }
+  }
+  function edHit(sx, sy) { for (let i = EDL.length - 1; i >= 0; i--) { const o = EDL[i], r = o.r; if (sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4) return {t: 'edim', id: o.id, o}; } return null; }
+  function edTap(h) {
+    const o = h.o, e = elev(h.id), w = e && wall(e.wall); if (!w) return;
+    if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
+    else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('H', null); }
+    else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
+    else if (o.k === 'vh') { C.sel = {t: 'com', id: o.c}; openKb('cH', o.c); }
+    else { C.sel = {t: 'com', id: o.c}; openKb('cOf', o.c); KB.tg.side = o.k.slice(1); const c = com(o.c), r = cRect(c); KB.buf = String(rnd(o.k === 'vF' ? r.y : r.R.h - r.y - r.h)); }
+    ui(); draw();
+  }
+  function segApply(tg, v) {                                     // правка звена цепочки: ширина элемента или зазор до его грани
+    const s = tg.s, own = s && s.own; if (!own || !(v >= 0)) { toast('Это звено — от края до края стены: длина вводится сверху'); return; }
+    const c = com(own.c.id); if (!c) return; const r = cRect(c); begin(); delete c.ex;
+    if (own.k === 'w') { c.x = r.x; c.w = Math.max(1, rnd(v)); }
+    else if (own.k === 'gapL') c.x = rnd(r.x + (v - s.v));            // зазор слева от элемента — элемент сдвигается
+    else c.x = rnd(r.x - (v - s.v));                                   // зазор справа (до края / следующего) — элемент сдвигается влево
+    commit();
+  }
+  /* колонна / ниша на плане (вид сверху): у своей стены, ширина — по развёртке, глубина — Z (без Z — отрезок ширины по стене) */
+  function drawPlanCols() {
+    for (const c of D.com) { if (c.k !== 'kol' && c.k !== 'nis') continue; const e = elev(c.e), w = e && wall(e.wall), a = w && node(w.a), b = w && node(w.b); if (!a || !b) continue;
+      const L = wLen(w); if (!L) continue; const r = cRect(c), ux = (b.x - a.x) / L, uy = (b.y - a.y) / L, nx = -uy, ny = ux;
+      const p0 = {x: a.x + ux * r.x, y: a.y + uy * r.x}, p1 = {x: a.x + ux * (r.x + r.w), y: a.y + uy * (r.x + r.w)}, sel = C.sel && C.sel.t === 'com' && C.sel.id === c.id, col = sel ? COL.sel : CK[c.k].c;
+      if (c.D) { const d = c.D, Q = [p0, p1, {x: p1.x + nx * d, y: p1.y + ny * d}, {x: p0.x + nx * d, y: p0.y + ny * d}].map(q => toS(q.x, q.y));
+        cx.beginPath(); Q.forEach(([X, Y], i) => (i ? cx.lineTo(X, Y) : cx.moveTo(X, Y))); cx.closePath(); cx.fillStyle = col + '55'; cx.fill(); cx.strokeStyle = col; cx.lineWidth = 1.5; if (c.D < 0) cx.setLineDash([4, 3]); cx.stroke(); cx.setLineDash([]); }
+      else { const A = toS(p0.x, p0.y), B = toS(p1.x, p1.y); cx.strokeStyle = col; cx.lineWidth = 7; cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); } }
+  }
+  /* ∠° и Aa — ползунок 82.13 (w3Slider) */
+  function w3Slider(t) {
+    const sl = $('w3sl'), i = sl.querySelector('input'), on = !sl.classList.contains('on') || sl.dataset.t !== t; sl.dataset.t = t; sl.classList.toggle('on', on);
+    document.querySelectorAll('#mdT [data-w3s]').forEach(b => b.classList.toggle('on', on && b.dataset.w3s === t)); if (!on) return;
+    const sp = sl.querySelectorAll('.t span'), up = () => { sl.querySelector('.v').textContent = t === 'a' ? 'Раскрытие боковых стен · ' + W3.a + '°' : 'Размер полей · ' + Math.round(W3.f * 100) + ' %'; };
+    if (t === 'a') { i.min = 0; i.max = 180; i.value = W3.a; [sp[0].textContent, sp[1].textContent, sp[2].textContent] = ['0° · сложены', '90° · прямой угол', '180° · развёрнуты']; }
+    else { i.min = 30; i.max = 160; i.value = Math.round(W3.f * 100); [sp[0].textContent, sp[1].textContent, sp[2].textContent] = ['30 %', '100 %', '160 %']; }
+    i.oninput = () => { if (t === 'a') W3.a = +i.value; else W3.f = i.value / 100; up(); draw(); }; i.onchange = w3Sv; up();
+  }
+  document.querySelectorAll('#mdT [data-w3s]').forEach(b => act(b, () => w3Slider(b.dataset.w3s)));
+  act($('bDimL'), () => { LAY.dim = !LAY.dim; laySv(); $('bDimL').classList.toggle('on', LAY.dim); draw(); toast(LAY.dim ? 'Размеры видны' : 'Размеры скрыты'); });
+  $('bDimL').classList.toggle('on', LAY.dim);
+  function layPanel() {
+    let el = $('lay'); if (!el) { el = document.createElement('div'); el.id = 'lay'; el.className = 'sheet'; document.body.appendChild(el); }
+    el.innerHTML = '<div class="hd"><b>Слои</b><button data-x>✕</button></div>' + LAY_N.map(([k, n]) => `<label class="row"><input type="checkbox" data-lay="${k}"${LAY[k] ? ' checked' : ''}> ${n}</label>`).join('');
+    el.querySelectorAll('[data-lay]').forEach(i => i.onchange = () => { LAY[i.dataset.lay] = i.checked; laySv(); if (i.dataset.lay === 'foto') { C.phHide = !i.checked; $('zpE').classList.toggle('off', C.phHide); } if (i.dataset.lay === 'dim') $('bDimL').classList.toggle('on', LAY.dim); draw(); });
+    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
+  }
+  /* стилус (82.13 bPen): «рисует стилус» — после первого касания пером палец в инструментах рисования двигает и масштабирует; ладонь при пере — не в счёт */
+  const PEN = {on: (() => { try { return localStorage.getItem('akx-core-pen') !== '0'; } catch (e) { return true; } })(), seen: false, down: 0};
+  const penTxt = () => '🖊 Стилус: ' + (PEN.on ? 'рисует стилус' : 'выкл — палец тоже рисует');
+  const drawTool = () => C.tool !== 'sel' && C.tool !== 'rsel';
+  /* меню ⋮ (82.13) */
+  (() => { const m = $('zMenu'); m.innerHTML = '<button id="bExp">⇪ Выгрузка для Akrix</button><button id="bPenM"></button><button id="bLay">◫ Слои</button><button id="bBak">💾 Резервная копия</button><button id="bRes">♻ Восстановить</button><button id="bRms">⌂ Помещения / группы стен</button><button id="bUpdChk">⟳ Проверить обновления</button><button id="bStripRs">Строки инструментов — по умолчанию</button>';
+    $('bPenM').textContent = penTxt(); })();
+  const mClose = () => $('zMenu').classList.remove('on');
+  act($('bExp'), () => { mClose(); toast('Выгрузка для Akrix v3 — блок Б7 (следующий)'); });
+  act($('bPenM'), () => { PEN.on = !PEN.on; try { localStorage.setItem('akx-core-pen', PEN.on ? '1' : '0'); } catch (e) { } $('bPenM').textContent = penTxt(); mClose(); toast(penTxt()); });
+  act($('bLay'), () => { mClose(); layPanel(); });
+  act($('bBak'), () => { mClose(); exportPrj(); });
+  act($('bRes'), () => { mClose(); impIn.click(); });
+  act($('bRms'), () => { mClose(); roomList(); });
+
   /* ═══ [BLOCK C-BACK] системная «назад» Android: локальные действия; false — выйти можно ═══ */
   window.AkrixBack = () => {
     if (KB.tg) { closeEd(false); return true; }
@@ -1382,7 +1532,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
