@@ -259,7 +259,14 @@
     if (s.t === 'dim') { const d = dim(s.id), q = d && (surf(d.a) || surf(d.b)); return q && q.startsWith('e:') ? q.slice(2) : null; } return null; }
   const dimOn = (d, act) => { const q = surf(d.a) || surf(d.b); return !q || q === 'plan' || q === 'e:' + act; };
   /* привязка конца размера: точка (узел, угол фото/развёртки, конец размера) → грань (стена, край развёртки/фото) → поверхность (фото, развёртка) → свободно */
+  /* ∟ у размера / стрелки (82.35.2): конец строго по горизонтали / вертикали от начала; привязка к точке — только её координата вдоль оси (точка не на оси — свободный конец на оси) */
   function snapDim(sx, sy, skipDim, from) {
+    const r = snapDim0(sx, sy, skipDim, from); if (!from || !md('L') || !r) return r;
+    const A = endPos(from), q0 = toW(sx, sy), P = endPos(r), hz = Math.abs(q0.x - A.x) >= Math.abs(q0.y - A.y);
+    if (hz ? Math.abs(P.y - A.y) < 0.5 : Math.abs(P.x - A.x) < 0.5) return r;
+    return surfAt(hz ? {x: P.x, y: A.y} : {x: A.x, y: P.y});
+  }
+  function snapDim0(sx, sy, skipDim, from) {
     let best = null, bd = 20; const q0 = toW(sx, sy);
     if (!md('sn')) { const q = from ? lineSnap(endPos(from), q0) : q0; return surfAt(q); }   // 🧲 выкл — без привязки
     const pt = (x, y, e) => { const [X, Y] = toS(x, y), dd = hyp(X - sx, Y - sy); if (dd < bd) { bd = dd; best = {...e, x: rnd(x * 10) / 10, y: rnd(y * 10) / 10}; } };
@@ -475,7 +482,7 @@
   function drwNew(k, W, o) {
     const h = hostAt(W[0]); begin(); const z = zo(k), q = {id: uid('g'), k, c: C.col, h, p: [], ...(z.dash ? {dash: 1} : {}), ...(z.fill && (k === 'rect' || k === 'circ') ? {fill: 1} : {}), ...(z.rnd && k === 'rect' ? {rnd: 1} : {}), ...o}; if (k === 'ln') setDir(W[0], W[1]); drwSet(q, W); D.drw.push(q); C.sel = /^(txt|pin|note|vyn)$/.test(k) ? {t: 'drw', id: q.id} : null; commit(); return q;   // 82.35.1: нарисованное не остаётся выделенным (текст — для ввода)
   }
-  const snap90 = (A, q) => { const dx = q.x - A.x, dy = q.y - A.y, m = ((Math.atan2(dy, dx) * 180 / Math.PI) % 90 + 90) % 90; return m < 6 || m > 84 ? (Math.abs(dx) >= Math.abs(dy) ? {x: q.x, y: A.y} : {x: A.x, y: q.y}) : q; };
+  const snap90 = (A, q) => { const dx = q.x - A.x, dy = q.y - A.y; return Math.abs(dx) >= Math.abs(dy) ? {x: q.x, y: A.y} : {x: A.x, y: q.y}; };   // ∟ — строго 0 / 90° (82.35.2; было: только в пределах 6°)
   function circ3(A, B, Cc) {                                     // окружность через 3 точки (px) — как zdCirc3 v81
     const d = 2 * (A[0] * (B[1] - Cc[1]) + B[0] * (Cc[1] - A[1]) + Cc[0] * (A[1] - B[1])); if (Math.abs(d) < 1e-6) return null;
     const a2 = A[0] * A[0] + A[1] * A[1], b2 = B[0] * B[0] + B[1] * B[1], c2 = Cc[0] * Cc[0] + Cc[1] * Cc[1];

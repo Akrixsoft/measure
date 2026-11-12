@@ -49,6 +49,8 @@ require('./qa-h-0015.cjs')(process.argv[2], 9358).then(async h => {
   // стрелка и размер рисуются; после рисования — без выделения
   for (const k of ['arr', 'dim']) { const n0 = (await doc()).dims.length; await h.tool(k); await h.drag([120, 250], [300, 250]); const D2 = await doc();
     ok(k + ' нарисован, не выделен', D2.dims.length === n0 + 1 && D2.dims[D2.dims.length - 1].k === k && !(await M('MeasureCore.sel')), {n: D2.dims.length, sel: await M('MeasureCore.sel')}); }
+  { await h.tool('arr'); await h.drag([120, 200], [300, 150]); const D3 = await doc(), q = D3.dims[D3.dims.length - 1], A = await M(`MeasureCore.endPos(${JSON.stringify(q.a)})`), B = await M(`MeasureCore.endPos(${JSON.stringify(q.b)})`);
+    ok('∟ вкл: стрелка по диагонали → горизонтально', Math.abs(A.y - B.y) < 0.5, [A, B]); }
   await shot('arrow-dim');
   await M(`localStorage.removeItem('akx-core-cfg')`);
   await finish();
