@@ -181,7 +181,7 @@
   function labelA(t, X, Y, ang, col, L) {
     if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
     cx.save(); cx.font = `600 ${Math.round(TXP())}px system-ui`; const th = FLP(), tw = Math.max(th, cx.measureText(t).width + th * 0.55);
-    [X, Y] = fPlace(X, Y, tw, th, ang, L); cx.translate(X, Y); cx.rotate(ang); rrect(-tw / 2, -th / 2, tw, th, 3);
+    [X, Y] = fPlace(X, Y, tw, th, ang, L); cx.translate(X, Y); cx.rotate(ang); rrect(-tw / 2, -th / 2, tw, th, th * 0.23);
     const y = col === COL.sel; cx.fillStyle = y ? COL.sel : '#fff'; cx.fill(); cx.strokeStyle = y ? '#B89500' : col; cx.lineWidth = 1.2; cx.stroke();
     cx.fillStyle = y ? '#1a2027' : col; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore(); return fbox(X, Y, tw, th, ang);
   }
@@ -258,7 +258,7 @@
       cx.font = `700 ${TXP() * fq}px system-ui`; const fh = FLP() * fq, tw = Math.max(fh, cx.measureText(t).width + fh * 0.55);
       const [cxp, cyp] = fPlace((ax + bx) / 2, (ay + by) / 2, tw, fh, ang, L);
       const fc = edit ? '#c99a1e' : val.kind === 'man' ? '#1a2027' : val.kind === 'geo' ? '#d93025' : '#8a9099';   // введённый — чёрный, авто — красный, ≈ по фото — серый
-      cx.save(); cx.translate(cxp, cyp); cx.rotate(ang); rrect(-tw / 2, -fh / 2, tw, fh, 3);
+      cx.save(); cx.translate(cxp, cyp); cx.rotate(ang); rrect(-tw / 2, -fh / 2, tw, fh, fh * 0.23);
       cx.fillStyle = edit ? '#fff7d1' : '#fff'; cx.fill(); cx.strokeStyle = on ? COLD.sel : fc; cx.lineWidth = on ? 2.4 : 1.2; cx.setLineDash(val.kind === 'man' || edit || on ? [] : [3, 2]); cx.stroke(); cx.setLineDash([]);
       cx.fillStyle = fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
       DLBL.set(d.id, {x: cxp, y: cyp, r: Math.max(tw / 2, 14) + 6});
@@ -1553,7 +1553,16 @@
   window.akrixBtPkt = h => { const b = new Uint8Array(String(h).trim().split(/\s+/).map(x => parseInt(x, 16))), dv = new DataView(b.buffer);
     if (dv.byteLength < 11 || dv.getUint8(0) !== 0xC0 || dv.getUint8(1) !== 0x55 || dv.getUint8(2) !== 0x10) return; const m = dv.getFloat32(7, true); if (!(m > 0 && m < 300)) return; btVal(rnd(m * 1000)); };
   window.akrixBtMsg = t => toast('📡 ' + t);
-  function btVal(mm) { BT.last = mm; if (KB.tg) { KB.buf = String(mm); KB.fresh = false; closeEd(true); toast('📡 ' + mm + ' мм'); } else toast('📡 ' + mm + ' мм · коснись значения — вставить'); }
+  function btVal(mm) { BT.last = mm; if (KB.tg) { KB.buf = String(mm); KB.fresh = false; closeEd(true); toast('📡 ' + mm + ' мм'); } else if (!lqApply(mm)) toast('📡 ' + mm + ' мм · коснись стены или значения — вставить'); }
+  /* ═══ [BLOCK LQ] 82.35.18: лазер по порядку (как v81, R3): поле не открыто — значение в длину выбранной стены (план или развёртка), выбор переходит к следующей незамеренной стене по номеру ═══ */
+  function lqApply(mm) {
+    const s0 = C.sel, w = s0 && (s0.t === 'wall' ? wall(s0.id) : s0.t === 'elev' && elev(s0.id) ? wall(elev(s0.id).wall) : null); if (!w) return false;
+    openKb('wall', w.id); KB.buf = String(mm); KB.fresh = false; closeEd(true);
+    const ws = D.walls.slice().sort((a, b) => (a.gn || 0) - (b.gn || 0)), i = ws.indexOf(w), nx = ws.slice(i + 1).concat(ws.slice(0, i)).find(q => !q.fx);
+    if (nx) { const e = D.elev.find(q => q.wall === nx.id); C.sel = s0.t === 'elev' && e ? {t: 'elev', id: e.id} : {t: 'wall', id: nx.id}; toast('📡 С' + w.gn + ' = ' + mm + ' → С' + nx.gn); }
+    else { C.sel = s0; toast('📡 С' + w.gn + ' = ' + mm + ' · все стены замерены'); }
+    ui(); draw(); return true; }
+  /* ═══ [/BLOCK LQ] ═══ */
   act($('bBtH'), () => { const N = window.AkrixBT; if (!N) { toast('Лазер — только в приложении'); return; } if (BT.st === 'on') { try { N.measure(); } catch (e) { } } else { BT.st = 'wait'; btBtn(); N.connect(); } });
   act($('bSes'), () => prjList('main'));
   const impIn = document.createElement('input'); impIn.type = 'file'; impIn.accept = '.json,application/json'; impIn.hidden = true; document.body.appendChild(impIn);
@@ -1576,7 +1585,7 @@
     if (!ed && !ent) t = '?'; const k = ed ? 1 : fkE(t, L); if (TXP() * k < 5) return FHID;   // 82.35.14: по центру грани, не длиннее грани
     cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55), a = vert ? -Math.PI / 2 : 0;
     cx.translate(X, Y); if (vert) cx.rotate(a);
-    rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
+    rrect(-tw / 2, -th / 2, tw, th, th * 0.23);   /* 82.35.18: закругление как у полей v81 (5 при высоте 22) */ cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
     cx.fillStyle = ed ? '#1a2027' : fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     return vert ? {x: X - th / 2, y: Y - tw / 2, w: th, h: tw} : {x: X - tw / 2, y: Y - th / 2, w: tw, h: th};
   }
@@ -1584,7 +1593,7 @@
     if (!ed && !ent) t = '?'; const k = ed ? 1 : fkE(t, L); if (TXP() * k < 5) return FHID;   // 82.35.14: по центру ребра, не длиннее ребра
     cx.save(); cx.font = `700 ${TXP() * k}px system-ui`; const th = FLP() * k, tw = Math.max(th, cx.measureText(t).width + th * 0.55);
     cx.translate(X, Y); cx.rotate(a);
-    rrect(-tw / 2, -th / 2, tw, th, 3 * k); cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
+    rrect(-tw / 2, -th / 2, tw, th, th * 0.23);   /* 82.35.18: закругление как у полей v81 (5 при высоте 22) */ cx.fillStyle = ed ? '#fff7d1' : '#fff'; cx.fill(); const fc = ed ? '#c99a1e' : ent ? '#1a2027' : '#d93025'; cx.setLineDash(ent || ed ? [] : [3, 2]); cx.strokeStyle = fc; cx.lineWidth = 1.2; cx.stroke(); cx.setLineDash([]);
     cx.fillStyle = ed ? '#1a2027' : fc; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 0, 0.5); cx.restore();
     const b = fbox(X, Y, tw, th, a); return b;
   }
@@ -2108,7 +2117,7 @@
   function updReady() { const N = window.AkrixUpdate; if (N && typeof N.ready === 'function') try { N.ready(String(window.MeasureVersion || '')); } catch (e) { } }
 
   /* ═══ [BLOCK C-API] для проверки и будущего переходника выгрузки v3 ═══ */
-  window.MeasureCore = {w3px: () => W3PX.map(o => ({...o})), w3Sides: id => w3Sides(elev(id), elevRect(elev(id))).map(q => ({sd: q.sd, vis: q.vis, sx: q.sx, sz: q.sz, Dp: q.Dp})), scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, set sel(v) { C.sel = v; ui(); draw(); }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, draw: () => draw(), recognize: id => recognize(frame(id)), exportAkrix, edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
+  window.MeasureCore = {w3px: () => W3PX.map(o => ({...o})), w3Sides: id => w3Sides(elev(id), elevRect(elev(id))).map(q => ({sd: q.sd, vis: q.vis, sx: q.sx, sz: q.sz, Dp: q.Dp})), scaleInfo: () => { let st = 100; while (st * V.s < 14) st *= 10; return {cell: st}; }, get doc() { return D; }, get view() { return V; }, get sel() { return C.sel; }, set sel(v) { C.sel = v; draw(); }, set sel(v) { C.sel = v; ui(); draw(); }, get tool() { return C.tool; }, get crop() { return C.crop; }, get msel() { return C.msel; }, frPts, rsPick, drwPts: id => drwW(drw(id)), get phHide() { return C.phHide; }, draw: () => draw(), recognize: id => recognize(frame(id)), exportAkrix, edl: () => EDL.map(o => ({k: o.k, i: o.i, s: o.s, r: o.r})), elabels: () => [...ELBL.values()], exportPrj, importPrj, allPrj, btVal, roomWalls, comPx: id => comPx(com(id)), cRect: id => cRect(com(id)), get col() { return C.col; }, get lw() { return LW.v; }, hs: HS, toS, toW, hit, endPos, dimVal, dlabels: () => [...DLBL].map(([id, r]) => ({id, ...r})), get kb() { return KB.tg; }, save, fitAll, wLen, phH, elevRect, labels: () => [...LBL].map(([id, r]) => ({id, ...r}))};
 
   /* ═══ [BLOCK C-INIT] ═══ */
   (async () => {
