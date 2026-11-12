@@ -1815,9 +1815,8 @@
           const r = edimBox(t, m0[0], m0[1], sg.kind === 'H', ed, en, (sg.kind === 'H' ? Math.abs(P1[1] - P0[1]) : v) * V.s);
           EDL.push({id: e.id, k: sg.kind === 'H' ? 'eE' : dv ? 'eE' : 'L', side, i, s: sg, r}); return; }
         const ed = kbIs('eSeg', e.id, t => t.i === i), t = ed ? kbTxt() : num(sg.v), m = (sg.a + sg.b) / 2;
-        let vo = sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol ? sg.A.vol.c : null;
-        if (!vo) vo = D.com.find(c => c.e === e.id && (CK[c.k] || {}).D && comLay(c) && (() => { const r = cRect(c); return sg.ax === 'x' ? Math.abs(sg.a - r.x) < 1 && Math.abs(sg.b - r.x - r.w) < 1 : Math.abs(sg.a - r.y) < 1 && Math.abs(sg.b - r.y - r.h) < 1; })()) || null;   // отрезок ровно по объёму (до потолка / края) — тоже его размер
-        const vf = vo && (CK[vo.k] || {}).D ? volFaces(vo) : null;
+        const vo = sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol ? sg.A.vol.c : null, vf = vo && (CK[vo.k] || {}).D ? volFaces(vo) : null;   // размеры цепочек у стены — на своих гранях (82.35.13)
+        if (vf && sg.ax === 'y' && vo.k !== 'kol') return;          // высота объёма — ниже, на его лицевых рёбрах
         if (vf) {                                                    // 82.35.12: размер объёма — на его внешней (лицевой) грани
           const en = sg.ax === 'y' && vo.k === 'kol' ? !!(w.H || D.H) : !!vo['fw' + sg.ax];
           const P0 = sg.ax === 'x' ? [sg.a, vf.y0 > 0.5 ? vf.y0 : vf.y1, vf.z] : [vf.x1 < R.w - 0.5 ? vf.x1 : vf.x0, sg.a, vf.z], P1 = sg.ax === 'x' ? [sg.b, P0[1], vf.z] : [P0[0], sg.b, vf.z];
@@ -1827,9 +1826,10 @@
         const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.12: ширина / высота объёма, не попавшие в цепочки, — на его лицевой грани
-        for (const ax of ['x', 'y']) { if (vSeen.has(c.id + ':' + ax) || (ax === 'y' && c.k === 'kol')) continue; const kk = ax === 'x' ? 'cW' : 'cH', ed = kbIs(kk, c.id), v = ax === 'x' ? vf.x1 - vf.x0 : vf.y1 - vf.y0;
-          const P0 = ax === 'x' ? [vf.x0, vf.y0 > 0.5 ? vf.y0 : vf.y1, vf.z] : [vf.x1 < R.w - 0.5 ? vf.x1 : vf.x0, vf.y0, vf.z], P1 = ax === 'x' ? [vf.x1, P0[1], vf.z] : [P0[0], vf.y1, vf.z], q0 = w3S3(R, P0), q1 = w3S3(R, P1);
-          EDL.push({id: e.id, k: kk, c: c.id, r: edimBox(ed ? kbTxt() : num(v), (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, ax === 'y', ed, !!c['fw' + ax], hyp(q1[0] - q0[0], q1[1] - q0[1]))}); } }
+        const put = (kk, ax, P0, P1) => { const ed = kbIs(kk, c.id), q0 = w3S3(R, P0), q1 = w3S3(R, P1), v = ax === 'x' ? vf.x1 - vf.x0 : vf.y1 - vf.y0;
+          EDL.push({id: e.id, k: kk, c: c.id, r: edimBox(ed ? kbTxt() : num(v), (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, ax === 'y', ed, !!c['fw' + ax], hyp(q1[0] - q0[0], q1[1] - q0[1]))}); };
+        if (!vSeen.has(c.id + ':x')) { const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1; put('cW', 'x', [vf.x0, yy, vf.z], [vf.x1, yy, vf.z]); }
+        if (c.k !== 'kol') for (const xx of [vf.x0, vf.x1]) put('cH', 'y', [xx, vf.y0, vf.z], [xx, vf.y1, vf.z]); }   // высота — на каждом лицевом вертикальном ребре
       if (dv) { const P0 = Cc('D'), P1 = Cc('C'), Lb = hyp(P1[0] - P0[0], P1[1] - P0[1]), Lt = hyp(Cc('B')[0] - Cc('A')[0], Cc('B')[1] - Cc('A')[1]);
         if (Math.abs(Lb - Lt) > 0.5) { const m0 = w3S3(R, [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, 0]), ed = kbIs('eE', e.id, t => t.side === 'b'); EDL.push({id: e.id, k: 'eE', side: 'b', r: edimBox(ed ? kbTxt() : num(Lb), m0[0], m0[1], false, ed, !!(e.w3d.C || e.w3d.D), Lb * V.s)}); } }
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.3: глубина — полем на боковой грани объёма
