@@ -10,7 +10,7 @@ require('./qa-h-0015.cjs')(process.argv[3], 9358).then(async h => {
     const nA = D.nodes.find(n => n.id === w.a), nB = D.nodes.find(n => n.id === w.b), L = Math.hypot(nB.x - nA.x, nB.y - nA.y), f = 1506 / L; nB.x = nA.x + (nB.x - nA.x) * f; nB.y = nA.y + (nB.y - nA.y) * f; w.fx = 1;
     const R = MeasureCore.elevRect(k), Wd = Math.round(R.w);
     D.com.push({id: 'crig', k: 'rig', e: k.id, x: 0, y: 2400, w: Wd, h: 300, D: 200, fwy: 1});
-    D.com.push({id: 'ckor', k: 'kor', e: k.id, x: Wd - 389, y: 0, w: 389, h: 2400, D: 200});
+    D.com.push({id: 'ckor', k: 'kor', e: k.id, x: Wd - 389, y: 0, w: 389, h: 2500, D: 200, fwy: 1});
     MeasureCore.draw(); })()`);
   const fitWall = async s => { await M(`(() => { const D = MeasureCore.doc, r = MeasureCore.elevRect(D.elev[0]), V = MeasureCore.view; V.s = ${s}; V.ox = 206 - (r.x + r.w / 2) * V.s; V.oy = 400 - (r.y + r.h / 2) * V.s; MeasureCore.draw(); })()`); await W(200); };
   await fitWall(0.15); await shot('c7-close');
@@ -25,5 +25,15 @@ require('./qa-h-0015.cjs')(process.argv[3], 9358).then(async h => {
   ok('отдаление ×0,5 → поле ×0,5 (масштаб с холстом)', sz1.h < sz0.h * 0.6 && sz1.h > sz0.h * 0.4, [sz0.h, sz1.h]);
   { const f = await M('MeasureCore.edl().filter(o => o.r.w > 0).map(o => ({...o.r, k: o.k}))'); let hit = 0; for (let i = 0; i < f.length; i++) for (let j = i + 1; j < f.length; j++) { const a = f[i], b = f[j]; if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h && !(a.k === 'D' || b.k === 'D') || ((a.k === 'D') !== (b.k === 'D') && (() => { const d = a.k === 'D' ? a : b, o = a.k === 'D' ? b : a, cx = d.x + d.w / 2, cy = d.y + d.h / 2, r = Math.min(d.w, d.h) * 0.2; return cx + r > o.x && cx - r < o.x + o.w && cy + r > o.y && cy - r < o.y + o.h; })())) hit++;   /* D — повёрнутое: проверка по ядру поля (0,2 описанного квадрата), сверено на снимке */ } ok('отдалено: поля не накладываются', !hit, hit); } await shot('c7-far');
   await fitWall(0.05); ok('далеко — поля скрыты', (await M('MeasureCore.edl().filter(o => o.r.w > 0).length')) === 0); await shot('c7-very-far');
+  // разворот боковых стен 60° (как у владельца): видны внутренний угол короба (К4) и глубина короба на его верхнем ребре; глубина ригеля — слева
+  await h.p.evaluate(() => { localStorage.setItem('akx-core-w3', JSON.stringify({a: 60, f: 1})); }); await h.p.reload(); await h.p.waitForFunction('window.MeasureCore && MeasureCore.ready'); await W(300);
+  await M(`(() => { const D = MeasureCore.doc; if (!D.elev.length) return; })()`);
+  const st = await M(`(() => { const D = MeasureCore.doc, k = D.elev[0]; if (!k) return null; const w = D.walls.find(w => w.id === k.wall); w.H = 2700; D.elev = [k]; const R = MeasureCore.elevRect(k), Wd = Math.round(R.w);
+    D.com = [{id: 'crig', k: 'rig', e: k.id, x: 0, y: 2400, w: Wd, h: 300, D: 200, fwy: 1}, {id: 'ckor', k: 'kor', e: k.id, x: Wd - 389, y: 0, w: 389, h: 2500, D: 200, fwy: 1}]; MeasureCore.draw(); return Wd; })()`);
+  ok('сцена после перезагрузки', !!st, st);
+  if (st) { await fitWall(0.2); await shot('c7-a60');
+    const g = await M(`(() => { const R = MeasureCore.elevRect(MeasureCore.doc.elev[0]), m = MeasureCore.toS(R.x + R.w / 2, 0)[0]; return {m, f: MeasureCore.edl().filter(o => o.r.w > 0).map(o => ({k: o.k, x: o.r.x + o.r.w / 2, y: o.r.y + o.r.h / 2}))}; })()`);
+    ok('60°: высоты на рёбрах — ригель 2 + короб 2 лицевых + внутренний угол короба', g.f.filter(o => o.k === 'cH').length === 5, g.f.map(o => o.k));
+    const Ds = g.f.filter(o => o.k === 'D'); ok('60°: глубина ригеля слева и глубина короба — обе видны', Ds.length === 2 && Ds.some(o => o.x < g.m), Ds); }
   await finish();
 });

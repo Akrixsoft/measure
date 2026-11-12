@@ -1825,22 +1825,34 @@
         if (vf && sg.ax === 'y' && vo.k !== 'kol') return;          // высота объёма — ниже, на его лицевых рёбрах
         if (vf) {                                                    // 82.35.12: размер объёма — на его внешней (лицевой) грани
           const en = sg.ax === 'y' && vo.k === 'kol' ? !!(w.H || D.H) : !!vo['fw' + sg.ax];
-          const P0 = sg.ax === 'x' ? [sg.a, vf.y0 > 0.5 ? vf.y0 : vf.y1, vf.z] : [vf.x1 < R.w - 0.5 ? vf.x1 : vf.x0, sg.a, vf.z], P1 = sg.ax === 'x' ? [sg.b, P0[1], vf.z] : [P0[0], sg.b, vf.z];
+          const P0 = sg.ax === 'x' ? [sg.a, vf.y0, vf.z] : [vf.x1 < R.w - 0.5 ? vf.x1 : vf.x0, sg.a, vf.z], P1 = sg.ax === 'x' ? [sg.b, P0[1], vf.z] : [P0[0], sg.b, vf.z];
           const q0 = w3S3(R, P0), q1 = w3S3(R, P1), r = edimBox(t, (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, sg.ax === 'y', ed, en, hyp(q1[0] - q0[0], q1[1] - q0[1]));
           vSeen.add(vo.id + ':' + sg.ax); EDL.push({id: e.id, k: 'seg', i, s: sg, r}); return; }
+        if (D.com.some(c => c.e === e.id && (CK[c.k] || {}).D && comLay(c) && (() => { const r = cRect(c); return sg.ax === 'y' ? (sg.line < R.w / 2 ? r.x < 1 : r.x + r.w > R.w - 1) && sg.a >= r.y - 1 && sg.b <= r.y + r.h + 1 : (sg.line < R.h / 2 ? r.y < 1 : r.y + r.h > R.h - 1) && sg.a >= r.x - 1 && sg.b <= r.x + r.w + 1; })())) return;   // 82.35.16: отрезок стены за объёмом не виден и не меряется — без поля
         const fx = 'fp' + sg.ax, ent = sg.kind === 'L' ? !!w.fx : sg.kind === 'H' ? !!(w.H || D.H) : (sg.A && sg.B && sg.A.vol && sg.A.vol === sg.B.vol) ? (sg.ax === 'y' && sg.A.vol.c.k === 'kol' ? !!D.H : !!sg.A.vol.c['fw' + sg.ax]) : !!((sg.B && sg.B.vol && sg.B.vol.c[fx]) || (sg.A && sg.A.vol && sg.A.vol.c[fx + 'h']));
         const r = sg.ax === 'x' ? edimBox(t, x + m * V.s, y + H - sg.line * V.s, false, ed, ent, (sg.b - sg.a) * V.s) : edimBox(t, x + sg.line * V.s, y + H - m * V.s, true, ed, ent, (sg.b - sg.a) * V.s);
         EDL.push({id: e.id, k: sg.kind === 'L' ? 'L' : sg.kind === 'H' ? 'H' : 'seg', i, s: sg, r}); });
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.12: ширина / высота объёма, не попавшие в цепочки, — на его лицевой грани
         const put = (kk, ax, P0, P1) => { const ed = kbIs(kk, c.id), q0 = w3S3(R, P0), q1 = w3S3(R, P1), v = ax === 'x' ? vf.x1 - vf.x0 : vf.y1 - vf.y0;
           EDL.push({id: e.id, k: kk, c: c.id, r: edimBox(ed ? kbTxt() : num(v), (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, ax === 'y', ed, !!c['fw' + ax], hyp(q1[0] - q0[0], q1[1] - q0[1]))}); };
-        if (!vSeen.has(c.id + ':x')) { const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1; put('cW', 'x', [vf.x0, yy, vf.z], [vf.x1, yy, vf.z]); }
-        if (c.k !== 'kol') for (const xx of [vf.x0, vf.x1]) put('cH', 'y', [xx, vf.y0, vf.z], [xx, vf.y1, vf.z]); }   // высота — на каждом лицевом вертикальном ребре
+        /* ═══ [BLOCK VOL-EDGES] 82.35.16: размер — на каждом доступном (видимом и измеряемом) ребре объёма ═══ */
+        if (!vSeen.has(c.id + ':x')) put('cW', 'x', [vf.x0, vf.y0, vf.z], [vf.x1, vf.y0, vf.z]);   // низ лицевой грани
+        put('cW', 'x', [vf.x0, vf.y1, vf.z], [vf.x1, vf.y1, vf.z]);                                  // верх лицевой грани (у потолка — примыкание)
+        if (c.k !== 'kol') { for (const xx of [vf.x0, vf.x1]) put('cH', 'y', [xx, vf.y0, vf.z], [xx, vf.y1, vf.z]);   // лицевые вертикальные рёбра
+          const room = xx => { const p = w3S3(R, [xx, (vf.y0 + vf.y1) / 2, 0]), q = w3S3(R, [xx, (vf.y0 + vf.y1) / 2, vf.z]); return Math.abs(q[0] - p[0]) > FLP() * fk() * 1.5; };   // разворот даёт место между задним и лицевым ребром
+          for (const f of vf.F) { if (f.k === 'l' && vf.x0 > 0.5 && room(vf.x0)) put('cH', 'y', [vf.x0, vf.y0, 0], [vf.x0, vf.y1, 0]); if (f.k === 'r' && vf.x1 < R.w - 0.5 && room(vf.x1)) put('cH', 'y', [vf.x1, vf.y0, 0], [vf.x1, vf.y1, 0]); } }   // внутренний угол объёма со стеной
+        /* ═══ [/BLOCK VOL-EDGES] ═══ */ }
       if (dv) { const P0 = Cc('D'), P1 = Cc('C'), Lb = hyp(P1[0] - P0[0], P1[1] - P0[1]), Lt = hyp(Cc('B')[0] - Cc('A')[0], Cc('B')[1] - Cc('A')[1]);
         if (Math.abs(Lb - Lt) > 0.5) { const m0 = w3S3(R, [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, 0]), ed = kbIs('eE', e.id, t => t.side === 'b'); EDL.push({id: e.id, k: 'eE', side: 'b', r: edimBox(ed ? kbTxt() : num(Lb), m0[0], m0[1], false, ed, !!(e.w3d.C || e.w3d.D), Lb * V.s)}); } }
       for (const c of D.com) { if (c.e !== e.id || !(CK[c.k] || {}).D || !comLay(c)) continue; const vf = volFaces(c); if (!vf) continue;   // 82.35.3: глубина — полем на боковой грани объёма
-        const yy = vf.y0 > 0.5 ? vf.y0 : vf.y1 < R.h - 0.5 ? vf.y1 : vf.y0, cand = [vf.x0, vf.x1];   /* рёбра глубины видны всегда (82.35.12) */
-        const dl = x => { const p = w3P(R, x, yy, 0), q = w3P(R, x, yy, vf.z); return hyp(q[0] - p[0], q[1] - p[1]); }, xx = (cand.length ? cand : [vf.x0]).sort((u, v) => dl(v) - dl(u))[0];   // 82.35.14: глубина — на самом длинном видимом ребре глубины
+        /* 82.35.16: ребро глубины — доступное: 1) верх свободной боковой (не у стены, не у потолка) — видно и достаётся снизу; 2) низ свободной боковой над полом;
+           3) низ боковой у стены (не над полом), не закрытый другим объёмом снизу — напр. ригель вдоль боковой стены; 4) низ свободной боковой по полу */
+        const fr = [vf.x0 > 0.5 ? vf.x0 : null, vf.x1 < R.w - 0.5 ? vf.x1 : null].filter(x => x != null), wl = [vf.x0 <= 0.5 ? vf.x0 : null, vf.x1 >= R.w - 0.5 ? vf.x1 : null].filter(x => x != null);
+        const cov = (x, y) => D.com.some(o => o !== c && o.e === e.id && (CK[o.k] || {}).D && comLay(o) && (() => { const r = cRect(o), xi = x <= 0.5 ? x + 1 : x - 1; return xi >= r.x && xi <= r.x + r.w && y - 1 >= r.y && y - 1 <= r.y + r.h; })());
+        const dl = (x, y) => { const p = w3P(R, x, y, 0), q = w3P(R, x, y, vf.z); return hyp(q[0] - p[0], q[1] - p[1]); }, best = a => a.sort((u, v) => dl(v[0], v[1]) - dl(u[0], u[1]))[0];
+        const pick = (vf.y1 < R.h - 0.5 && fr.length ? best(fr.map(x => [x, vf.y1])) : null) || (vf.y0 > 0.5 && fr.length ? best(fr.map(x => [x, vf.y0])) : null)
+          || (vf.y0 > 0.5 ? best(wl.filter(x => !cov(x, vf.y0)).map(x => [x, vf.y0])) : null) || (fr.length ? best(fr.map(x => [x, vf.y0])) : null);
+        if (!pick) continue; const [xx, yy] = pick;
         const a = w3P(R, xx, yy, 0), b = w3P(R, xx, yy, vf.z), ed = kbIs('cD', c.id), tt = ed ? kbTxt() : num(Math.abs(vf.z));
         let ang = Math.atan2(b[1] - a[1], b[0] - a[0]); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
         const rr = edimBoxA(tt, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, ang, ed, !!c.D, hyp(b[0] - a[0], b[1] - a[1])); EDL.push({id: e.id, k: 'D', c: c.id, r: rr}); }
