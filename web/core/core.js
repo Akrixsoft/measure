@@ -1642,9 +1642,12 @@
   /* ═══ [BLOCK C-W3P] вид стены v81 (w1, 82.35.3): точка стены (x от левого края, y от пола, z — глубина к зрителю, мм) → px; ∠° — наклон t = (90−a)/45 в пределах −2…2.
      Боковые — на min(1000, длина) по направлению соседней стены в плане; видимость грани — по нормали (w3Vis v81); колонна, короб, ригель, ниша — объёмом ═══ */
   const W3K = 0.6, w3t = () => Math.max(-2, Math.min(2, (90 - W3.a) / 45));
-  const w3Dx = (R, x) => W3K * ((2 * x / (R.w || 1) - 1) + w3t());
-  const w3P = (R, x, y, z) => toS(R.x + x + w3Dx(R, x) * z, R.y + R.h - y + W3K * z);
-  const w3Vis = (R, n, x) => n[0] * -w3Dx(R, x) + n[1] * W3K + n[2] > 0.02;
+  /* 82.35.9 (владелец, скриншот 12.11): 90° — вид прямо: стена под 90° видна торцом (линия), под 180° — продолжением в плоскости стены;
+     наклон ∠° сдвигает глубину параллельно (без разворота в стороны), пол / верх открываются по мере наклона */
+  const w3Dx = (R, x) => W3K * w3t();
+  const w3Dy = () => W3K * 0.5 * Math.abs(w3t());
+  const w3P = (R, x, y, z) => toS(R.x + x + w3Dx(R, x) * z, R.y + R.h - y + w3Dy() * z);
+  const w3Vis = (R, n, x, eps = 0.02) => n[0] * -w3Dx(R, x) + n[1] * w3Dy() + n[2] > eps;
   /* углы стены с отклонениями (v81 w3Set): e.w3d = {A|B|C|D|LT|LB|RT|RB: [dx, dy, dz]} — мм; разворот угла по угольнику — узел плана n.ang = {u|d: {at, mm}} */
   const W3C0 = {A: (R) => [0, R.h, 0], B: (R) => [R.w, R.h, 0], C: (R) => [R.w, 0, 0], D: (R) => [0, 0, 0]};
   const w3dv = (e, k) => (e.w3d && e.w3d[k]) || [0, 0, 0];
@@ -1661,7 +1664,7 @@
       const dT = dirA(aq.u) || dirA(aq.d) || pd, dB = dirA(aq.d) || dirA(aq.u) || pd, cT = sd < 0 ? 'A' : 'B', cB = sd < 0 ? 'D' : 'C', kT = sd < 0 ? 'LT' : 'RT', kB = sd < 0 ? 'LB' : 'RB';
       const P0T = w3C(e, R, cT), P0B = w3C(e, R, cB), P1T = add3(add3(P0T, [dT[0] * Dp, 0, dT[1] * Dp]), w3dv(e, kT)), P1B = add3(add3(P0B, [dB[0] * Dp, 0, dB[1] * Dp]), w3dv(e, kB));
       const nn = sd < 0 ? [dB[1], 0, -dB[0]] : [-dB[1], 0, dB[0]];
-      out.push({sd, o, R, x0, sx: dB[0], sz: dB[1], Dp, kT, kB, cT, cB, P3: {T0: P0T, T1: P1T, B1: P1B, B0: P0B}, vis: w3Vis(R, nn, x0), T0: w3S3(R, P0T), T1: w3S3(R, P1T), B1: w3S3(R, P1B), B0: w3S3(R, P0B)}); }
+      out.push({sd, o, R, x0, sx: dB[0], sz: dB[1], Dp, kT, kB, cT, cB, P3: {T0: P0T, T1: P1T, B1: P1B, B0: P0B}, vis: w3Vis(R, nn, x0, -0.02), T0: w3S3(R, P0T), T1: w3S3(R, P1T), B1: w3S3(R, P1B), B0: w3S3(R, P0B)}); }
     return out; }
   function w3Floor(e, R) { const S = w3Sides(e, R), l = S.find(q => q.sd < 0), r = S.find(q => q.sd > 0);
     return [w3S3(R, w3C(e, R, 'D')), w3S3(R, w3C(e, R, 'C')), r ? r.B1 : w3P(R, R.w, 0, 1000), l ? l.B1 : w3P(R, 0, 0, 1000)]; }
