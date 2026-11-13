@@ -683,10 +683,11 @@
   txIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); TXI.skip = TXI.id; txClose(); } });
   act($('cTxOk'), () => { TXI.skip = TXI.id; txClose(); });
   /* цвет и толщина */
-  function setCol(c) { C.col = c; try { localStorage.setItem('akx-core-col', c); } catch (e) { }
+  function setCol(c) { C.col = c; try { localStorage.setItem('akx-core-col', c); } catch (e) { } document.documentElement.style.setProperty('--cur', c);   // 82.35.23: рамка выбранного инструмента — выбранным цветом
     const q = C.sel && C.sel.t === 'drw' && drw(C.sel.id); if (q && q.c !== c) { begin(); q.c = c; commit(); }
     document.querySelectorAll('[data-zc],[data-tc]').forEach(b => b.classList.toggle('on', (b.dataset.zc || b.dataset.tc) === c)); draw(); }
-  document.querySelectorAll('[data-zc]').forEach(b => act(b, () => setCol(b.dataset.zc)));
+  document.querySelectorAll('[data-zc]').forEach(b => { b.style.setProperty('--zc', b.dataset.zc); act(b, () => setCol(b.dataset.zc)); });   // --zc: круг цвета внутри жёлтого квадрата выбора
+  document.documentElement.style.setProperty('--cur', C.col);
   document.querySelectorAll('#tbCols [data-tc]').forEach(b => act(b, () => setCol(b.dataset.tc)));
   { const i = $('tbLw'), o = $('tbLwV'); if (i) { i.value = LW.v; o.textContent = String(LW.v).replace('.', ',');
     i.oninput = () => { LW.v = +i.value; o.textContent = String(LW.v).replace('.', ','); draw(); }; i.onchange = () => { LW.v = +i.value; try { localStorage.setItem('akx-core-lw', LW.v); } catch (e) { } }; } }

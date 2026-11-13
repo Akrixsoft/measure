@@ -30,7 +30,7 @@ button{font-family:inherit;cursor:pointer}
 #ch .pb{flex:none;position:relative;display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;background:#3a3f47;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef}
 #ch .pb svg{width:20px;height:20px;display:block}
 #ch .pb b{font:700 17px/1 system-ui;color:#e8ebef}
-#ch .pb.on{background:#f6e08a;border-color:#d4a300;box-shadow:inset 0 0 0 1px #d4a300;z-index:1}
+#ch .pb.on{background:#f6e08a;border:3px solid var(--cur,#d4a300);z-index:1}   /* 82.35.23: вариант А — жёлтая заливка, рамка выбранным цветом */
 #ch .pb.on b{color:#1a2027}
 #zpb button{flex:none;display:grid;place-items:center;width:24px;height:24px;padding:0;background:transparent;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:16px system-ui}
 #zpb button svg{width:20px;height:20px;display:block}
@@ -39,7 +39,7 @@ button{font-family:inherit;cursor:pointer}
 #zpAct{display:contents}
 #zpb .zcols{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;padding:0 2px}
 #zpb .cl{width:24px;height:24px;border-radius:50%;border:1px solid #c9ced6}
-#zpb .cl.on{border-radius:4px}
+#zpb .cl.on{border-radius:6px;border:1.5px solid #d4a300;background:radial-gradient(circle,var(--zc) 0 8.5px,#f6e08a 9.5px)!important}   /* 82.35.23: цвет круглый, выбор — жёлтый квадрат */
 #zur{flex:none;display:flex;gap:1px;padding-left:2px;background:#2b2f35}
 #zur button.dis{opacity:.35}
 /* камера / галерея — штатная плашка v79 #fws */
@@ -94,7 +94,7 @@ body.kb #cKb{display:grid}
 #ch .pb.on b.gl{color:#1a2027}
 #zpSlots{display:contents}
 #zpSlots button b.gl{font:700 15px/1 system-ui;color:#e8ebef}
-#zpSlots button.on{background:#f6e08a;border-color:#d4a300}
+#zpSlots button.on{background:#f6e08a;border:3px solid var(--cur,#d4a300)}
 #ch [data-q],#zpSlots [data-q],#tb .tl{touch-action:none}
 #dgGhost{position:fixed;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:none;place-items:center;background:#3a3f47;border:2px solid #f6e08a;border-radius:9px;z-index:30;pointer-events:none;box-shadow:0 8px 18px rgba(0,0,0,.5)}
 #dgGhost.on{display:grid}
