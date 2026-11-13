@@ -738,7 +738,7 @@
     for (const c of D.com) {
       if (!comLay(c)) continue;
       const e = elev(c.e); if (!e) continue; const R = elevRect(e), K = CK[c.k] || CK.roz, sel = (C.sel && C.sel.t === 'com' && C.sel.id === c.id) || inMsel('com', c.id), col = sel ? COL.sel : K.c;
-      if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);
+      if (K.pt) { const z = Math.max(1, PTS(c.k) * V.s), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);   // 82.35.22: в габаритах 71/60 мм на любом масштабе — значки на местах постов
         const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return c.o === 'v' ? [m[0], m[1] - i * z * 0.84] : [m[0] + i * z * 0.84, m[1]]; });
         if (sel) { const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]), bx = Math.min(...xs) - z / 2 - 3, by = Math.min(...ys) - z / 2 - 3, bw = Math.max(...xs) - Math.min(...xs) + z + 6, bh = Math.max(...ys) - Math.min(...ys) + z + 6;
           cx.fillStyle = COL.sel; cx.strokeStyle = '#B89500'; cx.lineWidth = 1.5; cx.fillRect(bx, by, bw, bh); cx.strokeRect(bx, by, bw, bh); }   // 82.35: малый объект — целиком жёлтым
@@ -777,7 +777,7 @@
   }
   function comPx(c) {                                            // для касаний и рамки выделения: {pts px, box px}
     const e = elev(c.e); if (!e) return null; const R = elevRect(e), K = CK[c.k] || CK.roz;
-    if (K.pt) { const z = clamp(PTS(c.k) * V.s, 18, 44), P = postsW(c).map(q => w2s(R, q.x, q.y)); const xs = P.map(q => q[0]), ys = P.map(q => q[1]); return {box: [Math.min(...xs) - z / 2, Math.min(...ys) - z / 2, Math.max(...xs) + z / 2, Math.max(...ys) + z / 2]}; }
+    if (K.pt) { const z = Math.max(24, PTS(c.k) * V.s), P = postsW(c).map(q => w2s(R, q.x, q.y)); const xs = P.map(q => q[0]), ys = P.map(q => q[1]); return {box: [Math.min(...xs) - z / 2, Math.min(...ys) - z / 2, Math.max(...xs) + z / 2, Math.max(...ys) + z / 2]}; }
     if (K.ln) return {line: [w2s(R, c.a[0], c.a[1]), w2s(R, c.b[0], c.b[1])]};
     if (K.pg) return {poly: c.pts.map(t => w2s(R, t[0], t[1]))};
     { const vf = K.D && volFaces(c); if (vf) { const xs = vf.front.map(q => q[0]), ys = vf.front.map(q => q[1]); return {box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]}; } }
@@ -798,7 +798,10 @@
   function B4handle(id, sx, sy) {
     const c = com(id), g = c && comPx(c); if (!g) return null; const K = CK[c.k];
     const pts = K.ln ? g.line : K.pg ? g.poly : K.rc ? [[g.box[0], g.box[1]], [g.box[2], g.box[1]], [g.box[2], g.box[3]], [g.box[0], g.box[3]]] : [];
-    const i = pts.findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); return i >= 0 ? {t: 'com-h', id, i} : null;
+    const i = pts.findIndex(([x, y]) => hyp(x - sx, y - sy) < HR.handle); if (i >= 0) return {t: 'com-h', id, i};
+    if (K.rc) { const [x0, y0, x1, y1] = g.box, tl = Math.min(12, (x1 - x0) / 4, (y1 - y0) / 4), inX = sx > x0 && sx < x1, inY = sy > y0 && sy < y1;   // 82.35.22: за грань — тянется одна сторона
+      const e = inX && Math.abs(sy - y0) < tl ? 4 : inY && Math.abs(sx - x1) < tl ? 5 : inX && Math.abs(sy - y1) < tl ? 6 : inY && Math.abs(sx - x0) < tl ? 7 : -1; if (e >= 0) return {t: 'com-h', id, i: e}; }
+    return null;
   }
   function comBoxW(c) { const g = comPx(c); if (!g) return null; if (g.line) return {seg: g.line.map(([x, y]) => toW(x, y))}; if (g.poly) return {poly: g.poly.map(([x, y]) => toW(x, y))}; const a = toW(g.box[0], g.box[1]), b = toW(g.box[2], g.box[3]); return {x0: a.x, y0: a.y, x1: b.x, y1: b.y}; }
   function comNew(k, e, o) { begin(); const c = {id: uid('c'), k, e: e.id, ...o}; D.com.push(c); C.sel = null; commit(); return c; }   // 82.35.1: после рисования — без выделения
@@ -826,7 +829,7 @@
       draw(); return true; }
     if (g.t === 'cres') { const c = com(g.h.id), R = elevRect(elev(c.e)), w0 = s2w(R, p.x, p.y), sn = objSnap(c, R, [[w0.x]], [[w0.y]]), w = {x: w0.x + (sn.dx || 0), y: w0.y + (sn.dy || 0)}, K = CK[c.k], o = g.o, X = rnd(w.x), Y = rnd(w.y);
       if (K.ln) c[g.h.i ? 'b' : 'a'] = [X, Y]; else if (K.pg) c.pts[g.h.i] = [X, Y];
-      else { const i = g.h.i, xl = i === 0 || i === 3 ? X : o.x, xr = i === 1 || i === 2 ? X : o.x + o.w, yt = i === 0 || i === 1 ? Y : o.y + o.h, yb = i === 2 || i === 3 ? Y : o.y;
+      else { const i = g.h.i, xl = i === 0 || i === 3 || i === 7 ? X : o.x, xr = i === 1 || i === 2 || i === 5 ? X : o.x + o.w, yt = i === 0 || i === 1 || i === 4 ? Y : o.y + o.h, yb = i === 2 || i === 3 || i === 6 ? Y : o.y;   // 4–7: грани верх / право / низ / лево
         c.x = Math.min(xl, xr); c.w = Math.max(10, Math.abs(xr - xl)); c.y = Math.min(yb, yt); c.h = Math.max(10, Math.abs(yt - yb)); }
       draw(); return true; }
     return false;
@@ -2004,7 +2007,7 @@
   function drawFound() {
     for (const f of D.found) { const e = elev(f.e); if (!e) continue; const R = elevRect(e), col = (CK[f.k] || CK.zon).c; cx.strokeStyle = col; cx.lineWidth = 2; cx.setLineDash([3, 3]);
       if (f.k === 'wrt') { const A = w2s(R, f.a[0], f.a[1]), B = w2s(R, f.b[0], f.b[1]); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke(); cx.setLineDash([]); continue; }
-      const z = CK[f.k].pt ? clamp(60 * V.s, 14, 36) : 0, A = CK[f.k].pt ? w2s(R, f.x, f.y) : w2s(R, f.x, f.y + f.h), B = CK[f.k].pt ? null : w2s(R, f.x + f.w, f.y);
+      const z = CK[f.k].pt ? Math.max(1, 60 * V.s) : 0,   /* 82.35.22: в габаритах */ A = CK[f.k].pt ? w2s(R, f.x, f.y) : w2s(R, f.x, f.y + f.h), B = CK[f.k].pt ? null : w2s(R, f.x + f.w, f.y);
       if (B) cx.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); else { cx.beginPath(); cx.arc(A[0], A[1], z / 2, 0, 7); cx.stroke(); }
       cx.setLineDash([]); cx.font = '700 11px system-ui'; cx.fillStyle = col; cx.textAlign = 'left'; cx.textBaseline = 'bottom'; cx.fillText('? ' + (CK[f.k] || {n: f.k}).n + (f.N > 1 ? ' ×' + f.N : ''), A[0] + (B ? 2 : z / 2 + 2), A[1] - 2); }
   }
