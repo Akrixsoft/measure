@@ -1293,7 +1293,7 @@
     if (c.ey === 'C') c.yv = rnd(c.yv + dy); else c.y = rnd(c.y - dy);
   }
   function closeEd(apply) {
-    if (!KB.tg) return; const tg = KB.tg, raw = KB.buf.replace(',', '.'); KB.tg = null; document.body.classList.remove('kb');
+    if (!KB.tg) return; const tg = KB.tg, raw = KB.buf.replace(',', '.'); KB.last = KB.fresh ? {tg: {...tg}, at: Date.now()} : null; KB.tg = null; document.body.classList.remove('kb');
     if (apply) { const v = parseFloat(raw);
       if (tg.t === 'wall') { const w = wall(tg.id); if (w && v > 0 && Math.abs(v - wLen(w)) >= 0.5) setLen(w, v); }
       else if (tg.t === 'fL') { const f = frame(tg.id); if (f && v > 0) mkFrameWall(f, v); }
@@ -1553,16 +1553,9 @@
   window.akrixBtPkt = h => { const b = new Uint8Array(String(h).trim().split(/\s+/).map(x => parseInt(x, 16))), dv = new DataView(b.buffer);
     if (dv.byteLength < 11 || dv.getUint8(0) !== 0xC0 || dv.getUint8(1) !== 0x55 || dv.getUint8(2) !== 0x10) return; const m = dv.getFloat32(7, true); if (!(m > 0 && m < 300)) return; btVal(rnd(m * 1000)); };
   window.akrixBtMsg = t => toast('📡 ' + t);
-  function btVal(mm) { BT.last = mm; if (KB.tg) { KB.buf = String(mm); KB.fresh = false; closeEd(true); toast('📡 ' + mm + ' мм'); } else if (!lqApply(mm)) toast('📡 ' + mm + ' мм · коснись стены или значения — вставить'); }
-  /* ═══ [BLOCK LQ] 82.35.18: лазер по порядку (как v81, R3): поле не открыто — значение в длину выбранной стены (план или развёртка), выбор переходит к следующей незамеренной стене по номеру ═══ */
-  function lqApply(mm) {
-    const s0 = C.sel, w = s0 && (s0.t === 'wall' ? wall(s0.id) : s0.t === 'elev' && elev(s0.id) ? wall(elev(s0.id).wall) : null); if (!w) return false;
-    openKb('wall', w.id); KB.buf = String(mm); KB.fresh = false; closeEd(true);
-    const ws = D.walls.slice().sort((a, b) => (a.gn || 0) - (b.gn || 0)), i = ws.indexOf(w), nx = ws.slice(i + 1).concat(ws.slice(0, i)).find(q => !q.fx);
-    if (nx) { const e = D.elev.find(q => q.wall === nx.id); C.sel = s0.t === 'elev' && e ? {t: 'elev', id: e.id} : {t: 'wall', id: nx.id}; toast('📡 С' + w.gn + ' = ' + mm + ' → С' + nx.gn); }
-    else { C.sel = s0; toast('📡 С' + w.gn + ' = ' + mm + ' · все стены замерены'); }
-    ui(); draw(); return true; }
-  /* ═══ [/BLOCK LQ] ═══ */
+  /* 82.35.19: как в v81 (btField) — поле закрылось касанием до замера (ничего не набрано) → замер идёт в это последнее поле */
+  function btVal(mm) { BT.last = mm; if (!KB.tg && KB.last && Date.now() - KB.last.at < 60000) { const t = KB.last.tg; KB.last = null; openKb(t.t, t.id); Object.assign(KB.tg, t); }
+    if (KB.tg) { KB.buf = String(mm); KB.fresh = false; KB.last = null; closeEd(true); toast('📡 ' + mm + ' мм'); } else toast('📡 ' + mm + ' мм · коснись значения — вставить'); }
   act($('bBtH'), () => { const N = window.AkrixBT; if (!N) { toast('Лазер — только в приложении'); return; } if (BT.st === 'on') { try { N.measure(); } catch (e) { } } else { BT.st = 'wait'; btBtn(); N.connect(); } });
   act($('bSes'), () => prjList('main'));
   const impIn = document.createElement('input'); impIn.type = 'file'; impIn.accept = '.json,application/json'; impIn.hidden = true; document.body.appendChild(impIn);
@@ -1873,11 +1866,11 @@
       if (Math.abs(sx - cx0) <= hw && Math.abs(sy - cy0) <= hh) { const d = hyp(sx - cx0, sy - cy0); if (d < bd) { bd = d; best = {t: 'edim', id: o.id, o, core: sx >= r.x - 4 && sx <= r.x + r.w + 4 && sy >= r.y - 4 && sy <= r.y + r.h + 4}; } } } return best; }
   function edTap(h) {
     const o = h.o, e = elev(h.id), w = e && wall(e.wall); if (!w) return;
-    if (o.k === 'L') { C.sel = {t: 'elev', id: e.id}; openKb('wall', w.id); }
-    else if (o.k === 'H') { C.sel = {t: 'elev', id: e.id}; openKb('wH', e.wall); }   // 82.35.5: высота — этой стены
-    else if (o.k === 'D') { C.sel = {t: 'com', id: o.c}; openKb('cD', o.c); }
-    else if (o.k === 'cW' || o.k === 'cH') { C.sel = {t: 'com', id: o.c}; openKb(o.k, o.c); KB.tg.f = o.f; }   // 82.35.17: какое именно поле — набор видно только в нём
-    else if (o.k === 'eE') { C.sel = {t: 'elev', id: e.id}; openKb('eE', e.id); KB.tg.side = o.side; KB.buf = String(rnd(eEdge(e, o.side))); KB.fresh = true; ui(); draw(); }   // грань — свой размер
+    if (o.k === 'L') { openKb('wall', w.id); }   // 82.35.19: касание поля — сразу ввод, объект не выделяется
+    else if (o.k === 'H') { openKb('wH', e.wall); }   // 82.35.5: высота — этой стены
+    else if (o.k === 'D') { openKb('cD', o.c); }
+    else if (o.k === 'cW' || o.k === 'cH') { openKb(o.k, o.c); KB.tg.f = o.f; }   // 82.35.17: какое именно поле — набор видно только в нём
+    else if (o.k === 'eE') { openKb('eE', e.id); KB.tg.side = o.side; KB.buf = String(rnd(eEdge(e, o.side))); KB.fresh = true; ui(); draw(); }   // грань — свой размер
     else if (o.k === 'seg') { openKb('eSeg', e.id); KB.tg.i = o.i; KB.tg.s = o.s; KB.buf = String(rnd(o.s.v)); }
     ui(); draw();
   }
