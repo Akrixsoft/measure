@@ -25,7 +25,7 @@ require('./qa-h-0015.cjs')(process.argv[2], 9358).then(async h => {
   console.log('DBG', pb, await M(`JSON.stringify([MeasureCore.sel, MeasureCore.kb, MeasureCore.hit ? MeasureCore.hit(${pb[2] - 4}, ${pb[1] + 4}) : 0])`));
   ok('точка выбрана', (await M('MeasureCore.sel && MeasureCore.sel.id')) === 'c1');
   const mods = await M(`[...document.querySelectorAll('#zMods button')].filter(b => b.offsetParent).map(b => b.textContent.trim())`);
-  ok('модификаторы точки: вид ▾, ↔, +⏻, 1–5', ['▾', '↔', '+⏻', '5'].every(s => mods.some(m => m.includes(s))), mods);
+  ok('модификаторы точки: вид ▾, ↔, +⏻, посты «N ▾» (82.35.20 — одна кнопка со списком)', ['розетка ▾', '↔', '+⏻'].every(s => mods.some(m => m.includes(s))) && mods.filter(m => /^[1-5] ▾$/.test(m)).length === 1, mods);
   await shot('point-selected-yellow');
   const cl = async s => { const b = await M(`(() => { const b = [...document.querySelectorAll('#zMods button')].find(b => b.offsetParent && b.textContent.includes(${JSON.stringify(s)})); if (!b) return null; const r = b.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`); if (b) await tap(b[0], b[1]); return !!b; };
   await cl('+⏻'); let c1 = (await doc()).com.find(c => c.id === 'c1'); ok('+⏻ → rv, постов +1', c1.k === 'rv' && c1.N === 3, c1);

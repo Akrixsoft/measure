@@ -139,11 +139,11 @@ body.kb #cKb{display:grid}
 #w3sl.on{display:block}
 #w3sl input{width:100%}
 #w3sl .t{display:flex;justify-content:space-between;color:#9aa3ad;font-size:10px}
-#zMods{align-self:flex-end;display:none;gap:5px;padding:5px;background:#2b2f35;border:1px solid #2a2f37;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#zMods{align-self:flex-end;display:none;gap:4px;padding:5px 8px;background:#2b2f35;border:1px solid #2a2f37;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.45)}
 #zMods.on{display:flex}
-#zMods button{flex:none;min-width:34px;height:34px;padding:0 6px;display:grid;place-items:center;background:#3a3f47;border:1px solid #c9ced6;border-radius:8px;color:#e8ebef;font:600 16px system-ui}
-#zMods button svg{width:22px;height:22px}
-#zMods .opt{font:700 16px system-ui;color:#C9CED6}
+#zMods button{flex:none;min-width:28px;height:28px;padding:0 5px;display:grid;place-items:center;background:#3a3f47;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:600 14px system-ui}   /* 82.35.20: как кнопки двух нижних рядов */
+#zMods button svg{width:20px;height:20px}
+#zMods .opt{font:700 14px system-ui;color:#C9CED6}
 #zMods .opt.on{color:#F2B233}
 #lay label.row{display:flex;gap:10px;align-items:center;font:15px system-ui}
 #lay input{width:20px;height:20px}
@@ -164,9 +164,9 @@ body.kb #cKb{display:grid}
 #cfgS .row span{flex:1}
 #ptK .row{font:15px system-ui}
 /* [BLOCK C-ZI-CSS] 82.35.3: полноцветные значки модификаторов — вкл: жёлтая рамка, выкл: приглушены */
-#zMods button:has(.zi){padding:0;width:38px;height:38px}
+#zMods button:has(.zi){padding:0;width:28px;height:28px}
 #zMods button:has(.zi.on){border:2px solid #F2B233;background:#454b55}
-#zMods .zi svg{width:26px;height:26px;display:block}
+#zMods .zi svg{width:20px;height:20px;display:block}
 #zMods .zi:not(.on) svg{opacity:.45;filter:saturate(.35)}
 /* [BLOCK C-W3PT-CSS] 82.35.4: плоскости (4 угла v81) в #mdT и окно «Угол» выбранной точки */
 #w3pl{position:fixed;left:6px;top:92px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}

@@ -277,6 +277,15 @@
     const A = endPos(from), q0 = toW(sx, sy), L = md('L'), hz = Math.abs(q0.x - A.x) >= Math.abs(q0.y - A.y);
     const sA = surf(from), e = sA && sA.startsWith('e:') ? elev(sA.slice(2)) : null;
     let Q = L ? (hz ? {x: q0.x, y: A.y} : {x: A.x, y: q0.y}) : null;
+    /* ═══ [BLOCK DIM-SWING] 82.35.20: размер / стрелка от точки коммуникации — по направлению взмаха до ближайшей грани (край стены, грань объекта) ═══ */
+    const fc = from.t === 'com' && com(from.id), fpt = fc && CK[fc.k] && CK[fc.k].pt;
+    if (e && md('sn') && fpt && hyp((q0.x - A.x) * V.s, (q0.y - A.y) * V.s) > 12) {
+      const R = elevRect(e), fx = [R.x, R.x + R.w], fy = [R.y, R.y + R.h];
+      for (const c of D.com) { if (c.e !== e.id || !CK[c.k].rc) continue; const b = cRect(c); if (!b) continue; const X0 = R.x + b.x, X1 = X0 + b.w, Y0 = R.y + R.h - b.y - b.h, Y1 = Y0 + b.h;
+        if (hz && A.y >= Y0 - 0.5 && A.y <= Y1 + 0.5) fx.push(X0, X1); if (!hz && A.x >= X0 - 0.5 && A.x <= X1 + 0.5) fy.push(Y0, Y1); }
+      const sg = Math.sign(hz ? q0.x - A.x : q0.y - A.y), cand = (hz ? fx.map(X => X - A.x) : fy.map(Y => Y - A.y)).filter(d => d * sg > 0.5).sort((u, v) => Math.abs(u) - Math.abs(v));
+      if (cand.length) return surfAt(hz ? {x: A.x + cand[0], y: A.y} : {x: A.x, y: A.y + cand[0]}); }
+    /* ═══ [/BLOCK DIM-SWING] ═══ */
     if (L) { const P = endPos(r); if (hz ? Math.abs(P.y - A.y) < 0.5 : Math.abs(P.x - A.x) < 0.5) return r; }   // точка на оси — привязка к ней
     if (e && md('sn')) {                                         // 82.35.3: грани стены и объёмов (колонна, короб…) — привязка размера / стрелки «до грани»
       const R = elevRect(e), q = Q || q0, out = q.x < R.x || q.x > R.x + R.w || q.y < R.y || q.y > R.y + R.h;
@@ -851,7 +860,7 @@
     if (K.pt) B.push([`<span class="opt on" style="font-size:12px">${esc(K.n.split(' ')[0])} ▾</span>`, () => ptKind(c), 'Вид точки: ' + K.n]);
     if (K.ps) B.push([`<span class="opt on">${c.o === 'v' ? '↕' : '↔'}</span>`, () => { begin(); if (c.o === 'v') delete c.o; else c.o = 'v'; commit(); ui(); draw(); }, 'Посты: горизонтально ↔ / вертикально ↕']);
     if (c.k === 'roz' || c.k === 'rv') B.push([`<span class="opt${c.k === 'rv' ? ' on' : ''}">+⏻</span>`, () => { begin(); if (c.k === 'rv') { c.k = 'roz'; c.N = Math.max(1, (c.N || 2) - 1); } else { c.k = 'rv'; c.N = Math.min(5, (c.N || 1) + 1); } if (c.N === 1) delete c.N; commit(); ui(); draw(); }, 'Розетка + выключатель (один блок)']);
-    if (K.ps) for (let n = c.k === 'rv' ? 2 : 1; n <= 5; n++) B.push([`<span class="opt${(c.N || 1) === n ? ' on' : ''}">${n}</span>`, () => { if ((c.N || 1) === n) return; begin(); c.N = n; commit(); ui(); }, n + ' — шаг 71 мм']);
+    if (K.ps) B.push([`<span class="opt on">${c.N || 1} ▾</span>`, () => ptPosts(c), 'Количество постов: ' + (c.N || 1) + ' (шаг 71 мм)']);   // 82.35.20: одна кнопка со списком
     if (K.ln) { const T = rtt(c.t); B.push([`<span class="opt on" style="color:${T[3]}">${T[2]}</span>`, () => { begin(); const i = RTT.findIndex(r => r[0] === c.t); c.t = RTT[(i + 1) % RTT.length][0]; C.rt = c.t; commit(); ui(); toast('Трасса: ' + rtt(c.t)[1]); }, 'Тип трассы: ' + T[1]]); }
     if (K.rc && c.k !== 'kol') B.push(['<span class="opt on" style="font-size:11px">W×H</span>', () => { openKb('cW', c.id); KB.after = () => setTimeout(() => { if (com(c.id)) { openKb('cH', c.id); ui(); draw(); } }, 0); ui(); draw(); }, 'Габарит: ширина × высота, мм']);
     if (K.rc || K.pt) B.push(['⧉', () => { begin(); const o = clone(c); o.id = uid('c'); if (o.ex) o.xv = Math.max(0, o.xv - 300); else o.x += 300; D.com.push(o); C.sel = {t: 'com', id: o.id}; commit(); }, 'Копия рядом']);
@@ -864,6 +873,13 @@
     el.innerHTML = '<div class="hd"><b>Вид точки</b><button data-x>✕</button></div>' + ks.map(k => `<button class="row${k === c.k ? ' cur' : ''}" data-pk="${k}"><span style="color:${CK[k].c}">●</span> ${esc(CK[k].n)}</button>`).join('');
     el.querySelectorAll('[data-pk]').forEach(b => act(b, () => { const k = b.dataset.pk; el.classList.remove('on'); if (!com(c.id) || k === c.k) return; begin(); c.k = k;
       if (!CK[k].ps) { delete c.N; delete c.o; } else if (k === 'rv' && !(c.N >= 2)) c.N = 2; commit(); ui(); draw(); }));
+    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
+  }
+  /* 82.35.20: количество постов — список значений (розетка + выключатель — от 2) */
+  function ptPosts(c) {
+    let el = $('ptN'); if (!el) { el = document.createElement('div'); el.id = 'ptN'; el.className = 'sheet'; document.body.appendChild(el); }
+    const n0 = c.k === 'rv' ? 2 : 1; el.innerHTML = '<div class="hd"><b>Количество постов</b><button data-x>✕</button></div>' + [1, 2, 3, 4, 5].filter(n => n >= n0).map(n => `<button class="row${(c.N || 1) === n ? ' cur' : ''}" data-pn="${n}">${n}</button>`).join('');
+    el.querySelectorAll('[data-pn]').forEach(b => act(b, () => { const n = +b.dataset.pn; el.classList.remove('on'); if (!com(c.id) || (c.N || 1) === n) return; begin(); if (n === 1) delete c.N; else c.N = n; commit(); ui(); draw(); }));
     act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
   }
   function B4kbObj(t, id) { return t === 'eE' ? elev(id) : t === 'wH' ? wall(id) : t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
