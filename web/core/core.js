@@ -251,7 +251,7 @@
       const A = endPos(d.a), B = endPos(d.b), [ax, ay] = toS(A.x, A.y), [bx, by] = toS(B.x, B.y), L = hyp(bx - ax, by - ay); if (L < 2) continue;
       const on = C.sel && C.sel.t === 'dim' && C.sel.id === d.id, ux = (bx - ax) / L, uy = (by - ay) / L, col = on ? COLD.sel : d.c || COLD.line;
       cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = dimLW(on); cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(bx, by); cx.stroke();
-      const hl = zLW(CFG.arrowPx); head(bx, by, ux, uy, hl); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, hl);
+      const hl = Math.max(2, CFG.arrowPx * fk()); head(bx, by, ux, uy, hl); if (d.k !== 'arr' && d.t !== 'one') head(ax, ay, -ux, -uy, hl);
       const val = dimVal(d), edit = KB.tg && KB.tg.t === 'dim' && KB.tg.id === d.id, t = edit ? (KB.buf || ' ') + '▏' : val.kind === 'man' ? val.txt : '?';   // 82.35.14: невведённый — «?»
       let ang = Math.atan2(by - ay, bx - ax); if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
       const fq = edit || on ? 1 : fk(); if (TXP() * fq < 5) continue;   // 82.35.14: поле — в масштабе холста, нечитаемое скрыто
@@ -493,7 +493,7 @@
   function fkE(t, L) { let k = fk(); if (L > 0) { cx.save(); cx.font = `700 ${TXP()}px system-ui`; const tw = Math.max(FLP(), cx.measureText(t).width + FLP() * 0.55); cx.restore(); k = Math.min(k, L * 0.6 / tw); } return k; }   // поле лежит на грани: не длиннее 60 % её длины — у угла не сходится с соседним
   /* ═══ [/BLOCK FSCALE] ═══ */
   const TXP = () => Math.max(6, CFG.textPx * W3.f), FLP = () => Math.max(10, CFG.fieldPx * W3.f, TXP() + 2);
-  const dimLW = sel => zLW(1.6 * LW.v / 3) * (sel ? 1.5 : 1);
+  const dimLW = sel => Math.max(0.6, 1.6 * LW.v / 3 * fk()) * (sel ? 1.5 : 1);   // 82.35.24: линии размеров / стрелок — пропорционально холсту, как поля
   /* поля без наложения (w3Place v81, упрощённо): центр → вдоль линии в её пределах → поперёк (h/2+2, h+6) с обеих сторон; FPL — занятые за кадр */
   const FPL = [];
   const fbox = (X, Y, w, h, a) => { const c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a)), W = w * c + h * s, H = w * s + h * c; return {x: X - W / 2, y: Y - H / 2, w: W, h: H}; };
@@ -740,7 +740,7 @@
       if (!comLay(c)) continue;
       const e = elev(c.e); if (!e) continue; const R = elevRect(e), K = CK[c.k] || CK.roz, sel = (C.sel && C.sel.t === 'com' && C.sel.id === c.id) || inMsel('com', c.id), col = sel ? COL.sel : K.c;
       if (K.pt) { const z = Math.max(1, PTS(c.k) * V.s), P = postsW(c).map(q => w2s(R, q.x, q.y)), im = ico(c.k);   // 82.35.22: в габаритах 71/60 мм на любом масштабе — значки на местах постов
-        const sp = P.length > 1 ? hyp(P[1][0] - P[0][0], P[1][1] - P[0][1]) : 0, Q = sp >= z || P.length < 2 ? P : P.map((_, i) => { const m = w2s(R, c.x, c.y); return c.o === 'v' ? [m[0], m[1] - i * z * 0.84] : [m[0] + i * z * 0.84, m[1]]; });
+        const Q = P;   // 82.35.24: посты — всегда на своих местах (раскладка «шире реальных» убрана: из-за погрешности посты 2+ прыгали)
         if (sel) { const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]), bx = Math.min(...xs) - z / 2 - 3, by = Math.min(...ys) - z / 2 - 3, bw = Math.max(...xs) - Math.min(...xs) + z + 6, bh = Math.max(...ys) - Math.min(...ys) + z + 6;
           cx.fillStyle = COL.sel; cx.strokeStyle = '#B89500'; cx.lineWidth = 1.5; cx.fillRect(bx, by, bw, bh); cx.strokeRect(bx, by, bw, bh); }   // 82.35: малый объект — целиком жёлтым
         FPL.push(...Q.map(([x, y]) => ({x: x - z / 2, y: y - z / 2, w: z, h: z})));   // поля размеров обходят значки точек
