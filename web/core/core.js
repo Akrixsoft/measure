@@ -867,20 +867,21 @@
     if (K.D && c.k !== 'kol') B.push([`<span class="opt${c.D ? ' on' : ''}">Z</span>`, () => { openKb('cD', c.id); ui(); draw(); }, 'Z — глубина, мм: выступ +, ниша −']);
   }
   /* вид точки (82.35): смена типа выбранной точки; посты и ↕ — только у розетки / выключателя */
+  const sheetLow = el => { const z = $('zf'), r = z && z.getBoundingClientRect(); el.style.setProperty('--sheetB', Math.max(8, innerHeight - (r ? r.top : innerHeight - 180) + 6) + 'px'); };   // 82.35.20: окно — снизу, над нижними рядами
   function ptKind(c) {
     let el = $('ptK'); if (!el) { el = document.createElement('div'); el.id = 'ptK'; el.className = 'sheet'; document.body.appendChild(el); }
     const ks = Object.keys(CK).filter(k => CK[k].pt);
     el.innerHTML = '<div class="hd"><b>Вид точки</b><button data-x>✕</button></div>' + ks.map(k => `<button class="row${k === c.k ? ' cur' : ''}" data-pk="${k}"><span style="color:${CK[k].c}">●</span> ${esc(CK[k].n)}</button>`).join('');
     el.querySelectorAll('[data-pk]').forEach(b => act(b, () => { const k = b.dataset.pk; el.classList.remove('on'); if (!com(c.id) || k === c.k) return; begin(); c.k = k;
       if (!CK[k].ps) { delete c.N; delete c.o; } else if (k === 'rv' && !(c.N >= 2)) c.N = 2; commit(); ui(); draw(); }));
-    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
+    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); sheetLow(el); el.classList.add('on');
   }
   /* 82.35.20: количество постов — список значений (розетка + выключатель — от 2) */
   function ptPosts(c) {
     let el = $('ptN'); if (!el) { el = document.createElement('div'); el.id = 'ptN'; el.className = 'sheet'; document.body.appendChild(el); }
     const n0 = c.k === 'rv' ? 2 : 1; el.innerHTML = '<div class="hd"><b>Количество постов</b><button data-x>✕</button></div>' + [1, 2, 3, 4, 5].filter(n => n >= n0).map(n => `<button class="row${(c.N || 1) === n ? ' cur' : ''}" data-pn="${n}">${n}</button>`).join('');
     el.querySelectorAll('[data-pn]').forEach(b => act(b, () => { const n = +b.dataset.pn; el.classList.remove('on'); if (!com(c.id) || (c.N || 1) === n) return; begin(); if (n === 1) delete c.N; else c.N = n; commit(); ui(); draw(); }));
-    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); el.classList.add('on');
+    act(el.querySelector('[data-x]'), () => el.classList.remove('on')); sheetLow(el); el.classList.add('on');
   }
   function B4kbObj(t, id) { return t === 'eE' ? elev(id) : t === 'wH' ? wall(id) : t === 'w3p' ? elev(id) : t === 'cD' || t === 'cOf' || t === 'cW' || t === 'cH' ? com(id) : t === 'eSeg' ? elev(id) : null; }
   function B4kbBuf(t, o) { return t === 'eE' ? '' : t === 'wH' ? String(wHt(o)) : t === 'w3p' ? '' : t === 'cD' ? (o.D ? String(o.D) : '') : t === 'cOf' || t === 'eSeg' ? '' : t === 'cW' ? String(rnd(o.w)) : t === 'cH' ? String(rnd(o.h)) : null; }

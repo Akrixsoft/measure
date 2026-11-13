@@ -119,6 +119,7 @@ body.kb #cKb{display:grid}
 /* [BLOCK C-B6-CSS] Б6: листы «Проекты» и «План помещений», меню строки; лазер подключён */
 .sheet{position:fixed;left:8px;right:8px;top:54px;max-height:70vh;overflow:auto;z-index:40;display:none;background:#fff;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.3);font:15px system-ui;color:#1a2027}
 .sheet.on{display:block}
+#ptK,#ptN{top:auto;bottom:var(--sheetB,180px)}   /* 82.35.20: вид точки и посты — окно снизу, над рядами кнопок */
 .sheet .hd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e2e4e7;position:sticky;top:0;background:#fff}
 .sheet .hd b{flex:1}
 .sheet button{font:600 14px system-ui;background:#f1f3f5;border:1px solid #c9ced6;border-radius:8px;padding:6px 10px;color:#1a2027}

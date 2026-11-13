@@ -25,7 +25,10 @@ require('./qa-h-0015.cjs')(process.argv[3], 9372).then(async h => {
   ok('кнопки третьего ряда — высотой как нижние (28)', mb.h.length && mb.h.every(x => x === mb.ref), mb);
   ok('посты — одна кнопка «1 ▾», ряд влезает в экран', mb.t.filter(t => /^\d ▾$/.test(t)).length === 1 && !mb.t.some(t => /^[2-5]$/.test(t)) && mb.right <= mb.vw, mb.t);
   await shot('mods');
-  await h.btn('#zMods button:nth-child(' + (mb.t.findIndex(t => /^\d ▾$/.test(t)) + 1) + ')'); await W(200); await shot('posts'); await h.btn('#ptN [data-pn="3"]'); await W(200);
+  await h.btn('#zMods button:nth-child(' + (mb.t.findIndex(t => /^\d ▾$/.test(t)) + 1) + ')'); await W(200); await shot('posts'); { const g = await M(`(() => { const a = document.getElementById('ptN').getBoundingClientRect(), z = document.getElementById('zf').getBoundingClientRect(); return {b: Math.round(a.bottom), t: Math.round(a.top), zt: Math.round(z.top), H: innerHeight}; })()`); ok('окно «Количество постов» — снизу, над рядами кнопок', g.b <= g.zt && g.b >= g.zt - 12 && g.t > g.H / 3, g); }
+  await h.btn('#ptN [data-pn="3"]'); await W(200);
   ok('выбор 3 из списка → 3 поста', (await doc()).com.find(c => c.id === 'p1').N === 3);
+  await h.btn('#zMods button:nth-child(1)'); await W(200); await shot('kinds');
+  { const g = await M(`(() => { const a = document.getElementById('ptK').getBoundingClientRect(), z = document.getElementById('zf').getBoundingClientRect(); return {on: document.getElementById('ptK').classList.contains('on'), b: Math.round(a.bottom), zt: Math.round(z.top)}; })()`); ok('окно «Вид точки» — снизу, над рядами кнопок', g.on && g.b <= g.zt && g.b >= g.zt - 12, g); }
   await finish();
 });
