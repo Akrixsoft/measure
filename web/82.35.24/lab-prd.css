@@ -1,0 +1,34 @@
+/* AKX-2026-0013 [BLOCK LAB-PRD]: панель «Изделия» — на месте панели «Зоны» (внизу над полосой #zf, bottom ставит lab-prd.js) */
+#labprd-plan {
+  position: fixed;
+  z-index: 12;
+  left: 8px;
+  bottom: 180px;
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  pointer-events: none;
+}
+#labprd-plan[hidden], body.labprd-on #lab12-plan { display: none }
+#labprd-plan .labprd-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; max-width: 100% }
+#labprd-plan :is(button, select, small) {
+  pointer-events: auto;
+  border: 1px solid var(--ln);
+  border-radius: 6px;
+  color: var(--tx);
+  background: var(--pn);
+  min-height: 32px;
+  padding: 4px 8px;
+  font: 600 13px system-ui;
+}
+#labprd-plan button.on { background: #e8710a; border-color: #e8710a; color: #fff }
+#labprd-plan [data-labprd="close"] { font-weight: 500 }
+#labprd-plan select[data-labprd="type-sel"] { min-width: 150px }
+#labprd-plan small { min-height: 0; font: 500 12px system-ui; opacity: .9 }
+/* как «Зоны» (Д6б): при клавиатуре — один прокручиваемый ряд */
+body.kb #labprd-plan { flex-direction: row; overflow-x: auto; right: 8px; pointer-events: auto }
+body.kb #labprd-plan .labprd-row { display: contents }
+body.kb #labprd-plan > *, body.kb #labprd-plan .labprd-row > * { flex: none }
+body.kb #labprd-plan small { display: none }

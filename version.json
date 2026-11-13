@@ -1,0 +1,236 @@
+{
+ "format": "measure-web-bundle",
+ "v": 1,
+ "version": "82.35.24",
+ "minApk": 82018,
+ "files": [
+  {
+   "path": "akrix_markers.pdf",
+   "sha256": "09b8791a342f6a170ea894cc9cd8b3fc71172c412d17b0404b828a5ee366f306",
+   "size": 81110
+  },
+  {
+   "path": "core.css",
+   "sha256": "49078e94526f085952079a36099e285a9323d716535210a94ed84b83d1fd10fa",
+   "size": 17986
+  },
+  {
+   "path": "core.js",
+   "sha256": "047cf6c362ede56dbe7a11e6b37d00e34d0bdc14b45952c86074606d7fb64b1e",
+   "size": 252791
+  },
+  {
+   "path": "fw-cv.js",
+   "sha256": "2129e49ec4b7cc4bc07a017be45619b8d84dfce0f0966270fb21bb02877561d2",
+   "size": 59688
+  },
+  {
+   "path": "icon-192.png",
+   "sha256": "affb78afd928ac31a9aca462bf2a494e9fed575737bb3dea1544f9252d60be0e",
+   "size": 12650
+  },
+  {
+   "path": "icon-512.png",
+   "sha256": "a6a15bed58e674788ac2d909fdd8b4b6f91e200a2b25a9f2f0667d66525f740a",
+   "size": 37989
+  },
+  {
+   "path": "index.html",
+   "sha256": "057b9dafd26362b74ddace04b413af8fee65ea90f66ba4e53ff37f3b8987d625",
+   "size": 32008
+  },
+  {
+   "path": "lab-autodim.js",
+   "sha256": "dee5b16472d59f5e0af834e77c48d1bf45e7421b5933c5aa7f03c74665b172c0",
+   "size": 17080
+  },
+  {
+   "path": "lab-board.js",
+   "sha256": "bf784cc9432cc76f805a60ab5e655d6cf024738626ed564295c7019ec50d15b4",
+   "size": 31460
+  },
+  {
+   "path": "lab-comms-ui.css",
+   "sha256": "a8f103ff27c759371796f9c6bd753d60009516a03e25a75c1905bf6f8af7d619",
+   "size": 1946
+  },
+  {
+   "path": "lab-comms-ui.js",
+   "sha256": "e1c1ce019527b8d912c5ec914a0fbcc89b4e3a2f38ad2101e144705029bc4f9c",
+   "size": 6689
+  },
+  {
+   "path": "lab-ctx.js",
+   "sha256": "ea97ed302fdb8fbf03af8c984bdb5790c4c9019ae34a44b6ab25bbe1dae3bb3b",
+   "size": 7192
+  },
+  {
+   "path": "lab-export.js",
+   "sha256": "cdb442fd6137fb2b64671e7b556f4d1e1ba072ae4e9861a5cf4772fdcc475aef",
+   "size": 13661
+  },
+  {
+   "path": "lab-floor-routes.js",
+   "sha256": "008899984af667386234b1068c886c221bc9a1c48c2712030df4c7cd7076ce3f",
+   "size": 19978
+  },
+  {
+   "path": "lab-geometry.js",
+   "sha256": "15979b5c474dd3f0530ad173d095a0154935b2795082a636dd892ffbb13975fc",
+   "size": 15585
+  },
+  {
+   "path": "lab-history.js",
+   "sha256": "5a1f34facf0024fb7e5402631832057e0b5e66b8badbb3e72af82d7b74de63e4",
+   "size": 26617
+  },
+  {
+   "path": "lab-icons.js",
+   "sha256": "802b01da91f9d949143e7619cd3072aa90196b31cdea219cb4f54f484a82fd6a",
+   "size": 1019
+  },
+  {
+   "path": "lab-manual.js",
+   "sha256": "51075cfa5d13fdddf904e08ec3f5a4348349991a55ecde3942b84edbe207eeab",
+   "size": 659
+  },
+  {
+   "path": "lab-obj.js",
+   "sha256": "0b06ce9a9dae50fd630b7047bede81407876bbce50367466946a82c3263dd480",
+   "size": 10222
+  },
+  {
+   "path": "lab-placement.js",
+   "sha256": "aaa7dffc6110e2e1bb1d12d5b7f4a1f0d8591453a27e8ca4872def4bd6f47cea",
+   "size": 8334
+  },
+  {
+   "path": "lab-prd.css",
+   "sha256": "35ac291591a11b169ec7f0cb37687becad1ed14b36fc5c7d88e1b02b7d0bb9e3",
+   "size": 1482
+  },
+  {
+   "path": "lab-prd.js",
+   "sha256": "31636d880c388632d6ac06d5db348d475e8a848ebb18d6418bfdfbf1f371b532",
+   "size": 19901
+  },
+  {
+   "path": "lab-projects.css",
+   "sha256": "eac4f3de1f62a3bf26e5855f9eaf00a384d21dc4a0c478e07c3cacaff88eacfb",
+   "size": 8391
+  },
+  {
+   "path": "lab-projects.js",
+   "sha256": "92712d15eb1ddf62ed597488dfdea1dc3efdd6c6c35e156401d6ce9bf60ee3d1",
+   "size": 34140
+  },
+  {
+   "path": "lab-route-catalog.js",
+   "sha256": "21ffab4e80166030daecde99eb5517608ebcf9e9036ad227ce489de260e4d401",
+   "size": 1687
+  },
+  {
+   "path": "lab-route-ui.css",
+   "sha256": "d723b461fbdaaf7e0e975fdc102f5aa41bb0351a448231c913c5729512c61241",
+   "size": 1584
+  },
+  {
+   "path": "lab-route-ui.js",
+   "sha256": "e9b33143d1e4aaa70f1181a309d412dea69636774452e7dc7a3b267dc43c699c",
+   "size": 4886
+  },
+  {
+   "path": "lab-routes.js",
+   "sha256": "d78fd5adf8ce6456745372972c5981c93d859c0d80361340d7555dd310c255b5",
+   "size": 11505
+  },
+  {
+   "path": "lab-sketch.css",
+   "sha256": "3e273f66ee3096ad819090533abd293d0457121b12dde80c417a9b082b05fd90",
+   "size": 2162
+  },
+  {
+   "path": "lab-sketch.js",
+   "sha256": "42d84b3a6038e23bf25566d946e69f596f2033fc87a31c4d9e54b3c2cf29fbe5",
+   "size": 102740
+  },
+  {
+   "path": "lab-snap.js",
+   "sha256": "ebb08fb97f5d5d9875152885679c2d23b472f1f8c5ac90236c969f123f3576bc",
+   "size": 12424
+  },
+  {
+   "path": "lab-store.js",
+   "sha256": "e8184c49a5741005037e5a85a37461dff673af25fb1df54745cdffd6495d42d3",
+   "size": 56575
+  },
+  {
+   "path": "lab-tb.css",
+   "sha256": "dabe3aebea2761cb6c532f1cb806401360b4a7255e5e5ca4c13ba6232d4689cb",
+   "size": 6349
+  },
+  {
+   "path": "lab-tb.js",
+   "sha256": "2b65c685fe232a59dfe8adb14b988714b34d3ca3042702dbbaa572880f24e4c9",
+   "size": 27059
+  },
+  {
+   "path": "lab-title.js",
+   "sha256": "808b99878ff59e35b2813ff0ce6604288b610e6dd1f687544384da91ed42a3ac",
+   "size": 1378
+  },
+  {
+   "path": "lab-ui.css",
+   "sha256": "2b02a7e997e91b627c5894071e15029bfc8bc5fe83a3b70f25df66fd67833cc8",
+   "size": 5108
+  },
+  {
+   "path": "lab-ui.js",
+   "sha256": "8bbb1490cc48be8649bf8c0c337b421a55da8bd95fdf67d749a5d61318ffb45d",
+   "size": 23290
+  },
+  {
+   "path": "lab-update.css",
+   "sha256": "0046b5db3836fe5887ea63ef1765232a7034f3b7fa3a38277cf7b0d7d98c0834",
+   "size": 868
+  },
+  {
+   "path": "lab-update.js",
+   "sha256": "2ff3d3e2159f8249dcec174f10db313f517788d8b316772b4461404ad952f04d",
+   "size": 9070
+  },
+  {
+   "path": "lab-v012.css",
+   "sha256": "4760fd632222c6fac0dba9ee1a76c352e69c22eefbbc78b729ecc3d375cdd228",
+   "size": 1257
+  },
+  {
+   "path": "lab-v012.js",
+   "sha256": "6f2c0413772c80a756d89cbf5e4f6ffbcf06baeb1ae2f43ae62462b59c1cdadd",
+   "size": 43322
+  },
+  {
+   "path": "lab-v013.js",
+   "sha256": "f8faa12be6a9679ce8c7df85e77450f2a4ab3ef58fd84f2a00616e748c123512",
+   "size": 17871
+  },
+  {
+   "path": "lab-version.js",
+   "sha256": "17dfcde3cc9c5e56f70cb99f5993b9c6b61360ed12a497ca0f1e5f023be0dea6",
+   "size": 1785
+  },
+  {
+   "path": "manifest.webmanifest",
+   "sha256": "453b66f0f11c5c32ef3e80f43cc4440c409e89e103578706fd99e34d1827d7e9",
+   "size": 371
+  }
+ ],
+ "base": "web/82.35.24/",
+ "apk": {
+  "versionCode": 82035,
+  "versionName": "82.35.24",
+  "url": "https://raw.githubusercontent.com/Akrixsoft/measure/measure-lab-apk/measure-82.35.24.apk",
+  "sha256": "3b60b61320135bbdb78b863ae8b95fc2c50680b0b3e488dadf05b4dfb9d9df81",
+  "size": 951010
+ }
+}

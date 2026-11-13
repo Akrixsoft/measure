@@ -1,0 +1,6 @@
+/* Measure — автообновление (AKX-2026-0014): тост с действием «Перезапустить» / «Обновить». [BLOCK UPD-TOAST] */
+#labUpd{position:fixed;left:50%;top:124px;transform:translateX(-50%);width:min(92vw,420px);box-sizing:border-box;display:none;align-items:center;gap:8px;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 18px rgba(26,32,39,.22);padding:8px 8px 8px 14px;font-size:14px;z-index:23}
+#labUpd.on{display:flex}
+#labUpd .lab-upd-t{flex:1 1 auto;min-width:0}
+#labUpd .lab-upd-a{flex:none;height:36px;padding:0 12px;border:none;border-radius:8px;background:var(--ac,#1f6fd1);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+#labUpd .lab-upd-x{flex:none;width:32px;height:36px;border:none;background:none;color:var(--mu);font-size:15px;cursor:pointer}

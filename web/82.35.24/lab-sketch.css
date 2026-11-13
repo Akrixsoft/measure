@@ -1,0 +1,20 @@
+/* Measure 82.18 — «Скетч» (lab-sketch.js): единый холст проекта. Своей строки нет; окно ввода; блок выбранного фото подложки — в нижней строке #zpb. Чертёж, план, подложка — штатные инструменты v81. */
+/* ═══ [BLOCK SK-CSS] ═══ */
+#labSketch{display:contents}
+#labSketch .sk-dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:30}
+#labSketch .sk-dlg.on{display:flex}
+#labSketch .sk-dlg .bx{background:#fff;border-radius:14px;padding:14px;width:min(380px,92vw);max-height:80vh;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.3);color:#1A2027;font:14px system-ui}
+#labSketch .sk-dlg h4{margin:0 0 10px}
+#labSketch .sk-dlg label{display:block;margin:8px 0 3px;font-size:13px;color:#555}
+#labSketch .sk-dlg input,#labSketch .sk-dlg select{width:100%;box-sizing:border-box;font:600 16px system-ui;padding:8px;border:1px solid #C9CED6;border-radius:8px;background:#fff}
+#labSketch .sk-dlg .bt{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#labSketch .sk-dlg .bt button{height:40px;padding:0 14px;border-radius:10px;border:1px solid #C9CED6;background:#fff;font:600 14px system-ui}
+#labSketch .sk-dlg .bt .pr{background:#1F6FD1;color:#fff;border-color:#1F6FD1}
+/* ═══ [BLOCK SK-BOARD-CSS] подложка: плавающая плашка фото v81 (#rfb: 🔍 ⤢ 🗑) не показывается — удаление штатной 🗑, углы и стена — в нижней строке ═══ */
+body.lab-sketch #rfb{display:none!important}
+/* ═══ [BLOCK SK-BAR-CSS] блок фото в самой нижней строке: ⌗ (n/4) · ▣ ═══ */
+body.lab-sk-ph #zf>#zpb{display:flex!important}
+#labSkPh{display:contents}
+#labSkPh>.sep{flex:0 0 auto;width:1px;height:26px;background:var(--ln);margin:0 1px}
+#zpb #labSkPh>button[data-skp="cor"]:has(i){width:auto!important;padding:0 3px;gap:2px}
+#labSkPh>button>i{font:700 11px system-ui;font-style:normal;color:#1A2027;white-space:nowrap}

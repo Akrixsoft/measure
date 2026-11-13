@@ -1,0 +1,47 @@
+/* Measure Lab: additive UI rules, loaded after the unchanged v81 styles. */
+:root{--lab-text-px:13px;--lab-field-px:22px}
+#wrowC#wrowC{overflow-x:auto!important;overflow-y:hidden!important;gap:5px;scrollbar-width:thin;touch-action:pan-x;overscroll-behavior-x:contain}
+#wrowC#wrowC button{flex:0 0 28px!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:28px!important;min-height:28px!important;padding:0!important;font-size:11px!important;box-sizing:border-box}
+/* Tool strip occupies its own full-width row; modifiers are a sibling above it. */
+#zf>#zopt{align-self:flex-end!important;flex:none!important;margin-left:auto!important;max-width:100%;overflow-x:auto;min-height:36px}
+#zf>#zb{width:100%;flex-wrap:nowrap!important}
+#zb>#ch,#zb>#ch.pre{flex:1 1 100%!important;width:100%!important;max-width:none!important;min-width:0!important;overflow-x:auto!important;flex-wrap:nowrap!important;padding-left:8px;padding-right:8px}
+#zb>#ch .pb{flex-shrink:0}
+#zf.lab-tool-row>#zb>.zg{display:none!important}
+/* Active numeric inputs and keypad retain the exact v81 CSS. Canvas label sizes remain configurable. */
+#labModal{position:fixed;inset:0;z-index:150;background:#0b1119a6;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+#labModal[hidden]{display:none}
+#labModal .lab-dialog{background:#1b1e23;color:#e8ebef;border:1px solid #4b535e;border-radius:13px;max-width:620px;width:100%;max-height:94dvh;display:flex;flex-direction:column;box-shadow:0 12px 60px #0007;font:13px system-ui}
+#labModal .lab-head{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid #343b45;flex:none}
+#labModal .lab-head b{flex:1;font-size:16px;font-weight:650}
+#labModal button{background:#2b3038;color:#e8ebef;border:1px solid #66717e;border-radius:7px;min-height:34px;padding:6px 11px;font:600 12px system-ui;cursor:pointer}
+#labModal button.lab-primary{background:#1f6fd1;border-color:#1f6fd1;color:#fff}
+#labModal button.lab-close{width:32px;min-height:32px;padding:0}
+#labModal .lab-body{overflow:auto;padding:14px 16px;overscroll-behavior:contain;min-height:0}
+#labModal .lab-foot{padding:12px 16px;border-top:1px solid #343b45;display:flex;gap:8px;justify-content:flex-end;flex:none}
+#labModal .lab-tabs{display:flex;gap:5px;padding:10px 16px 0;flex-wrap:wrap;flex:none}
+#labModal .lab-tabs button.on{background:#f6e08a;color:#1a2027;border-color:#d4a300}
+#labModal .lab-row{display:flex;align-items:center;gap:9px;min-height:48px;border-bottom:1px solid #343b45;padding:8px 0}
+#labModal .lab-row label{flex:1;font-size:12px;line-height:1.5}
+#labModal .lab-row small{display:block;color:#969fab;font-size:10px}
+#labModal .lab-row input[type=range]{width:120px;max-width:35vw;accent-color:#4da3ff}
+#labModal .lab-row input[type=number]{width:54px;height:30px;background:#23272e;border:1px solid #626d7b;border-radius:5px;color:#fff;text-align:center;padding:2px;font:12px system-ui}
+#labModal .lab-row input[type=checkbox]{width:20px;height:20px;accent-color:#1f6fd1;flex:none}
+#labModal .lab-preview{background:#f6f5f1;border-radius:8px;height:112px;overflow:hidden;margin-bottom:8px;position:relative;flex:none}
+#labModal .lab-preview svg{width:100%;height:100%;display:block}
+#labModal .lab-preview small{position:absolute;top:8px;left:10px;color:#85919a;font:10px system-ui}
+#labModal .lab-note{font-size:11px;line-height:1.65;color:#9fa8b4;margin:12px 0}
+#labModal details{margin-top:16px;border:1px solid #434d59;border-radius:8px;padding:10px}
+#labModal summary{cursor:pointer;font-size:12px;color:#c6d1df}
+#labModal #set{position:static!important;display:block!important;inset:auto!important;max-height:none!important;width:auto!important;padding:12px 0!important;border:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important}
+#labModal .lab-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+#labModal .lab-room{display:flex;align-items:center;gap:8px;padding:9px;background:#242a32;border-radius:8px;border:1px solid #465261}
+#labModal .lab-room.on{border-color:#d4a300}
+#labModal .lab-room>div{flex:1;min-width:0}
+#labModal .lab-room b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+#labModal .lab-room small{display:block;font-size:10px;color:#939eac;margin-top:4px}
+#labModal .lab-input{width:100%;height:38px;box-sizing:border-box;background:#23272e;border:1px solid #626d7b;border-radius:7px;color:#fff;padding:8px;margin:6px 0 10px;font:13px system-ui}
+#labModal .lab-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#labModal button:focus-visible,#labModal input:focus-visible,#wrowC button:focus-visible{outline:2px solid #4da3ff;outline-offset:2px}
+#ss .lab-room-help{font:11px/1.6 system-ui;color:#929dac;margin:10px 0;max-width:540px}
+@media(max-width:380px){#labModal{padding:6px}#labModal .lab-body{padding:10px 12px}#labModal .lab-head,#labModal .lab-foot{padding:12px}#labModal .lab-row{gap:5px}#labModal .lab-row input[type=range]{width:85px}#labModal .lab-row label{font-size:11px}}

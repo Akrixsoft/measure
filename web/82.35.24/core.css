@@ -1,0 +1,206 @@
+/* [BLOCK C-CSS] ядро холста — значения штатной компоновки 82.18 / v81 (сняты с experimental.html, 412×797) */
+html,body{margin:0;height:100%;overflow:hidden;background:#eef0f2;font:14px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none;overscroll-behavior:none;color:#e8ebef}
+button{font-family:inherit;cursor:pointer}
+/* шапка #top */
+#top{position:fixed;left:0;right:0;top:0;height:48px;display:flex;align-items:center;gap:2px;padding:0 6px;background:#1b1e23;z-index:5;box-sizing:border-box}
+#top button{position:relative;display:flex;align-items:center;justify-content:center;width:38px;height:38px;padding:0;background:transparent;border:1px solid transparent;border-radius:9px;color:#e8ebef}
+#top button svg{width:24px;height:24px;display:block}
+#top #bDone{color:#2bb673}
+#labPrjT{height:32px;box-sizing:border-box;min-width:60px;max-width:220px;margin:0 6px;padding:0 9px;background:#23272e;border:1px solid #3a4150;border-radius:8px;color:#e8ebef;font:600 13px/30px system-ui}
+#labPrjT::placeholder{color:#7d8794}
+#top .sp{flex:1}
+#zMenu{position:fixed;right:6px;top:46px;display:none;flex-direction:column;background:#2b2f35;border:1px solid #3a4150;border-radius:10px;padding:4px;z-index:9;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#zMenu.on{display:flex}
+#zMenu button{background:none;border:0;color:#e8ebef;font:14px system-ui;text-align:left;padding:10px 12px;border-radius:7px}
+/* холст */
+#cCv{position:fixed;left:0;top:48px;width:100%;height:calc(100% - 48px);display:block;touch-action:none}
+#bFit{position:fixed;right:8px;top:100px;width:38px;height:38px;display:grid;place-items:center;padding:1px 6px;background:#2b2f35;border:1px solid #3a4150;border-radius:10px;color:#e8ebef;font:18px Arial;box-shadow:0 2px 8px rgba(26,32,39,.15);z-index:4}
+/* переключатель вида #mdT (82.18) */
+#mdT{position:fixed;right:8px;top:96px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#mdT button{width:28px;height:28px;border-radius:7px;border:none;background:none;color:#CFD4DC;display:grid;place-items:center;padding:0}
+#mdT button svg{width:20px;height:20px}
+#mdT button.on{background:#F6E08A;color:#1A2027}
+#bFit{top:96px}
+/* две постоянные строки внизу */
+#zf{position:fixed;left:2px;right:2px;bottom:2px;display:flex;flex-direction:column;gap:4px;z-index:5}
+#zb{display:flex;gap:4px;align-items:center}
+#ch,#zpb{display:flex;align-items:center;background:#2b2f35;border:1px solid #2a2f37;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.45);box-sizing:border-box}
+#ch{flex:1;height:40px;padding:5px 8px;gap:4px;overflow-x:auto}
+#zpb{height:36px;padding:5px 6px;gap:1px}
+#ch .pb{flex:none;position:relative;display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;background:#3a3f47;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef}
+#ch .pb svg{width:20px;height:20px;display:block}
+#ch .pb b{font:700 17px/1 system-ui;color:#e8ebef}
+#ch .pb.on{background:#f6e08a;border:3px solid var(--cur,#d4a300);z-index:1}   /* 82.35.23: вариант А — жёлтая заливка, рамка выбранным цветом */
+#ch .pb.on b{color:#1a2027}
+#zpb button{flex:none;display:grid;place-items:center;width:24px;height:24px;padding:0;background:transparent;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:16px system-ui}
+#zpb button svg{width:20px;height:20px;display:block}
+#zpb button.on{background:#f6e08a;border-color:#d4a300;color:#1a2027}
+#zpb .sep{flex:none;width:1px;height:20px;background:#4a515a;margin:0 3px}
+#zpAct{display:contents}
+#zpb .zcols{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;padding:0 2px}
+#zpb .cl{width:24px;height:24px;border-radius:50%;border:1px solid #c9ced6}
+#zpb .cl.on{border-radius:6px;border:1.5px solid #d4a300;background:radial-gradient(circle,var(--zc) 0 8.5px,#f6e08a 9.5px)!important}   /* 82.35.23: цвет круглый, выбор — жёлтый квадрат */
+#zur{flex:none;display:flex;gap:1px;padding-left:2px;background:#2b2f35}
+#zur button.dis{opacity:.35}
+/* камера / галерея — штатная плашка v79 #fws */
+#fws{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:20;display:none;gap:8px;background:#fff;border-radius:12px;padding:6px 8px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+#fws.on{display:flex}
+#fws button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:84px;padding:6px 10px;background:#f1f3f5;border:1px solid #c9ced6;border-radius:9px;color:#1a2027;font:600 13px system-ui}
+#fws button span{font-size:24px}
+/* подрезка — штатная плашка 82.18 (lab-board crBar) */
+#labCrop{position:fixed;left:50%;transform:translateX(-50%);bottom:150px;z-index:60;display:none;gap:8px;background:#fff;border-radius:12px;padding:6px 8px;box-shadow:0 4px 16px rgba(0,0,0,.25);font:600 15px system-ui}
+#labCrop.on{display:flex}
+#labCrop button{white-space:nowrap;min-width:44px;min-height:40px;font:600 15px system-ui;background:#f1f3f5;color:#1a2027;border:1px solid #c9ced6;border-radius:8px;padding:0 10px}
+#labCrop #labCrOk{background:#1f6fd1;color:#fff;border:0;padding:0 14px}
+/* клавиатура размеров — v81 #zkb */
+#cKb{position:fixed;left:0;right:0;bottom:0;height:196px;background:#2B2F35;z-index:12;padding:6px 6px 8px;display:none;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:5px;border-top:1px solid #3A4150;box-sizing:border-box}
+body.kb #cKb{display:grid}
+#cKb button{background:#3A3F47;border:none;border-radius:7px;color:#E8EBEF;font-size:19px;font-weight:500;padding:0;touch-action:manipulation}
+#cKb button:active{background:#4A515A}
+#cKb .ok{background:#C99A1E;color:#1A2027;font-size:15px;font-weight:700;grid-row:span 2}
+/* обновление и тост */
+#cUpd{position:fixed;left:8px;right:8px;top:56px;display:none;align-items:center;gap:8px;background:#1b1e23f0;color:#fff;padding:8px 10px;border-radius:10px;font:600 14px system-ui;z-index:9}
+#cUpd.on{display:flex}#cUpd span{flex:1}#cUpd button{background:#1f6fd1;color:#fff;border:0;border-radius:8px;height:38px;padding:0 12px;font:600 14px system-ui}#cUpd button:empty{display:none}
+#cToast{position:fixed;left:50%;top:58px;transform:translateX(-50%);background:#1b1e23e8;color:#fff;padding:8px 14px;border-radius:10px;font:600 14px system-ui;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90%;text-align:center}
+#cToast.on{opacity:1}
+/* [BLOCK C-CSS-TB] футляр 82.18 (#tb) */
+#tb{position:fixed;left:8px;right:8px;bottom:92px;max-height:calc(100vh - 190px);overflow:auto;display:none;padding:10px 12px;background:#1B1E23;border:1px solid #2A2F37;border-radius:14px;box-shadow:0 10px 26px rgba(0,0,0,.5);z-index:8;box-sizing:border-box;touch-action:none}
+#tb.on{display:block}
+#tb .hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#tb .hd b{color:#E8EBEF;font-size:15px}
+#tb .hd .mu{flex:1;color:#8B93A1;font-size:11px!important}
+#tb .hd button{order:2;height:30px;min-width:30px;background:transparent;border:none;color:#8B93A1;font-size:17px}
+#tb h4{display:none}
+#tb h4#tbCh{display:block;margin:10px 2px 4px;font-size:12px;color:#9aa3ad}
+#tb .gg7{display:flex;flex-direction:column;gap:8px}
+#tb .g{display:grid;grid-template-columns:repeat(8,minmax(0,36px));gap:5px;justify-content:space-between}
+#tb .g[data-lab-g]{justify-content:start;gap:6px}
+#tb .tl{position:relative;width:36px;height:36px;box-sizing:border-box;border-radius:8px;padding:0;background:#2B2F35;border:1.5px solid #3A4150;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#tb .tl.on{border:2px solid var(--c)}
+#tb .tl svg{width:22px;height:22px}
+#tb .tl>span{display:none}
+#tb .tl b.gl{font:700 18px/1 system-ui;color:#e8ebef}
+#tb .cols{display:flex;gap:8px;flex-wrap:wrap;padding:4px 2px}
+#tb .cols button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;padding:0}
+#tb .cols button.on{box-shadow:0 0 0 3px #4ea1ff}
+#tb .addc{width:30px;height:30px;border-radius:50%;border:1.5px dashed #8B93A1;color:#8B93A1;display:grid;place-items:center;font-size:17px;position:relative}
+#tb .addc input{position:absolute;inset:0;opacity:0}
+#tb .lwr{display:flex;align-items:center;gap:10px;margin:4px 2px 0;min-height:26px}
+#tb .lwr span{font-size:12px;color:#9aa3ad}
+#tb .lwr input{flex:1;accent-color:#4DA3FF}
+#tb .lwr b{width:30px;text-align:right;color:#F6E08A;font-size:13px}
+/* строки быстрого доступа и перетаскивание */
+#ch .pb b.gl{font:700 17px/1 system-ui;color:#e8ebef}
+#ch .pb.on b.gl{color:#1a2027}
+#zpSlots{display:contents}
+#zpSlots button b.gl{font:700 15px/1 system-ui;color:#e8ebef}
+#zpSlots button.on{background:#f6e08a;border:3px solid var(--cur,#d4a300)}
+#ch [data-q],#zpSlots [data-q],#tb .tl{touch-action:none}
+#dgGhost{position:fixed;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:none;place-items:center;background:#3a3f47;border:2px solid #f6e08a;border-radius:9px;z-index:30;pointer-events:none;box-shadow:0 8px 18px rgba(0,0,0,.5)}
+#dgGhost.on{display:grid}
+#dgGhost svg{width:24px;height:24px}
+#dgGhost b.gl{font:700 18px/1 system-ui;color:#e8ebef}
+.dg-src{opacity:.35}
+.dg-ins{box-shadow:-3px 0 0 0 #f6e08a!important}
+.dg-ins-end{box-shadow:inset -3px 0 0 0 #f6e08a!important}
+#bDelS.dg-del{background:#e0442b!important;border-color:#e0442b!important}
+#ch.dg-over,#zpb.dg-over{outline:2px dashed #f6e08a;outline-offset:1px}
+#zMenu button{display:block;width:100%}
+
+/* [BLOCK C-B3-CSS] Б3: поле подписи (текст, пин, выноска) — под шапкой, чтобы системная клавиатура не закрывала; опции рисунка; фото скрыты */
+#cTx{position:fixed;left:8px;right:8px;top:54px;z-index:30;display:none;gap:6px;background:#fff;border-radius:12px;padding:6px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+#cTx.on{display:flex}
+#cTxI{flex:1;min-width:0;font:600 16px system-ui;padding:8px 10px;border:1px solid #c9ced6;border-radius:8px;color:#1a2027}
+#cTxOk{font:600 15px system-ui;background:#1f6fd1;color:#fff;border:0;border-radius:8px;padding:0 14px}
+#zpAct .opt{font:700 18px system-ui;color:#C9CED6}
+#zpAct .opt.on{color:#F2B233}
+#zpE.off{opacity:.45}
+
+/* [BLOCK C-B6-CSS] Б6: листы «Проекты» и «План помещений», меню строки; лазер подключён */
+.sheet{position:fixed;left:8px;right:8px;top:54px;max-height:70vh;overflow:auto;z-index:40;display:none;background:#fff;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.3);font:15px system-ui;color:#1a2027}
+.sheet.on{display:block}
+#ptK,#ptN{top:auto;bottom:var(--sheetB,180px)}   /* 82.35.20: вид точки и посты — окно снизу, над рядами кнопок */
+.sheet .hd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e2e4e7;position:sticky;top:0;background:#fff}
+.sheet .hd b{flex:1}
+.sheet button{font:600 14px system-ui;background:#f1f3f5;border:1px solid #c9ced6;border-radius:8px;padding:6px 10px;color:#1a2027}
+.sheet .row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f0f1f3;position:relative;width:100%;box-sizing:border-box;text-align:left;background:#fff;border-radius:0;border-width:0 0 1px}
+.sheet .row.cur{background:#eef5ff}
+.sheet .row .nm{flex:1;text-align:left;background:none;border:0;padding:4px 0}
+.sheet .row .mn{background:none;border:0;font-size:18px}
+.sheet .row span:first-child{flex:1}
+.sheet .mu{color:#8a9099;font-size:12px}
+.sheet .ft{display:flex;gap:8px;padding:10px 12px}
+.pjm{position:absolute;right:40px;top:6px;display:flex;gap:6px;background:#fff;padding:4px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:2}
+#bBtH.bt-on{color:#2e9e4f;filter:drop-shadow(0 0 3px #2e9e4f)}
+#bBtH.bt-wait{opacity:.6}
+
+/* [BLOCK C-W13-CSS] вид стены 82.13 на холсте: ∠° Aa 📐 вверху справа, ползунок; модификаторы — 3-я строка снизу справа, ширина по числу; слои */
+#mdT button{width:auto;min-width:30px;padding:0 7px;font:600 14px system-ui}
+#w3sl{position:fixed;right:8px;top:134px;z-index:7;display:none;width:250px;background:rgba(22,25,30,.95);color:#e8ebef;border-radius:10px;padding:8px 10px;font:12px system-ui;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#w3sl.on{display:block}
+#w3sl input{width:100%}
+#w3sl .t{display:flex;justify-content:space-between;color:#9aa3ad;font-size:10px}
+#zMods{align-self:flex-end;display:none;gap:4px;padding:5px 8px;background:#2b2f35;border:1px solid #2a2f37;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#zMods.on{display:flex}
+#zMods button{flex:none;min-width:28px;height:28px;padding:0 5px;display:grid;place-items:center;background:#3a3f47;border:1px solid #c9ced6;border-radius:7px;color:#e8ebef;font:600 14px system-ui}   /* 82.35.20: как кнопки двух нижних рядов */
+#zMods button svg{width:20px;height:20px}
+#zMods .opt{font:700 14px system-ui;color:#C9CED6}
+#zMods .opt.on{color:#F2B233}
+#lay label.row{display:flex;gap:10px;align-items:center;font:15px system-ui}
+#lay input{width:20px;height:20px}
+
+/* [BLOCK C-REST-CSS] выбор стен С1-Сn вверху (82.13) */
+#wChips{position:fixed;left:6px;right:6px;top:52px;z-index:6;display:none;gap:4px;overflow-x:auto;padding:2px}
+#wChips.on{display:flex}
+#wChips button{flex:none;min-width:34px;height:28px;border-radius:7px;border:1px solid #c9ced6;background:#2b2f35;color:#e8ebef;font:700 13px system-ui}
+#wChips button.on{background:#F6E08A;color:#1A2027;border-color:#d4a300}
+#wChips button.no{opacity:.6}
+/* [BLOCK C-CFG-CSS] 82.35: окно «Настройки Measure Lab», вид точки */
+#cfgS .ctb{display:flex;gap:6px;padding:8px 12px}
+#cfgS .ctb button.on,#cfgS .row button.on{background:#1f6fd1;border-color:#1f6fd1;color:#fff}
+#cfgS .cpv{padding:6px 12px}
+#cfgS .cpv svg{width:100%;height:auto;background:#f6f5f1;border-radius:8px}
+#cfgS .cr{display:grid;grid-template-columns:1fr 1.2fr 58px 18px;align-items:center;gap:6px;padding:6px 12px}
+#cfgS .cr input[type=number]{width:54px;font:14px system-ui}
+#cfgS .row span{flex:1}
+#ptK .row{font:15px system-ui}
+/* [BLOCK C-ZI-CSS] 82.35.3: полноцветные значки модификаторов — вкл: жёлтая рамка, выкл: приглушены */
+#zMods button:has(.zi){padding:0;width:28px;height:28px}
+#zMods button:has(.zi.on){border:2px solid #F2B233;background:#454b55}
+#zMods .zi svg{width:20px;height:20px;display:block}
+#zMods .zi:not(.on) svg{opacity:.45;filter:saturate(.35)}
+/* [BLOCK C-W3PT-CSS] 82.35.4: плоскости (4 угла v81) в #mdT и окно «Угол» выбранной точки */
+#w3pl{position:fixed;left:6px;top:92px;z-index:6;display:flex;gap:1px;background:rgba(22,25,30,.95);border-radius:9px;padding:1px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#w3pl:empty{display:none}
+#w3pl button{min-width:32px;height:30px;border-radius:7px;border:none;background:none;color:#CFD4DC;display:grid;place-items:center;padding:0 7px;font:600 14px system-ui}
+#w3pl button svg{width:22px;height:22px}
+#w3pl button.on{background:#F6E08A;color:#1A2027}
+#w3x{position:fixed;left:8px;top:132px;z-index:7;display:none;background:rgba(30,33,38,.96);color:#E8EBEF;border-radius:12px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.45);font:13px system-ui;max-width:calc(100vw - 16px)}
+#w3x.on{display:block}
+#w3x.lo{top:auto;bottom:250px}
+#w3x .h{color:#AEB5BF;font-size:12px;margin-bottom:6px}
+#w3x .r{display:flex;align-items:center;gap:6px;margin:4px 0}
+#w3x b{font:700 15px system-ui;width:14px;text-align:center}
+#w3x b.X{color:#E5484D}#w3x b.Y{color:#2BB673}#w3x b.Z{color:#3D9BFF}#w3x b.a{width:auto;color:#B57BFF;font-size:14px}
+#w3x button{min-width:64px;height:30px;padding:0 8px;background:#1a1d22;border:1px solid #5a616c;border-radius:6px;color:#fff;font:600 15px system-ui;text-align:left}
+#w3x .an button{min-width:48px}
+#w3x button.ed{border-color:#F2B233;background:#2a2610}
+#w3x small{color:#AEB5BF;font-size:11px;line-height:1.1}
+#w3x svg{width:20px;height:20px}
+/* [BLOCK C-WH-CSS] 82.35.5: третий ряд снизу — слева высота выбранной стены, справа модификаторы */
+#zRow3{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+#zRow3>*{pointer-events:auto}
+#zMods{margin-left:auto}
+#wHf{display:none;align-items:center;gap:6px;padding:5px 8px;background:#2b2f35;border:1px solid #2a2f37;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.45);color:#E8EBEF;font:600 14px system-ui}
+#wHf.on{display:flex}
+#wHf b{color:#3D9BFF;font:700 16px system-ui}
+#wHf button{min-width:76px;height:38px;padding:0 10px;background:#1a1d22;border:1px solid #5a616c;border-radius:8px;color:#fff;font:700 16px system-ui}
+#wHf button.ed{border-color:#F2B233;background:#2a2610}
+#wHf small{color:#AEB5BF;font-size:11px}
+/* [BLOCK C-VW-CSS] 82.35.6: вкладки стен — на всю ширину; ∠° Aa 📐 — шагом ниже справа; под ними — план ⇄ развёртка и развёртка вкл / выкл */
+#vwB{position:fixed;right:8px;top:138px;z-index:6;display:none;flex-direction:column;gap:8px}
+#vwB.on{display:flex}
+#vwB button{width:48px;height:48px;border-radius:12px;background:#2b2f35;border:2px solid #F2B233;display:grid;place-items:center;padding:0;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+#vwB button svg{width:34px;height:34px}
+#vwB button.na{border-color:#5a616c;opacity:.45}
+#vwOff .i1{display:none}#vwOff.off .i2{display:none}#vwOff.off .i1{display:block}   /* 82.35.7: в работе — яркий значок, выключена — перечёркнутый крестом */
